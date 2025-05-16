@@ -1,0 +1,359 @@
+﻿<!doctype html>
+<html lang="en" data-bs-theme="">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Trang chủ | TOOLFB.VN</title>
+        <link href="css/libs.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+
+        <!--script src="https://tally.so/widgets/embed.js"></script-->
+        <script src="js/jquery.js"></script>
+        <link rel="shortcut icon" href="img/favicon.png">
+        
+    </head>
+    <body class="folded">
+        
+        <div id="pageLoading"></div>
+
+        <!-- <div id="loadingScreen" class="d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-secondary" role="status"></div>
+        </div> -->
+        <div id="app" data="via">
+
+            <div id="header">
+                <div class="header-top">
+                    <div class="row align-items-center h-100">
+                        <div class="col-4">
+                            <span class="titleBar fw-medium d-flex align-items-center">TOOLFB.VN <span class="appVersion ms-2 fw-medium"></span></span>
+                        </div>
+                        <div class="col-4 d-flex justify-content-center">
+                            <div class="rounded row fw-medium" style="height: 35px; line-height: 25px; padding: 5px;width:350px;">
+                                <a class="col text-decoration-none mx-1 text-black bg-white rounded shadow text-center d-block" href="javascript:;">HOME</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="clone.html">CLONE</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="ads.html">TKQC</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="bm.html">TK BM</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="page.html">PAGE</a>
+                            </div>
+                        </div>
+                        <div class="col-4 d-flex justify-content-end">
+                            <div id="quality"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="app-wrapper rounded overflow-hidden d-flex shadow">
+                <div class="account-wrapper d-flex flex-column overflow-hidden flex-grow-1 position-relative overflow-hidden">
+
+                    <div class="border-bottom bg-white dark-border dark-body-bg" style="z-index: 101;">
+                        <div class="p-3 d-flex justify-content-between" style="height: 59px;">
+                            <div class="d-flex py-1">
+                                <div class="d-flex align-items-center border-end pe-3 me-3">
+                                    <a href="https://dashboard.toolfb.vn/" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
+                                        <img src="public/assets/img/menu.png" height="25" width="25" class="me-3">
+                                        <strong style="font-size: 14px;">Trang chủ</strong>
+                                    </a>
+                                </div>
+                                <div class="d-flex align-items-center border-end pe-3 me-3">
+                                    <a href="https://dashboard.toolfb.vn/client/recharge" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
+                                        <img src="public/assets/img/dollar2.png" height="25" width="25" class="me-3">
+                                        <strong style="font-size: 14px;">Nạp tiền</strong>
+                                    </a>
+                                </div>
+                                <div class="d-flex align-items-center border-end pe-3 me-3">
+                                    <a href="https://dashboard.toolfb.vn/client/buy" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
+                                        <img src="public/assets/img/cart.png" height="25" width="25" class="me-3">
+                                        <strong style="font-size: 14px;">Mua gói</strong>
+                                    </a>
+                                </div>
+                                <div class="d-flex align-items-center border-end pe-3 me-3">
+                                    <a href="https://dashboard.toolfb.vn/client/sesions" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
+                                        <img src="public/assets/img/lock.png" height="25" width="25" class="me-3">
+                                        <strong style="font-size: 14px;">Phiên hoạt động</strong>
+                                    </a>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <a href="https://dashboard.toolfb.vn/client/orders" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
+                                        <img src="public/assets/img/history.png" height="25" width="25" class="me-3">
+                                        <strong style="font-size: 14px;">Lịch sử</strong>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 px-3">
+                                
+                            </div>
+            
+                            <div class="position-relative h-100 d-flex">
+                                <a href="https://t.me/+e2FWMUnQPjZiNjA9" target="_blank" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap">
+                                    <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Hỗ trợ
+                                </a>
+                                <button type="button" class="text-nowrap shadow-sm control-btn btn border px-2 pe-3 h-100" data-bs-toggle="modal" data-bs-target="#settingModal">
+                                    <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Cài đặt
+                                </button>
+                            </div>
+
+                            <div id="userInfo">
+                                <div class="d-flex justify-content-between border-start ms-3 ps-3 h-100" style="width:calc(350px - 1rem)">
+                                    <div class="d-flex flex-column">
+                                        <div class="position-relative">
+                                            
+                                            <div class="d-flex align-items-center flex-wrap">
+                                                <div class="rounded-circle overflow-hidden" style="width: 33px;">
+                                                    <div class="skeleton rounded-circle" style="width: 33px; height: 33px"></div>
+                                                </div>
+                                                <div class="ps-2" style="width: calc(100% - 33px)">
+                                                    <span class="d-block skeleton rounded" style="width: 150px; height: 10px; margin-bottom: 9px;"></span>
+                                                    <span class="d-block skeleton rounded" style="width: 120px; height: 10px;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+
+                    <div id="gridLoading" class="d-flex align-items-center justify-content-center"></div>
+
+                    <div id="viaPanel" class="dark-bg overflow-auto h-100 p-3 position-relative" style="background-color: #f5f5f5;">
+                        
+                        <div class="container py-3" style="max-width: 1208px;">
+
+                            <div id="viaInfo"></div>
+
+                            <div class="row mb-4">
+                                
+                                <div class="col" id="balance">
+                                    <div class="card rounded-4 shadow-sm border-0 p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="">
+                                                <strong class="fs-5 mb-2 d-block">Đăng nhập ToolFB.vn</strong>
+                                                <a target="_blank" href="https://dashboard.toolfb.vn/client/login" class="btn btn-primary">Đăng nhập ngay</a>
+                                            </div>
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(249 116 132 / 20%)">
+                                                <i class="ri-user-line fs-3" style="color: #ff6384"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="card rounded-4 shadow-sm border-0 p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="">
+                                                <strong class="fs-5 mb-2 d-block">Tài khoản BM</strong>
+                                                <strong class="fs-2" id="countBm">0</strong>
+                                            </div>
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(135 75 209 / 20%)">
+                                                <i class="ri-briefcase-line fs-3" style="color: #874bd1"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col">
+                                    <div class="card rounded-4 border-0 p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="">
+                                                <strong class="fs-5 mb-2 d-block">Tài khoản QC</strong>
+                                                <strong class="fs-2" id="countAds">0</strong>
+                                            </div>
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(253 172 47 / 20%)">
+                                                <i class="ri-megaphone-line fs-3" style="color: #fdac2f"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col">
+                                    <div class="card rounded-4 shadow-sm border-0 p-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="">
+                                                <strong class="fs-5 mb-2 d-block">Trang</strong>
+                                                <strong class="fs-2" id="countPage">0</strong>
+                                            </div>
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(82 166 246 / 20%)">
+                                                <i class="ri-flag-line fs-3" style="color: #52a6f6;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+
+                                    <div class="card rounded-4 shadow-sm border-0 p-0 mb-4">
+                                        <div class="d-flex justify-content-between p-3 align-items-center">
+                                            <strong class="fs-5">Top BM</strong>
+                                            <a href="bm.html" class="d-flex align-items-center text-decoration-none"><i class="ri-external-link-line ms-2 fs-5"></i></a>
+                                        </div>
+                                        <div id="topBm">
+                                            <div class="p-3 border-top text-center">
+                                                <p>Chưa có dữ liệu</p>
+                                                <button id="loadBm" class="btn btn-primary btn-sm">Tải dữ liệu</button>
+                                            </div>
+                                        </div>
+                                    </div>  
+                                    
+                                    <div class="card rounded-4 shadow-sm border-0 p-0 overflow-hidden p-3 d-none" id="bmChart">
+                                        <div class="mb-3">
+                                            <strong class="fs-5">Thống kê BM</strong>
+                                        </div>
+                                        <div class="px-5"><canvas></canvas></div>
+                                    </div>
+                                </div>
+                                <div class="col-4"> 
+
+                                    <div class="card rounded-4 shadow-sm border-0 p-0 mb-4">
+                                        <div class="d-flex justify-content-between p-3 align-items-center">
+                                            <strong class="fs-5">Top TKQC</strong>
+                                            <a href="ads.html" class="d-flex align-items-center text-decoration-none"><i class="ri-external-link-line ms-2 fs-5"></i></a>
+                                        </div>
+                                        <div id="topAds">
+                                            <div class="p-3 border-top text-center">
+                                                <p>Chưa có dữ liệu</p>
+                                                <button id="loadAds" class="btn btn-primary btn-sm">Tải dữ liệu</button>
+                                            </div>
+                                        </div>
+                                    </div> 
+
+                                    <div class="card rounded-4 shadow-sm border-0 p-0 overflow-hidden d-none" id="adData">
+                                        <div class="d-flex align-items-center justify-content-between p-3" id="adSelect">
+                                            <select class="form-select"></select>
+                                        </div>
+                                        <div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-flag-line"></i> <span class="ms-2">Trạng thái tài khoản</span></strong>
+                                                <span class="fw-medium" id="t1"></span>
+                                            </div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-coin-line"></i> <span class="ms-2">Giới hạn chi tiêu ngày</span></strong>
+                                                <span class="fw-medium" id="t2"></span>
+                                            </div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-line-chart-fill"></i> <span class="ms-2">Ngưỡng hiện tại</span></strong>
+                                                <span class="fw-medium" id="t3"></span>
+                                            </div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-pie-chart-line"></i> <span class="ms-2">Tổng chi tiêu</span></strong>
+                                                <span class="fw-medium" id="t4"></span>
+                                            </div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-wallet-line"></i> <span class="ms-2">Số dư</span></strong>
+                                                <span class="fw-medium" id="t5"></span>
+                                            </div>
+                                            <!-- <div class="border-bottom"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-wallet-line"></i> <span class="ms-2">Ngày tạo tài khoản</span></strong>
+                                                <span class="fw-medium" id="t6"></span>
+                                            </div>
+                                            <div class="border-bottom"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-wallet-line"></i> <span class="ms-2">Ngày lập hóa đơn</span></strong>
+                                                <span class="fw-medium" id="t7"></span>
+                                            </div> -->
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-eye-off-line"></i> <span class="ms-2">Quản trị viên ẩn</span></strong>
+                                                <span class="fw-medium" id="t8"></span>
+                                            </div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-account-circle-line"></i> <span class="ms-2">Loại tài khoản</span></strong>
+                                                <span class="fw-medium" id="t9"></span>
+                                            </div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-earth-line"></i> <span class="ms-2">Múi giờ</span></strong>
+                                                <span class="fw-medium" id="t10"></span>
+                                            </div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-bank-card-2-line"></i> <span class="ms-2">Thẻ thanh toán</span></strong>
+                                                <span class="fw-medium" id="t11"></span>
+                                            </div>
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="d-flex justify-content-between p-3">
+                                                <strong><i class="text-primary ri-shield-line"></i> <span class="ms-2">Quyền tài khoản</span></strong>
+                                                <span class="fw-medium" id="t12"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    
+                                    <div class="card rounded-4 shadow-sm border-0 p-0 mb-4">
+                                        <div class="d-flex justify-content-between p-3 align-items-center">
+                                            <strong class="fs-5">Top Page</strong>
+                                            <a href="page.html" class="d-flex align-items-center text-decoration-none"><i class="ri-external-link-line ms-2 fs-5"></i></a>
+                                        </div>
+                                        <div id="topPage">
+                                            <div class="border-bottom opacity-50"></div>
+                                            <div class="p-3 text-center">
+                                                <p>Chưa có dữ liệu</p>
+                                                <button id="loadPage" class="btn btn-primary btn-sm">Tải dữ liệu</button>
+                                            </div>
+                                        </div>
+                                    </div> 
+
+                                    <div class="card rounded-4 shadow-sm border-0 p-0 mb-4">
+                                        <div class="d-flex justify-content-between p-3 align-items-center">
+                                            <strong class="fs-5">Lịch sử cập nhật</strong>
+                                        </div>
+                                        <div class="border-bottom opacity-50"></div>
+                                        <div class="p-3" style="height: 400px; overflow-y: auto;">
+                                            <div id="versions"></div>
+                                        </div>
+                                    </div> 
+
+                                </div>
+                            </div>
+                            
+                        </div>
+        
+                    </div>
+
+                    <iframe id="iframe" src="" style="position: absolute;width:0;height:0;border:0;"></iframe>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="modal fade" id="settingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Cài đặt</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <iframe src="setting.html" border="0" width="100%" height="500px"></iframe>
+                    </div>
+                    <div class="modal-footer d-flex">
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Lưu cài đặt</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Đóng</button>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        
+        <script src="js/test.js"></script>
+        <script src="js/chart.js"></script>
+        <script src="js/libs.js"></script>
+        <script src="js/via.js"></script>
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

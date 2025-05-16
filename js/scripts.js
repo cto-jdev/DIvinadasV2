@@ -1,0 +1,1488 @@
+const url = new URL(location.href);
+const extId = url.searchParams.get("extId") ? url.searchParams.get("extId") : localStorage.getItem("extId");
+$("[data-tooltip]").tinyTooltip();
+const checkExtension = async function () {
+  try {
+    await checkUser();
+  } catch {
+    $("#pageLoading").addClass("d-none");
+    $("#gridLoading").addClass("d-none");
+    Swal.fire({
+      icon: "error",
+      title: "Đã xảy ra lỗi",
+      html: "Bạn chưa cài đặt extension <strong>ToolFB.vn</strong> hoặc extension chưa được kích hoạt",
+      allowOutsideClick: false,
+      showConfirmButton: true,
+      confirmButtonText: "Download Extension ToolFB.vn",
+      confirmButtonColor: "#4267B2"
+    }).then(p5 => {
+      if (p5.isConfirmed) {
+        window.open("https://dashboard.toolfb.vn/client/download", "_blank").focus();
+        location.reload();
+      }
+      return false;
+    });
+  }
+};
+checkExtension();
+function checkUser() {
+  return new Promise(async (p6, p7) => {
+    try {
+      const v12 = await chrome.runtime.sendMessage(extId, {
+        type: "checkUser"
+      });
+      p6(v12);
+    } catch (e2) {
+      p7(e2);
+    }
+  });
+}
+function getVersion() {
+  return new Promise(async (p8, p9) => {
+    try {
+      const v13 = await chrome.runtime.sendMessage(extId, {
+        type: "getVersion"
+      });
+      p8(v13);
+    } catch (e3) {
+      p9(e3);
+    }
+  });
+}
+function getVersionTxt() {
+  return new Promise(async (p10, p11) => {
+    try {
+      const v14 = await chrome.runtime.sendMessage(extId, {
+        type: "getVersionTxt"
+      });
+      if (v14) {
+        p10(v14);
+      } else {
+        p11();
+      }
+    } catch (e4) {
+      p11(e4);
+    }
+  });
+}
+function getKey() {
+  return new Promise(async (p12, p13) => {
+    try {
+      const v15 = await chrome.runtime.sendMessage(extId, {
+        type: "getKey"
+      });
+      p12(v15);
+    } catch (e5) {
+      p13(e5);
+    }
+  });
+}
+function fetch2(p14, p15 = {}) {
+  return new Promise((p16, p17) => {
+    const vO6 = {
+      type: "fetch",
+      url: p14,
+      options: p15
+    };
+    chrome.runtime.sendMessage(extId, vO6, function (p18) {
+      if (!p18.error) {
+        p16(p18);
+      } else {
+        p17(p18.error);
+      }
+    });
+  });
+}
+function getCookie() {
+  return new Promise(async (p19, p20) => {
+    try {
+      const v16 = await chrome.runtime.sendMessage(extId, {
+        type: "getCookie"
+      });
+      p19(v16);
+    } catch (e6) {
+      p20(e6);
+    }
+  });
+}
+function emptyCookie(p21 = "facebook.com") {
+  return new Promise(async (p22, p23) => {
+    try {
+      const vO8 = {
+        type: "emptyCookie",
+        domain: p21
+      };
+      await chrome.runtime.sendMessage(extId, vO8);
+      p22();
+    } catch (e7) {
+      p23(e7);
+    }
+  });
+}
+function uploadImage(p24, p25, p26, p27, p28) {
+  return new Promise(async (p29, p30) => {
+    try {
+      const vO9 = {
+        type: "uploadImage",
+        textData: p24,
+        data: p25,
+        bmId: p26,
+        uid: p27,
+        dtsg: p28
+      };
+      const v17 = await chrome.runtime.sendMessage(extId, vO9);
+      p29(v17);
+    } catch (e8) {
+      p30(e8);
+    }
+  });
+}
+function getBase64(p31) {
+  return new Promise(async (p32, p33) => {
+    try {
+      const vO10 = {
+        type: "getBase64",
+        url: p31
+      };
+      const v18 = await chrome.runtime.sendMessage(extId, vO10);
+      p32(v18);
+    } catch (e9) {
+      p33(e9);
+    }
+  });
+}
+function setCookie(p34) {
+  return new Promise(async (p35, p36) => {
+    try {
+      await emptyCookie();
+      const vO11 = {
+        type: "setCookie",
+        cookie: p34
+      };
+      await chrome.runtime.sendMessage(extId, vO11);
+      p35();
+    } catch (e10) {
+      p36(e10);
+    }
+  });
+}
+function newTab(p37) {
+  return new Promise(async (p38, p39) => {
+    try {
+      const vO12 = {
+        type: "newTab",
+        url: p37
+      };
+      await chrome.runtime.sendMessage(extId, vO12);
+      p38();
+    } catch (e11) {
+      p39(e11);
+    }
+  });
+}
+function getAllLocalStore() {
+  return new Promise(async (p40, p41) => {
+    try {
+      const v19 = await chrome.runtime.sendMessage(extId, {
+        type: "getAllLocalStore"
+      });
+      p40(v19);
+    } catch (e12) {
+      p41(e12);
+    }
+  });
+}
+function setLocalStorage(p42, p43) {
+  return new Promise(async (p44, p45) => {
+    try {
+      const vO14 = {
+        type: "setLocalStorage",
+        key: p42,
+        data: p43
+      };
+      await chrome.runtime.sendMessage(extId, vO14);
+      p44();
+    } catch (e13) {
+      p45(e13);
+    }
+  });
+}
+function removeLocalStorage(p46) {
+  return new Promise(async (p47, p48) => {
+    try {
+      const vO15 = {
+        type: "removeLocalStorage",
+        name: p46
+      };
+      await chrome.runtime.sendMessage(extId, vO15);
+      p47();
+    } catch (e14) {
+      p48(e14);
+    }
+  });
+}
+function getLocalStorage(p49) {
+  return new Promise(async (p50, p51) => {
+    try {
+      const vO16 = {
+        type: "getLocalStorage",
+        name: p49
+      };
+      const v20 = await chrome.runtime.sendMessage(extId, vO16);
+      p50(v20);
+    } catch (e15) {
+      p51(e15);
+    }
+  });
+}
+function clearLocalStorage() {
+  return new Promise(async (p52, p53) => {
+    try {
+      const vO17 = {
+        type: "clearLocalStorage",
+        name: name
+      };
+      await chrome.runtime.sendMessage(extId, vO17);
+      p52();
+    } catch (e16) {
+      p53(e16);
+    }
+  });
+}
+function reloadExtension() {
+  return new Promise(async (p54, p55) => {
+    try {
+      await chrome.runtime.sendMessage(extId, {
+        type: "reloadExtension"
+      });
+      p54();
+    } catch (e17) {
+      p55(e17);
+    }
+  });
+}
+$(".currencyMenu a").click(async function () {
+  const v21 = $(this).text();
+  $(".currentCurrency").text(v21);
+  convertCurrency(v21);
+  await setLocalStorage("currency", v21);
+});
+function convertCurrency(p56 = "") {
+  $(".currency").each(function () {
+    const v22 = $(this).attr("data-currency");
+    const v23 = $(this).attr("data-value");
+    if (p56 === "USD") {
+      const vNumber = Number((v23 / rates[v22]).toFixed(2));
+      $(this).html(new Intl.NumberFormat("en-US").format(vNumber).replace("NaN", ""));
+    } else if (p56 === "VND") {
+      const vNumber2 = Number((v23 / rates[v22] * rates.VND).toFixed(0));
+      $(this).html(new Intl.NumberFormat("en-US").format(vNumber2).replace("NaN", ""));
+    } else {
+      $(this).html(new Intl.NumberFormat("en-US").format(v23).replace("NaN", ""));
+    }
+  });
+}
+function copy(p57) {
+  navigator.clipboard.writeText(p57);
+  Swal.fire({
+    title: "Thành công!",
+    text: "Đã copy vào clipboard",
+    icon: "success",
+    confirmButtonText: "Đóng"
+  });
+}
+function copyId(p58) {
+  const vGetSelectedRows = getSelectedRows();
+  if (vGetSelectedRows.length > 0) {
+    let vA2 = [];
+    accountGrid.api.forEachNode(p59 => {
+      if (p59.selected) {
+        vA2.push(p59.data[p58]);
+      }
+    });
+    navigator.clipboard.writeText(vA2.join("\r\n"));
+    Swal.fire({
+      title: "Thành công!",
+      text: "Đã copy danh sách ID vào clipboard",
+      icon: "success",
+      confirmButtonText: "Đóng"
+    });
+  } else {
+    Swal.fire({
+      title: "Đã xảy ra lỗi!",
+      text: "Hãy chọn ít nhất một mục để tiếp tục",
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonText: "Copy tất cả",
+      cancelButtonText: "Đóng"
+    }).then(p60 => {
+      if (p60.isConfirmed) {
+        let vA3 = [];
+        accountGrid.api.forEachNode(p61 => {
+          vA3.push(p61.data[p58]);
+        });
+        navigator.clipboard.writeText(vA3.join("\r\n"));
+        Swal.fire({
+          title: "Thành công!",
+          text: "Đã copy danh sách ID vào clipboard",
+          icon: "success",
+          confirmButtonText: "Đóng"
+        });
+      }
+    });
+  }
+}
+function exportData(p62) {
+  const vGetSelectedRows2 = getSelectedRows();
+  if (vGetSelectedRows2.length > 0) {
+    if (p62 === "excel") {
+      accountGrid.api.exportDataAsExcel({
+        onlySelected: true
+      });
+    } else {
+      accountGrid.api.exportDataAsCsv({
+        onlySelected: true
+      });
+    }
+  } else {
+    Swal.fire({
+      title: "Đã xảy ra lỗi!",
+      text: "Hãy chọn ít nhất một mục để tiếp tục",
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonText: "Export tất cả",
+      cancelButtonText: "Đóng"
+    }).then(p63 => {
+      if (p63.isConfirmed) {
+        if (p62 === "excel") {
+          accountGrid.api.exportDataAsExcel();
+        } else {
+          accountGrid.api.exportDataAsCsv();
+        }
+      }
+    });
+  }
+}
+window.onload = async function () {
+  let v24 = await getLocalStorage("ver");
+  if (!v24) {
+    const v25 = await getVersion();
+    await setLocalStorage("ver", v25);
+    v24 = v25;
+  }
+  $(".appVersion").html("<span class=\"mb-0 text-decoration-none badge text-bg-light\">v" + v24 + "</span>");
+  $("#pageLoading").addClass("d-none");
+  $("#gridLoading").html("<div id=\"loadingData\" class=\"d-flex flex-column align-items-center\"><div class=\"loader\"></div></div>");
+};
+$(document).on("click", "#xmdt", async function () {
+  const v26 = await fetch("https://www.via902.vn/ajaxs/client/ext/account.php");
+  const v27 = await v26.json();
+  if (v27.success) {
+    Swal.fire({
+      title: "Cảnh báo",
+      icon: "warning",
+      text: "Hãy lưu lại thông tin via, via của bạn sẽ được đá sang checkpoint mail"
+    }).then(async p64 => {
+      if (p64.isConfirmed) {
+        const v28 = Swal.fire({
+          title: "Đang tiến hành kháng XMDT Checkpoint",
+          text: "Xin vui lòng đợi",
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        const v29 = await getCookie();
+        const v30 = await fetch("https://www.via902.vn/ajaxs/client/ext/xmdt.php", {
+          headers: {
+            "content-type": "application/x-www-form-urlencoded"
+          },
+          method: "POST",
+          body: "cookie=" + encodeURIComponent(v29) + "&uid=" + fb.uid + "&dtsg=" + fb.dtsg
+        });
+        const v31 = await v30.json();
+        v28.close();
+        if (v31.success) {
+          Swal.fire({
+            title: "Thành công",
+            html: "Kháng <strong>XMDT Checkpoint</strong> thành công",
+            icon: "success"
+          });
+        } else {
+          const vO28 = {
+            title: "Đã xảy ra lỗi",
+            html: v31.message,
+            icon: "error",
+            confirmButtonText: "OK",
+            showCancelButton: true,
+            cancelButtonText: "Đóng",
+            confirmButtonText: "Nạp tiền"
+          };
+          Swal.fire(vO28).then(p65 => {
+            if (p65.isConfirmed) {
+              location.href = "https://www.via902.vn/client/recharge";
+            }
+          });
+        }
+      }
+    });
+  } else {
+    Swal.fire({
+      title: "Bạn chưa đăng nhập",
+      text: "Xin vui lòng đăng nhập",
+      icon: "error",
+      showCancelButton: true,
+      cancelButtonText: "Đóng",
+      confirmButtonText: "Đăng nhập"
+    }).then(p66 => {
+      if (p66.isConfirmed) {
+        location.href = "https://www.via902.vn/client/login";
+      }
+    });
+  }
+});
+$(document).on("click", "#k902", async function () {
+  const v32 = await fetch("https://www.via902.vn/ajaxs/client/ext/account.php");
+  const v33 = await v32.json();
+  if (v33.success) {
+    Swal.fire({
+      title: "Cảnh báo",
+      icon: "warning",
+      text: "Hãy đảm bảo via của bạn đã kháng qua page xác minh danh tính để có thể nhảy ngày kháng"
+    }).then(p67 => {
+      if (p67.isConfirmed) {
+        Swal.fire({
+          confirmButtonText: "Bắt đầu",
+          html: "\n                        <form id=\"form902\" class=\"text-start overflow-hidden p-1\">\n                            <label class=\"form-label fw-medium\">\n                                Chọn dòng\n                            </label>\n\n                            <div class=\"row\">\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"policy\" id=\"dong1\" checked>\n                                        <label class=\"form-check-label\" for=\"dong1\">\n                                            Dòng 1\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"unauthorized_use\" id=\"dong2\">\n                                        <label class=\"form-check-label\" for=\"dong2\">\n                                            Dòng 2\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"other\" id=\"dong3\">\n                                        <label class=\"form-check-label\" for=\"dong3\">\n                                            Dòng 3\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"random\" id=\"random\">\n                                        <label class=\"form-check-label\" for=\"random\">\n                                            Random\n                                        </label>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <div class=\"my-3\">\n                                <label class=\"form-label fw-medium\">\n                                    Nội dung kháng\n                                </label>\n                                <input type=\"text\" class=\"form-control\" value=\"I think there was unauthorized use of my Facebook account.\" name=\"noiDungKhang\">\n                            </div>\n                        </form>\n                    ",
+          preConfirm: async () => {
+            const v34 = await getCookie();
+            const v35 = $("#form902").serialize() + "&cookie=" + encodeURIComponent(v34) + "&uid=" + fb.uid + "&dtsg=" + fb.dtsg;
+            const v36 = Swal.fire({
+              title: "Đang tiến hành kháng 902",
+              text: "Xin vui lòng đợi",
+              didOpen: () => {
+                Swal.showLoading();
+              }
+            });
+            const v37 = await fetch("https://www.via902.vn/ajaxs/client/ext/902.php", {
+              headers: {
+                "content-type": "application/x-www-form-urlencoded"
+              },
+              method: "POST",
+              body: v35
+            });
+            const v38 = await v37.json();
+            v36.close();
+            if (v38.success) {
+              Swal.fire({
+                title: "Thành công",
+                html: "Kháng <strong>902</strong> thành công",
+                icon: "success"
+              });
+            } else {
+              const vO32 = {
+                title: "Đã xảy ra lỗi",
+                html: v38.message,
+                icon: "error",
+                confirmButtonText: "OK",
+                showCancelButton: true,
+                cancelButtonText: "Đóng",
+                confirmButtonText: "Nạp tiền"
+              };
+              Swal.fire(vO32).then(p68 => {
+                if (p68.isConfirmed) {
+                  location.href = "https://www.via902.vn/client/recharge";
+                }
+              });
+            }
+          }
+        });
+      }
+    });
+  } else {
+    Swal.fire({
+      title: "Bạn chưa đăng nhập",
+      text: "Xin vui lòng đăng nhập",
+      icon: "error",
+      showCancelButton: true,
+      cancelButtonText: "Đóng",
+      confirmButtonText: "Đăng nhập"
+    }).then(p69 => {
+      if (p69.isConfirmed) {
+        location.href = "https://www.via902.vn/client/login";
+      }
+    });
+  }
+});
+async function startt() {
+  if (!$("#start").is(":disabled")) {
+    const v39 = await saveSetting();
+    const v40 = $("#app").attr("data");
+    if (v40 === "bm" && v39.bm?.nhanLinkBm?.value) {
+      const v41 = v39.bm.backupLink?.value.split("\n").filter(p70 => p70).map(p71 => p71.trim());
+      if (v41.length > 0) {
+        const v42 = Swal.fire({
+          title: "Đang nhận link",
+          html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+          showDenyButton: true,
+          denyButtonText: "Stop",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+          preDeny: () => {
+            $(document).trigger("stop");
+          }
+        });
+        await nhanLink(v41);
+        v42.close();
+      }
+    } else if (v40 === "page" && v39.page?.acceptPage?.value) {
+      const v43 = Swal.fire({
+        title: "Đang chấp nhận lời mời",
+        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        showDenyButton: true,
+        denyButtonText: "Stop",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        preDeny: () => {
+          $(document).trigger("stop");
+        }
+      });
+      await acceptPage();
+      v43.close();
+    } else if (v40 === "page" && v39.page?.createPage?.value) {
+      const v44 = Swal.fire({
+        title: "Đang tạo Page",
+        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      await createPage();
+      v44.close();
+    } else if (v40 === "bm" && v39.bm?.getIdBm?.value) {
+      const v45 = Swal.fire({
+        title: "Đang lấy danh sách ID BM",
+        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        showDenyButton: true,
+        denyButtonText: "Stop",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        preDeny: () => {
+          $(document).trigger("stop");
+        }
+      });
+      await getIdBm();
+      v45.close();
+    } else if (v40 === "bm" && v39.bm?.getInfoBm?.value) {
+      const v46 = Swal.fire({
+        title: "Đang lấy thông tin BM",
+        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        showDenyButton: true,
+        denyButtonText: "Stop",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        preDeny: () => {
+          $(document).trigger("stop");
+        }
+      });
+      const v47 = $("[name=\"listIdBm2\"]").val().split("\n").filter(p72 => p72).map(p73 => {
+        return {
+          id: p73.split("|")[0],
+          link: p73.split("|")[1] || ""
+        };
+      });
+      const vParseInt = parseInt($("[name=\"getInfoDelay\"]").val());
+      const vParseInt2 = parseInt($("[name=\"getInfoMax\"]").val());
+      const v48 = await getInfoBm(v47, vParseInt2, vParseInt);
+      let vLS = "";
+      for (let vLN02 = 0; vLN02 < v48.length; vLN02++) {
+        vLS += "\n                    <tr>\n                        <th scope=\"row\">" + (vLN02 + 1) + "</th>\n                        <td>" + v48[vLN02].id + "</td>\n                        <td>" + v48[vLN02].name + "</td>\n                        <td>" + (v48[vLN02].allow_page_management_in_www ? "<span class=\"badge text-bg-success\">Live</span>" : "<span class=\"badge text-bg-danger\">Die</span>") + "</td>\n                        <td>" + (v48[vLN02].verification_status === "not_verified" ? "NO" : "YES") + "</td>\n                        <td>" + v48[vLN02].link + "</td>\n                        <td>" + v48[vLN02].linkStatus + "</td>\n                    </tr>\n                ";
+      }
+      $("#bmInfoData").html(vLS);
+      $("#bmInfoModal").modal("show");
+      v46.close();
+    } else if (v40 === "bm" && v39.bm?.createBm?.value) {
+      const v49 = Swal.fire({
+        title: "Đang tạo BM",
+        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      await createBm();
+      v49.close();
+    } else if (v40 === "clone") {
+      const v50 = Swal.fire({
+        title: "Đang chạy...",
+        html: "<span id=\"checkProgress\"></span>",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      await runVia(v39, p74 => {
+        if (p74.action === "message") {
+          $("#checkProgress").text(p74.msg);
+        }
+      });
+      $("#swal2-title").text("Hoàn tất!");
+      v50.hideLoading();
+    } else {
+      let vGetSelectedRows3 = getSelectedRows();
+      if (vGetSelectedRows3.length > 0) {
+        const v51 = true;
+        if (v51) {
+          vGetSelectedRows3.forEach(p75 => {
+            accountGrid.api.getRowNode(p75.id).setDataValue("process", "");
+          });
+          $("#start").prop("disabled", true);
+          setTimeout(() => {
+            $("#start").addClass("d-none");
+            $("#start").prop("disabled", false);
+            $("#stop").removeClass("d-none");
+          }, 2000);
+          start(vGetSelectedRows3, v39);
+        }
+      }
+    }
+  }
+}
+function checkKey(p76, p77 = false) {
+  return new Promise(async (p78, p79) => {
+    try {
+      const v52 = new UAParser();
+      const v53 = v52.getResult();
+      const v54 = new FormData();
+      v54.append("key", p76);
+      v54.append("browser", v53.browser.name);
+      if (!p77) {
+        v54.append("uid", await getLocalStorage("uid"));
+      }
+      v54.append("version", v53.browser.version);
+      v54.append("os", v53.os.name);
+      v54.append("location", "");
+      const v55 = await fetch("https://dashboard.toolfb.vn/client/check", {
+        body: v54,
+        method: "post"
+      });
+      p78(await v55.json());
+    } catch (e18) {
+      console.log(e18);
+      p79();
+    }
+  });
+}
+function runCheckKey() {
+  return new Promise(async (p80, p81) => {
+    try {
+      const v56 = await saveSetting();
+      const v57 = v56.general.license.value;
+      if (!v57) {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi kích hoạt",
+          text: "Bạn chưa nhập key sử dụng",
+          confirmButtonText: "Nhập key"
+        }).then(p82 => {
+          if (p82.isConfirmed) {
+            $("#settingModal").modal("show");
+          }
+        });
+        p81();
+      } else {
+        const v58 = await checkKey(v57);
+        const vVO38 = {
+          expired: {
+            text: "Mua gói",
+            url: "https://dashboard.toolfb.vn/client/buy"
+          },
+          key_error: {
+            text: "Đăng ký",
+            url: "https://dashboard.toolfb.vn/client/register"
+          },
+          max_session: {
+            text: "Quản lý phiên",
+            url: "https://dashboard.toolfb.vn/client/sessions"
+          }
+        };
+        if (v58.success) {
+          p80();
+        } else {
+          const vO39 = {
+            icon: "error",
+            title: "Lỗi kích hoạt",
+            text: v58.msg,
+            confirmButtonText: vVO38[v58.type].text
+          };
+          Swal.fire(vO39).then(p83 => {
+            if (p83.isConfirmed) {
+              window.location.href = vVO38[v58.type].url;
+            }
+          });
+          p81();
+        }
+      }
+    } catch {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi kích hoạt",
+        text: "Đã xảy ra lỗi",
+        confirmButtonText: "Chỉnh sửa key"
+      }).then(p84 => {
+        if (p84.isConfirmed) {
+          $("#settingModal").modal("show");
+        }
+      });
+      p81();
+    }
+  });
+}
+$("#start").click(async function () {
+  try {
+    await runCheckKey();
+    startt();
+  } catch {}
+});
+$("#stop").click(function () {
+  if (!$("#stop").is(":disabled")) {
+    $(document).trigger("stop");
+    $("#stop").prop("disabled", true);
+    setTimeout(() => {
+      $("#stop").addClass("d-none");
+      $("#stop").prop("disabled", false);
+      $("#start").removeClass("d-none");
+    }, 2000);
+  }
+});
+$(document).on("click", ".loginButton", async function () {
+  const v59 = $(this).attr("data-id");
+  const v60 = await getLocalStorage("dataClone");
+  const v61 = v60.filter(p85 => p85.id == v59);
+  const v62 = v61[0].account;
+  const v63 = await saveSetting();
+  const v64 = v63.general.license.value;
+  try {
+    const v65 = await checkKey(v64, true);
+    const vVO44 = {
+      expired: {
+        text: "Mua gói",
+        url: "https://dashboard.toolfb.vn/client/buy"
+      },
+      key_error: {
+        text: "Đăng ký",
+        url: "https://dashboard.toolfb.vn/client/register"
+      },
+      max_session: {
+        text: "Quản lý phiên",
+        url: "https://dashboard.toolfb.vn/client/sessions"
+      }
+    };
+    if (v65.success) {
+      loginDialog(v62);
+    } else {
+      const vO45 = {
+        icon: "error",
+        title: "Lỗi kích hoạt",
+        text: v65.msg,
+        confirmButtonText: vVO44[v65.type].text
+      };
+      Swal.fire(vO45).then(p86 => {
+        if (p86.isConfirmed) {
+          window.location.href = vVO44[v65.type].url;
+        }
+      });
+    }
+  } catch {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi kích hoạt",
+      text: "Đã xảy ra lỗi",
+      confirmButtonText: "Chỉnh sửa key"
+    }).then(p87 => {
+      if (p87.isConfirmed) {
+        $("#settingModal").modal("show");
+      }
+    });
+  }
+});
+$("body").on("click", "#switch", async function () {
+  let vLS2 = "";
+  const v66 = await getLocalStorage("dataClone");
+  const v67 = await getLocalStorage("uid");
+  v66.filter(p88 => p88.uid === v67).forEach(p89 => {
+    vLS2 += "\n            <div class=\"p-1\">\n            <div class=\"bg-white rounded-4 overflow-hidden border mb-3 pe-3 d-flex justify-content-between align-items-center\">\n                <div class=\" d-flex align-items-center\" style=\"padding: 10px\" data-id=\"" + p89.uid + "\">\n                    <img class=\"rounded-circle\" src=\"" + (p89.avatar ? p89.avatar : "../img/avatar.jpg") + "\" height=\"30\">\n                    <span class=\"ps-3 flex-grow-1 d-flex flex-column align-items-start text-black\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + (p89.name ? p89.name : "Unknown") + "</strong>\n                        <small>" + p89.uid + "</small>\n                    </span>\n                </div>\n                <button type=\"button\" class=\"btn btn-success btn-sm p-0 px-2\"><i class=\"ri-checkbox-blank-circle-fill me-1\"></i>Đang hoạt động</button>\n            </div>\n        ";
+  });
+  const v68 = v66.filter(p90 => p90.uid !== v67);
+  if (v68.length > 0) {
+    vLS2 += "\n            <div class=\"flex-grow-1 mb-3\">\n                <div class=\"position-relative h-100\">\n                    <a href=\"javascript:;\" id=\"searchSubmit\" class=\"text-dark\"><i class=\"ri-search-line fs-5 position-absolute\" style=\"top: 10px; right: 8px\"></i></a>\n                    <input id=\"profileSearch\" class=\"rounded-4 form-control h-100 fw-medium\" style=\"padding: 10px; padding-right: 30px;\" id=\"search\" placeholder=\"Nhập từ khóa...\">\n                </div>\n            </div>\n        ";
+    vLS2 += "<div class=\"bg-white rounded-4 overflow-hidden border mb-3\">";
+    vLS2 += "<div class=\"ssssssss\" style=\"max-height: 300px;\">";
+    vLS2 += "<div class=\"notFounded d-none p-3\">Không tìm thấy kết quả phù hợp!</div>";
+    v68.forEach(p91 => {
+      vLS2 += "\n                <div role=\"button\" class=\"profileItem loginButton d-flex align-items-center\" style=\"padding: 10px\" data-id=\"" + p91.id + "\">\n                    <img class=\"rounded-circle\" src=\"" + (p91.avatar ? p91.avatar : "../img/avatar.jpg") + "\" height=\"30\">\n                    <span class=\"ps-3 flex-grow-1 d-flex flex-column align-items-start text-black\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + (p91.name ? p91.name : "Unknown") + "</strong>\n                        <small>" + p91.uid + "</small>\n                    </span>\n                </div>\n                <div class=\"border-bottom\"></div>\n            ";
+    });
+    vLS2 += "</div>";
+    vLS2 += "</div>";
+  }
+  vLS2 += "\n        <div class=\"\">\n            <button type=\"button\" onclick=\"loginDialog()\" class=\"p-3 bg-white rounded-4 overflow-hidden fw-medium fs-5 border w-100\"><i class=\"ri-add-circle-line me-2\"></i> Đăng nhập tài khoản mới</button>\n        </div></div>";
+  Swal.fire({
+    title: "Chọn tài khoản",
+    html: vLS2,
+    background: "#f0ecf4",
+    showConfirmButton: false,
+    showCloseButton: true,
+    didRender: () => {
+      setTimeout(() => {
+        $(".ssssssss").niceScroll({
+          cursorcolor: "#c2c2c2",
+          cursorwidth: "8px",
+          cursorborder: "border: 0",
+          railpadding: {
+            top: 5,
+            right: 2,
+            left: 2,
+            bottom: 5
+          }
+        });
+      }, 1000);
+    }
+  });
+  return false;
+});
+let searchTimeout = null;
+$(document).on("keyup search input paste cut", "#profileSearch", function () {
+  $(".notFounded").addClass("d-none");
+  const v$ = $(this);
+  const v69 = $(this).attr("data");
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(function () {
+    const v70 = v$.val();
+    if (v70 !== v69) {
+      v$.attr("data", v70);
+      $(".profileItem").addClass("d-none");
+      $(".profileItem").next().addClass("d-none");
+      let vLN03 = 0;
+      $(".profileItem").each(function () {
+        const v71 = $(this).text();
+        if (v71.includes(v70)) {
+          $(this).removeClass("d-none");
+          $(this).next().removeClass("d-none");
+          vLN03++;
+        }
+      });
+      if (vLN03 === 0) {
+        $(".notFounded").removeClass("d-none");
+      }
+    }
+  }, 500);
+});
+$("body").on("click", "#logout, #logoutBtn", async function () {
+  Swal.fire({
+    title: "Bạn có chắc muốn đăng xuất",
+    text: "Hành động này không thể hoàn tác",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc3545",
+    confirmButtonText: "Đăng xuất",
+    cancelButtonText: "Hủy"
+  }).then(async p92 => {
+    if (p92.isConfirmed) {
+      await emptyCookie();
+      await removeLocalStorage("loadBm");
+      await removeLocalStorage("loadAds");
+      await removeLocalStorage("loadPage");
+      await removeLocalStorage("accessToken");
+      await removeLocalStorage("accessToken2");
+      await removeLocalStorage("dtsg");
+      await removeLocalStorage("dtsg2");
+      location.reload();
+    }
+  });
+  return false;
+});
+$("#searchSubmit").click(function () {
+  accountGrid.api.setQuickFilter($("#search").val());
+});
+$("#search").change(function () {
+  accountGrid.api.setQuickFilter($("#search").val());
+});
+$(".statusFilter").change(function () {
+  const vA4 = [];
+  $(".statusFilter").each(function () {
+    if ($(this).is(":checked")) {
+      vA4.push($(this).val());
+    }
+  });
+  if (vA4.length > 0) {
+    const vO49 = {
+      values: vA4
+    };
+    accountGrid.api.getFilterInstance("status").setModel(vO49);
+  } else {
+    accountGrid.api.getFilterInstance("status").setModel(null);
+  }
+  accountGrid.api.onFilterChanged();
+});
+$(".form-check-input[data-target]").change(function () {
+  const v72 = $(this).is(":checked") ? true : false;
+  const v73 = $(this).attr("data-target");
+  if (v72) {
+    $("#" + v73).removeClass("d-none");
+  } else {
+    $("#" + v73).addClass("d-none");
+  }
+});
+$("#reloadData").click(async function () {
+  try {
+    await runCheckKey();
+    const v74 = $("#app").attr("data");
+    await removeLocalStorage("accessToken");
+    await removeLocalStorage("accessToken2");
+    await removeLocalStorage("dtsg");
+    await removeLocalStorage("dtsg2");
+    if (v74 === "bm") {
+      await removeLocalStorage("dataBm_" + fb.uid);
+      await setLocalStorage("loadBm", true);
+    } else if (v74 === "page") {
+      await removeLocalStorage("dataPage_" + fb.uid);
+      await setLocalStorage("loadPage", true);
+    } else if (v74 === "group") {
+      await removeLocalStorage("dataGroup_" + fb.uid);
+      await setLocalStorage("loadGroup", true);
+    } else {
+      await removeLocalStorage("dataAds_" + fb.uid);
+      await setLocalStorage("loadAds", true);
+    }
+    location.reload();
+  } catch {}
+});
+$("#exportData").click(function () {
+  let vGetSelectedRows4 = getSelectedRows();
+  if (vGetSelectedRows4.length > 0) {
+    vGetSelectedRows4 = vGetSelectedRows4.map(p93 => p93.bmId).join("\n");
+    download("export.txt", vGetSelectedRows4);
+  }
+});
+$("#importData").click(function () {
+  const v75 = $("#app").attr("data");
+  let vLS3 = "";
+  if (v75 === "ads") {
+    vLS3 = "TKQC";
+  }
+  if (v75 === "bm") {
+    vLS3 = "BM";
+  }
+  if (v75 === "page") {
+    vLS3 = "Page";
+  }
+  if (v75 === "group") {
+    vLS3 = "Group";
+  }
+  Swal.fire({
+    title: "Chọn nhiều ID " + vLS3,
+    input: "textarea",
+    inputAttributes: {
+      placeholder: "Nhập danh sách ID " + vLS3
+    },
+    showCancelButton: true,
+    confirmButtonText: "Chọn",
+    confirmButtonColor: "#4267B2",
+    allowOutsideClick: false,
+    showLoaderOnConfirm: true,
+    preConfirm: async p94 => {
+      if (p94.includes(",")) {
+        p94 = p94.split(",").filter(p95 => p95).map(p96 => p96.trim());
+      } else {
+        p94 = p94.split("\n").filter(p97 => p97).map(p98 => p98.trim());
+      }
+      accountGrid.api.forEachNode(p99 => {
+        if (v75 === "bm" && p94.includes(p99.data.bmId)) {
+          p99.setSelected(true);
+        }
+        if (v75 === "page" && p94.includes(p99.data.pageId)) {
+          p99.setSelected(true);
+        }
+        if (v75 === "group" && p94.includes(p99.data.groupId)) {
+          p99.setSelected(true);
+        }
+        if (v75 === "ads" && p94.includes(p99.data.adId)) {
+          p99.setSelected(true);
+        }
+      });
+      return;
+    }
+  });
+});
+$(".form-select").change(function () {
+  const v76 = $(this).find(":selected").val();
+  const v77 = $(this).attr("name");
+  $("[data-parent=\"" + v77 + "\"]").addClass("d-none");
+  $("[data-parent=\"" + v77 + "\"][data-value=\"" + v76 + "\"]").removeClass("d-none");
+});
+$("#foldButton").click(async function () {
+  if (!$("body").hasClass("folded")) {
+    $("body").addClass("folded");
+    await setLocalStorage("folded", true);
+  } else {
+    $("body").removeClass("folded");
+    await setLocalStorage("folded", false);
+  }
+});
+$(document).on("956", function (p100) {
+  Swal.fire({
+    icon: "error",
+    title: "Checkpoint Mail",
+    text: "Tài khoản bị Checkpoint",
+    confirmButtonText: "Đăng xuất",
+    allowOutsideClick: false
+  }).then(async p101 => {
+    if (p101.isConfirmed) {
+      await emptyCookie();
+      location.reload();
+    }
+  });
+});
+async function loginDialog(p102 = "") {
+  Swal.fire({
+    title: "Đăng nhập",
+    html: "\n            <div class=\"p-1\">\n                <textarea id=\"loginData\" class=\"form-control mb-3\" rows=\"5\" placeholder=\"Nhâp thông tin VIA hoặc Cookie\">" + p102 + "</textarea>\n                <div class=\"d-flex justify-content-between align-items-center\">\n                    <strong style=\"width: 170px;\" class=\"text-start\">Tùy chọn đăng nhập</strong>\n                    <div class=\"d-flex\">\n                        <div class=\"form-check me-3\">\n                            <input class=\"form-check-input\" type=\"checkbox\" role=\"switch\" id=\"loginFacebook\">\n                            <label class=\"form-check-label\" style=\"margin-top: 2px;\" for=\"loginFacebook\">Facebook</label>\n                        </div>\n                        <div class=\"form-check\">\n                            <input class=\"form-check-input\" type=\"checkbox\" role=\"switch\" id=\"loginHotmail\">\n                            <label class=\"form-check-label\" style=\"margin-top: 2px;\" for=\"loginHotmail\">Hotmail</label>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        ",
+    showCancelButton: true,
+    cancelButtonText: "Hủy",
+    confirmButtonText: "Đăng nhập",
+    confirmButtonColor: "#4267B2",
+    preConfirm: async p103 => {
+      const v78 = $("#loginData").val();
+      const v79 = $("#loginFacebook").is(":checked");
+      const v80 = $("#loginHotmail").is(":checked");
+      if (v78) {
+        if (!v79 && !v80) {
+          Swal.showValidationMessage("Xin mời chọn ít nhất một phương thức đăng nhập");
+        } else if (v78.includes("|")) {
+          await setLocalStorage("loginFacebook", v79);
+          await setLocalStorage("loginHotmail", v80);
+          const v81 = v78.split("|");
+          if (v78 && v81.length) {
+            if (v79) {
+              const vO51 = {
+                uid: v81[0],
+                password: v81[1],
+                two_fa: v81[2].replaceAll(" ", "")
+              };
+              await setLocalStorage("dataFB", vO51);
+              await emptyCookie("facebook.com");
+              await newTab("https://www.facebook.com/login/");
+            }
+            if (v80) {
+              const v82 = v81.findIndex(p104 => {
+                return p104.match(/@outlook|@hotmail/g);
+              });
+              if (v82 !== -1) {
+                const vO52 = {
+                  email: v81[v82],
+                  passwordEmail: v81[v82 + 1]
+                };
+                const vVO52 = vO52;
+                await setLocalStorage("dataHM", vVO52);
+                await emptyCookie("outlook.live.com");
+                await emptyCookie("login.live.com");
+                await emptyCookie("live.com");
+                await newTab("https://login.live.com/");
+              } else {
+                Swal.showValidationMessage("Không tìm thấy email");
+              }
+            }
+            setInterval(async () => {
+              const v83 = await getCookie();
+              if (v83.includes("c_user=")) {
+                location.reload();
+              }
+            }, 1000);
+          }
+        } else {
+          await setCookie(v78);
+          location.reload();
+        }
+      } else {
+        Swal.showValidationMessage("Xin vui lòng nhập thông tin VIA hoặc Cookie");
+      }
+      return false;
+    }
+  });
+  const v84 = await getLocalStorage("loginFacebook");
+  const v85 = await getLocalStorage("loginHotmail");
+  if (v84) {
+    $("#loginFacebook").prop("checked", true);
+  }
+  if (v85) {
+    $("#loginHotmail").prop("checked", true);
+  }
+}
+$(document).on("notLogged", async function (p105) {
+  $("#loadingData").addClass("d-none");
+  await removeLocalStorage("loadBm");
+  await removeLocalStorage("loadAds");
+  await removeLocalStorage("loadPage");
+  await removeLocalStorage("viaInfo");
+  await removeLocalStorage("accessToken");
+  await removeLocalStorage("accessToken2");
+  await removeLocalStorage("dtsg");
+  await removeLocalStorage("dtsg2");
+  Swal.fire({
+    icon: "error",
+    title: "Đã xảy ra lỗi",
+    text: "Bạn chưa đăng nhập Facebook",
+    showCancelButton: true,
+    showConfirmButton: true,
+    cancelButtonText: "Hủy",
+    confirmButtonText: "Đăng nhập",
+    confirmButtonColor: "#4267B2"
+  }).then(p106 => {
+    if (p106.isConfirmed) {
+      loginDialog();
+    }
+  });
+});
+$(document).on("running", function (p107, p108) {
+  accountGrid.api.getRowNode(p108).setDataValue("process", "RUNNING");
+});
+$(document).on("finished", function (p109, p110) {
+  accountGrid.api.getRowNode(p110).setDataValue("process", "FINISHED");
+});
+$(document).on("message", function (p111, p112) {
+  accountGrid.api.getRowNode(p112.id).setDataValue("message", p112.message);
+});
+$(document).on("checkProcess", function (p113, p114) {
+  $("#checkProgress").html(p114);
+});
+$(document).on("stopped", function (p115, p116) {
+  $("#stop").addClass("d-none");
+  $("#start").removeClass("d-none");
+});
+function download(p117, p118) {
+  var v86 = document.createElement("a");
+  v86.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(p118));
+  v86.setAttribute("download", p117);
+  v86.style.display = "none";
+  document.body.appendChild(v86);
+  v86.click();
+  document.body.removeChild(v86);
+}
+async function getSetting() {
+  return new Promise(async (p119, p120) => {
+    try {
+      const v87 = await getLocalStorage("setting");
+      const v88 = await getLocalStorage("settingBm");
+      const v89 = await getLocalStorage("settingAds");
+      const v90 = await getLocalStorage("settingPage");
+      const v91 = await getLocalStorage("settingVia");
+      const vO54 = {
+        general: v87.general || {},
+        bm: v88.bm || {},
+        ads: v89.ads || {},
+        page: v90.page || {},
+        via: v91.via || {}
+      };
+      p119(vO54);
+    } catch (e19) {
+      p120(e19);
+    }
+  });
+}
+async function saveSetting() {
+  const vO55 = {};
+  $("[data-tool]").each(function () {
+    const v92 = $(this).attr("data-tool");
+    vO55[v92] = {};
+    $(this).find("[data-type=\"multi\"]").each(function () {
+      let v93 = $(this).attr("name");
+      if (v93) {
+        vO55[v92][v93] = {
+          value: [],
+          type: "multi",
+          target: ""
+        };
+      }
+    });
+    $(this).find("[data-type=\"multi\"]").each(function () {
+      let v94 = $(this).attr("name");
+      let v95 = $(this).val();
+      if (!vO55[v92][v94].value.includes(v95) && $(this).is(":checked")) {
+        vO55[v92][v94].value.push(v95);
+      }
+    });
+    $(this).find("input:not([type=\"radio\"], [data-type=\"multi\"])").each(function () {
+      let v96 = $(this).val();
+      let vLSText = "text";
+      let vLS4 = "";
+      let v97 = $(this).attr("name");
+      v96 = !isNaN(v96) ? parseInt(v96) : v96;
+      if ($(this).attr("type") === "checkbox") {
+        vLSText = "checkbox";
+        if ($(this).is(":checked")) {
+          v96 = true;
+        } else {
+          v96 = false;
+        }
+      }
+      if ($(this).attr("type") === "file") {
+        vLSText = "file";
+        v96 = $(this).get(0).files[0] ? $(this).get(0).files[0].path : "";
+      }
+      if ($(this).attr("data-target")) {
+        vLS4 = $(this).attr("data-target");
+      }
+      if (v97) {
+        const vO57 = {
+          value: v96,
+          type: vLSText,
+          target: vLS4
+        };
+        vO55[v92][v97] = vO57;
+      }
+    });
+    $(this).find("input[type=\"radio\"]:checked").each(function () {
+      let v98 = $(this).attr("name");
+      let v99 = $(this).val();
+      if (v98) {
+        const vO58 = {
+          value: v99,
+          type: "radio"
+        };
+        vO55[v92][v98] = vO58;
+      }
+    });
+    $(this).find("select").each(function () {
+      let v100 = $(this).find(":selected").val() || "";
+      let v101 = $(this).attr("name");
+      if (v101) {
+        const vO59 = {
+          value: v100,
+          type: "select"
+        };
+        vO55[v92][v101] = vO59;
+      }
+    });
+    $(this).find("textarea").each(function () {
+      let v102 = $(this).val();
+      let v103 = $(this).attr("name");
+      if (v103) {
+        const vO60 = {
+          value: v102,
+          type: "textarea"
+        };
+        vO55[v92][v103] = vO60;
+      }
+    });
+  });
+  const v104 = $("#app").attr("data");
+  if (v104 === "bm") {
+    await setLocalStorage("settingBm", vO55);
+  } else if (v104 === "page") {
+    await setLocalStorage("settingPage", vO55);
+  } else if (v104 === "group") {
+    await setLocalStorage("settingGroup", vO55);
+  } else if (v104 === "tool") {
+    const v105 = $("[data-tool]").attr("data-tool");
+    await setLocalStorage("setting_tool_" + v105, vO55);
+  } else if (v104 === "clone") {
+    await setLocalStorage("settingVia", vO55);
+  } else if (v104 === "setting") {
+    await setLocalStorage("setting", vO55);
+  } else {
+    await setLocalStorage("settingAds", vO55);
+  }
+  if (v104 !== "setting") {
+    const v106 = (await getLocalStorage("setting")) || {};
+    vO55.general = {
+      ...v106.general,
+      ...vO55.general
+    };
+  }
+  return vO55;
+}
+async function loadSetting() {
+  const v107 = $("#app").attr("data");
+  if (v107 !== "setting") {
+    try {
+      const v108 = await (await fetch("../data.json")).json();
+      const v109 = (await getLocalStorage("currency")) || "MIX";
+      $(".currentCurrency").text(v109);
+      convertCurrency(v109);
+      const v110 = v108.currency.map(p121 => {
+        return "<option value=\"" + p121.id + "\">" + p121.value + "</option>";
+      });
+      const v111 = v108.country.map(p122 => {
+        return "<option value=\"" + p122.id + "\">" + p122.value + "</option>";
+      });
+      const v112 = v108.timezone.map(p123 => {
+        return "<option value=\"" + p123.id + "\">" + p123.value + "</option>";
+      });
+      const v113 = v108.timezone2.map(p124 => {
+        return "<option value=\"" + p124.id + "\">" + p124.value + "</option>";
+      });
+      $("select[name=\"timezone\"]").html(v113);
+      $("select[name=\"timezone2\"]").html(v112);
+      $("select[name=\"currency\"]").html(v110);
+      $("select[name=\"country\"]").html(v111);
+    } catch (e20) {
+      console.log(e20);
+    }
+  }
+  let vO61 = {};
+  if (v107 === "bm") {
+    vO61 = (await getLocalStorage("settingBm")) || [];
+  } else if (v107 === "via") {
+    vO61 = (await getLocalStorage("settingVia")) || [];
+  } else if (v107 === "page") {
+    vO61 = (await getLocalStorage("settingPage")) || [];
+  } else if (v107 === "tool") {
+    const v114 = $("[data-tool]").attr("data-tool");
+    vO61 = (await getLocalStorage("setting_tool_" + v114)) || [];
+  } else if (v107 === "setting") {
+    vO61 = (await getLocalStorage("setting")) || [];
+  } else {
+    vO61 = (await getLocalStorage("settingAds")) || [];
+  }
+  Object.keys(vO61).forEach(p125 => {
+    Object.keys(vO61[p125]).forEach(p126 => {
+      const v115 = vO61[p125][p126];
+      if (v115.type === "multi") {
+        v115.value.forEach(p127 => {
+          $("[data-tool=\"" + p125 + "\"]").find("input[name=\"" + p126 + "\"][value=\"" + p127 + "\"]").prop("checked", true);
+        });
+      }
+      if (v115.type === "checkbox") {
+        $("[data-tool=\"" + p125 + "\"]").find("input[name=\"" + p126 + "\"]").prop("checked", v115.value);
+      }
+      if (v115.type === "radio") {
+        $("[data-tool=\"" + p125 + "\"]").find("input[type=\"radio\"]").prop("checked", false);
+        $("[data-tool=\"" + p125 + "\"]").find("input[type=\"radio\"][value=\"" + v115.value + "\"]").prop("checked", true);
+        if (v115.target) {
+          $("[data-tool=\"" + p125 + "\"]").find("#" + v115.target).removeClass("d-none");
+        }
+      }
+      if (v115.type === "text") {
+        $("[data-tool=\"" + p125 + "\"]").find("input[name=\"" + p126 + "\"]").val(v115.value);
+      }
+      if (v115.type === "textarea") {
+        $("[data-tool=\"" + p125 + "\"]").find("textarea[name=\"" + p126 + "\"]").val(v115.value);
+      }
+      if (v115.type === "select") {
+        $("[data-tool=\"" + p125 + "\"]").find("select[name=\"" + p126 + "\"] option[value=\"" + v115.value + "\"]").prop("selected", true);
+        $("[data-parent=\"" + p126 + "\"][data-value=\"" + v115.value + "\"]").removeClass("d-none");
+      }
+      if (p126 === "deleteEmailMode" && v115.value.includes("mbasic")) {
+        $("#setPrimaryEmail").removeClass("d-none");
+      }
+      if (v115.target) {
+        if (v115.value) {
+          $("[data-tool=\"" + p125 + "\"]").find("#" + v115.target).removeClass("d-none");
+        }
+      }
+    });
+  });
+  if (v107 === "bm") {
+    const v116 = vO61.bm?.backupLink?.value.split(/\r?\n|\r|\n/g).filter(p128 => p128) || 0;
+    const v117 = vO61.bm?.linkDaNhan?.value.split(/\r?\n|\r|\n/g).filter(p129 => p129) || 0;
+    const v118 = vO61.bm?.backUpEmail?.value.split(/\r?\n|\r|\n/g).filter(p130 => p130) || 0;
+    const v119 = vO61.bm?.backupLinkError?.value.split(/\r?\n|\r|\n/g).filter(p131 => p131) || 0;
+    const v120 = vO61.bm?.backupLinkSuccess?.value.split(/\r?\n|\r|\n/g).filter(p132 => p132) || 0;
+    const v121 = vO61.bm?.listIdBm?.value.split(/\r?\n|\r|\n/g).filter(p133 => p133) || 0;
+    $("#backupLinkCount1").text(v117.length);
+    $("#backupLinkCount").text(v116.length);
+    $("#backupEmailCount").text(v118.length);
+    $("#backupLinkErrorCount").text(v119.length);
+    $("#backupLinkSuccessCount").text(v120.length);
+    $("#getBmIdCount").text(v121.length);
+  }
+  if (v107 === "ads") {
+    const v122 = vO61.ads?.linkShareBm?.value.split(/\r?\n|\r|\n/g).filter(p134 => p134) || 0;
+    $("#linkShareBmCount").text(v122.length);
+  }
+  $("body").addClass("setting-loaded");
+  $("#loadingScreen").addClass("d-none");
+  $(".select2").select2();
+}
+function getSelectedRows() {
+  const vA5 = [];
+  accountGrid.api.forEachNodeAfterFilterAndSort(p135 => {
+    if (p135.selected) {
+      vA5.push(p135.data);
+    }
+  });
+  return vA5;
+}
+$("#customizeModal").on("show.bs.modal", async function (p136) {
+  const vA6 = ["0", "id", "action"];
+  const v123 = accountGrid.columnApi.getColumnState().filter(p137 => {
+    return !vA6.includes(p137.colId);
+  });
+  let vLS5 = "";
+  v123.forEach(p138 => {
+    const v124 = columnDefs.filter(p139 => {
+      return p139.field === p138.colId;
+    });
+    vLS5 += "\n        <div class=\"col-item shadow-sm border rounded p-3 mb-3 d-flex\">\n            <div class=\"form-check checkbox-lg\">\n                <input class=\"form-check-input me-3\" type=\"checkbox\" value=\"" + p138.colId + "\" " + (!p138.hide ? "checked" : "") + ">\n            </div>\n            <div class=\"flex-grow-1 d-flex justify-content-between ps-4 fw-bold\">\n                " + v124[0].headerName + "\n                <i class=\"ri-draggable fs-5\" style=\"cursor: move\"></i>\n            </div>\n        </div>\n        ";
+  });
+  $("#colCustomize").html(vLS5);
+  new Sortable(document.getElementById("colCustomize"), {
+    animation: 0,
+    handle: ".ri-draggable",
+    ghostClass: "opacity-50"
+  });
+});
+$("#resetColumns").click(async function () {
+  accountGrid.columnApi.resetColumnState();
+  const v125 = $("#app").attr("data");
+  if (v125 === "bm") {
+    await setLocalStorage("stateBm", []);
+  } else if (v125 === "page") {
+    await setLocalStorage("statePage", []);
+  } else if (v125 === "clone") {
+    await setLocalStorage("stateClone", []);
+  } else {
+    await setLocalStorage("stateAds", []);
+  }
+  $("#customizeModal").modal("hide");
+});
+$("#saveColumns").click(async function () {
+  const vA7 = ["0", "id"];
+  const v126 = accountGrid.columnApi.getColumnState().filter(p140 => {
+    return !vA7.includes(p140.colId);
+  });
+  const v127 = accountGrid.columnApi.getColumnState().filter(p141 => {
+    return vA7.includes(p141.colId);
+  });
+  const vA8 = [];
+  $(".col-item").each(function () {
+    const v128 = $(this).find("input").val();
+    const v129 = !$(this).find("input").is(":checked");
+    const v130 = v126.filter(p142 => {
+      return p142.colId === v128;
+    });
+    v130[0].hide = v129;
+    vA8.push(v130[0]);
+  });
+  accountGrid.columnApi.applyColumnState({
+    state: vA8.concat(v127),
+    applyOrder: true
+  });
+  const v131 = $("#app").attr("data");
+  if (v131 === "bm") {
+    await setLocalStorage("stateBm", vA8.concat(v127));
+  } else if (v131 === "page") {
+    await setLocalStorage("statePage", vA8.concat(v127));
+  } else {
+    await setLocalStorage("stateAds", vA8.concat(v127));
+  }
+  $("#customizeModal").modal("hide");
+});

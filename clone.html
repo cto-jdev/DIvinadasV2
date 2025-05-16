@@ -1,0 +1,399 @@
+﻿<!doctype html>
+<html lang="en" data-bs-theme="">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Quản lý Clone | TOOLFB.VN</title>
+        <link href="css/libs.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+
+        <!--script src="https://tally.so/widgets/embed.js"></script-->
+        <script src="js/jquery.js"></script>
+        <link rel="shortcut icon" href="img/favicon.png">
+        
+    </head>
+    <body class="folded">
+        
+        <div id="pageLoading"></div>
+
+        <!-- <div id="loadingScreen" class="d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-secondary" role="status"></div>
+        </div> -->
+        <div id="app" data="clone">
+
+
+
+            <div id="header">
+                <div class="header-top">
+                    <div class="row align-items-center h-100">
+                        <div class="col-4">
+                            <span class="titleBar fw-medium d-flex align-items-center">TOOLFB.VN <span class="appVersion ms-2 fw-medium"></span></span>
+                        </div>
+                        <div class="col-4 d-flex justify-content-center">
+                            <div class="rounded row fw-medium" style="height: 35px; line-height: 25px; padding: 5px;width:350px;">
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="index.htm">HOME</a>
+                                <a class="col text-decoration-none mx-1 text-black bg-white rounded shadow text-center d-block" href="javascript:;">CLONE</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="ads.html">TKQC</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="bm.html">TK BM</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="page.html">PAGE</a>
+                            </div>
+                        </div>
+                        <div class="col-4 d-flex justify-content-end">
+                            <div id="quality"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="app-wrapper rounded overflow-hidden d-flex shadow">
+                <div class="account-wrapper d-flex flex-column overflow-hidden flex-grow-1 position-relative overflow-hidden">
+
+                   
+
+                    <div class="border-bottom bg-white dark-border dark-body-bg" style="z-index: 101;">
+                        <div class="p-3 d-flex justify-content-between" style="height: 59px;">
+                            <div class="d-flex">
+                                <div class="d-flex">
+                                    <button type="button" class="shadow-sm control-btn btn border h-100 me-3" id="start">
+                                        <i class="ri-play-fill" style="background-color: #4caf50;"></i>
+                                        Bắt đầu
+                                    </button>
+                                    <button type="button" class="shadow-sm control-btn btn border h-100 me-3 d-none" id="stop">
+                                        <i class="ri-stop-fill" style="background-color: #f44336;"></i>
+                                        Dừng lại
+                                    </button>
+                                </div>
+                                <div class="d-flex">
+                                    <button type="button" class="shadow-sm control-btn btn border px-2 h-100 me-2" id="importClone">
+                                        <i class="ri-play-list-add-line fs-5 m-0" style="color: #666"></i> Import Data
+                                    </button>
+                                    <div class="dropdown me-2">
+                                        <button class="shadow-sm control-btn btn border h-100 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ri-filter-line fs-5 m-0" style="color: #666"></i>
+                                        </button>
+                                        <div class="dropdown-menu mt-2 border dropdown-menu-end shadow-sm p-2" style="width: 250px;">
+                                            <div class="mb-2">
+                                                <strong>Trạng thái</strong>
+                                            </div>
+                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
+                                                <div class="form-check me-2">
+                                                    <input class="form-check-input statusFilter" type="checkbox" value="0">
+                                                </div>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-success rounded-circle me-2"></span><strong class="text-success">Live</strong></span>
+                                                <span class="badge rounded-pill text-bg-success status0Count">0</span>
+                                            </label>
+                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
+                                                <div class="form-check me-2">
+                                                    <input class="form-check-input statusFilter" type="checkbox" value="1">
+                                                </div>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">Die</strong></span>
+                                                <span class="badge rounded-pill text-bg-danger status1Count">0</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="shadow-sm control-btn btn border px-2 h-100" data-bs-toggle="modal" data-bs-target="#customizeModal">
+                                        <i class="ri-layout-line fs-5 m-0" style="color: #666"></i>
+                                    </button>
+                                    <!-- <div class="me-3 h-100" style="width: 200px;">
+                                        <select id="accountSelect" class="form-select">
+                                            <option value="0">Tất cả tài khoản</option>
+                                        </select>
+                                    </div> -->
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 px-3">
+                                <div class="position-relative h-100">
+                                    <a href="javascript:;" id="searchSubmit" class="text-dark"><i class="ri-search-line fs-5 position-absolute" style="top: 3px; right: 8px"></i></a>
+                                    <input class="form-control h-100 fw-medium" style="padding-right: 30px;" id="search" placeholder="Nhập từ khóa...">
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3">
+
+                                <div>
+                                    <div class="position-relative h-100 d-flex">
+                                        <a href="https://t.me/+e2FWMUnQPjZiNjA9" target="_blank" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap">
+                                            <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Hỗ trợ
+                                        </a>
+                                        <button type="button" class="text-nowrap shadow-sm control-btn btn border px-2 pe-3 h-100" data-bs-toggle="modal" data-bs-target="#settingModal">
+                                    <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Cài đặt
+                                </button>
+                                        
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div id="userInfo">
+                                <div class="d-flex justify-content-between border-start ms-3 ps-3 h-100" style="width:calc(350px - 1rem)">
+                                    <div class="d-flex flex-column">
+                                        <div class="position-relative">
+                                            
+                                            <div class="d-flex align-items-center flex-wrap">
+                                                <div class="rounded-circle overflow-hidden" style="width: 33px;">
+                                                    <div class="skeleton rounded-circle" style="width: 33px; height: 33px"></div>
+                                                </div>
+                                                <div class="ps-2" style="width: calc(100% - 33px)">
+                                                    <span class="d-block skeleton rounded" style="width: 150px; height: 10px; margin-bottom: 9px;"></span>
+                                                    <span class="d-block skeleton rounded" style="width: 120px; height: 10px;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="gridLoading" class="d-flex align-items-center justify-content-center"></div>
+
+                    <div id="accounts" class="ag-theme-balham flex-grow-1 h-100"></div>
+
+                    <div class="border-top p-3 py-2 d-flex justify-content-between align-items-center dark-bg dark-border" style="height: 45px;">
+                    
+						<div class="d-flex align-items-center border px-3 py-1 rounded">
+							<span class="border-end me-2 pe-2">
+								<strong>Tổng: </strong>
+								<span id="tong" class="badge text-bg-secondary">0</span>
+							</span>
+							<span class="border-end me-2 pe-2">
+								<strong>Đã chọn:</strong> 
+								<span id="dachon" class="badge text-bg-secondary">0</span>
+							</span>
+							<span>
+								<strong>Bôi đen:</strong> 
+								<span id="boiden" class="badge text-bg-secondary">0</span>
+							</span>
+						</div>
+
+                        <div class="d-flex align-items-center border px-3 py-1 rounded">
+                            <span class="border-end me-2 pe-2">
+                                <strong>LIVE:</strong> 
+                                <span class="status0Count badge text-bg-success">0</span>
+                            </span>
+                            <span class="border-end">
+                                <strong>DIE:</strong> 
+                                <span class="status1Count badge text-bg-danger">0</span>
+                            </span>
+                        </div>
+                        <!-- <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="pe-3">
+                                    <span id="lastSync" class="fw-medium"></span>
+                                </div>
+                                <button class="shadow-sm btn border me-2 pe-3 h-100 d-flex align-items-center" onclick="openLink('https://t.me/+lqVNxKOd_nRkOTM1')">
+                                    <i class="ri-alert-line me-2 fs-6"></i> <strong>Báo lỗi</strong>
+                                </button>
+                                <button class="shadow-sm btn border h-100 d-flex align-items-center">
+                                    <strong>Checkpoint </strong><span class="badge text-bg-danger ms-2" id="cpCount">0</span>
+                                </button>
+                            </div>
+                            <div class="d-flex align-items-center" id="thoihan"></div>
+                        </div> -->
+                    </div>
+                </div>
+
+                <div id="adPanel" class="dark-bg border-start dark-border d-flex flex-column">
+
+                    <div id="foldButton" class="dark-bg dark-border border border-end-0">
+                        <i class="ri-arrow-drop-left-line"></i>
+                        <i class="ri-arrow-drop-right-line"></i>
+                    </div>
+
+					
+
+					<div class="flex-grow-1 overflow-auto">
+						<div class="overflow-auto p-3" data-tool="via">
+
+                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
+                                <div class="p-3">
+                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
+                                        <label class="form-check-label fw-medium d-flex align-items-center">
+                                            <i class="ri-shield-check-line fs-5 me-2"></i> <span class="fw-bold">Kháng XMDT</span>
+                                        </label>
+                                        <input class="form-check-input" data-target="khangXmdtSetting" name="khangXmdt" type="checkbox" role="switch">
+                                    </div>
+                                </div>
+                                <div id="khangXmdtSetting" class="p-3 d-none border-top">
+                                    
+                                    <label class="form-label fw-medium">
+                                        Chọn phôi
+                                    </label>
+
+                                    <div class="row mb-3">
+                                        <div class="col-8">
+                                            <input type="text" class="form-control" value="" name="phoiId" readonly="">
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="button" class="shadow-sm control-btn btn border px-2 h-100 w-100 justify-content-center" data-bs-toggle="modal" data-bs-target="#phoiModal">
+                                                Chọn
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <label class="form-label mb-3 fw-medium">
+                                        Chọn dòng
+                                    </label>
+    
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="chooseLine" value="policy" id="dong1Bm" checked="">
+                                                <label class="form-check-label" for="dong1Bm">
+                                                    Dòng 1
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="chooseLine" value="unauthorized_use" id="dong2Bm">
+                                                <label class="form-check-label" for="dong2Bm">
+                                                    Dòng 2
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="chooseLine" value="other" id="dong3Bm">
+                                                <label class="form-check-label" for="dong3Bm">
+                                                    Dòng 3
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="chooseLine" value="random" id="randomBm">
+                                                <label class="form-check-label" for="randomBm">
+                                                    Random
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+    
+                                    <div class="my-3">
+                                        <label class="form-label fw-medium">
+                                            Nội dung kháng
+                                        </label>
+                                        <input type="text" class="form-control" value="Chúng tôi không biết lỗi gì, rất mong facebook xem lại" name="noiDungKhang">
+                                    </div>
+    
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="chooseLineOnly" id="chooseLineOnly">
+                                        <label class="form-check-label fw-medium" for="chooseLineOnly">
+                                            Chỉ chọn dòng
+                                        </label>
+                                    </div>
+    
+                                </div>
+                            </div>
+
+                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
+                                <div class="p-3">
+                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
+                                        <label class="form-check-label fw-medium d-flex align-items-center">
+                                            <i class="ri-link fs-5 me-2"></i> <span class="fw-bold">Lấy link XMDT</span>
+                                        </label>
+                                        <input class="form-check-input" name="getLinkXmdt" type="checkbox" role="switch">
+                                    </div>
+                                </div>
+                            </div>
+
+						</div>
+					</div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div id="contextMenu">
+            <ul class="dropdown-menu d-block shadow-sm">
+                <li>
+                    <a class="dropdown-item" href="javascript:;" id="pasteData">
+                        <i class="ri-clipboard-line me-2"></i>
+                        Paste
+                    </a>
+                </li>
+                <!-- <li>
+                    <a class="dropdown-item" href="javascript:;" data-bs-toggle="modal" data-bs-target="#copyModal">
+                        <i class="ri-file-copy-line me-2"></i>
+                        Copy
+                    </a>
+                </li> -->
+                <li>
+                    <a class="dropdown-item" href="javascript:;" id="deleteSelect">
+                        <i class="ri-delete-bin-line me-2"></i>
+                        Xóa các dòng đã chọn
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:;" id="selectRange">
+                        <i class="ri-checkbox-line me-2"></i>
+                        Chọn các dòng bôi đen
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:;" id="checkLive">
+                        <i class="ri-facebook-circle-fill me-2"></i>
+                        Check Live
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="modal fade" id="settingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Cài đặt</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <iframe src="setting.html" border="0" width="100%" height="500px"></iframe>
+                    </div>
+                    <div class="modal-footer d-flex">
+                        
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Lưu cài đặt</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="viewDataModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content shadow-lg position-relative">
+                    <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close" style="z-index: 99999;top: 20px;right: 20px;"></button>
+                    <div class="modal-body p-0">
+                        <iframe src="" border="0" width="100%" height="500px"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="customizeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Tùy chỉnh cột</h1>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div id="colCustomize" class="overflow-y-auto p-3" style="max-height: 350px;">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="resetColumns" class="btn btn-secondary">Mặc định</button>
+                        <button type="button" id="saveColumns" class="btn btn-primary">Lưu cài đặt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <script src="js/test.js"></script>
+        <script src="js/libs.js"></script>
+        <script src="js/clone.js"></script>
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

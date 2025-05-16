@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Quản lý BM</title>
+        <link href="css/libs.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+        <script src="js/jquery.js"></script>
+        
+    </head>
+    <body>
+
+        <style>
+
+            body {
+                overflow: auto;
+            }
+
+            #app {
+                padding: 0;
+                background-image: inherit;
+            }
+        </style>
+
+        <!-- <div id="loadingScreen" class="d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-secondary" role="status"></div>
+        </div> -->
+        <div id="app" data="setting">
+            <div class="p-0" data-tool="general">
+                <ul class="nav nav-pills px-3 pt-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link fw-medium active" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab"><i class="ri-equalizer-line me-2"></i>Cài đặt chung</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link fw-medium" data-bs-toggle="tab" data-bs-target="#api" type="button" role="tab"><i class="ri-key-fill me-2"></i>Cài đặt API</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content p-3">
+                    <div class="tab-pane" id="api" role="tabpanel">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="fw-bold mb-2">API giải captcha</label>
+                                <select class="form-select" name="captchaService">
+                                    <option value="none">Không sử dụng</option>
+                                    <!-- <option value="1stcaptcha">1stcaptcha.com</option> -->
+                                    <option value="2captcha">2captcha.com</option>
+                                    <option value="capmonster">capMonster.cloud</option>
+                                    <option value="ezcaptcha">ez-captcha.com</option>
+                                    <option value="anticaptcha">anticaptcha.top</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="fw-bold mb-2">API Key</label>
+                                <input type="text" name="captchaServiceKey" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="fw-bold mb-2">API lấy SĐT</label>
+                                <select class="form-select" name="phoneService" id="phoneService">
+                                    <option value="none">Không sử dụng</option>
+                                    <option value="chothuesimcode">yuenanka.com</option>
+                                    <option value="viotp">viotp.com</option>
+                                    <option value="xotp">xotp.pro</option>
+                                    <option value="otponline">app.server-otponline.xyz</option>
+                                    <option value="sim24">sim24.cc</option>
+                                    <option value="233io9">api.233io9.info</option>
+                                    <option value="simotp">simig.net</option>
+                                    <option value="codesim">codesim.net</option>
+                                    <option value="template">Custom</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label class="fw-bold mb-2">API Key</label>
+                                <input type="text" name="phoneServiceKey" class="form-control">
+                            </div>
+                            <div class="col-3 d-none" data-parent="phoneService" data-value="chothuesimcode">
+                                <label class="fw-bold mb-2">Mạng</label>
+                                <select class="form-select" name="carrier">
+                                    <option value="">All</option>
+                                    <option value="Viettel">Viettel</option>
+                                    <option value="Mobi">Mobi</option>
+                                    <option value="Vina">Vina</option>
+                                    <option value="VNMB">VNMB</option>
+                                    <option value="ITelecom">ITelecom</option>
+                                </select>
+                            </div>
+                            <div class="col-2 d-none" data-parent="phoneService" data-value="simotp">
+                                <button class="btn btn-primary w-100" style="margin-top: 25px;" onclick="checkSimOtp()">Check</button>
+                            </div>
+                        </div>
+        
+                        <div class="mt-3 d-none row mb-3" data-parent="phoneService" data-value="template">
+                            <div class="col-6">
+                                <label class="fw-bold mb-2">Danh sách</label>
+                                <select class="form-select" name="customPhone">
+                                    
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label class="fw-bold mb-4"></label>
+                                <div class="d-flex">
+                                    <button type="button" class="btn btn-success me-2" onclick="addPhone()" data-bs-backdrop="false"><i class="ri-add-line"></i></button>
+                                    <button type="button" class="btn btn-primary me-2" onclick="editPhone()"><i class="ri-edit-line"></i></button>
+                                    <button type="button" class="btn btn-info text-white me-2" onclick="testPhone()"><i class="ri-play-line"></i></button>
+                                    <button type="button" class="btn btn-danger" onclick="deletePhone()"><i class="ri-delete-bin-line"></i></button>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="modal fade" id="addPhoneModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <form class="modal-content addPhoneForm">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Thêm dịch vụ</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Tên</label>
+                                                <input type="text" class="serviceName form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">API Get Phone</label>
+                                                <input type="text" class="apiGetPhone form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Phone Value</label>
+                                                <input type="text" class="phoneValue form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Phone Prefix</label>
+                                                <input type="text" class="phonePrefix form-control">
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">ID Value</label>
+                                                <input type="text" class="idValue form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Phone Delay</label>
+                                                <input type="text" class="phoneDelay form-control" value="0">
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">API Get Code</label>
+                                                <input type="text" class="apiGetCode form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Code Value</label>
+                                                <input type="text" class="codeValue form-control" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+        
+                        <div class="modal fade" id="editPhoneModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <form class="modal-content editPhoneForm">
+                                    <input type="hidden" class="phoneId">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Sửa dịch vụ</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Tên</label>
+                                                <input type="text" class="serviceName form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">API Get Phone</label>
+                                                <input type="text" class="apiGetPhone form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Phone Value</label>
+                                                <input type="text" class="phoneValue form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Phone Prefix</label>
+                                                <input type="text" class="phonePrefix form-control">
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">ID Value</label>
+                                                <input type="text" class="idValue form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Phone Delay</label>
+                                                <input type="text" class="phoneDelay form-control" value="0">
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">API Get Code</label>
+                                                <input type="text" class="apiGetCode form-control" required>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <label class="fw-bold mb-2">Code Value</label>
+                                                <input type="text" class="codeValue form-control" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+        
+                        <div class="modal fade" id="testPhoneModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Test dịch vụ</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div>
+                                                <label class="fw-bold me-2" style="width: 70px">Number</label>
+                                            </div>
+                                            <input type="text" id="testNumber" class="form-control flex-grow-1">
+                                            <div>
+                                                <button type="button" class="btn btn-success text-center ms-3" style="width: 100px" onclick="getNumber()">Get Number</button>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex">
+                                            <div>
+                                                <label class="fw-bold me-2" style="width: 70px">ID</label>
+                                            </div>
+                                            <input type="text" id="testId" class="form-control flex-grow-1">
+                                            <div>
+                                                <button type="button" class="btn btn-success text-center ms-3" style="width: 100px" onclick="getCode()">Get Code</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Đóng</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="fw-bold mb-2">API Email</label>
+                                <select class="form-select" name="emailService">
+                                    <option value="moakt">moakt.com</option>
+                                    <option value="fviainboxes">fviainboxes.com</option>
+                                </select>
+                            </div>
+                            
+                        </div>
+
+                        
+
+                    </div>
+                    <div class="tab-pane show active" id="general" role="tabpanel">
+                        <div class="mb-3">
+                            <label class="fw-bold mb-2">License Key</label>
+                            <input type="text" class="form-control" name="license">
+                        </div>
+        
+                        <div class="mb-3">
+                            <label class="fw-bold mb-2">Cookie</label>
+                            <input type="text" class="form-control" id="cookie">
+                        </div>
+        
+                        <div class="">
+                            <label class="fw-bold mb-2">Access Token</label>
+                            <input type="text" class="form-control" id="accessToken">
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        
+        <script src="js/test.js"></script>
+        <script src="js/libs.js"></script>
+        <script src="js/scripts.js"></script>
+        <script src="js/setting.js"></script>
+    </body>
+</html>
