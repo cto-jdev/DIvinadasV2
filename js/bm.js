@@ -14,42 +14,42 @@ const columnDefs = [{
     lockPosition: "left"
   }, {
     field: "status",
-    headerName: "Trạng thái",
-    filter: "agSetColumnFilter",
+    headerName: "Estado",
+    filter: "agSetColumnFilter", 
     cellRenderer: p5 => {
       let vLS = "";
       if (p5.data.status === "BM_XANHVO") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">BM XANH VỎ</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">BM VERDE FALSO</strong></a>";
       }
       if (p5.data.status === "BM_KHANG") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">BM KHÁNG XMDT</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">BM RESISTENTE XMDT</strong></a>";
       }
       if (p5.data.status === "BM_KHANG_3DONG") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">BM KHÁNG 3 DÒNG</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">BM RESISTENTE 3 LÍNEAS</strong></a>";
       }
       if (p5.data.status === "DIE_DK") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-secondary\">DIE ĐANG KHÁNG</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-secondary\">MUERTO EN RESISTENCIA</strong></a>";
       }
       if (p5.data.status === "LIVE") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">LIVE</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">ACTIVO</strong></a>";
       }
       if (p5.data.status === "DIE") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE XMDT</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">MUERTO XMDT</strong></a>";
       }
       if (p5.data.status === "DIE_CAPTCHA") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE CAPTCHA</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">MUERTO CAPTCHA</strong></a>";
       }
       if (p5.data.status === "DIE_3DONG") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE 3 DÒNG</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">MUERTO 3 LÍNEAS</strong></a>";
       }
       if (p5.data.status === "DIE_VV") {
-        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">DIE VĨNH VIỄN</strong></a>";
+        vLS = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">MUERTO PERMANENTE</strong></a>";
       }
       return vLS;
     }
   }, {
     field: "name",
-    headerName: "Tài khoản",
+    headerName: "Cuenta",
     minWidth: 250,
     cellRenderer: p6 => {
       return "\n                <div class=\"d-flex align-items-center\">\n                    <span class=\"avatar-letter\" data-letter=\"" + p6.data.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                    <a href=\"https://business.facebook.com/settings/?business_id=" + p6.data.bmId + "\" target=\"_BLANK\" class=\"ps-3 flex-grow-1 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + p6.data.name + "</strong>\n                        <span>" + p6.data.bmId + "</span>\n                    </a>\n                </div>\n            ";
@@ -62,53 +62,53 @@ const columnDefs = [{
     headerName: "ID BM"
   }, {
     field: "process",
-    headerName: "Process",
+    headerName: "Proceso",
     cellRenderer: p7 => {
       if (p7.data.process === "RUNNING") {
-        return "<span class=\"badge text-bg-warning\" style=\"font-size: 10px\">RUNNING</span>";
+        return "<span class=\"badge text-bg-warning\" style=\"font-size: 10px\">EN PROCESO</span>";
       }
       if (p7.data.process === "FINISHED") {
-        return "<span class=\"badge text-bg-success\" style=\"font-size: 10px\">FINISHED</span>";
+        return "<span class=\"badge text-bg-success\" style=\"font-size: 10px\">FINALIZADO</span>";
       }
     }
   }, {
     field: "message",
     minWidth: 300,
-    headerName: "Message"
+    headerName: "Mensaje"
   }, {
     field: "bmType",
-    headerName: "Loại BM"
+    headerName: "Tipo BM"
   }, {
     field: "role",
-    headerName: "Quyền"
+    headerName: "Rol"
   }, {
     field: "type",
     headerName: "BM"
   }, {
     field: "adAccount",
-    headerName: "SL Account"
+    headerName: "Cant. Cuentas"
   }, {
     field: "bmPage",
-    headerName: "SL Page"
+    headerName: "Cant. Pages"
   }, {
-    field: "instaAccount",
-    headerName: "SL IG"
+    field: "instaAccount", 
+    headerName: "Cant. IG"
   }, {
     field: "adminAccount",
-    headerName: "SL Admin"
+    headerName: "Cant. Admin"
   }, {
     field: "limit",
-    headerName: "Limit",
+    headerName: "Límite",
     cellRenderer: p8 => {
       p8.data.limit = p8.data.limit || "";
       return "<span class=\"currency\" data-value=\"" + p8.data.limit.toString().replaceAll(",", "") + "\" data-currency=\"" + p8.data.currency + "\">" + p8.data.limit + "</span>";
     }
   }, {
     field: "currency",
-    headerName: "Tiền tệ"
+    headerName: "Moneda"
   }, {
     field: "dieDate",
-    headerName: "Ngày Die"
+    headerName: "Fecha Muerte"
   }];
   const accountGrid = {
     rowHeight: 50,
@@ -240,13 +240,13 @@ const columnDefs = [{
   });
   $("#deletePhoi").click(function () {
     Swal.fire({
-      title: "Bạn có chắc muốn xóa",
-      text: "Hành động này không thể hoàn tác",
-      icon: "warning",
+      title: "¿Estás seguro que deseas eliminar?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning", 
       showCancelButton: true,
       confirmButtonColor: "#dc3545",
-      confirmButtonText: "Xóa",
-      cancelButtonText: "Hủy"
+      confirmButtonText: "Eliminar",
+      cancelButtonText: "Cancelar"
     }).then(async p20 => {
       if (p20.isConfirmed) {
         const v22 = $(".phoiItem.active").attr("data-file");
@@ -374,7 +374,7 @@ const columnDefs = [{
       if (p45.owned_ad_accounts?.data.length) {
         const v35 = p45.owned_ad_accounts?.data.filter(p47 => p47.account_status == 1);
         const v36 = p45.owned_ad_accounts?.data.filter(p48 => p48.account_status != 1);
-        accountGrid.api.getRowNode(v33).setDataValue("adAccount", "Total: " + p45.owned_ad_accounts.summary.total_count + " - " + (v35.length ? "Live: " + v35.length + " - " : "") + (v36.length ? "Die: " + v36.length : ""));
+        accountGrid.api.getRowNode(v33).setDataValue("adAccount", "Total: " + p45.owned_ad_accounts.summary.total_count + " - " + (v35.length ? "Activas: " + v35.length + " - " : "") + (v36.length ? "Muertas: " + v36.length : ""));
         const v37 = p45.owned_ad_accounts?.data[0].adtrust_dsl;
         const v38 = p45.owned_ad_accounts?.data[0].currency;
         accountGrid.api.getRowNode(v33).setDataValue("limit", v37);

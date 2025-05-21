@@ -18,7 +18,7 @@ const columnDefs = [{
     hide: true
   }, {
     field: "status",
-    headerName: "Trạng thái",
+    headerName: "Estado",
     filter: "agSetColumnFilter",
     cellRenderer: p5 => {
       let vLS = "";
@@ -32,21 +32,21 @@ const columnDefs = [{
     }
   }, {
     field: "name",
-    headerName: "Tài khoản",
+    headerName: "Cuenta",
     minWidth: 250,
     cellRenderer: p6 => {
       return "\n                <div class=\"d-flex align-items-center\">\n                    <img class=\"rounded-circle\" src=\"" + (p6.data.avatar ? p6.data.avatar : "../img/avatar.jpg") + "\" height=\"30\">\n                    <a href=\"https://facebook.com/profile.php?id=" + p6.data.uid + "\" target=\"_BLANK\" class=\"ps-3 flex-grow-1 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + (p6.data.name ? p6.data.name : "Unknown") + "</strong>\n                        <span>" + p6.data.uid + "</span>\n                    </a>\n                </div>\n            ";
     }
   }, {
     field: "account",
-    headerName: "Account"
+    headerName: "Cuenta"
   }, {
     field: "uid",
     headerName: "UID",
     suppressFiltersToolPanel: true
   }, {
     field: "password",
-    headerName: "Mật khẩu",
+    headerName: "Contraseña",
     suppressFiltersToolPanel: true
   }, {
     field: "twofa",
@@ -58,11 +58,11 @@ const columnDefs = [{
     suppressFiltersToolPanel: true
   }, {
     field: "passMail",
-    headerName: "Email Password",
+    headerName: "Contraseña Email",
     suppressFiltersToolPanel: true
   }, {
     field: "recoverEmail",
-    headerName: "Email khôi phục",
+    headerName: "Email de recuperación",
     suppressFiltersToolPanel: true
   }, {
     field: "cookie",
@@ -79,52 +79,52 @@ const columnDefs = [{
     }
   }, {
     field: "tkqc",
-    headerName: "TKQC",
+    headerName: "Cuenta Ads",
     cellRenderer: p8 => {
       let vLS3 = "";
       if (p8.data.tkqc && p8.data.tkqc != 0) {
-        vLS3 = "\n                    <button type=\"button\" data-type=\"viewAds\" data-id=\"" + p8.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-megaphone-line me-1\"></i><strong>TKQC: <span class=\"count\">" + p8.data.tkqc + "</span></strong></button>\n                ";
+        vLS3 = "\n                    <button type=\"button\" data-type=\"viewAds\" data-id=\"" + p8.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-megaphone-line me-1\"></i><strong>Cuenta Ads: <span class=\"count\">" + p8.data.tkqc + "</span></strong></button>\n                ";
       }
       return vLS3;
     }
   }, {
     field: "page",
-    headerName: "Page",
+    headerName: "Página",
     cellRenderer: p9 => {
       let vLS4 = "";
       if (p9.data.page && p9.data.page != 0) {
-        vLS4 = "\n                    <button type=\"button\" data-type=\"viewPage\" data-id=\"" + p9.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-flag-line me-1\"></i><strong>Page: <span class=\"count\">" + p9.data.page + "</span></strong></button>\n                ";
+        vLS4 = "\n                    <button type=\"button\" data-type=\"viewPage\" data-id=\"" + p9.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-flag-line me-1\"></i><strong>Página: <span class=\"count\">" + p9.data.page + "</span></strong></button>\n                ";
       }
       return vLS4;
     }
   }, {
     field: "dob",
-    headerName: "Ngày sinh"
+    headerName: "Fecha de nacimiento"
   }, {
     field: "gender",
-    headerName: "Giới tính",
+    headerName: "Género",
     cellRenderer: p10 => {
       let vLS5 = "";
       if (p10.data.gender === "male") {
-        vLS5 = "Nam";
+        vLS5 = "Hombre";
       } else if (p10.data.gender === "female") {
-        vLS5 = "Nữ";
+        vLS5 = "Mujer";
       }
       return vLS5;
     }
   }, {
     field: "friends",
-    headerName: "Bạn bè"
+    headerName: "Amigos"
   }, {
     field: "action",
-    headerName: "Hành động",
+    headerName: "Acción",
     minWidth: 200,
     cellRenderer: p11 => {
       let vLS6 = "";
       if (p11.data.action === "active") {
-        vLS6 = "\n                    <button type=\"button\" class=\"btn btn-success btn-sm p-0 px-2\"><i class=\"ri-checkbox-blank-circle-fill me-1\"></i>Đang hoạt động</button>\n                    <button type=\"button\" id=\"logoutBtn\" class=\"ms-1 btn bg-dark-subtle btn-sm p-0 px-1\"><i class=\"ri-logout-box-r-line\"></i>\n                    </button>\n                ";
+        vLS6 = "\n                    <button type=\"button\" class=\"btn btn-success btn-sm p-0 px-2\"><i class=\"ri-checkbox-blank-circle-fill me-1\"></i>Activo</button>\n                    <button type=\"button\" id=\"logoutBtn\" class=\"ms-1 btn bg-dark-subtle btn-sm p-0 px-1\"><i class=\"ri-logout-box-r-line\"></i>\n                    </button>\n                ";
       } else {
-        vLS6 = "\n                    <button type=\"button\" data-id=\"" + p11.data.id + "\" class=\"loginButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-lock-line me-1\"></i>Đăng nhập</button>\n                ";
+        vLS6 = "\n                    <button type=\"button\" data-id=\"" + p11.data.id + "\" class=\"loginButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-lock-line me-1\"></i>Iniciar sesión</button>\n                ";
       }
       return vLS6;
     }
@@ -311,13 +311,13 @@ const columnDefs = [{
   });
   $("#deleteSelect").click(function () {
     Swal.fire({
-      title: "Bạn có chắc muốn xóa",
-      text: "Hành động này không thể hoàn tác",
+      title: "¿Estás seguro que deseas eliminar?",
+      text: "Esta acción no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#dc3545",
-      confirmButtonText: "Xóa",
-      cancelButtonText: "Hủy"
+      confirmButtonText: "Eliminar",
+      cancelButtonText: "Cancelar"
     }).then(async p26 => {
       if (p26.isConfirmed) {
         const vGetSelectedRows = getSelectedRows();
@@ -342,11 +342,11 @@ const columnDefs = [{
   });
   $("#importClone").click(function () {
     Swal.fire({
-      title: "Import Data",
-      html: "\n            <div class=\"p-1\">\n                <textarea id=\"viaData\" class=\"form-control mb-3\" rows=\"10\" placeholder=\"Nhập danh sách Clone\"></textarea>\n            </div>\n        ",
+      title: "Importar Data",
+      html: "\n            <div class=\"p-1\">\n                <textarea id=\"viaData\" class=\"form-control mb-3\" rows=\"10\" placeholder=\"Ingresa la lista de Clones\"></textarea>\n            </div>\n        ",
       showCancelButton: true,
-      cancelButtonText: "Hủy",
-      confirmButtonText: "Import",
+      cancelButtonText: "Cancelar",
+      confirmButtonText: "Importar",
       confirmButtonColor: "#4267B2",
       showLoaderOnConfirm: true,
       width: 600,
@@ -355,7 +355,7 @@ const columnDefs = [{
         if (v30) {
           pasteData(v30);
         } else {
-          Swal.showValidationMessage("Xin vui lòng nhập danh sách Clone");
+          Swal.showValidationMessage("Por favor ingresa la lista de Clones");
         }
         return true;
       }
@@ -459,15 +459,15 @@ const columnDefs = [{
           width: 700,
           icon: "warning",
           input: "textarea",
-          title: "Cảnh báo",
-          text: "Những dữ liệu sau đã tồn tại, bạn có chắc vẫn muốn thêm vào?",
+          title: "Advertencia",
+          text: "Los siguientes datos ya existen, ¿estás seguro que deseas agregarlos?",
           inputValue: vA6.map(p38 => {
             return p38.account;
           }).join("\r\n"),
           showCancelButton: true,
           allowOutsideClick: false,
-          confirmButtonText: "Vẫn thêm",
-          cancelButtonText: "Bỏ qua",
+          confirmButtonText: "Agregar igual",
+          cancelButtonText: "Omitir",
           inputAttributes: {
             rows: 10,
             style: "height: inherit!important"
@@ -510,10 +510,10 @@ const columnDefs = [{
   });
   $("#checkLive").click(async function () {
     const v46 = Swal.fire({
-      title: "Đang check live tài khoản",
-      html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+      title: "Verificando estado de las cuentas",
+      html: "<span id=\"checkProgress\">Por favor espera...</span>",
       showDenyButton: true,
-      denyButtonText: "Stop",
+      denyButtonText: "Detener",
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
