@@ -654,13 +654,13 @@ function  getSiteKey(p247) {
       }
     });
   }
-  khang902Api2(p250, p251 = "", p252 = {}) {
+  function khang902Api2(p250, p251 = "", p252 = {}) {
     return new Promise(async (p253, p254) => {
-      const v271 = this.dtsg;
+      const v271 = fb.dtsg;
       const vLS5FnEglTcQSfqnuBkn03g = "5FnEglTcQSfqnuBkn03g";
-      const v272 = this.accessToken;
+      const v272 = fb.accessToken;
       const vLS902 = "902";
-      const v273 = this.uid;
+      const v273 = fb.uid;
       let vV273 = v273;
       let vLN5 = 5;
       if (p251) {
@@ -1249,7 +1249,7 @@ function  getSiteKey(p247) {
       }
     });
   }
-}
+
 
 function getCurrentUser() {
   return new Promise(async (p286, p287) => {
