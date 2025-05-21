@@ -1,9 +1,9 @@
 ﻿<!doctype html>
-<html lang="en">
+<html lang="es">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Quản lý TKQC | TOOLFB.VN</title>
+        <title>Gestión de Anuncios | TOOLFB.VN</title>
         <!-- <link href="css/sweetalert2.min.css" rel="stylesheet">
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/remixicon.css" rel="stylesheet">
@@ -23,8 +23,6 @@
         
         <div id="app" data="ads">
 
-
-
             <div id="header">
                 <div class="header-top">
                     <div class="row align-items-center h-100">
@@ -33,17 +31,16 @@
                         </div>
                         <div class="col-4 d-flex justify-content-center">
                             <div class="rounded row fw-medium" style="height: 35px; line-height: 25px; padding: 5px;width:350px;">
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="index.html">HOME</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="clone.html">CLONE</a>
-                                <a class="col text-decoration-none mx-1 text-black bg-white rounded shadow text-center d-block" href="javascript:;">TKQC</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="bm.html">TK BM</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="page.html">PAGE</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="index.html">INICIO</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="clone.html">CLONAR</a>
+                                <a class="col text-decoration-none mx-1 text-black bg-white rounded shadow text-center d-block" href="javascript:;">ADS</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="bm.html">BM</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="page.html">PÁGINA</a>
                             </div>
                         </div>
                         <div class="col-4 d-flex justify-content-end">
                             <div id="quality"></div>
                         </div>
-                       
                     </div>
                 </div>
             </div>
@@ -57,13 +54,13 @@
                         <div class="p-3 d-flex justify-content-between" style="height: 59px;">
                             <div class="d-flex">
                                 <div class="d-flex">
-                                    <button type="button" class="shadow-sm control-btn btn border h-100 me-3 dark-border-0" id="start">
+                                    <button type="button" class="shadow-sm control-btn btn border h-100 me-3" id="start">
                                         <i class="ri-play-fill" style="background-color: #4caf50;"></i>
-                                        Bắt đầu
+                                        Iniciar
                                     </button>
                                     <button type="button" class="shadow-sm control-btn btn border h-100 me-3 d-none" id="stop">
                                         <i class="ri-stop-fill" style="background-color: #f44336;"></i>
-                                        Dừng lại
+                                        Detener
                                     </button>
                                 </div>
                                 <div class="d-flex">
@@ -73,69 +70,69 @@
                                         </button>
                                         <div class="dropdown-menu mt-2 border dropdown-menu-end shadow-sm p-2" style="width: 250px;">
                                             <div class="mb-2">
-                                                <strong>Trạng thái</strong>
+                                                <strong>Estado</strong>
                                             </div>
                                             <label class="border rounded mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="1">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-success rounded-circle me-2"></span><strong class="text-success">Hoạt động</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-success rounded-circle me-2"></span><strong class="text-success">ACTIVO</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status1Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="2">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">Vô hiệu hóa</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DESHABILITADO XMDT</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status2Count">0</span>
                                             </label>
-                                            <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
+                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="4">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">Đang kháng 3 dòng</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">DESHABILITADO 3 LÍNEAS</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status4Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="5">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">Die 3 dòng</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DESHABILITADO 3 LÍNEAS</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status5Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="6">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">Die XMDT</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DESHABILITADO XMDT</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status6Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="7">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">Die vĩnh viễn</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DESHABILITADO PERMANENTE</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status7Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="3">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">Cần thanh toán</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">PAGO PENDIENTE</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status3Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="101">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-info rounded-circle me-2"></span><strong class="text-info">Đóng</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-info rounded-circle me-2"></span><strong class="text-info">CERRADO</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status101Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="999">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-secondary rounded-circle me-2"></span><strong class="text-secondary">Hold</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-secondary rounded-circle me-2"></span><strong class="text-secondary">EN ESPERA</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status999Count">0</span>
                                             </label>
                                         </div>
@@ -151,7 +148,7 @@
                                     </button>
                                     <!-- <div class="me-3 h-100" style="width: 200px;">
                                         <select id="accountSelect" class="form-select">
-                                            <option value="0">Tất cả tài khoản</option>
+                                            <option value="0">Todas las cuentas</option>
                                         </select>
                                     </div> -->
                                 </div>
@@ -159,13 +156,13 @@
                             <div class="flex-grow-1 px-3">
                                 <div class="position-relative h-100">
                                     <a href="javascript:;" id="searchSubmit" class="text-dark"><i class="ri-search-line fs-5 position-absolute" style="top: 3px; right: 8px"></i></a>
-                                    <input class="form-control h-100 fw-medium" style="padding-right: 30px;" id="search" placeholder="Nhập từ khóa...">
+                                    <input class="form-control h-100 fw-medium" style="padding-right: 30px;" id="search" placeholder="Ingrese palabras clave...">
                                 </div>
                             </div>
                             <div data-tool="general" class="d-flex gap-3" style="width:400px">
                                 <div>
                                     <div class="position-relative h-100">
-                                        <label class="position-absolute fw-medium" style=" top: 7px; left: 7px;">Luồng</label>
+                                        <label class="position-absolute fw-medium" style=" top: 7px; left: 7px;">Hilos</label>
                                         <input type="number" name="limit" class="form-control h-100 text-center" style="padding-left:50px;" value="2">
                                     </div>
                                 </div>
@@ -180,10 +177,10 @@
                                 <div>
                                     <div class="position-relative h-100 d-flex">
                                         <a href="https://t.me/+e2FWMUnQPjZiNjA9" target="_blank" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap">
-                                            <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Hỗ trợ
+                                            <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Soporte
                                         </a>
                                         <button type="button" class="text-nowrap shadow-sm control-btn btn border px-2 pe-3 h-100" data-bs-toggle="modal" data-bs-target="#settingModal">
-                                    <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Cài đặt
+                                    <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Configuración
                                 </button>
                                         
                                     </div>
@@ -220,21 +217,21 @@
                         <div class="d-flex">
                             <div class="d-flex align-items-center border px-3 py-1 me-2 rounded">
                                 <span class="border-end me-2 pe-2">
-                                    <strong>Tổng: </strong>
+                                    <strong>Total: </strong>
                                     <span id="tong" class="badge text-bg-secondary">0</span>
                                 </span>
                                 <span class="border-end me-2 pe-2">
-                                    <strong>Đã chọn:</strong> 
+                                    <strong>Seleccionados:</strong> 
                                     <span id="dachon" class="badge text-bg-secondary">0</span>
                                 </span>
                                 <span>
-                                    <strong>Bôi đen:</strong> 
+                                    <strong>Resaltados:</strong> 
                                     <span id="boiden" class="badge text-bg-secondary">0</span>
                                 </span>
                             </div>
                             <div class="dropup">
                                 <button type="button" data-bs-toggle="dropdown" class="text-nowrap shadow-sm control-btn btn border px-2 py-0 h-100 d-flex align-items-center">
-                                    <i class="ri-money-dollar-circle-fill m-0 me-1" style="color: #666; font-size: 18px;"></i>Tiền tệ:<span class="currentCurrency ms-2">MIX</span>
+                                    <i class="ri-money-dollar-circle-fill m-0 me-1" style="color: #666; font-size: 18px;"></i>Moneda:<span class="currentCurrency ms-2">MIX</span>
                                     <i class="ri-arrow-up-s-fill m-0 mb-1" style="color: #666; font-size: 14px;"></i>
                                 </button>
                                 <ul class="dropdown-menu currencyMenu">
@@ -248,39 +245,39 @@
 
                         <div class="d-flex align-items-center border px-3 py-1 me-2 rounded">
                             <span class="border-end me-2 pe-2">
-                                <strong>Hoạt động:</strong> 
+                                <strong>Activos:</strong> 
                                 <span class="status1Count badge text-bg-success">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>Vô hiệu hóa:</strong> 
+                                <strong>Deshabilitados:</strong> 
                                 <span class="status2Count badge text-bg-danger">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>ĐK 3 dòng:</strong> 
+                                <strong>Apelación 3L:</strong> 
                                 <span class="status4Count badge text-bg-warning">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>Die 3 dòng:</strong> 
+                                <strong>Deshab. 3L:</strong> 
                                 <span class="status5Count badge text-bg-danger">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>Die XMDT:</strong> 
+                                <strong>Deshab. XMDT:</strong> 
                                 <span class="status6Count badge text-bg-danger">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>Die VV:</strong> 
+                                <strong>Deshab. Perm:</strong> 
                                 <span class="status7Count badge text-bg-danger">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>Cần thanh toán:</strong> 
+                                <strong>Pago Pend.:</strong> 
                                 <span class="status3Count badge text-bg-warning">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>Đóng:</strong> 
+                                <strong>Cerrados:</strong> 
                                 <span class="status101Count badge text-bg-secondary">0</span>
                             </span>
                             <span>
-                                <strong>Hold:</strong> 
+                                <strong>En Espera:</strong> 
                                 <span class="status999Count badge text-bg-info">0</span>
                             </span>
                         </div>
@@ -290,7 +287,7 @@
                                     <span id="lastSync" class="fw-medium"></span>
                                 </div>
                                 <button class="shadow-sm btn border me-2 pe-3 h-100 d-flex align-items-center" onclick="openLink('https://t.me/+lqVNxKOd_nRkOTM1')">
-                                    <i class="ri-alert-line me-2 fs-6"></i> <strong>Báo lỗi</strong>
+                                    <i class="ri-alert-line me-2 fs-6"></i> <strong>Reportar Error</strong>
                                 </button>
                                 <button class="shadow-sm btn border h-100 d-flex align-items-center">
                                     <strong>Checkpoint </strong><span class="badge text-bg-danger ms-2" id="cpCount">0</span>
@@ -318,7 +315,7 @@
 								<div class="p-3">
 									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
 										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Share đối tác BM</span>
+											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Compartir BM Socio</span>
 										</label>
 										<input class="form-check-input" data-target="shareBmSetting" name="shareBm" type="checkbox" role="switch">
 									</div>
@@ -337,7 +334,7 @@
 								<div class="p-3">
 									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
 										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Lấy Link TK BM</span>
+											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Obtener Link BM</span>
 										</label>
 										<input class="form-check-input" data-target="getLinkShareBmSetting" name="getLinkShareBm" type="checkbox" role="switch">
 									</div>
@@ -354,7 +351,7 @@
 								<div class="p-3">
 									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
 										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Lấy Link XMDT</span>
+											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Obtener Link XMDT</span>
 										</label>
 										<input class="form-check-input" name="getLinkXmdtAds" type="checkbox" role="switch">
 									</div>
@@ -367,7 +364,7 @@
                                 <div class="p-3">
                                     <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
                                         <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-edit-line fs-5 me-2"></i><span class="fw-bold">Đổi tên</span>
+                                            <i class="ri-edit-line fs-5 me-2"></i><span class="fw-bold">Cambiar nombre</span>
                                         </label>
                                         <input class="form-check-input" data-target="renameSetting" name="rename" type="checkbox" role="switch">
                                     </div>
@@ -375,7 +372,7 @@
     
                                 <div id="renameSetting" class="p-3 d-none border-top">
                                     <label class="form-label fw-medium">
-                                        Tên mới
+                                        Nuevo nombre
                                     </label>
                                     <input type="text" class="form-control" value="Toolfb.vn" name="newName">
                                 </div>
@@ -386,7 +383,7 @@
                                 <div class="p-3">
                                     <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
                                         <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-information-line fs-5 me-2"></i><span class="fw-bold">Đổi thông tin</span>
+                                            <i class="ri-information-line fs-5 me-2"></i><span class="fw-bold">Cambiar información</span>
                                         </label>
                                         <input class="form-check-input" data-target="changeInfoSetting" name="changeInfo" type="checkbox" role="switch">
                                     </div>
@@ -395,19 +392,19 @@
                                 <div id="changeInfoSetting" class="p-3 d-none border-top">
                                     <div class="mb-3">
                                         <label class="form-label fw-medium mb-2 d-block">
-                                            Tiền tệ
+                                            Moneda
                                         </label>
                                         <select class="form-select select2" name="currency"></select>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-medium mb-2 d-block">
-                                            Timezone
+                                            Zona horaria
                                         </label>
                                         <select class="form-select select2" name="timezone"></select>
                                     </div>
                                     <div class="">
                                         <label class="form-label fw-medium mb-2 d-block">
-                                            Quốc gia
+                                            País
                                         </label>
                                         <select class="form-select" name="country"></select>
                                     </div>  
@@ -419,7 +416,7 @@
                                 <div class="p-3">
                                     <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
                                         <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-user-add-line fs-5 me-2"></i><span class="fw-bold">Thêm người</span>
+                                            <i class="ri-user-add-line fs-5 me-2"></i><span class="fw-bold">Agregar usuario</span>
                                         </label>
                                         <input class="form-check-input" data-target="addAdmiSetting" name="addAdmin" type="checkbox" role="switch">
                                     </div>
@@ -438,7 +435,7 @@
                                 <div class="p-3">
                                     <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
                                         <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-spy-line fs-5 me-2"></i><span class="fw-bold">Xóa admin</span>
+                                            <i class="ri-spy-line fs-5 me-2"></i><span class="fw-bold">Eliminar admin</span>
                                         </label>
                                         <input class="form-check-input" data-target="removeAdminSetting" name="removeAdmin" type="checkbox" role="switch">
                                     </div>
@@ -450,7 +447,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" name="removeHidden" id="removeHidden">
                                                 <label class="form-check-label" for="removeHidden">
-                                                    Xóa admin ẩn
+                                                    Eliminar admin oculto
                                                 </label>
                                             </div>
                                         </div>
@@ -458,7 +455,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" name="removeAll" id="removeAll">
                                                 <label class="form-check-label" for="removeAll">
-                                                    Xóa tất cả trừ bạn
+                                                    Eliminar todos excepto tú
                                                 </label>
                                             </div>
                                         </div>
@@ -472,7 +469,7 @@
                                 <div class="p-3">
                                     <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
                                         <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-door-closed-line me-2"></i><span class="fw-bold">Mở tài khoản đóng</span>
+                                            <i class="ri-door-closed-line me-2"></i><span class="fw-bold">Abrir cuenta cerrada</span>
                                         </label>
                                         <input class="form-check-input" name="openAccount" type="checkbox" role="switch">
                                     </div>
@@ -485,7 +482,7 @@
                                 <div class="p-3">
                                     <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
                                         <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-bank-card-2-line me-2"></i><span class="fw-bold">Add thẻ</span>
+                                            <i class="ri-bank-card-2-line me-2"></i><span class="fw-bold">Agregar tarjeta</span>
                                         </label>
                                         <input class="form-check-input" data-target="addCardSetting" name="addCard" type="checkbox" role="switch">
                                     </div>
@@ -495,7 +492,7 @@
                                     <div class="row mb-3">
                                         <div class="col-4">
                                             <label class="form-label fw-medium">
-                                                Chế độ
+                                                Modo
                                             </label>
                                             <select class="form-select" name="addCardMode">
                                                 <option value="1">1</option>
@@ -516,7 +513,7 @@
                                             </label>
                                             <button type="button" class="control-btn btn border p-1 w-100 mt-2" data-bs-toggle="modal" data-bs-target="#cardModal">
                                                 <i class="ri-bank-card-line fs-5 me-2" style="color: #666;"></i>
-                                                DS Thẻ
+                                                Lista de Tarjetas
                                             </button>
                                         </div>
                                     </div>  
@@ -539,7 +536,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5 d-flex align-items-center">
-                            Danh sách thẻ
+                            Lista de tarjetas
                             <span class="ms-2 badge text-bg-success" id="cardCount">0</span>
                         </h1>
                     </div>
@@ -547,7 +544,7 @@
                         <div id="cards" class="ag-theme-balham" style="height: 350px"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">Đóng</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -557,7 +554,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content shadow-lg">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5">Cài đặt</h1>
+                        <h1 class="modal-title fs-5">Configuración</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-0">
@@ -565,8 +562,8 @@
                     </div>
                     <div class="modal-footer d-flex">
                         
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Lưu cài đặt</button>
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Đóng</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Guardar configuración</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -576,7 +573,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content shadow-lg">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5">Tùy chỉnh cột</h1>
+                        <h1 class="modal-title fs-5">Personalizar columnas</h1>
                     </div>
                     <div class="modal-body p-0">
                         <div id="colCustomize" class="overflow-y-auto p-3" style="max-height: 350px;">
@@ -584,8 +581,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" id="resetColumns" class="btn btn-secondary">Mặc định</button>
-                        <button type="button" id="saveColumns" class="btn btn-primary">Lưu cài đặt</button>
+                        <button type="button" id="resetColumns" class="btn btn-secondary">Por defecto</button>
+                        <button type="button" id="saveColumns" class="btn btn-primary">Guardar configuración</button>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Quản lý BM</title>
+        <title>Administrar BM</title>
         <link href="css/libs.css" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
         <script src="js/jquery.js"></script>
@@ -30,10 +30,10 @@
             <div class="p-0" data-tool="general">
                 <ul class="nav nav-pills px-3 pt-3" role="tablist">
                     <li class="nav-item" role="presentation">
-                      <button class="nav-link fw-medium active" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab"><i class="ri-equalizer-line me-2"></i>Cài đặt chung</button>
+                      <button class="nav-link fw-medium active" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab"><i class="ri-equalizer-line me-2"></i>Configuración General</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                      <button class="nav-link fw-medium" data-bs-toggle="tab" data-bs-target="#api" type="button" role="tab"><i class="ri-key-fill me-2"></i>Cài đặt API</button>
+                      <button class="nav-link fw-medium" data-bs-toggle="tab" data-bs-target="#api" type="button" role="tab"><i class="ri-key-fill me-2"></i>Configuración API</button>
                     </li>
                 </ul>
 
@@ -41,9 +41,9 @@
                     <div class="tab-pane" id="api" role="tabpanel">
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="fw-bold mb-2">API giải captcha</label>
+                                <label class="fw-bold mb-2">API resolver captcha</label>
                                 <select class="form-select" name="captchaService">
-                                    <option value="none">Không sử dụng</option>
+                                    <option value="none">No usar</option>
                                     <!-- <option value="1stcaptcha">1stcaptcha.com</option> -->
                                     <option value="2captcha">2captcha.com</option>
                                     <option value="capmonster">capMonster.cloud</option>
@@ -58,9 +58,9 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="fw-bold mb-2">API lấy SĐT</label>
+                                <label class="fw-bold mb-2">API obtener número</label>
                                 <select class="form-select" name="phoneService" id="phoneService">
-                                    <option value="none">Không sử dụng</option>
+                                    <option value="none">No usar</option>
                                     <option value="chothuesimcode">yuenanka.com</option>
                                     <option value="viotp">viotp.com</option>
                                     <option value="xotp">xotp.pro</option>
@@ -69,7 +69,7 @@
                                     <option value="233io9">api.233io9.info</option>
                                     <option value="simotp">simig.net</option>
                                     <option value="codesim">codesim.net</option>
-                                    <option value="template">Custom</option>
+                                    <option value="template">Personalizado</option>
                                 </select>
                             </div>
                             <div class="col">
@@ -77,9 +77,9 @@
                                 <input type="text" name="phoneServiceKey" class="form-control">
                             </div>
                             <div class="col-3 d-none" data-parent="phoneService" data-value="chothuesimcode">
-                                <label class="fw-bold mb-2">Mạng</label>
+                                <label class="fw-bold mb-2">Operador</label>
                                 <select class="form-select" name="carrier">
-                                    <option value="">All</option>
+                                    <option value="">Todos</option>
                                     <option value="Viettel">Viettel</option>
                                     <option value="Mobi">Mobi</option>
                                     <option value="Vina">Vina</option>
@@ -88,13 +88,13 @@
                                 </select>
                             </div>
                             <div class="col-2 d-none" data-parent="phoneService" data-value="simotp">
-                                <button class="btn btn-primary w-100" style="margin-top: 25px;" onclick="checkSimOtp()">Check</button>
+                                <button class="btn btn-primary w-100" style="margin-top: 25px;" onclick="checkSimOtp()">Verificar</button>
                             </div>
                         </div>
         
                         <div class="mt-3 d-none row mb-3" data-parent="phoneService" data-value="template">
                             <div class="col-6">
-                                <label class="fw-bold mb-2">Danh sách</label>
+                                <label class="fw-bold mb-2">Lista</label>
                                 <select class="form-select" name="customPhone">
                                     
                                 </select>
@@ -114,13 +114,13 @@
                             <div class="modal-dialog modal-dialog-centered">
                                 <form class="modal-content addPhoneForm">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Thêm dịch vụ</h1>
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Agregar servicio</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-6 mb-3">
-                                                <label class="fw-bold mb-2">Tên</label>
+                                                <label class="fw-bold mb-2">Nombre</label>
                                                 <input type="text" class="serviceName form-control" required>
                                             </div>
                                             <div class="col-6 mb-3">
@@ -154,7 +154,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                                        <button type="submit" class="btn btn-primary">Guardar configuración</button>
                                     </div>
                                 </form>
                             </div>
@@ -165,13 +165,13 @@
                                 <form class="modal-content editPhoneForm">
                                     <input type="hidden" class="phoneId">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Sửa dịch vụ</h1>
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Editar servicio</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-6 mb-3">
-                                                <label class="fw-bold mb-2">Tên</label>
+                                                <label class="fw-bold mb-2">Nombre</label>
                                                 <input type="text" class="serviceName form-control" required>
                                             </div>
                                             <div class="col-6 mb-3">
@@ -205,7 +205,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                                        <button type="submit" class="btn btn-primary">Guardar configuración</button>
                                     </div>
                                 </form>
                             </div>
@@ -215,17 +215,17 @@
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Test dịch vụ</h1>
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Probar servicio</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="d-flex align-items-center mb-3">
                                             <div>
-                                                <label class="fw-bold me-2" style="width: 70px">Number</label>
+                                                <label class="fw-bold me-2" style="width: 70px">Número</label>
                                             </div>
                                             <input type="text" id="testNumber" class="form-control flex-grow-1">
                                             <div>
-                                                <button type="button" class="btn btn-success text-center ms-3" style="width: 100px" onclick="getNumber()">Get Number</button>
+                                                <button type="button" class="btn btn-success text-center ms-3" style="width: 100px" onclick="getNumber()">Obtener Número</button>
                                             </div>
                                         </div>
                                         <div class="d-flex">
@@ -234,12 +234,12 @@
                                             </div>
                                             <input type="text" id="testId" class="form-control flex-grow-1">
                                             <div>
-                                                <button type="button" class="btn btn-success text-center ms-3" style="width: 100px" onclick="getCode()">Get Code</button>
+                                                <button type="button" class="btn btn-success text-center ms-3" style="width: 100px" onclick="getCode()">Obtener Código</button>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Đóng</button>
+                                        <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Cerrar</button>
                                     </div>
                                 </div>
                             </div>

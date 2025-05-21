@@ -1,9 +1,9 @@
 ﻿<!doctype html>
-<html lang="en">
+<html lang="es">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Quản lý Page | TOOLFB.VN</title>
+        <title>Administrar Páginas | TOOLFB.VN</title>
         <link href="css/libs.css" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
 
@@ -21,8 +21,6 @@
         </div> -->
         <div id="app" data="page">
 
-
-
             <div id="header">
                 <div class="header-top">
                     <div class="row align-items-center h-100">
@@ -31,11 +29,11 @@
                         </div>
                         <div class="col-4 d-flex justify-content-center">
                             <div class="rounded row fw-medium" style="height: 35px; line-height: 25px; padding: 5px;width:350px;">
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="index.html">HOME</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="clone.html">CLONE</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="ads.html">TKQC</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="bm.html">TK BM</a>
-                                <a class="col text-decoration-none mx-1 text-black bg-white rounded shadow text-center d-block" href="javascript:;">PAGE</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="index.html">INICIO</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="clone.html">CLONAR</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="ads.html">ADS</a>
+                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="bm.html">BM</a>
+                                <a class="col text-decoration-none mx-1 text-black bg-white rounded shadow text-center d-block" href="javascript:;">PAGINA</a>
                             </div>
                         </div>
                         <div class="col-4 d-flex justify-content-end">
@@ -48,19 +46,17 @@
             <div class="app-wrapper rounded overflow-hidden d-flex shadow">
                 <div class="account-wrapper d-flex flex-column overflow-hidden flex-grow-1 position-relative overflow-hidden">
 
-                   
-
                     <div class="border-bottom bg-white dark-border dark-body-bg" style="z-index: 101;">
                         <div class="p-3 d-flex justify-content-between" style="height: 59px;">
                             <div class="d-flex">
                                 <div class="d-flex">
                                     <button type="button" class="shadow-sm control-btn btn border h-100 me-3" id="start">
                                         <i class="ri-play-fill" style="background-color: #4caf50;"></i>
-                                        Bắt đầu
+                                        Iniciar
                                     </button>
                                     <button type="button" class="shadow-sm control-btn btn border h-100 me-3 d-none" id="stop">
                                         <i class="ri-stop-fill" style="background-color: #f44336;"></i>
-                                        Dừng lại
+                                        Detener
                                     </button>
                                 </div>
                                 <div class="d-flex">
@@ -70,48 +66,48 @@
                                         </button>
                                         <div class="dropdown-menu mt-2 border dropdown-menu-end shadow-sm p-2" style="width: 250px;">
                                             <div class="mb-2">
-                                                <strong>Trạng thái</strong>
+                                                <strong>Estado</strong>
                                             </div>
                                             <label class="border rounded mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="1">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">HCVV</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">Deshabilitado</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status1Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="2">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">Cần kháng</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">Necesita Apelación</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status2Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="3">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-info rounded-circle me-2"></span><strong class="text-info">Đang kháng</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-info rounded-circle me-2"></span><strong class="text-info">En Apelación</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status3Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="4">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-success rounded-circle me-2"></span><strong class="text-success">Live</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-success rounded-circle me-2"></span><strong class="text-success">Activo</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status4Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="5">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-primary rounded-circle me-2"></span><strong class="text-primary">XMDT</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-primary rounded-circle me-2"></span><strong class="text-primary">Revisión Manual</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status5Count">0</span>
                                             </label>
                                             <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
                                                 <div class="form-check me-2">
                                                     <input class="form-check-input statusFilter" type="checkbox" value="6">
                                                 </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-secondary rounded-circle me-2"></span><strong class="text-secondary">Page kháng</strong></span>
+                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-secondary rounded-circle me-2"></span><strong class="text-secondary">Página Apelada</strong></span>
                                                 <span class="badge rounded-pill text-bg-primary status6Count">0</span>
                                             </label>
                                         </div>
@@ -125,23 +121,18 @@
                                     <button type="button" class="shadow-sm control-btn btn border px-2 h-100" data-bs-toggle="modal" data-bs-target="#customizeModal">
                                         <i class="ri-layout-line fs-5 m-0" style="color: #666"></i>
                                     </button>
-                                    <!-- <div class="me-3 h-100" style="width: 200px;">
-                                        <select id="accountSelect" class="form-select">
-                                            <option value="0">Tất cả tài khoản</option>
-                                        </select>
-                                    </div> -->
                                 </div>
                             </div>
                             <div class="flex-grow-1 px-3">
                                 <div class="position-relative h-100">
                                     <a href="javascript:;" id="searchSubmit" class="text-dark"><i class="ri-search-line fs-5 position-absolute" style="top: 3px; right: 8px"></i></a>
-                                    <input class="form-control h-100 fw-medium" style="padding-right: 30px;" id="search" placeholder="Nhập từ khóa...">
+                                    <input class="form-control h-100 fw-medium" style="padding-right: 30px;" id="search" placeholder="Ingresa palabras clave...">
                                 </div>
                             </div>
                             <div data-tool="general" class="d-flex gap-3" style="width:400px">
                                 <div>
                                     <div class="position-relative h-100">
-                                        <label class="position-absolute fw-medium" style=" top: 7px; left: 7px;">Luồng</label>
+                                        <label class="position-absolute fw-medium" style=" top: 7px; left: 7px;">Hilos</label>
                                         <input type="number" name="limit" class="form-control h-100 text-center" style="padding-left:50px;" value="2">
                                     </div>
                                 </div>
@@ -156,10 +147,10 @@
                                 <div>
                                     <div class="position-relative h-100 d-flex">
                                         <a href="https://t.me/+e2FWMUnQPjZiNjA9" target="_blank" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap">
-                                            <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Hỗ trợ
+                                            <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Soporte
                                         </a>
                                         <button type="button" class="text-nowrap shadow-sm control-btn btn border px-2 pe-3 h-100" data-bs-toggle="modal" data-bs-target="#settingModal">
-                                            <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Cài đặt
+                                            <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Configuración
                                         </button>
                                     </div>
                                 </div>
@@ -195,59 +186,45 @@
                     
 						<div class="d-flex align-items-center border px-3 py-1 rounded">
 							<span class="border-end me-2 pe-2">
-								<strong>Tổng: </strong>
+								<strong>Total: </strong>
 								<span id="tong" class="badge text-bg-secondary">0</span>
 							</span>
 							<span class="border-end me-2 pe-2">
-								<strong>Đã chọn:</strong> 
+								<strong>Seleccionados:</strong> 
 								<span id="dachon" class="badge text-bg-secondary">0</span>
 							</span>
 							<span>
-								<strong>Bôi đen:</strong> 
+								<strong>Resaltados:</strong> 
 								<span id="boiden" class="badge text-bg-secondary">0</span>
 							</span>
 						</div>
 
                         <div class="d-flex align-items-center border px-3 py-1 rounded">
                             <span class="border-end me-2 pe-2">
-                                <strong class="text-danger">HCVV:</strong> 
+                                <strong class="text-danger">Deshabilitado:</strong> 
                                 <span class="status1Count">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong class="text-warning">Cần kháng:</strong> 
+                                <strong class="text-warning">Necesita Apelación:</strong> 
                                 <span class="status2Count">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>Đang kháng:</strong> 
+                                <strong>En Apelación:</strong> 
                                 <span class="status3Count badge text-bg-info">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>Live:</strong> 
+                                <strong>Activo:</strong> 
                                 <span class="status4Count badge text-bg-success">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>XMDT:</strong> 
+                                <strong>Revisión Manual:</strong> 
                                 <span class="status5Count badge text-bg-primary">0</span>
                             </span>
                             <span>
-                                <strong>Page kháng:</strong> 
+                                <strong>Página Apelada:</strong> 
                                 <span class="status6Count badge text-bg-secondary">0</span>
                             </span>
                         </div>
-                        <!-- <div class="d-flex align-items-center">
-                            <div class="d-flex align-items-center">
-                                <div class="pe-3">
-                                    <span id="lastSync" class="fw-medium"></span>
-                                </div>
-                                <button class="shadow-sm btn border me-2 pe-3 h-100 d-flex align-items-center" onclick="openLink('https://t.me/+lqVNxKOd_nRkOTM1')">
-                                    <i class="ri-alert-line me-2 fs-6"></i> <strong>Báo lỗi</strong>
-                                </button>
-                                <button class="shadow-sm btn border h-100 d-flex align-items-center">
-                                    <strong>Checkpoint </strong><span class="badge text-bg-danger ms-2" id="cpCount">0</span>
-                                </button>
-                            </div>
-                            <div class="d-flex align-items-center" id="thoihan"></div>
-                        </div> -->
                     </div>
                 </div>
 
@@ -258,8 +235,6 @@
                         <i class="ri-arrow-drop-right-line"></i>
                     </div>
 
-					
-
 					<div class="flex-grow-1 overflow-auto">
 						<div class="overflow-auto p-3" data-tool="page">
 
@@ -268,7 +243,7 @@
 								<div class="p-3">
 									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
 										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-flag-line fs-5 me-2"></i><span class="fw-bold">Tạo Page</span>
+											<i class="ri-flag-line fs-5 me-2"></i><span class="fw-bold">Crear Página</span>
 										</label>
 										<input class="form-check-input" data-target="createPageSetting" name="createPage" type="checkbox" role="switch">
 									</div>
@@ -278,13 +253,13 @@
                                     <div class="row">
                                         <div class="col-7">
                                             <label class="form-label fw-medium">
-                                                Tên Page
+                                                Nombre de Página
                                             </label>
                                             <input type="text" class="form-control" name="pageName">
                                         </div>
                                         <div class="col-5">
                                             <label class="form-label fw-medium">
-                                                Số lượng
+                                                Cantidad
                                             </label>
                                             <input type="number" class="form-control" name="pageNumber" min="1" value="1">
                                         </div>
@@ -297,14 +272,14 @@
 								<div class="p-3">
 									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
 										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-edit-line fs-5 me-2"></i><span class="fw-bold">Đổi tên Page</span>
+											<i class="ri-edit-line fs-5 me-2"></i><span class="fw-bold">Renombrar Página</span>
 										</label>
 										<input class="form-check-input" data-target="renameSetting" name="renamePage" type="checkbox" role="switch">
 									</div>
 								</div>
 
 								<div id="renameSetting" class="p-3 d-none border-top">
-                                    <label class="form-label fw-medium">Tên mới</label>
+                                    <label class="form-label fw-medium">Nuevo Nombre</label>
                                     <input type="text" class="form-control" name="newName">
 								</div>
 							</div>
@@ -314,7 +289,7 @@
 								<div class="p-3">
 									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
 										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-user-add-line fs-5 me-2"></i><span class="fw-bold">Share Page</span>
+											<i class="ri-user-add-line fs-5 me-2"></i><span class="fw-bold">Compartir Página</span>
 										</label>
 										<input class="form-check-input" data-target="sharePageSetting" name="sharePage" type="checkbox" role="switch">
 									</div>
@@ -331,7 +306,7 @@
 								<div class="p-3">
 									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
 										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-user-follow-line fs-5 me-2"></i><span class="fw-bold">Chấp nhận Page</span>
+											<i class="ri-user-follow-line fs-5 me-2"></i><span class="fw-bold">Aceptar Página</span>
 										</label>
 										<input class="form-check-input" data-target="" name="acceptPage" type="checkbox" role="switch">
 									</div>
@@ -351,7 +326,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content shadow-lg">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5">Cài đặt</h1>
+                        <h1 class="modal-title fs-5">Configuración</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-0">
@@ -359,7 +334,7 @@
                     </div>
                     <div class="modal-footer d-flex">
                         
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Lưu</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Guardar</button>
                     </div>
                 </div>
             </div>
@@ -369,7 +344,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content shadow-lg">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5">Tùy chỉnh cột</h1>
+                        <h1 class="modal-title fs-5">Personalizar Columnas</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-0">
@@ -378,8 +353,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" id="resetColumns" class="btn btn-secondary">Mặc định</button>
-                        <button type="button" id="saveColumns" class="btn btn-primary">Lưu</button>
+                        <button type="button" id="resetColumns" class="btn btn-secondary">Por Defecto</button>
+                        <button type="button" id="saveColumns" class="btn btn-primary">Guardar</button>
                     </div>
                 </div>
             </div>

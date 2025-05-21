@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Tạo phôi kháng - TOOLFB.VN</title>
+        <title>Crear Plantilla - TOOLFB.VN</title>
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/remixicon.css" rel="stylesheet">
         <link href="css/jquery-ui.min.css" rel="stylesheet">
@@ -183,13 +183,13 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Select</h1>
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Seleccionar</h1>
                     </div>
                     <div class="modal-body">
                         <div id="phoiList"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -199,13 +199,13 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Preview</h1>
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Vista Previa</h1>
                     </div>
                     <div class="modal-body">
                         <img id="previewImage" class="w-100">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -217,42 +217,41 @@
                 <input type="file" id="loadSeal" accept="image/*">
                 <label for="newImage" class="border bg-white rounded p-1 px-4 me-2 d-flex flex-column align-items-center justify-content-center">
                     <i class="ri-image-add-fill fs-5"></i>
-                    <strong>New</strong>
+                    <strong>Nuevo</strong>
                 </label>
                 <button class="border bg-white rounded p-1 px-4 me-2 d-flex flex-column align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#phoiModal">
                     <i class="ri-folder-line fs-5"></i>
-                    <strong>Load</strong>
+                    <strong>Cargar</strong>
                 </button>
                 <button id="save" class="border bg-white rounded p-1 px-4 me-2 d-flex flex-column align-items-center justify-content-center">
                     <i class="ri-save-3-fill fs-5"></i>
-                    <strong>Save</strong>
+                    <strong>Guardar</strong>
                 </button>
                 <button id="test" class="border bg-white rounded p-1 px-4 me-2 d-flex flex-column align-items-center justify-content-center">
                     <i class="ri-eye-fill fs-5"></i>
-                    <strong>Test</strong>
+                    <strong>Probar</strong>
                 </button>
             </div>
             <div class="border rounded p-2">
-                <!-- <label style="font-size: 13px; font-weight: 600;" class="mb-2 d-block">Kéo thả vào ảnh</label> -->
                 <div class="d-inline-flex flex-wrap pe-2">
                     <div class="phoi-elm me-2 mb-2" data-type="firstName" draggable="true">
-                        <div class="border text-center bg-white py-1 px-3 rounded">First Name</div>
+                        <div class="border text-center bg-white py-1 px-3 rounded">Nombre</div>
                     </div>
 
                     <div class="phoi-elm me-2 mb-2" data-type="lastName" draggable="true">
-                        <div class="border text-center bg-white py-1 px-3 rounded">Last Name</div>
+                        <div class="border text-center bg-white py-1 px-3 rounded">Apellido</div>
                     </div>
                 
                     <div class="phoi-elm me-2 mb-2" data-type="fullName" draggable="true">
-                        <div class="border text-center bg-white py-1 px-3 rounded">Full Name</div>
+                        <div class="border text-center bg-white py-1 px-3 rounded">Nombre Completo</div>
                     </div>
             
                     <div class="phoi-elm me-2 mb-2" data-type="gender" draggable="true">
-                        <div class="border text-center bg-white py-1 px-3 rounded">Gender</div>
+                        <div class="border text-center bg-white py-1 px-3 rounded">Género</div>
                     </div>
                 
                     <div class="phoi-elm me-2 mb-2" data-type="birthday" draggable="true">
-                        <div class="border text-center bg-white py-1 px-3 rounded">Birthday</div>
+                        <div class="border text-center bg-white py-1 px-3 rounded">Fecha de Nacimiento</div>
                     </div>
                 
                     <div class="phoi-elm me-2 mb-2" data-type="image" draggable="true">
@@ -260,27 +259,27 @@
                     </div>
 
                     <div class="phoi-elm me-2 mb-2" data-type="seal" draggable="true">
-                        <div class="border text-center bg-white py-1 px-3 rounded">Con dấu</div>
+                        <div class="border text-center bg-white py-1 px-3 rounded">Sello</div>
                     </div>
 
                     <div class="phoi-elm me-2" data-type="random" draggable="true">
-                        <div class="border text-center bg-white py-1 px-3 rounded">Random</div>
+                        <div class="border text-center bg-white py-1 px-3 rounded">Aleatorio</div>
                     </div>
 
                 </div>
             </div>
             <div class="ms-3 border rounded p-2 d-flex me-3">
                 <div class="me-3">
-                    <label style="width: 50px; font-size: 13px; font-weight: 600;" class="mb-2">Size</label>
+                    <label style="width: 50px; font-size: 13px; font-weight: 600;" class="mb-2">Tamaño</label>
                     <input style="width: 60px; font-size: 14px;" type="number" name="fontSize" class="form-control p-1" min="0">
                 </div>
                 <div class="me-3">
-                    <label style="width: 50px; font-size: 13px; font-weight: 600;" class="mb-2">Font</label>
+                    <label style="width: 50px; font-size: 13px; font-weight: 600;" class="mb-2">Fuente</label>
                     <select style="width: 150px; font-size: 14px;" name="fontFamily" class="form-select p-1"> 
                     </select>
                 </div>
                 <div class="me-3">
-                    <label style="width: 50px; font-size: 13px; font-weight: 600;" class="mb-2">Style</label><br>
+                    <label style="width: 50px; font-size: 13px; font-weight: 600;" class="mb-2">Estilo</label><br>
                     <button class="btn bg-white border p-1 py-0" id="textBold">
                         <i class="ri-bold"></i>
                     </button>
