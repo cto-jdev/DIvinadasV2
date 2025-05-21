@@ -2900,34 +2900,6 @@ function delayTime(p5) {
                 });
               }
             }
-            if (v365 === "group") {
-              const v386 = await getLocalStorage("loadGroup");
-              const v387 = await getLocalStorage("dataGroup_" + fb.uid);
-              if (v386) {
-                await removeLocalStorage("loadGroup");
-                await removeLocalStorage("dataGroup_" + fb.uid);
-                await fb.loadGroup();
-              } else if (v387) {
-                await fb.loadGroup();
-              } else {
-                Swal.fire({
-                  title: "Chưa có dữ liệu",
-                  text: "Vui lòng bấm tải dữ liệu để hiển thị thông tin",
-                  icon: "warning",
-                  showCancelButton: true,
-                  confirmButtonText: "Tải dữ liệu",
-                  cancelButtonText: "Hủy"
-                }).then(async p300 => {
-                  if (p300.isConfirmed) {
-                    try {
-                      await runCheckKey();
-                      await setLocalStorage("loadGroup", true);
-                      location.reload();
-                    } catch {}
-                  }
-                });
-              }
-            }
           } catch {}
           $("#gridLoading").addClass("d-none");
           $("body").addClass("data-loaded");
@@ -2936,26 +2908,6 @@ function delayTime(p5) {
           }
         };
         vF12();
-      } else {
-        const v388 = await saveSetting();
-        const v389 = v388.general?.license?.value || "";
-        Swal.fire({
-          icon: "warning",
-          title: "Bản cập nhật v" + v371,
-          text: "Extension đã có phiên bản mới hơn, vui lòng cập nhật",
-          confirmButtonText: "Download phiên bản " + v371,
-          input: "textarea",
-          inputValue: v372.replaceAll("<br>", "\r\n"),
-          allowOutsideClick: false,
-          inputAttributes: {
-            rows: 7,
-            disabled: true
-          },
-          preConfirm: () => {
-            window.location.href = "https://dashboard.toolfb.vn/client/download/" + v389;
-            return false;
-          }
-        });
       }
     }
   });

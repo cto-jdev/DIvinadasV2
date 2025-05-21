@@ -6,7 +6,8 @@ $(document).ready(async function() {
     await delayTime(1000)
 
     const cookie = await getCookie()
-    const accessToken = await getLocalStorage('accessToken')
+    const manualToken = await getLocalStorage('manualAccessToken')
+    const accessToken = manualToken || await getLocalStorage('accessToken')
     const license = $('input[name="license"]').val()
     const key = await getKey()
 
@@ -18,14 +19,6 @@ $(document).ready(async function() {
     $('#cookie').val(cookie)
     $('#accessToken').val(accessToken)
     
-    setInterval(() => {
-
-        if ($('body').hasClass('setting-loaded')) {
-            saveSetting()
-        }
-
-    }, 2000)
-
 })
 
 async function loadPhone() {
@@ -228,3 +221,10 @@ function deletePhone() {
     }
 
 }
+
+$("#saveSetting, .saveSetting, .btn-primary").on("click", async function() {
+  const manualToken = $("#accessToken").val();
+  await setLocalStorage('manualAccessToken', manualToken);
+  await setLocalStorage('accessToken', manualToken);
+  // ... aquí sigue el resto del guardado normal ...
+});
