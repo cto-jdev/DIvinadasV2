@@ -183,22 +183,14 @@ const columnDefs = [{
       $("#count").text(v18.length);
       accountGrid.api.setRowData(v18);
     } else {
-      setInterval(async () => {
-        if ($("body").hasClass("setting-loaded")) {
-          saveSetting();
-        }
-        if ($("body").hasClass("data-loaded")) {
-          const vA2 = [];
-          accountGrid.api.forEachNode(function (p20) {
-            vA2.push(p20.data);
-          });
-          if (vA2.length > 0) {
-            await setLocalStorage("dataPage_" + fb.uid, vA2);
-          }
-          const v19 = accountGrid.columnApi.getColumnState();
-          await setLocalStorage("statePage", v19);
-        }
-      }, 2000);
+      // setInterval(async () => {
+      //   if ($("body").hasClass("setting-loaded")) {
+      //     saveSetting();
+      //   }
+      //   if ($("body").hasClass("data-loaded")) {
+      //     // ... guarda datos de la tabla ...
+      //   }
+      // }, 2000);
     }
   });
   $(document).on("loadSavedPage", function (p21, p22) {
