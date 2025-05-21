@@ -307,43 +307,43 @@ function delayTime(p5) {
             let vLS2 = "";
             if (p42.advertising_restriction_info.status === "NOT_RESTRICTED" && !p42.advertising_restriction_info.is_restricted) {
               vLS = "LIVE";
-              vLS2 = "Live";
+              vLS2 = "Activo";
             }
             if (p42.advertising_restriction_info.status === "VANILLA_RESTRICTED" && p42.advertising_restriction_info.is_restricted || p42.advertising_restriction_info.status === "APPEAL_INCOMPLETE") {
               if (p42.advertising_restriction_info.restriction_type === "ALE") {
                 vLS = "DIE_3DONG";
-                vLS2 = "Die 3 dòng";
+                vLS2 = "Deshabilitado 3 líneas";
               } else {
                 vLS = "DIE";
-                vLS2 = "Die";
+                vLS2 = "Deshabilitado";
               }
             }
             if (p42.advertising_restriction_info.restriction_type === "ALE" && p42.advertising_restriction_info.status === "APPEAL_TIMEOUT") {
               vLS = "DIE_3DONG";
-              vLS2 = "Die 3 dòng";
+              vLS2 = "Deshabilitado 3 líneas";
             }
             if (p42.advertising_restriction_info.status === "APPEAL_REJECTED_NO_RETRY" && p42.advertising_restriction_info.is_restricted) {
               vLS = "DIE_VV";
-              vLS2 = "Die vĩnh viễn";
+              vLS2 = "Deshabilitado permanente";
             }
             if (p42.advertising_restriction_info.status === "APPEAL_REJECTED") {
               vLS = "DIE_VV";
-              vLS2 = "Die vĩnh viễn";
+              vLS2 = "Deshabilitado permanente";
             }
             if (p42.advertising_restriction_info.status === "APPEAL_PENDING") {
               vLS = "DIE_DK";
-              vLS2 = "Die đang kháng";
+              vLS2 = "Deshabilitado en apelación";
             }
             if (p42.advertising_restriction_info.status === "APPEAL_ACCEPTED") {
               if (p42.advertising_restriction_info.restriction_type === "ALE") {
                 vLS = "BM_KHANG_3DONG";
-                vLS2 = "BM kháng 3 dòng";
+                vLS2 = "BM apelado 3 líneas";
               } else if (!p42.advertising_restriction_info.is_restricted) {
                 vLS = "BM_KHANG";
-                vLS2 = "BM kháng";
+                vLS2 = "BM apelado";
               } else {
                 vLS = "BM_XANHVO";
-                vLS2 = "BM xanh vỏ";
+                vLS2 = "BM verde falso";
               }
             }
             const vO5 = {
@@ -377,11 +377,11 @@ function delayTime(p5) {
                       const v62 = v61.restriction_date;
                       if (v61.status === "VANILLA_RESTRICTED" && v61.is_restricted && v61.additional_parameters.ufac_state === "FAILED") {
                         v58[vLN06].type = "DIE_VV";
-                        v58[vLN06].text = "Die vĩnh viễn";
+                        v58[vLN06].text = "Deshabilitado permanente";
                       }
                       if (v62 === "2025-01-26" || v62 === "2025-01-27" || v62 === "2025-01-28") {
                         v58[vLN06].type = "DIE_CAPTCHA";
-                        v58[vLN06].text = "Die Captcha";
+                        v58[vLN06].text = "Deshabilitado por Captcha";
                         v58[vLN06].dieDate = v62;
                       }
                     } catch {}
@@ -457,7 +457,7 @@ function delayTime(p5) {
           if (p54 === "other") {
             vLS3 = "[\"DEFAULT\",\"EMPLOYEE\"]";
           }
-          p55("Đang gửi lời mới đến email: " + p53);
+          p55("Enviando nueva invitación al email: " + p53);
           const v68 = await fetch2("https://z-p3-graph.facebook.com/v3.0/" + p52 + "/business_users?access_token=" + this.accessToken + "&__cppo=1", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
@@ -537,7 +537,7 @@ function delayTime(p5) {
           const v76 = await this.getInsta(p69);
           let vLN07 = 0;
           const vA5 = [];
-          p70("Đang xóa tài khoản IG");
+          p70("Eliminando cuenta IG");
           const vF4 = p73 => {
             return new Promise(async (p74, p75) => {
               try {
@@ -563,7 +563,7 @@ function delayTime(p5) {
             vA5.push(vF4(v79.id_v2));
           }
           await Promise.all(vA5);
-          p70("Xóa thành công " + vLN07 + "/" + v76.data.length + " tài khoản IG");
+          p70("Eliminación exitosa de " + vLN07 + "/" + v76.data.length + " cuentas IG");
         } catch {}
         p71();
       });
@@ -946,20 +946,20 @@ function delayTime(p5) {
                 p137();
               });
             };
-            p132("Đang hủy " + v125 + " lời mời");
+            p132("Cancelando " + v125 + " invitaciones");
             for (let vLN011 = 0; vLN011 < v124.length; vLN011++) {
               const v128 = v124[vLN011];
               vA6.push(vF5(v128));
             }
             await Promise.all(vA6);
-            p132("Hủy thành công " + vLN010 + "/" + v125 + " lời mời");
+            p132("Cancelación exitosa de " + vLN010 + "/" + v125 + " invitaciones");
             p133();
           } else {
-            p132("Không có lời mời");
+            p132("No hay invitaciones");
             p134();
           }
         } catch {
-          p132("Hủy lời mời thất bại");
+          p132("Cancelación de invitaciones fallida");
           p134();
         }
       });
@@ -1144,7 +1144,7 @@ function delayTime(p5) {
               const v155 = p156.users.filter(p157 => p157.role === 1001);
               return {
                 status: p156.account_status,
-                type: p156.owner_business ? "Business" : "Cá nhân",
+                type: p156.owner_business ? "Business" : "Personal",
                 reason: vVO12[p156.disable_reason],
                 account: p156.name,
                 adId: p156.account_id,
@@ -1729,96 +1729,96 @@ function delayTime(p5) {
             const v220 = v217.data.assetOwnerData.advertising_restriction_info.restriction_type;
             if (!v218) {
               if (v220 == "PREHARM" && v219 == "APPEAL_ACCEPTED") {
-                vLSNA = "Tích Xanh XMDT";
+                vLSNA = "Verificado XMDT";
                 vLS7 = "success";
               }
               if (v220 == "ALE" && v219 == "APPEAL_ACCEPTED") {
-                vLSNA = "Tích Xanh 902";
+                vLSNA = "Verificado 902";
                 vLS7 = "success";
               }
               if (v219 == "NOT_RESTRICTED") {
-                vLSNA = "Live Ads - Không Sao Cả";
+                vLSNA = "Live Ads - Sin Problemas";
                 vLS7 = "success";
               }
               if (v220 == "ADS_ACTOR_SCRIPTING") {
-                vLSNA = "Tích xanh XMDT ẩn tích";
+                vLSNA = "Verificado XMDT oculto";
                 vLS7 = "success";
               }
               if (v219 == "NOT_RESTRICTED" && v220 == "BUSINESS_INTEGRITY") {
-                vLSNA = "Tích xanh 902 ẩn tích";
+                vLSNA = "Verificado 902 oculto";
                 vLS7 = "success";
               }
             } else {
               if (v219 == "VANILLA_RESTRICTED" && v220 == "BUSINESS_INTEGRITY") {
-                vLSNA = "HCQC 902 XMDT";
+                vLSNA = "Restricción 902 XMDT";
                 vLS7 = "danger";
               }
               if (v219 == "APPEAL_INCOMPLETE" && v220 == "BUSINESS_INTEGRITY") {
-                vLSNA = "XMDT 902 CHƯA XONG";
+                vLSNA = "XMDT 902 INCOMPLETO";
                 vLS7 = "danger";
               }
               if (v219 == "APPEAL_PENDING" && v220 == "BUSINESS_INTEGRITY") {
-                vLSNA = "Đang Kháng 902";
+                vLSNA = "Apelando 902";
                 vLS7 = "danger";
               }
               if (v219 == "APPEAL_REJECTED" && v220 == "BUSINESS_INTEGRITY") {
-                vLSNA = "HCQC 902 xịt - Xmdt lại 273";
+                vLSNA = "Restricción 902 rechazada - Volver a XMDT 273";
                 vLS7 = "danger";
               }
               if (v218 && v220 == "PREHARM") {
                 if (v219 == "VANILLA_RESTRICTED") {
-                  vLSNA = "Hạn Chế Quảng Cáo";
+                  vLSNA = "Restricción Publicitaria";
                   vLS7 = "danger";
                 }
                 if (v219 == "APPEAL_PENDING") {
-                  vLSNA = "Đang kháng XMDT";
+                  vLSNA = "Apelando XMDT";
                   vLS7 = "danger";
                 }
                 if (v219 == "APPEAL_INCOMPLETE") {
-                  vLSNA = "Xmdt Chưa Xong";
+                  vLSNA = "XMDT Incompleto";
                   vLS7 = "danger";
                 }
                 if (v219 == "APPEAL_REJECTED_NO_RETRY" || v219 == "APPEAL_TIMEOUT" || v219 == "APPEAL_TIMEOUT") {
-                  vLSNA = "XMDT Xịt - Xmdt lại 273";
+                  vLSNA = "XMDT Rechazado - Volver a XMDT 273";
                   vLS7 = "danger";
                 }
               }
               if (v218 && v220 == "ALE") {
                 if (v219 == "APPEAL_PENDING") {
-                  vLSNA = "Đang Kháng 902";
+                  vLSNA = "Apelando 902";
                   vLS7 = "warning";
                 }
                 if (v219 == "APPEAL_REJECTED_NO_RETRY") {
-                  vLSNA = "HCQC Vĩnh Viễn";
+                  vLSNA = "Restricción Permanente";
                   vLS7 = "danger";
                 }
                 const v221 = v217.data.assetOwnerData.advertising_restriction_info.additional_parameters.ufac_state;
                 const v222 = v217.data.assetOwnerData.advertising_restriction_info.additional_parameters.appeal_friction;
                 const v223 = v217.data.assetOwnerData.advertising_restriction_info.additional_parameters.appeal_ineligibility_reason;
                 if (v219 == "VANILLA_RESTRICTED" && v221 == "FAILED" || v219 == "VANILLA_RESTRICTED" && v221 == "TIMEOUT") {
-                  vLSNA = "HCQC 902 xịt - Xmdt lại 273";
+                  vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
                   vLS7 = "danger";
                 }
                 if (v219 == "VANILLA_RESTRICTED" && v221 == null && v222 == "UFAC") {
-                  vLSNA = "HCQC 902 XMDT";
+                  vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
                   vLS7 = "danger";
                 }
                 if (v219 == "VANILLA_RESTRICTED" && v221 == null && v222 == null && v223 == "ENTITY_APPEAL_LIMIT_REACHED") {
-                  vLSNA = "HCQC 902 xịt - Xmdt lại 273";
+                  vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
                   vLS7 = "danger";
                 } else {
                   if (v219 == "VANILLA_RESTRICTED" && v221 == null && v222 == null) {
-                    vLSNA = "HCQC 902 Chọn Dòng";
+                    vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
                     vLS7 = "danger";
                   }
                   if (v219 == "VANILLA_RESTRICTED" && v221 == "SUCCESS" && v222 == null) {
-                    vLSNA = "HCQC 902 Chọn Dòng";
+                    vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
                     vLS7 = "danger";
                   }
                 }
               }
               if (v218 && v220 == "ACE" || v220 === "GENERIC") {
-                vLSNA = "XMDT Xịt - Xmdt lại 273";
+                vLSNA = "XMDT Fallado - Volver a XMDT 273";
                 vLS7 = "danger";
               }
               if (v218 && v220 == "RISK_REVIEW" || v220 === "RISK_REVIEW_EMAIL_VERIFICATION") {
@@ -1827,19 +1827,19 @@ function delayTime(p5) {
               }
               if (v220 == "ADS_ACTOR_SCRIPTING") {
                 if (v219 == "APPEAL_REJECTED") {
-                  vLSNA = "XMDT Xịt - Xmdt lại 273";
+                  vLSNA = "XMDT Fallado - Volver a XMDT 273";
                   vLS7 = "danger";
                 } else if (v219 == "APPEAL_PENDING") {
-                  vLSNA = "Đang kháng XMDT";
+                  vLSNA = "Apelando XMDT";
                   vLS7 = "warning";
                 } else if (v219 == "APPEAL_ACCEPTED") {
-                  vLSNA = "Tích Xanh 902";
+                  vLSNA = "Verificado 902";
                   vLS7 = "success";
                 } else if (v219 == "APPEAL_INCOMPLETE") {
-                  vLSNA = "Xmdt Chưa Xong";
+                  vLSNA = "XMDT Incompleto";
                   vLS7 = "danger";
                 } else {
-                  vLSNA = "Hạn Chế Quảng Cáo";
+                  vLSNA = "Restricción Publicitaria";
                   vLS7 = "danger";
                 }
               }
@@ -2093,7 +2093,7 @@ function delayTime(p5) {
           };
           const v277 = vVO25[v275];
           if (vLS902 !== "902" && vLS902 !== "902_line") {
-            return p254("Không thể kháng 902");
+            return p254("No se puede apelar 902");
           }
           const v278 = await fetch2("https://www.facebook.com/api/graphql/", {
             headers: {
@@ -2105,7 +2105,7 @@ function delayTime(p5) {
           const v279 = v278.json;
           const v280 = v279.data.assetOwnerData.advertising_restriction_info.ids_issue_ent_id;
           if (p252.bm.chooseLineOnly?.value || this.quality === "902_line") {
-            p250("Đang chọn dòng");
+            p250("Seleccionando línea");
             const v281 = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=2423", {
               headers: {
                 "content-type": "application/x-www-form-urlencoded"
@@ -2150,7 +2150,7 @@ function delayTime(p5) {
           let v289 = await vF10();
           const v290 = v289.__typename === "UFACBotCaptchaState";
           if (v290) {
-            p250("Đang giải captcha");
+            p250("Resolviendo captcha");
             const v291 = await fetch2("https://www.facebook.com/business-support-home/" + v273);
             const v292 = v291.text;
             const v293 = v289.captcha_persist_data;
@@ -2161,7 +2161,7 @@ function delayTime(p5) {
             let v298 = false;
             for (let vLN018 = 0; vLN018 < 3; vLN018++) {
               if (vLN018 > 0) {
-                p250("Đang thử giải lại captcha");
+                p250("Intentando resolver captcha nuevamente");
               }
               try {
                 const v299 = await resolveCaptcha(p252, v297, v296);
@@ -2180,14 +2180,14 @@ function delayTime(p5) {
             }
             if (v298) {
               v289 = await vF10();
-              p250("Giải captcha thành công");
+              p250("Captcha resuelto con éxito");
             } else {
-              return p254("Giải captha thất bại");
+              return p254("Captcha fallado");
             }
           }
           const v301 = v289.__typename === "UFACContactPointChallengeSubmitCodeState";
           if (v301) {
-            p250("Đang gỡ số điện thoại cũ");
+            p250("Eliminando número de teléfono antiguo");
             const v302 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6844", {
               headers: {
                 "content-type": "application/x-www-form-urlencoded"
@@ -2198,7 +2198,7 @@ function delayTime(p5) {
             if (v302.text.includes("REVERIFY_PHONE_NUMBER_WITH_NEW_ADDED_PHONE_AND_WHATSAPP")) {
               v289 = await vF10();
             } else {
-              return p254("Không thể gỡ số điện thoại cũ");
+              return p254("No se puede eliminar el número de teléfono antiguo");
             }
           }
           const v303 = v289.__typename === "UFACContactPointChallengeSetContactPointState";
@@ -2213,13 +2213,13 @@ function delayTime(p5) {
                 const v308 = v289.__typename === "UFACContactPointChallengeSetContactPointState";
                 if (v308) {
                   if (vLN020 > 0) {
-                    p250("Đang thử lấy số điện thoại khác");
+                    p250("Intentando obtener otro número de teléfono");
                   } else {
-                    p250("Đang lấy số điện thoại");
+                    p250("Obteniendo número de teléfono");
                   }
                   try {
                     v305 = await getPhone(p252.general.phoneService.value, p252.general.phoneServiceKey.value);
-                    p250("Đang thêm số điện thoại");
+                    p250("Añadiendo número de teléfono");
                     const v309 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=5799", {
                       headers: {
                         "content-type": "application/x-www-form-urlencoded"
@@ -2245,10 +2245,10 @@ function delayTime(p5) {
                 v289 = await vF10();
                 const v311 = v289.__typename === "UFACContactPointChallengeSubmitCodeState";
                 if (v311) {
-                  p250("Đang chờ mã kích hoạt");
+                  p250("Esperando código de activación");
                   try {
                     const v312 = await getPhoneCode(p252.general.phoneService.value, p252.general.phoneServiceKey.value, v305.id);
-                    p250("Đang nhập mã kích hoạt");
+                    p250("Ingresando código de activación");
                     const v313 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6114", {
                       headers: {
                         "content-type": "application/x-www-form-urlencoded"
@@ -2258,7 +2258,7 @@ function delayTime(p5) {
                     });
                     const v314 = v313.text;
                     if (v314.includes("\"ufac_client\":{\"id\"")) {
-                      p250("Thêm số điện thoại thành công");
+                      p250("Añadiendo número de teléfono con éxito");
                       v307 = true;
                     }
                     if (v314.includes("UFACOutroState")) {
@@ -2271,7 +2271,7 @@ function delayTime(p5) {
                     v304 = true;
                     break;
                   } else {
-                    p250("Đang gỡ số điện thoại cũ");
+                    p250("Eliminando número de teléfono antiguo");
                     const v315 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6844", {
                       headers: {
                         "content-type": "application/x-www-form-urlencoded"
@@ -2282,7 +2282,7 @@ function delayTime(p5) {
                     if (v315.text.includes("REVERIFY_PHONE_NUMBER_WITH_NEW_ADDED_PHONE_AND_WHATSAPP")) {
                       v289 = await vF10();
                     } else {
-                      return p254("Không thể gỡ số điện thoại cũ");
+                      return p254("No se puede eliminar el número de teléfono antiguo");
                     }
                   }
                 }
@@ -2298,7 +2298,7 @@ function delayTime(p5) {
           }
           const v316 = v289.__typename === "UFACImageUploadChallengeState";
           if (v316) {
-            p250("Đang tạo ảnh");
+            p250("Creando imagen");
             const v317 = p252.bm.phoiId.value;
             const v318 = await getLocalStorage("userInfo_" + this.uid);
             const v319 = await getLocalStorage(v317);
@@ -2322,7 +2322,7 @@ function delayTime(p5) {
               body: JSON.stringify(vO28)
             });
             const v321 = await v320.blob();
-            p250("Đang upload ảnh");
+            p250("Subiendo imagen");
             let v322 = new XMLHttpRequest();
             v322.withCredentials = true;
             v322.open("POST", "https://rupload.facebook.com/checkpoint_1501092823525282_media_upload/a06d268a-bad7-49d7-b553-24d6f07c64ba?__usid=6-Tsc6xzrdp0tcu%3APsc78vt5c5znb%3A0-Asc78484bm17t-RV%3D6%3AF%3D&session_id=1f53971e4d475672&__aaid=0&__bid=" + p251 + "&__user=" + fb.uid + "&__a=1&__req=15&__hs=19832.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012908546&__s=j9683f%3Abgcl6p%3Avjr471&__hsi=7359625851859447619&__dyn=7xeXxa4EaolJ28S2q3m8G2abBAjxu59o9EeEb8nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2SaAxq4U5i48swj8qyoyazoO4o2oCyE9UixWq3i2q5E884a2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOXwAxm3G4UhwXxW9wgo9oO1Wxu0zoO12ypUuyUd88EeAUpK19xmu2C2l0FggzE8U98doJ1Kfxa2y5E6a6TxC48G2q4p8y26U8U-UbE4S4oSq4VEhG7o4O1fwwxefzobElxm4E5yeDyUnwUzpErw-z8c8-5aDwQwKG13y85i4oKqbDyoOFEa9EHyU8U3xhU24wMwrU6CiVo88ak22eCK2q362u1dxW6U98a85Ou3u1Dxeu1owtU&__csr=&fb_dtsg=" + fb.dtsg + "&jazoest=25676&lsd=6qUyi5kQucC-XaTIr34bGR&__spin_r=1012908546&__spin_b=trunk&__spin_t=1713546424&__jssesw=1&_callFlowletID=3740&_triggerFlowletID=2359");
@@ -2337,7 +2337,7 @@ function delayTime(p5) {
             v322.onload = async function () {
               const v323 = JSON.parse(v322.response);
               if (v323.h) {
-                p250("Upload ảnh thành công");
+                p250("Imagen subida con éxito");
                 const v324 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6162", {
                   headers: {
                     "content-type": "application/x-www-form-urlencoded"
@@ -2346,13 +2346,13 @@ function delayTime(p5) {
                   body: "av=" + v273 + "&__usid=6-Ts32xbmx9zp07:Ps32xbo1dw875c:0-As32xbmnpvjk8-RV=6:F=&session_id=31c62e5eed2d0ee6&__user=" + v273 + "&__a=1&__req=2a&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=rnpwbw:po0pjn:3801to&__hsi=7293834906630568386&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwSxm4ofp8bU-dwKUjyEG4E949BGUryrhUK5Ue8Su6EfEHxe6bUS5aChoCUO9Km2GZ3UcUym9yA4Ekx24oKqbDypXiCxC8BCyKqiE88iwRxqmi1LCh-i1ZwGByUeoQwox3UO364GJe4EjwFggzUWqUlUym37wBwJzohxWUnhEqUW9hXF3U8pEpy9UlxOiEWaUlxiayoy&__csr=&__comet_req=25&fb_dtsg=" + v271 + "&jazoest=25539&lsd=rJwxW05TW9fxOrWZ5HZ2UF&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698228276&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"1\",\"actor_id\":\"" + v273 + "\",\"action\":\"UPLOAD_IMAGE\",\"image_upload_handle\":\"" + v323.h + "\",\"enrollment_id\":\"" + v286 + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
                 });
                 if (v324.text.includes("UFACAwaitingReviewState")) {
-                  p250("Upload ảnh thành công");
+                  p250("Imagen subida con éxito");
                   v289 = await vF10();
                 } else {
-                  return p254("Không thể upload ảnh");
+                  return p254("No se puede subir la imagen");
                 }
               } else {
-                return p254("Không thể upload ảnh");
+                return p254("No se puede subir la imagen");
               }
             };
             v322.send(v321);
@@ -2360,7 +2360,7 @@ function delayTime(p5) {
           }
           const v325 = v289.__typename === "UFACAwaitingReviewState";
           if (v325) {
-            p250("Đang chọn dòng");
+            p250("Seleccionando línea");
             const v326 = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=2423", {
               headers: {
                 "content-type": "application/x-www-form-urlencoded"
@@ -2463,7 +2463,7 @@ function delayTime(p5) {
                 this.groupMap.push(p272.rendering_strategy.view_model.profile.id);
                 vA18.push({
                   name: p272.rendering_strategy.view_model.profile_name_with_possible_nickname,
-                  question: p272.rendering_strategy.view_model.ctas.primary[0].profile.has_membership_questions ? "Có" : "Không",
+                  question: p272.rendering_strategy.view_model.ctas.primary[0].profile.has_membership_questions ? "Si" : "No",
                   groupId: p272.rendering_strategy.view_model.profile.id,
                   avatar: p272.rendering_strategy.view_model.profile.profile_picture.uri,
                   status: p272.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[0],
@@ -2496,7 +2496,7 @@ function delayTime(p5) {
                     this.groupMap.push(p273.rendering_strategy.view_model.profile.id);
                     vA19.push({
                       name: p273.rendering_strategy.view_model.profile_name_with_possible_nickname,
-                      question: p273.rendering_strategy.view_model.ctas.primary[0].profile.has_membership_questions ? "Có" : "Không",
+                      question: p273.rendering_strategy.view_model.ctas.primary[0].profile.has_membership_questions ? "Si" : "No",
                       groupId: p273.rendering_strategy.view_model.profile.id,
                       avatar: p273.rendering_strategy.view_model.profile.profile_picture.uri,
                       status: p273.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[0],
@@ -2540,10 +2540,10 @@ function delayTime(p5) {
           p276(v340[p274].groups.nodes.map(p279 => {
             return {
               name: p279.name,
-              question: p279.viewer_post_status === "CAN_POST_AFTER_APPROVAL" ? "Có" : "Không",
+              question: p279.viewer_post_status === "CAN_POST_AFTER_APPROVAL" ? "Si" : "No",
               groupId: p279.id,
               avatar: "",
-              status: p279.visibility === "OPEN" ? "Công khai" : "Riêng tư",
+              status: p279.visibility === "OPEN" ? "Público" : "Privado",
               members: p279.group_member_profiles.count,
               posts: "",
               source: p274
@@ -2560,7 +2560,7 @@ function delayTime(p5) {
         let v341 = false;
         let v342 = false;
         try {
-          p281("Đang lấy link kháng BM");
+          p281("Obteniendo enlace de apelación BM");
           const v343 = await fetch2("https://www.facebook.com/business-support-home/" + p280);
           const v344 = v343.text;
           if (v344.includes("idesEnforcementInstanceID")) {
@@ -2608,7 +2608,7 @@ function delayTime(p5) {
             const v356 = JSON.parse(v355.text.replace("for (;;);", ""));
             const v357 = v356.payload.enrollment_id;
             if (v357) {
-              p281(p280 + "|https://www.facebook.com/checkpoint/1501092823525282/" + v357 + "|Dạng Die : " + v354);
+              p281(p280 + "|https://www.facebook.com/checkpoint/1501092823525282/" + v357 + "|Tipo de Restricción: " + v354);
               v341 = true;
               v342 = v357;
             }
@@ -2617,7 +2617,7 @@ function delayTime(p5) {
           console.log(e57);
         }
         if (!v341) {
-          p281("Lấy link kháng BM thất bại");
+          p281("Error al obtener enlace de apelación BM");
         }
         p282(v342);
       });
@@ -2718,9 +2718,9 @@ function delayTime(p5) {
           $(".appVersion").html("<span class=\"mb-0 text-decoration-none badge text-bg-light\">v" + v374 + "</span>");
           Swal.fire({
             icon: "success",
-            title: "Update thành công v" + v374,
-            text: "Có gì mới trong phiên bản này?",
-            confirmButtonText: "Tiếp tục",
+            title: "Actualización exitosa v" + v374,
+            text: "¿Qué hay de nuevo en esta versión?",
+            confirmButtonText: "Continuar",
             input: "textarea",
             inputValue: v375.replaceAll("<br>", "\r\n"),
             allowOutsideClick: false,
@@ -2742,10 +2742,10 @@ function delayTime(p5) {
               Swal.fire({
                 icon: "error",
                 title: "Checkpoint 282",
-                text: "Tài khoản bị Checkpoint",
-                confirmButtonText: "Đăng xuất",
+                text: "La cuenta ha sido checkpoint",
+                confirmButtonText: "Cerrar sesión",
                 confirmButtonColor: "#dc3545",
-                cancelButtonText: "Hủy",
+                cancelButtonText: "Cancelar",
                 showCancelButton: true,
                 allowOutsideClick: false
               }).then(async p294 => {
@@ -2760,10 +2760,10 @@ function delayTime(p5) {
               Swal.fire({
                 icon: "error",
                 title: "Checkpoint 956",
-                text: "Tài khoản bị Checkpoint",
-                confirmButtonText: "Đăng xuất",
+                text: "La cuenta ha sido checkpoint",
+                confirmButtonText: "Cerrar sesión",
                 confirmButtonColor: "#dc3545",
-                cancelButtonText: "Hủy",
+                cancelButtonText: "Cancelar",
                 showCancelButton: true,
                 allowOutsideClick: false
               }).then(async p295 => {
@@ -2803,17 +2803,17 @@ function delayTime(p5) {
             vLS10 = "<a href=\"https://www.facebook.com/business-support-home/" + fb.uid + "\" target=\"_BLANK\" class=\"text-decoration-none badge text-bg-" + v379.color + " mb-1\" style=\"font-size: 12px;\">" + v379.status + "</a>";
             $("#quality").html(vLS10);
             if (vLS10.status === "XMDT Checkpoint") {
-              vLS9 = "<button id=\"xmdt\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Kháng</button>";
+              vLS9 = "<button id=\"xmdt\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar</button>";
             }
-            if (vLS10.status === "HCQC 902 xịt - Xmdt lại 273" || vLS10.status === "Đang Kháng 902" || vLS10.status === "HCQC 902 XMDT" || vLS10.status === "HCQC 902 Chọn Dòng") {
-              vLS9 = "<button id=\"k902\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Kháng 902</button>";
+            if (vLS10.status === "HCQC 902 Rechazado - Volver a XMDT 273" || vLS10.status === "Apelando 902" || vLS10.status === "Restricción 902 XMDT" || vLS10.status === "HCQC 902 Pendiente") {
+              vLS9 = "<button id=\"k902\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar 902</button>";
             }
           } catch (e62) {
             console.log(e62);
           }
-          $("#userInfo").html("\n                    <div class=\"dropdown\">\n                        <div data-bs-toggle=\"dropdown\" data-bs-auto-close=\"outside\" style=\"cursor: pointer\">\n                            <span class=\"d-flex justify-content-between align-items-center border-start ms-3 ps-3\" style=\"width:calc(350px - 1rem);\">\n                                <span class=\"d-flex flex-column\">\n                                    <span class=\"position-relative\">\n                                        " + vLS9 + "\n                                        <span class=\"d-flex align-items-center flex-wrap\">\n                                            <span class=\"rounded-circle overflow-hidden\" style=\"width: 33px;\">\n                                                <img id=\"fbAvatar\" class=\"w-100 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                            </span>\n                                            <span class=\"ps-2\" style=\"width: calc(100% - 33px)\">\n                                                <span class=\"d-block mb-0 fw-bold text-truncate\" style=\"width: 200px;\">" + fb.userInfo.name + "</span>\n                                                <small class=\"d-block\">" + fb.uid + "</small>\n                                            </span>\n                                        </span>\n                                    </span>\n                                </span>\n                                <i class=\"ri-arrow-down-s-fill fs-5 m-0\" style=\"color: #666\"></i>\n                            </span>\n                        </div>\n                        <div class=\"dropdown-menu dropdown-menu-end overflow-hidden p-0 shadow\" style=\"width:calc(350px - 3rem);\">\n                            <div class=\"p-2\" style=\"background: #f0ecf4\">\n                                <div class=\"d-flex align-items-center justify-content-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px; margin-bottom: -35px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                </div>\n                            </div>\n                            <div class=\"p-3 mt-4\">\n                                <div class=\"d-flex flex-column align-items-center\">\n                                    <span class=\"fw-bold fs-5\">" + fb.userInfo.name + "</span>\n                                    <span class=\"mb-2\">" + fb.uid + "</span>\n                                    " + vLS10 + "\n                                </div>\n                            </div>\n                            <ul class=\"p-3 m-0 border-top list-unstyled\">\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-mail-line me-2\"></i> Email: " + fb.userInfo.email + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-calendar-line me-2\"></i> Ngày sinh: " + fb.userInfo.birthday + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-group-line me-2\"></i> Bạn bè: " + fb.userInfo.friends + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-men-line me-2\"></i> Giới tính: " + (fb.userInfo.gender === "male" ? "Nam" : "Nữ") + "\n                                    </span>\n                                </li>\n                            </ul>\n                            <ul class=\"border-top p-3 m-0 list-unstyled\">\n                                <li>\n                                    <a href=\"#\" id=\"switch\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-repeat-line me-2\"></i> Chuyển tài khoản\n                                    </a>\n                                </li>\n                                <li>\n                                    <a href=\"#\" id=\"logout\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-logout-box-r-line me-2\"></i> Đăng xuất\n                                    </a>\n                                </li>\n                            </ul>\n                        </div>\n                    </div>\n                ");
+          $("#userInfo").html("\n                    <div class=\"dropdown\">\n                        <div data-bs-toggle=\"dropdown\" data-bs-auto-close=\"outside\" style=\"cursor: pointer\">\n                            <span class=\"d-flex justify-content-between align-items-center border-start ms-3 ps-3\" style=\"width:calc(350px - 1rem);\">\n                                <span class=\"d-flex flex-column\">\n                                    <span class=\"position-relative\">\n                                        " + vLS9 + "\n                                        <span class=\"d-flex align-items-center flex-wrap\">\n                                            <span class=\"rounded-circle overflow-hidden\" style=\"width: 33px;\">\n                                                <img id=\"fbAvatar\" class=\"w-100 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                            </span>\n                                            <span class=\"ps-2\" style=\"width: calc(100% - 33px)\">\n                                                <span class=\"d-block mb-0 fw-bold text-truncate\" style=\"width: 200px;\">" + fb.userInfo.name + "</span>\n                                                <small class=\"d-block\">" + fb.uid + "</small>\n                                            </span>\n                                        </span>\n                                    </span>\n                                </span>\n                                <i class=\"ri-arrow-down-s-fill fs-5 m-0\" style=\"color: #666\"></i>\n                            </span>\n                        </div>\n                        <div class=\"dropdown-menu dropdown-menu-end overflow-hidden p-0 shadow\" style=\"width:calc(350px - 3rem);\">\n                            <div class=\"p-2\" style=\"background: #f0ecf4\">\n                                <div class=\"d-flex align-items-center justify-content-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px; margin-bottom: -35px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                </div>\n                            </div>\n                            <div class=\"p-3 mt-4\">\n                                <div class=\"d-flex flex-column align-items-center\">\n                                    <span class=\"fw-bold fs-5\">" + fb.userInfo.name + "</span>\n                                    <span class=\"mb-2\">" + fb.uid + "</span>\n                                    " + vLS10 + "\n                                </div>\n                            </div>\n                            <ul class=\"p-3 m-0 border-top list-unstyled\">\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-mail-line me-2\"></i> Email: " + fb.userInfo.email + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-calendar-line me-2\"></i> Fecha de nacimiento: " + fb.userInfo.birthday + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-group-line me-2\"></i> Amigos: " + fb.userInfo.friends + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-men-line me-2\"></i> Género: " + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "\n                                    </span>\n                                </li>\n                            </ul>\n                            <ul class=\"border-top p-3 m-0 list-unstyled\">\n                                <li>\n                                    <a href=\"#\" id=\"switch\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-repeat-line me-2\"></i> Cambiar cuenta\n                                    </a>\n                                </li>\n                                <li>\n                                    <a href=\"#\" id=\"logout\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-logout-box-r-line me-2\"></i> Cerrar sesión\n                                    </a>\n                                </li>\n                            </ul>\n                        </div>\n                    </div>\n                ");
           if (v365 === "via") {
-            $("#viaInfo").html("\n                        <div class=\"card border-0 rounded-4 shadow-sm mb-4 p-4\" style=\"background: #3b61d3\">\n                            <div class=\"d-flex align-items-center justify-content-between\">\n                                <div class=\"d-flex align-items-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                    <div class=\"ms-3\">\n                                        <span class=\"text-white fs-4 fw-medium d-block mb-0\">" + fb.userInfo.name + "</span>\n                                        <span class=\"text-white d-block\"><i class=\"ri-user-line\"></i> " + fb.uid + "</span>\n                                        <span class=\"text-white\"><i class=\"ri-mail-line\"></i> " + fb.userInfo.email + "</span>\n                                    </div>\n                                </div>\n                                <div class=\"rounded-4 p-3\" style=\"background-color: #ffffff1c; width: 500px;\">\n                                    <div class=\"row flex-grow-1\">\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex flex-wrap align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-calendar-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div style=\"width: calc(100% - 30px);\">\n                                                    <div class=\"ms-3\">\n                                                        <strong class=\"d-block text-white text-truncate\">" + fb.userInfo.birthday + "</strong>\n                                                        <span class=\"text-white-50 fw-medium\">Ngày sinh</span>\n                                                    </div>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-user-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + fb.userInfo.friends + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Bạn bè</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-men-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + (fb.userInfo.gender === "male" ? "Nam" : "Nữ") + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Giới tính</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                    ");
+            $("#viaInfo").html("\n                        <div class=\"card border-0 rounded-4 shadow-sm mb-4 p-4\" style=\"background: #3b61d3\">\n                            <div class=\"d-flex align-items-center justify-content-between\">\n                                <div class=\"d-flex align-items-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                    <div class=\"ms-3\">\n                                        <span class=\"text-white fs-4 fw-medium d-block mb-0\">" + fb.userInfo.name + "</span>\n                                        <span class=\"text-white d-block\"><i class=\"ri-user-line\"></i> " + fb.uid + "</span>\n                                        <span class=\"text-white\"><i class=\"ri-mail-line\"></i> " + fb.userInfo.email + "</span>\n                                    </div>\n                                </div>\n                                <div class=\"rounded-4 p-3\" style=\"background-color: #ffffff1c; width: 500px;\">\n                                    <div class=\"row flex-grow-1\">\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex flex-wrap align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-calendar-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div style=\"width: calc(100% - 30px);\">\n                                                    <div class=\"ms-3\">\n                                                        <strong class=\"d-block text-white text-truncate\">" + fb.userInfo.birthday + "</strong>\n                                                        <span class=\"text-white-50 fw-medium\">Fecha de nacimiento</span>\n                                                    </div>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-user-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + fb.userInfo.friends + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Amigos</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-men-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Género</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                    ");
           }
           try {
             if (v365 === "bm") {
@@ -2827,12 +2827,12 @@ function delayTime(p5) {
                 await fb.loadBm();
               } else {
                 Swal.fire({
-                  title: "Chưa có dữ liệu",
-                  text: "Vui lòng bấm tải dữ liệu để hiển thị thông tin",
+                  title: "No data",
+                  text: "Please click on the load data button to display the information",
                   icon: "warning",
                   showCancelButton: true,
-                  confirmButtonText: "Tải dữ liệu",
-                  cancelButtonText: "Hủy"
+                  confirmButtonText: "Load data",
+                  cancelButtonText: "Cancel"
                 }).then(async p297 => {
                   if (p297.isConfirmed) {
                     try {
@@ -2855,12 +2855,12 @@ function delayTime(p5) {
                 await fb.loadPage();
               } else {
                 Swal.fire({
-                  title: "Chưa có dữ liệu",
-                  text: "Vui lòng bấm tải dữ liệu để hiển thị thông tin",
+                  title: "No data",
+                  text: "Please click on the load data button to display the information",
                   icon: "warning",
                   showCancelButton: true,
-                  confirmButtonText: "Tải dữ liệu",
-                  cancelButtonText: "Hủy"
+                  confirmButtonText: "Load data",
+                  cancelButtonText: "Cancel"
                 }).then(async p298 => {
                   if (p298.isConfirmed) {
                     try {
@@ -2883,12 +2883,12 @@ function delayTime(p5) {
                 await fb.loadAds();
               } else {
                 Swal.fire({
-                  title: "Chưa có dữ liệu",
-                  text: "Vui lòng bấm tải dữ liệu để hiển thị thông tin",
+                  title: "No data",
+                  text: "Please click on the load data button to display the information",
                   icon: "warning",
                   showCancelButton: true,
-                  confirmButtonText: "Tải dữ liệu",
-                  cancelButtonText: "Hủy"
+                  confirmButtonText: "Load data",
+                  cancelButtonText: "Cancel"
                 }).then(async p299 => {
                   if (p299.isConfirmed) {
                     try {
@@ -2979,7 +2979,7 @@ function delayTime(p5) {
           p313(v393.message);
         }
       } catch (e65) {
-        p313("Không thể giải captcha");
+        p313("No se pudo resolver el captcha");
       }
     });
   }
@@ -3007,13 +3007,13 @@ function delayTime(p5) {
           if (v397) {
             p317(v397);
           } else {
-            p318("Không thể giải captcha");
+            p318("No se pudo resolver el captcha");
           }
         } else {
           p318(v395.Message);
         }
       } catch (e66) {
-        p318("Không thể giải captcha");
+        p318("No se pudo resolver el captcha");
       }
     });
   }
@@ -3065,13 +3065,13 @@ function delayTime(p5) {
           if (v403) {
             p322(v403);
           } else {
-            p323("Không thể giải captcha");
+            p323("No se pudo resolver el captcha");
           }
         } else {
           p323(v401.message);
         }
       } catch (e67) {
-        p323("Không thể giải captcha");
+        p323("No se pudo resolver el captcha");
       }
     });
   }
@@ -3125,13 +3125,13 @@ function delayTime(p5) {
           if (v409) {
             p326(v409);
           } else {
-            p327("Không thể giải captcha");
+            p327("No se pudo resolver el captcha");
           }
         } else {
           p327(v407.message);
         }
       } catch (e68) {
-        p327("Không thể giải captcha");
+        p327("No se pudo resolver el captcha");
       }
     });
   }
@@ -3183,14 +3183,14 @@ function delayTime(p5) {
           if (v415) {
             p330(v415);
           } else {
-            p331("Không thể giải captcha");
+            p331("No se pudo resolver el captcha");
           }
         } else {
           p331(v413.Message);
         }
       } catch (e69) {
         console.log(e69);
-        p331("Không thể giải captcha");
+        p331("No se pudo resolver el captcha");
       }
     });
   }
@@ -3243,13 +3243,13 @@ function delayTime(p5) {
           if (v421) {
             p335(v421);
           } else {
-            p336("Không thể giải captcha");
+            p336("No se pudo resolver el captcha");
           }
         } else {
           p336(v419.Message);
         }
       } catch (e70) {
-        p336("Không thể giải captcha");
+        p336("No se pudo resolver el captcha");
       }
     });
   }
@@ -3302,14 +3302,14 @@ function delayTime(p5) {
           if (v427) {
             p340(v427);
           } else {
-            p341("Không thể giải captcha");
+            p341("No se pudo resolver el captcha");
           }
         } else {
           p341(v425.Message);
         }
       } catch (e71) {
         console.log(e71);
-        p341("Không thể giải captcha");
+        p341("No se pudo resolver el captcha");
       }
     });
   }
@@ -3363,14 +3363,14 @@ function delayTime(p5) {
           if (v433) {
             p345(v433);
           } else {
-            p346("Không thể giải captcha");
+            p346("No se pudo resolver el captcha");
           }
         } else {
           p346(v431.Message);
         }
       } catch (e72) {
         console.log(e72);
-        p346("Không thể giải captcha");
+        p346("No se pudo resolver el captcha");
       }
     });
   }
@@ -3494,11 +3494,11 @@ function delayTime(p5) {
             id: vGetObjPath2
           });
         } else {
-          p361("Không thể lấy số điện thoại");
+          p361("No se pudo obtener el número de teléfono");
         }
       } catch (e75) {
         console.log(e75);
-        p361("Không thể lấy số điện thoại");
+        p361("No se pudo obtener el número de teléfono");
       }
     });
   }
@@ -3546,7 +3546,7 @@ function delayTime(p5) {
           p372(v453.message);
         }
       } catch (e78) {
-        p372("Không thể lấy số điện thoại");
+        p372("No se pudo obtener el número de teléfono");
       }
     });
   }
@@ -3602,7 +3602,7 @@ function delayTime(p5) {
           p382(v458.error.message);
         }
       } catch (e80) {
-        p382("Không thể lấy số điện thoại");
+        p382("No se pudo obtener el número de teléfono");
       }
     });
   }
@@ -4009,7 +4009,7 @@ function delayTime(p5) {
       if (p465.via.getLinkXmdt.value) {
         p466({
           action: "message",
-          msg: "Đang lấy link XMDT..."
+          msg: "Obteniendo link XMDT..."
         });
         try {
           const v505 = await fb.getLinkAn();
@@ -4020,7 +4020,7 @@ function delayTime(p5) {
         } catch {
           p466({
             action: "message",
-            msg: "Lấy link XMDT thất bại"
+            msg: "Error al obtener el link XMDT"
           });
         }
       }
@@ -4043,7 +4043,7 @@ function delayTime(p5) {
               vLS15 = await getNewEmail();
             }
             p471("message", {
-              message: "Đang backup BM"
+              message: "Backupando BM"
             });
             const v509 = await fb.backUpBm(p469.bmId, vLS15.email, v506, p476 => {
               const vO67 = {
@@ -4104,12 +4104,12 @@ function delayTime(p5) {
               }
             }
             p471("message", {
-              message: "Backup BM thành công"
+              message: "Backup BM exitoso"
             });
             if (p470.bm.backupBmMode.value === "link") {
               let v522 = false;
               p471("message", {
-                message: "Đang chờ lấy link backup"
+                message: "Esperando obtener el enlace de respaldo"
               });
               for (let vLN044 = 0; vLN044 < 12; vLN044++) {
                 try {
@@ -4134,18 +4134,18 @@ function delayTime(p5) {
                 };
                 p471("updateBackupLink", vO71);
                 p471("message", {
-                  message: "Lấy link backup thành công"
+                  message: "Link de respaldo obtenido exitosamente"
                 });
               } else {
                 p471("message", {
-                  message: "Lấy link backup thất bại"
+                  message: "Error al obtener el enlace de respaldo"
                 });
               }
             }
           } catch (e94) {
             console.log(e94);
             p471("message", {
-              message: "Backup BM thất bại"
+              message: "Error al hacer backup de BM"
             });
           }
         }
@@ -4165,16 +4165,16 @@ function delayTime(p5) {
             if (p470.bm.renameUserMode.value === "viaCam") {
               try {
                 p471("message", {
-                  message: "Đang đổi tên VIA cầm"
+                  message: "Cambiando el nombre de VIA"
                 });
                 const v526 = await fb.getMainBmAccounts(p469.bmId);
                 await fb.renameVia(v526.id, v525);
                 p471("message", {
-                  message: "Đổi tên VIA cầm thành công"
+                  message: "Cambio de nombre de VIA exitoso"
                 });
               } catch {
                 p471("message", {
-                  message: "Đổi tên VIA cầm thất bại"
+                  message: "Error al cambiar el nombre de VIA"
                 });
               }
             } else {
@@ -4187,7 +4187,7 @@ function delayTime(p5) {
               for (let vLN046 = 0; vLN046 < v527.length; vLN046++) {
                 const v529 = v527[vLN046];
                 p471("message", {
-                  message: "[" + (vLN046 + 1) + "/" + v527.length + "] Đang đổi tên: " + v529
+                  message: "[" + (vLN046 + 1) + "/" + v527.length + "] Cambiando el nombre: " + v529
                 });
                 try {
                   await fb.renameVia(v529, v525);
@@ -4195,14 +4195,14 @@ function delayTime(p5) {
                 } catch {}
               }
               p471("message", {
-                message: "Đổi tên thành công " + vLN045 + "/" + v527.length
+                message: "Cambio de nombre exitoso " + vLN045 + "/" + v527.length
               });
             }
           } else {
             try {
               const v530 = p470.bm.newNameBm.value + " " + randomNumberRange(111111, 999999);
               p471("message", {
-                message: "Đang đổi tên BM"
+                message: "Cambiando el nombre de BM"
               });
               await fb.renameBm(p469.bmId, v530);
               const vO74 = {
@@ -4210,11 +4210,11 @@ function delayTime(p5) {
               };
               p471("updateBmName", vO74);
               p471("message", {
-                message: "Đổi tên BM thành công"
+                message: "Cambio de nombre de BM exitoso"
               });
             } catch (e95) {
               p471("message", {
-                message: "Đổi tên BM thất bại"
+                message: "Error al cambiar el nombre de BM"
               });
             }
           }
@@ -4238,12 +4238,12 @@ function delayTime(p5) {
               try {
                 if (p470.bm.updateMode.value === "nang") {
                   p471("message", {
-                    message: "[" + (vLN048 + 1) + "/" + v532.length + "] Đang nâng quyền: " + v533
+                    message: "[" + (vLN048 + 1) + "/" + v532.length + "] Elevando el rol: " + v533
                   });
                   await fb.upgradeRole(p469.bmId, v533);
                 } else {
                   p471("message", {
-                    message: "[" + (vLN048 + 1) + "/" + v532.length + "] Đang hạ quyền: " + v533
+                    message: "[" + (vLN048 + 1) + "/" + v532.length + "] Bajando el rol: " + v533
                   });
                   await fb.downgradeRole(p469.bmId, v533);
                 }
@@ -4252,11 +4252,11 @@ function delayTime(p5) {
             }
             if (p470.bm.updateMode.value === "nang") {
               p471("message", {
-                message: "Nâng quyền thành công " + vLN047 + "/" + v532.length
+                message: "Elevación de roles exitosa " + vLN047 + "/" + v532.length
               });
             } else {
               p471("message", {
-                message: "Hạ quyền thành công " + vLN047 + "/" + v532.length
+                message: "Bajada de roles exitosa " + vLN047 + "/" + v532.length
               });
             }
           } catch (e96) {
@@ -4267,35 +4267,35 @@ function delayTime(p5) {
           try {
             let vLN049 = 0;
             p471("message", {
-              message: "Đang lấy danh sách page"
+              message: "Obteniendo lista de páginas"
             });
             const v534 = await fb.getDeactivedPage(p469.bmId);
             console.log(v534);
             for (let vLN050 = 0; vLN050 < v534.length; vLN050++) {
               const v535 = v534[vLN050];
               p471("message", {
-                message: "[" + (vLN050 + 1) + "/" + v534.length + "] Đang kích hoạt lại page: " + v535.id
+                message: "[" + (vLN050 + 1) + "/" + v534.length + "] Activando página: " + v535.id
               });
               try {
                 await fb.activePage(p469.bmId, v535.id);
                 p471("message", {
-                  message: "[" + (vLN050 + 1) + "/" + v534.length + "] Kích hoạt lại page thành công: " + v535.id
+                  message: "[" + (vLN050 + 1) + "/" + v534.length + "] Activación de página exitosa: " + v535.id
                 });
                 vLN049++;
               } catch (e97) {
                 console.log(e97);
                 p471("message", {
-                  message: "[" + (vLN050 + 1) + "/" + v534.length + "] Kích hoạt lại page thất bại: " + v535.id
+                  message: "[" + (vLN050 + 1) + "/" + v534.length + "] Error al activar página: " + v535.id
                 });
               }
               await delayTime(2000);
             }
             p471("message", {
-              message: "Kích hoạt thành công " + vLN049 + "/" + v534.length + " page"
+              message: "Activación exitosa " + vLN049 + "/" + v534.length + " páginas"
             });
           } catch (e98) {
             p471("message", {
-              message: "Lấy danh sách page thất bại"
+              message: "Error al obtener la lista de páginas"
             });
           }
         }
@@ -4303,7 +4303,7 @@ function delayTime(p5) {
           const vF14 = (p486, p487, p488) => {
             return new Promise(async (p489, p490) => {
               try {
-                p488("Đang kháng BM");
+                p488("Apelando BM");
                 const v536 = await fb.getLinkkhangBm(p469.bmId, () => {});
                 const v537 = "https://www.facebook.com/checkpoint/1501092823525282/" + v536;
                 let v538 = false;
@@ -4319,7 +4319,7 @@ function delayTime(p5) {
                 };
                 v538 = await vF15();
                 if (v538.includes("UFACContactPointChallengeSubmitCodeState")) {
-                  p488("Đang gỡ số điện thoại cũ");
+                  p488("Eliminando el número de teléfono antiguo");
                   const v540 = await fetch2("https://www.facebook.com/api/graphql/", {
                     headers: {
                       "content-type": "application/x-www-form-urlencoded"
@@ -4330,7 +4330,7 @@ function delayTime(p5) {
                   if (v540.text.includes("UFACContactPointChallengeSetContactPointState")) {
                     v538 = await vF15();
                   } else {
-                    p488("Không thể gỡ số điện thoại cũ");
+                    p488("No se puede eliminar el número de teléfono antiguo");
                   }
                 }
                 if (v538.includes("UFACIntroState")) {
@@ -4347,14 +4347,14 @@ function delayTime(p5) {
                   }
                 }
                 if (v538.includes("UFACBotCaptcha")) {
-                  p488("Đang giải captcha");
+                  p488("Resolviendo captcha");
                   const v543 = v538.match(/(?<=\"text_captcha_audio_url\":\")[^\"]*/g)[0].replace(/\\/g, "").split("https://www.facebook.com/captcha/tfbaudio/?captcha_persist_data=")[1].split("&")[0];
                   const v544 = v538.match(/(?<=\"text_captcha_image_url\":\")[^\"]*/g)[0].replace(/\\/g, "");
                   const v545 = await getBase64(v544);
                   let v546 = false;
                   for (let vLN051 = 0; vLN051 < 3; vLN051++) {
                     if (vLN051 > 0) {
-                      p488("Đang thử giải lại captcha");
+                      p488("Intentando resolver captcha nuevamente");
                     }
                     try {
                       const v547 = await resolveCaptchaImage(p487, v545);
@@ -4376,9 +4376,9 @@ function delayTime(p5) {
                   }
                   if (v546) {
                     v538 = await vF15();
-                    p488("Giải captcha thành công");
+                    p488("Resolución de captcha exitosa");
                   } else {
-                    p488("Giải captha thất bại");
+                    p488("Error al resolver captcha");
                   }
                 }
                 if (v538.includes("UFACContactPointChallengeSetContactPointState")) {
@@ -4392,13 +4392,13 @@ function delayTime(p5) {
                       v538 = await vF15();
                       if (v538.includes("UFACContactPointChallengeSetContactPointState")) {
                         if (vLN053 > 0) {
-                          p488("Đang thử lấy số điện thoại khác");
+                          p488("Intentando obtener otro número de teléfono");
                         } else {
-                          p488("Đang lấy số điện thoại");
+                          p488("Obteniendo número de teléfono");
                         }
                         try {
                           v551 = await getPhone(p487.general.phoneService.value, p487.general.phoneServiceKey.value);
-                          p488("Đang thêm số điện thoại");
+                          p488("Añadiendo número de teléfono");
                           const v554 = await fetch2("https://www.facebook.com/api/graphql/", {
                             headers: {
                               "content-type": "application/x-www-form-urlencoded"
@@ -4410,7 +4410,7 @@ function delayTime(p5) {
                             v552 = true;
                             break;
                           } else {
-                            p488("Thêm số điện thoại thất bại");
+                            p488("Error al añadir número de teléfono");
                           }
                         } catch (e100) {
                           console.log(e100);
@@ -4422,10 +4422,10 @@ function delayTime(p5) {
                     if (v552 && v551) {
                       v538 = await vF15();
                       if (v538.includes("UFACContactPointChallengeSubmitCodeState")) {
-                        p488("Đang chờ mã kích hoạt");
+                        p488("Esperando código de activación");
                         try {
                           const v555 = await getPhoneCode(p487.general.phoneService.value, p487.general.phoneServiceKey.value, v551.id);
-                          p488("Đang nhập mã kích hoạt");
+                          p488("Ingresando código de activación");
                           const v556 = await fetch2("https://www.facebook.com/api/graphql/", {
                             headers: {
                               "content-type": "application/x-www-form-urlencoded"
@@ -4434,7 +4434,7 @@ function delayTime(p5) {
                             method: "POST"
                           });
                           if (v556.text.includes("UFACImageUploadChallengeState")) {
-                            p488("Thêm số điện thoại thành công");
+                            p488("Añadiendo número de teléfono exitosamente");
                             v553 = true;
                           }
                         } catch (e101) {
@@ -4444,7 +4444,7 @@ function delayTime(p5) {
                           v549 = true;
                           break;
                         } else {
-                          p488("Đang gỡ số điện thoại cũ");
+                          p488("Eliminando el número de teléfono antiguo");
                           const v557 = await fetch2("https://www.facebook.com/api/graphql/", {
                             headers: {
                               "content-type": "application/x-www-form-urlencoded"
@@ -4455,7 +4455,7 @@ function delayTime(p5) {
                           if (v557.text.includes("UFACContactPointChallengeSetContactPointState")) {
                             v538 = await vF15();
                           } else {
-                            p488("Không thể gỡ số điện thoại cũ");
+                            p488("No se puede eliminar el número de teléfono antiguo");
                           }
                         }
                       }
@@ -4466,7 +4466,7 @@ function delayTime(p5) {
                   }
                 }
                 if (v538.includes("UFACImageUploadChallengeState")) {
-                  p488("Đang tạo ảnh");
+                  p488("Creando imagen");
                   const v558 = p487.bm.phoiId.value;
                   const v559 = await getLocalStorage("userInfo_" + fb.uid);
                   const v560 = await getLocalStorage(v558);
@@ -4478,10 +4478,10 @@ function delayTime(p5) {
                     gender: v559.gender
                   };
                   const vVO80 = vO80;
-                  p488("Đang upload ảnh");
+                  p488("Subiendo imagen");
                   const v561 = await uploadImage(vVO80, v560, p486, fb.uid, fb.dtsg);
                   if (v561.h) {
-                    p488("Upload ảnh thành công");
+                    p488("Subida de imagen exitosa");
                     const v562 = await fetch2("https://www.facebook.com/api/graphql/", {
                       headers: {
                         "content-type": "application/x-www-form-urlencoded"
@@ -4490,11 +4490,11 @@ function delayTime(p5) {
                       method: "POST"
                     });
                     if (v562.text.includes("UFACAwaitingReviewState")) {
-                      p488("Upload ảnh thành công");
+                      p488("Subida de imagen exitosa");
                       v538 = await vF15();
                     }
                   } else {
-                    p488("Upload ảnh thất bại");
+                    p488("Error al subir imagen");
                   }
                 }
                 let v563 = false;
@@ -4502,14 +4502,14 @@ function delayTime(p5) {
                   v563 = true;
                 }
                 if (v563) {
-                  p488("Kháng BM thành công");
+                  p488("Resistencia BM exitosa");
                   p489();
                 } else {
-                  p488("Kháng BM thất bại");
+                  p488("Resistencia BM fallida");
                   p490();
                 }
               } catch (e102) {
-                p488("Kháng BM thất bại");
+                p488("Resistencia BM fallida");
                 p490(e102);
               }
             });
@@ -4539,7 +4539,7 @@ function delayTime(p5) {
           for (let vLN055 = 0; vLN055 < v564; vLN055++) {
             try {
               p471("message", {
-                message: "[" + (vLN055 + 1) + "/" + v564 + "] Đang tạo TKQC"
+                message: "[" + (vLN055 + 1) + "/" + v564 + "] Creando TKQC"
               });
               const v565 = p470.bm.nameTkqc.value + " " + randomNumberRange(111111, 999999);
               const v566 = p470.bm.timezone2.value;
@@ -4551,15 +4551,15 @@ function delayTime(p5) {
                   const v568 = await fb.createAdAccount(p469.bmId, v567, v566, v565);
                   try {
                     p471("message", {
-                      message: "Đang share đối tác BM"
+                      message: "Compartiendo cuenta de BM"
                     });
                     await fb.shareDoiTacBm(p469.bmId, v568, p470.bm.shareTkqc.value);
                     p471("message", {
-                      message: "Share đối tác BM thành công"
+                      message: "Compartiendo cuenta de BM exitosamente"
                     });
                   } catch {
                     p471("message", {
-                      message: "Share đối tác BM thất bại"
+                      message: "Error al compartir cuenta de BM"
                     });
                   }
                 }
@@ -4570,28 +4570,28 @@ function delayTime(p5) {
             } catch {}
           }
           p471("message", {
-            message: "Tạo thành công " + vLN054 + "/" + v564 + " TKQC"
+            message: "Creación exitosa de " + vLN054 + "/" + v564 + " TKQC"
           });
         }
         if (p470.bm.outBm.value) {
           try {
             p471("message", {
-              message: "Đang thoát BM"
+              message: "Saliendo de BM"
             });
             await fb.outBm(p469.bmId);
             p471("message", {
-              message: "Thoát BM thành công"
+              message: "Salida de BM exitosa"
             });
           } catch (e104) {
             p471("message", {
-              message: "Thoát BM thất bại"
+              message: "Error al salir de BM"
             });
           }
         }
         if (p470.bm.removeQtv.value) {
           try {
             p471("message", {
-              message: "Đang xóa QTV"
+              message: "Eliminando QTV"
             });
             let vA20 = [];
             if (p470.bm.removeQtvMode.value === "all") {
@@ -4614,12 +4614,12 @@ function delayTime(p5) {
             const v571 = await Promise.all(vA21);
             const v572 = v571.filter(p500 => p500);
             p471("message", {
-              message: "Đã xóa " + v572.length + "/" + v571.length + " QTV"
+              message: "Eliminado " + v572.length + "/" + v571.length + " QTV"
             });
           } catch (e105) {
             console.log(e105);
             p471("message", {
-              message: "Xóa QTV thất bại"
+              message: "Error al eliminar QTV"
             });
           }
         }
@@ -4647,22 +4647,22 @@ function delayTime(p5) {
         if (p503.ads.shareBm.value && p503.ads.idBm.value) {
           try {
             p504("message", {
-              message: "Đang share đối tác BM"
+              message: "Compartiendo cuenta de BM"
             });
             await fb.shareDoiTacBm(p502.bm, p502.adId, p503.ads.idBm.value);
             p504("message", {
-              message: "Share đối tác BM thành công"
+              message: "Compartiendo cuenta de BM exitosamente"
             });
           } catch {
             p504("message", {
-              message: "Share đối tác BM thất bại"
+              message: "Error al compartir cuenta de BM"
             });
           }
         }
         if (p503.ads.getLinkShareBm.value) {
           try {
             p504("message", {
-              message: "Đang lấy link TK BM"
+              message: "Obteniendo link TK BM"
             });
             const v574 = await fetch2("https://business.facebook.com/business_share/genlink/?_callFlowletID=0&_triggerFlowletID=7839", {
               headers: {
@@ -4674,21 +4674,21 @@ function delayTime(p5) {
             const v575 = JSON.parse(v574.text.replace("for (;;);", ""));
             const v576 = v575.payload.tokenlink;
             p504("message", {
-              message: "Lấy link TK BM thành công"
+              message: "Obteniendo link TK BM exitosamente"
             });
             p504("updateShareBmLink", {
               link: p502.account + "|" + p502.adId + "|" + v576
             });
           } catch (e107) {
             p504("message", {
-              message: "Lấy link TK BM thất bại"
+              message: "Error al obtener link TK BM"
             });
           }
         }
         if (p503.ads.getLinkXmdtAds.value) {
           try {
             p504("message", {
-              message: "Đang lấy link XMDT"
+              message: "Obteniendo link XMDT"
             });
             const v577 = await fb.getLinkXmdtAds(p502.adId);
             p504("message", {
@@ -4696,7 +4696,7 @@ function delayTime(p5) {
             });
           } catch (e108) {
             p504("message", {
-              message: "Lấy link XMDT thất bại"
+              message: "Error al obtener link XMDT"
             });
           }
         }
@@ -4715,7 +4715,7 @@ function delayTime(p5) {
                 const v579 = v578[vLN057];
                 try {
                   p504("message", {
-                    message: "Đang add thẻ " + (vLN057 + 1) + "/" + v578.length
+                    message: "Añadiendo tarjeta " + (vLN057 + 1) + "/" + v578.length
                   });
                   await fb.addCard(p502.adId, v579, p503.ads.addCardMode.value);
                   v579.count = v579.count + 1;
@@ -4724,11 +4724,11 @@ function delayTime(p5) {
                 await delayTime(2000);
               }
               p504("message", {
-                message: "Add thảnh công " + vLN056 + "/" + v578.length + " thẻ"
+                message: "Añadido " + vLN056 + "/" + v578.length + " tarjetas"
               });
             } else {
               Swal.fire({
-                title: "Hết thẻ",
+                title: "No hay tarjetas",
                 icon: "error"
               });
             }
@@ -4740,7 +4740,7 @@ function delayTime(p5) {
           try {
             const v580 = p503.ads.newName.value + " " + randomNumberRange(111111, 999999);
             p504("message", {
-              message: "Đang đổi tên TKQC"
+              message: "Cambiando nombre de TKQC"
             });
             await fb.renameAds(p502.adId, v580, p502.bm ?? false);
             const vO91 = {
@@ -4748,11 +4748,11 @@ function delayTime(p5) {
             };
             p504("updateAdsName", vO91);
             p504("message", {
-              message: "Đổi tên TKQC thành công"
+              message: "Cambiado nombre de TKQC exitosamente"
             });
           } catch (e110) {
             p504("message", {
-              message: "Đổi tên TKQC thất bại"
+              message: "Error al cambiar nombre de TKQC"
             });
           }
         }
@@ -4763,7 +4763,7 @@ function delayTime(p5) {
         if (p503.ads.changeInfo.value) {
           try {
             p504("message", {
-              message: "Đang tiến hành đổi thông tin TKQC"
+              message: "Cambiando información de TKQC"
             });
             const v582 = await fb.changeInfoAds(p502.adId, p502.bm, p503.ads.currency.value, p503.ads.timezone.value, p503.ads.country.value);
             const v583 = v582.data.billable_account_update.billable_account.billing_payment_account.billable_account.timezone_info.timezone;
@@ -4776,11 +4776,11 @@ function delayTime(p5) {
             };
             p504("updateAdInfo", vO92);
             p504("message", {
-              message: "Đổi thông tin TKQC thành công"
+              message: "Cambiado información de TKQC exitosamente"
             });
           } catch {
             p504("message", {
-              message: "Đổi thông tin TKQC thất bại"
+              message: "Error al cambiar información de TKQC"
             });
           }
         }
@@ -4788,13 +4788,13 @@ function delayTime(p5) {
           if (p503.ads.removeHidden.value || p503.ads.removeAll.value) {
             try {
               p504("message", {
-                message: "Đang check admin ẩn"
+                message: "Comprobando admin oculto"
               });
               const v586 = await fb.checkHiddenAdmin(p502.adId);
               if (v586.length > 0) {
                 let vLN058 = 0;
                 p504("message", {
-                  message: "Đang xóa " + v586.length + " admin ẩn"
+                  message: "Eliminando " + v586.length + " admin oculto"
                 });
                 for (let vLN059 = 0; vLN059 < v586.length; vLN059++) {
                   try {
@@ -4805,17 +4805,17 @@ function delayTime(p5) {
                   await delayTime(2000);
                 }
                 p504("message", {
-                  message: "Đã xóa " + vLN058 + "/" + v586.length + " admin ẩn"
+                  message: "Eliminado " + vLN058 + "/" + v586.length + " admin oculto"
                 });
               } else {
                 p504("message", {
-                  message: "Tài khoản không có admin ẩn"
+                  message: "Cuenta sin admin oculto"
                 });
               }
             } catch (e111) {
               console.log(e111);
               p504("message", {
-                message: "Check admin ẩn thất bại"
+                message: "Error al comprobar admin oculto"
               });
             }
           }
@@ -4824,7 +4824,7 @@ function delayTime(p5) {
               const v588 = (await fb.getAdsUser(p502.adId)).map(p510 => p510.id).filter(p511 => p511 != fb.uid);
               p504("message", {
                 id: p502.id,
-                message: "Đang xóa " + v588.length + " admin"
+                message: "Eliminando " + v588.length + " admin"
               });
               if (v588.length > 0) {
                 let vLN060 = 0;
@@ -4837,17 +4837,17 @@ function delayTime(p5) {
                   await delayTime(2000);
                 }
                 p504("message", {
-                  message: "Đã xóa " + vLN060 + "/" + v588.length + " admin"
+                  message: "Eliminado " + vLN060 + "/" + v588.length + " admin"
                 });
               } else {
                 p504("message", {
-                  message: "Không có admin để xóa"
+                  message: "No hay admin para eliminar"
                 });
               }
             } catch (e112) {
               console.log(e112);
               p504("message", {
-                message: "Xóa admin thất bại"
+                message: "Error al eliminar admin"
               });
             }
           }
@@ -4855,7 +4855,7 @@ function delayTime(p5) {
         if (p503.ads.openAccount.value) {
           try {
             p504("message", {
-              message: "Đang mở tài khoản đóng"
+              message: "Abriendo cuenta cerrada"
             });
             const v590 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_callFlowletID=18346&_triggerFlowletID=18346", {
               headers: {
@@ -4867,16 +4867,16 @@ function delayTime(p5) {
             const v591 = v590.text;
             if (v591.includes("ADMARKET_ACCOUNT_STATUS_ACTIVE")) {
               p504("message", {
-                message: "Đã mở tài khoản đóng"
+                message: "Cuenta cerrada abierta"
               });
             } else {
               p504("message", {
-                message: "Không thể mở tài khoản đóng"
+                message: "No se puede abrir la cuenta cerrada"
               });
             }
           } catch (e113) {
             p504("message", {
-              message: "Không thể mở tài khoản đóng"
+              message: "No se puede abrir la cuenta cerrada"
             });
           }
         }
@@ -4898,7 +4898,7 @@ function delayTime(p5) {
             const v594 = p513.page.newName.value + " " + randomNumberRange(111111, 999999);
             console.log(v594);
             p514("message", {
-              message: "Đang đổi tên page"
+              message: "Cambiando nombre de página"
             });
             await fb.renamePage(p512.pageId, v594);
             const vO97 = {
@@ -4906,11 +4906,11 @@ function delayTime(p5) {
             };
             p514("updatePageName", vO97);
             p514("message", {
-              message: "Đổi tên page thành công"
+              message: "Cambiado nombre de página exitosamente"
             });
           } catch (e115) {
             p514("message", {
-              message: "Đổi tên page thất bại"
+              message: "Error al cambiar nombre de página"
             });
           }
         }
@@ -4918,16 +4918,16 @@ function delayTime(p5) {
           try {
             const v595 = p513.page.targetId.value;
             p514("message", {
-              message: "Đang share page"
+              message: "Compartiendo página"
             });
             const v596 = await fb.sharePage(p512.pageId2, v595, v593);
             console.log(v596);
             p514("message", {
-              message: "Share page thành công"
+              message: "Compartido página exitosamente"
             });
           } catch (e116) {
             p514("message", {
-              message: "Share page thất bại"
+              message: "Error al compartir página"
             });
           }
         }
@@ -5080,7 +5080,7 @@ function delayTime(p5) {
                     } else {
                       vLS16 = v611[vLN065].split("|")[1];
                     }
-                    $(document).trigger("checkProcess", ["<strong>[" + vA23.length + "/" + p538.length + "]</strong> Đang nhận link: <strong>" + vLS16 + "</strong>"]);
+                    $(document).trigger("checkProcess", ["<strong>[" + vA23.length + "/" + p538.length + "]</strong> Recibiendo link: <strong>" + vLS16 + "</strong>"]);
                     const v612 = await fetch2(vLS16);
                     const v613 = decodeURIComponent(v612.url).replace("https://business.facebook.com/business/loginpage/?next=", "");
                     if (v613.includes("https://business.facebook.com/invitation/?token=")) {
@@ -5129,7 +5129,7 @@ function delayTime(p5) {
           break;
         }
       }
-      $(document).trigger("checkProcess", ["Nhận thành công: <strong>" + vLN063 + "/" + p538.length + "</strong> link"]);
+      $(document).trigger("checkProcess", ["Recibido exitosamente: <strong>" + vLN063 + "/" + p538.length + "</strong> link"]);
       await delayTime(3000);
       p539();
     });
@@ -5217,13 +5217,13 @@ function delayTime(p5) {
       const v637 = v636.bm.bmNumber.value;
       const v638 = v636.bm.createBmMode.value;
       if (v638 === "350") {
-        $(document).trigger("checkProcess", ["Đang tạo BM350"]);
+        $(document).trigger("checkProcess", ["Creando BM350"]);
       }
       if (v638 === "50") {
-        $(document).trigger("checkProcess", ["Đang tạo BM50"]);
+        $(document).trigger("checkProcess", ["Creando BM50"]);
       }
       if (v638 === "over") {
-        $(document).trigger("checkProcess", ["Đang tạo BM cổng over"]);
+        $(document).trigger("checkProcess", ["Creando BM por gateway over"]);
       }
       let vLN068 = 0;
       for (let vLN069 = 0; vLN069 < v637; vLN069++) {
@@ -5234,7 +5234,7 @@ function delayTime(p5) {
         } catch {}
         await delayTime(2000);
       }
-      $(document).trigger("checkProcess", ["Đã tạo thành công " + vLN068 + "/" + v637 + " BM"]);
+      $(document).trigger("checkProcess", ["Se crearon exitosamente " + vLN068 + "/" + v637 + " BM"]);
       await delayTime(2000);
       p563();
     });
@@ -5252,7 +5252,7 @@ function delayTime(p5) {
         } catch {}
         await delayTime(3000);
       }
-      $(document).trigger("checkProcess", ["Tạo thành công " + vLN070 + "/" + v642 + " Page"]);
+      $(document).trigger("checkProcess", ["Se crearon exitosamente " + vLN070 + "/" + v642 + " Pages"]);
       await delayTime(2000);
       p565();
     });
@@ -5286,7 +5286,7 @@ function delayTime(p5) {
         }
       }
       await Promise.all(vA29);
-      $(document).trigger("checkProcess", ["Chấp nhận thành công: <strong>" + vLN071 + "/" + v646.length + "</strong> page"]);
+      $(document).trigger("checkProcess", ["Aceptado exitosamente: <strong>" + vLN071 + "/" + v646.length + "</strong> page"]);
       await delayTime(3000);
       p567();
     });
@@ -5338,7 +5338,7 @@ function delayTime(p5) {
                 break;
               }
             } else if (v658.includes("www_first_password_failure")) {
-              vLS17 = "Sai mật khẩu";
+              vLS17 = "Contraseña incorrecta";
               break;
             }
           } catch (e121) {
@@ -5352,7 +5352,7 @@ function delayTime(p5) {
         }
       } catch (e122) {
         console.log(e122);
-        p574("Đăng nhập thất bại");
+        p574("Error al iniciar sesión");
       }
     });
   }
