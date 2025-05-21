@@ -1,6 +1,4 @@
-﻿@import url('../css2');
-
-@font-face {
+﻿@font-face {
   font-family: 'SFProDisplay';
   src: url('../fonts/SFProDisplay-Bold.woff2') format('woff2'),
       url('../fonts/SFProDisplay-Bold.woff') format('woff');
