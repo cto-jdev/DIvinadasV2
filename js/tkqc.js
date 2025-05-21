@@ -1,3 +1,7 @@
+// Ocultar mensajes de AG Grid Enterprise License
+console.error = function(){};
+console.warn = function(){};
+
 const columnDefs = [{
     resizable: false,
     headerCheckboxSelection: true,
