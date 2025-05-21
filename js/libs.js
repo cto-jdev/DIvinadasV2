@@ -2827,12 +2827,12 @@ function delayTime(p5) {
                 await fb.loadBm();
               } else {
                 Swal.fire({
-                  title: "No data",
-                  text: "Please click on the load data button to display the information",
+                  title: "Sin datos",
+                  text: "Por favor haz clic en el botón para cargar la información",
                   icon: "warning",
                   showCancelButton: true,
-                  confirmButtonText: "Load data",
-                  cancelButtonText: "Cancel"
+                  confirmButtonText: "Cargar datos",
+                  cancelButtonText: "Cancelar"
                 }).then(async p297 => {
                   if (p297.isConfirmed) {
                     try {
