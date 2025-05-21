@@ -188,7 +188,6 @@ $(document).ready(async function () {
     }, 1000);
     $("#loadBm").click(async function () {
       try {
-        await runCheckKey();
         v12 = Swal.fire({
           title: "Đang tải dữ liệu",
           text: "Xin vui lòng đợi",
@@ -203,7 +202,6 @@ $(document).ready(async function () {
     });
     $("#loadAds").click(async function () {
       try {
-        await runCheckKey();
         v12 = Swal.fire({
           title: "Đang tải dữ liệu",
           text: "Xin vui lòng đợi",
@@ -218,7 +216,6 @@ $(document).ready(async function () {
     });
     $("#loadPage").click(async function () {
       try {
-        await runCheckKey();
         v12 = Swal.fire({
           title: "Đang tải dữ liệu",
           text: "Xin vui lòng đợi",

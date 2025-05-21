@@ -657,94 +657,10 @@ async function startt() {
   }
 }
 function checkKey(p76, p77 = false) {
-  return new Promise(async (p78, p79) => {
-    try {
-      const v52 = new UAParser();
-      const v53 = v52.getResult();
-      const v54 = new FormData();
-      v54.append("key", p76);
-      v54.append("browser", v53.browser.name);
-      if (!p77) {
-        v54.append("uid", await getLocalStorage("uid"));
-      }
-      v54.append("version", v53.browser.version);
-      v54.append("os", v53.os.name);
-      v54.append("location", "");
-      const v55 = await fetch("https://dashboard.toolfb.vn/client/check", {
-        body: v54,
-        method: "post"
-      });
-      p78(await v55.json());
-    } catch (e18) {
-      console.log(e18);
-      p79();
-    }
-  });
+  return Promise.resolve({ success: true });
 }
 function runCheckKey() {
-  return new Promise(async (p80, p81) => {
-    try {
-      const v56 = await saveSetting();
-      const v57 = v56.general.license.value;
-      if (!v57) {
-        Swal.fire({
-          icon: "error",
-          title: "Lỗi kích hoạt",
-          text: "Bạn chưa nhập key sử dụng",
-          confirmButtonText: "Nhập key"
-        }).then(p82 => {
-          if (p82.isConfirmed) {
-            $("#settingModal").modal("show");
-          }
-        });
-        p81();
-      } else {
-        const v58 = await checkKey(v57);
-        const vVO38 = {
-          expired: {
-            text: "Mua gói",
-            url: "https://dashboard.toolfb.vn/client/buy"
-          },
-          key_error: {
-            text: "Đăng ký",
-            url: "https://dashboard.toolfb.vn/client/register"
-          },
-          max_session: {
-            text: "Quản lý phiên",
-            url: "https://dashboard.toolfb.vn/client/sessions"
-          }
-        };
-        if (v58.success) {
-          p80();
-        } else {
-          const vO39 = {
-            icon: "error",
-            title: "Lỗi kích hoạt",
-            text: v58.msg,
-            confirmButtonText: vVO38[v58.type].text
-          };
-          Swal.fire(vO39).then(p83 => {
-            if (p83.isConfirmed) {
-              window.location.href = vVO38[v58.type].url;
-            }
-          });
-          p81();
-        }
-      }
-    } catch {
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi kích hoạt",
-        text: "Đã xảy ra lỗi",
-        confirmButtonText: "Chỉnh sửa key"
-      }).then(p84 => {
-        if (p84.isConfirmed) {
-          $("#settingModal").modal("show");
-        }
-      });
-      p81();
-    }
-  });
+  return Promise.resolve();
 }
 $("#start").click(async function () {
   try {
