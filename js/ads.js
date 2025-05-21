@@ -1,0 +1,530 @@
+const columnDefs = [{
+    resizable: false,
+    headerCheckboxSelection: true,
+    headerCheckboxSelectionCurrentPageOnly: true,
+    checkboxSelection: true,
+    showDisabledCheckboxes: true,
+    maxWidth: 40,
+    pinned: "left",
+    suppressMovable: true,
+    lockPosition: "left"
+  }, {
+    field: "status",
+    headerName: "Estado",
+    filter: "agSetColumnFilter",
+    cellRenderer: p => {
+      let v = "";
+      if (p.data.status == 101) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-info\">Cerrada</strong></span>";
+      }
+      if (p.data.status == 999) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-secondary\">En espera</strong></span>";
+      }
+      if (p.data.status == 1 || p.data.status == 100) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">Activo</strong></span>";
+      }
+      if (p.data.status == 2) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Deshabilitado</strong></span>";
+      }
+      if (p.data.status == 3) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Necesita pago</strong></span>";
+      }
+      if (p.data.status == 4) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">En disputa 3 líneas</strong></span>";
+      }
+      if (p.data.status == 5) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Muerto 3 líneas</strong></span>";
+      }
+      if (p.data.status == 6) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Muerto VeryID</strong></span>";
+      }
+      if (p.data.status == 7) {
+        v = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Muerto permanentemente</strong></span>";
+      }
+      return v;
+    }
+  }, {
+    field: "account",
+    headerName: "Cuenta",
+    minWidth: 250,
+    cellRenderer: p2 => {
+      return "\n                <div class=\"d-flex align-items-center\">\n                    <span class=\"avatar-letter\" data-letter=\"" + p2.data.account.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                    <a href=\"https://business.facebook.com/billing_hub/payment_settings/?asset_id=" + p2.data.adId + "\" target=\"_BLANK\" class=\"ps-3 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + p2.data.account + "</strong>\n                        <span>" + p2.data.adId + "</span>\n                    </a>\n                </div>\n            ";
+    }
+  }, {
+    field: "id",
+    hide: true
+  }, {
+    field: "adId",
+    headerName: "ID Cuenta"
+  }, {
+    field: "process",
+    headerName: "Proceso"
+  }, {
+    field: "message",
+    headerName: "Mensaje"
+  }, {
+    field: "balance",
+    headerName: "Saldo"
+  }, {
+    field: "threshold",
+    headerName: "Umbral"
+  }, {
+    field: "remain",
+    headerName: "Umbral restante"
+  }, {
+    field: "limit",
+    headerName: "Límite"
+  }, {
+    field: "spend",
+    headerName: "Gasto total"
+  }, {
+    field: "currency",
+    headerName: "Moneda"
+  }, {
+    field: "adminNumber",
+    headerName: "Número de admin"
+  }, {
+    field: "role",
+    headerName: "Rol de propiedad"
+  }, {
+    field: "payment",
+    headerName: "Pago",
+    minWidth: 200,
+    cellRenderer: p3 => {
+      let v2 = "";
+      if (p3.data.payment) {
+        const v3 = JSON.parse(p3.data.payment);
+        if (v3.length > 0) {
+          const v4 = v3.map(p4 => {
+            if (p4.credential.__typename === "AdsToken") {
+              p4.img = "../img/credit.svg";
+              p4.credential.last_four_digits = 1007;
+            }
+            if (p4.credential.__typename === "PaymentPaypalBillingAgreement") {
+              p4.img = "../img/paypal.svg";
+              p4.credential.last_four_digits = "PayPal";
+            }
+            if (p4.credential.__typename === "DirectDebit") {
+              p4.img = "../img/direct.svg";
+            }
+            if (p4.credential.card_association === "AMERICANEXPRESS") {
+              p4.img = "../img/amex.svg";
+            }
+            if (p4.credential.card_association === "VISA") {
+              p4.img = "../img/visa.svg";
+            }
+            if (p4.credential.card_association === "MASTERCARD") {
+              p4.img = "../img/mastercard.svg";
+            }
+            return p4;
+          });
+          let v5 = v4.filter(p5 => p5.is_primary)[0];
+          if (!v5) {
+            v5 = v4[0];
+          }
+          v2 = "<div class=\"accountPayments\" style=\"line-height: initial;\">";
+          let v6 = "";
+          if (v5.usability === "USABLE") {
+            v6 = "<span class=\"badge rounded-pill text-bg-success\">Activo</span>";
+          }
+          if (v5.usability === "PENDING_VERIFICATION" || v5.usability === "UNVERIFIED_OR_PENDING_AUTH") {
+            v6 = "<span class=\"badge rounded-pill text-bg-warning\">Verificación pendiente</span>";
+          }
+          if (v5.usability === "ADS_PAYMENTS_RESTRICTED" || v5.usability === "UNVERIFIABLE") {
+            v6 = "<span class=\"badge rounded-pill text-bg-danger\">Restringido</span>";
+          }
+          v2 += "\n                        <div class=\"d-flex align-items-center\">\n                            <img src=\"" + v5.img + "\" class=\"me-2\"><strong>" + v5.credential.last_four_digits + "</strong><span class=\"mx-1\">&#8226;</span><span>" + v6 + "</span>\n                        </div>\n\n                    ";
+          if (v4.length > 1) {
+            v2 += "\n                            <strong class=\"more text-primary d-block\" style=\"margin-top: 2px\">" + (v4.length - 1) + " Más tarjetas...</strong>\n                            <div class=\"subMenu d-none\">\n                        ";
+            v4.forEach(p6 => {
+              let v7 = "";
+              let v8 = "";
+              if (!p6.credential.email) {
+                v7 = "<small>Fecha de expiración: " + p6.credential.expiry_month + "/" + p6.credential.expiry_year + "</small>";
+              } else {
+                v7 = "<small>" + p6.credential.email + "</small>";
+              }
+              if (p6.usability === "USABLE") {
+                v8 = "<span class=\"badge rounded-pill text-bg-success\">Activo</span>";
+              }
+              if (p6.usability === "PENDING_VERIFICATION" || p6.usability === "UNVERIFIED_OR_PENDING_AUTH") {
+                v8 = "<span class=\"badge rounded-pill text-bg-warning\">Verificación pendiente</span>";
+              }
+              if (p6.usability === "ADS_PAYMENTS_RESTRICTED" || p6.usability === "UNVERIFIABLE") {
+                v8 = "<span class=\"badge rounded-pill text-bg-danger\">Restringido</span>";
+              }
+              if (p6.credential.__typename === "AdsToken") {
+                v7 = "";
+              }
+              v2 += "\n                                <div class=\"cardItem d-flex align-items-center\">\n                                    <img src=\"" + p6.img + "\" height=\"20\" class=\"me-3\"> \n                                    <div>\n                                        <span class=\"d-block\"><strong>" + p6.credential.last_four_digits + "</strong> &#8226; " + v8 + "</span>\n                                        " + v7 + "\n                                    </div>\n                                </div>\n                            ";
+            });
+            v2 += "</div>";
+          }
+          v2 += "</div>";
+        }
+      }
+      return v2;
+    }
+  }, {
+    field: "nextBillDate",
+    headerName: "Fecha de la próxima factura"
+  }, {
+    field: "nextBillDay",
+    headerName: "Días hasta el próximo pago"
+  }, {
+    field: "country",
+    headerName: "País"
+  }, {
+    field: "reason",
+    headerName: "Razón del bloqueo"
+  }, {
+    field: "createdTime",
+    headerName: "Fecha de creación"
+  }, {
+    field: "type",
+    headerName: "Tipo"
+  }, {
+    field: "bm",
+    headerName: "BM"
+  }, {
+    field: "timezone",
+    headerName: "Zona horaria"
+  }];
+  const accountGrid = {
+    rowHeight: 50,
+    rowSelection: "multiple",
+    suppressContextMenu: true,
+    suppressMovableColumns: false,
+    suppressDragLeaveHidesColumns: true,
+    rowMultiSelectWithClick: true,
+    suppressRowClickSelection: true,
+    enableRangeSelection: true,
+    defaultColDef: {
+      flex: 1,
+      suppressMenu: true,
+      minWidth: 100,
+      resizable: true,
+      sortable: true,
+      lockPinned: true
+    },
+    columnDefs: columnDefs,
+    rowData: [],
+    localeText: {
+      noRowsToShow: ""
+    },
+    getRowId: function (p7) {
+      return p7.data.id;
+    },
+    onFirstDataRendered: function (p8) {
+      countStatus(p8, 0);
+    },
+    onRangeSelectionChanged: function (p9) {
+      const v9 = p9.api.getCellRanges();
+      if (v9.length) {
+        let v10 = 0;
+        if (v9[0].startRow.rowIndex < v9[0].endRow.rowIndex) {
+          v10 = v9[0].endRow.rowIndex - (v9[0].startRow.rowIndex - 1);
+        } else {
+          v10 = v9[0].startRow.rowIndex - (v9[0].endRow.rowIndex - 1);
+        }
+        $("#boiden").text(v10);
+      } else {
+        $("#boiden").text(0);
+      }
+    },
+    onSelectionChanged: function (p10) {
+      const v11 = p10.api.getSelectedRows();
+      $("#dachon").text(v11.length);
+    },
+    onRowDataUpdated: function (p11) {
+      $("#tong").text(p11.api.getDisplayedRowCount());
+    },
+    onFilterChanged: function (p12) {
+      $("#tong").text(p12.api.getDisplayedRowCount());
+    },
+    rowClassRules: {
+      running: function (p13) {
+        return p13.data.status === "RUNNING";
+      },
+      finished: function (p14) {
+        return p14.data.status === "FINISHED";
+      }
+    },
+    onBodyScroll: function (p15) {
+      scrolling = true;
+    },
+    onBodyScrollEnd: function (p16) {
+      scrolling = false;
+    }
+  };
+  const cardColumns = [{
+    resizable: false,
+    headerCheckboxSelection: true,
+    headerCheckboxSelectionCurrentPageOnly: true,
+    checkboxSelection: true,
+    showDisabledCheckboxes: true,
+    maxWidth: 40,
+    suppressMovable: true
+  }, {
+    field: "id",
+    headerName: "#",
+    width: 40,
+    minWidth: 40,
+    suppressMovable: true
+  }, {
+    field: "cardName",
+    headerName: "Nombre en la tarjeta"
+  }, {
+    field: "cardNumber",
+    headerName: "Número de tarjeta"
+  }, {
+    field: "expDate",
+    headerName: "Fecha de expiración"
+  }, {
+    field: "expMonth",
+    hide: true
+  }, {
+    field: "expYear",
+    hide: true
+  }, {
+    field: "cardCsv",
+    headerName: "CCV"
+  }, {
+    field: "count",
+    headerName: "Veces usado"
+  }];
+  const v12 = {
+    rowSelection: "multiple",
+    suppressContextMenu: true,
+    suppressMovableColumns: false,
+    suppressDragLeaveHidesColumns: true,
+    rowMultiSelectWithClick: true,
+    suppressRowClickSelection: true,
+    enableRangeSelection: true,
+    defaultColDef: {
+      flex: 1,
+      suppressMenu: true,
+      minWidth: 100,
+      resizable: true,
+      sortable: true
+    },
+    columnDefs: cardColumns,
+    rowData: [],
+    localeText: {
+      noRowsToShow: ""
+    }
+  };
+  const cardGrid = v12;
+  $(document).ready(async function () {
+    const v13 = document.querySelector("#accounts");
+    try {
+      const v14 = document.querySelector("#cards");
+      new agGrid.Grid(v14, cardGrid);
+    } catch {}
+    new agGrid.Grid(v13, accountGrid);
+    const v15 = JSON.parse(localStorage.getItem("stateAds")) || [];
+    const v16 = {
+      state: v15,
+      applyOrder: true
+    };
+    accountGrid.columnApi.applyColumnState(v16);
+    const v17 = new URL(location.href);
+    const v18 = v17.searchParams.get("id");
+    if (v18) {
+      const v19 = await getLocalStorage("dataAds_" + v18);
+      $("#count").text(v19.length);
+      accountGrid.api.setRowData(v19);
+    } else {
+      $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {
+        if ($(this).find(".more").length > 0 && $(".moreCard").length === 0) {
+          const v20 = $(this).find(".more").offset();
+          const v21 = parseInt($(this).find(".more").attr("offset")) || 2;
+          const v22 = $(this).find(".subMenu").html();
+          $("body").append("\n                    <div class=\"moreCard shadow rounded p-3\" style=\"top: " + (v20.top + v21) + "px; left: " + (v20.left - 10) + "px\">" + v22 + "</div>\n                ");
+        }
+      });
+      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {
+        $(".moreCard").remove();
+      });
+      setInterval(async () => {
+        if ($("body").hasClass("setting-loaded")) {
+          saveSetting();
+        }
+        if ($("body").hasClass("data-loaded")) {
+          const v23 = [];
+          accountGrid.api.forEachNode(function (p17) {
+            v23.push(p17.data);
+          });
+          if (v23.length > 0) {
+            localStorage.setItem("dataAds", JSON.stringify(v23));
+            await setLocalStorage("dataAds_" + fb.uid, v23);
+          }
+          const v24 = accountGrid.columnApi.getColumnState();
+          localStorage.setItem("stateAds", JSON.stringify(v24));
+        }
+      }, 2000);
+    }
+  });
+  $(document).on("loadSavedAds", function (p18, p19) {
+    p19 = p19.map(p20 => {
+      p20.process = "";
+      return p20;
+    });
+    accountGrid.api.setRowData(p19);
+  });
+  const adsMap = [];
+  $(document).on("loadAdsSuccess", function (p21, p22) {
+    let v25 = 1;
+    p22 = p22.map(p23 => {
+      const v26 = {
+        id: v25,
+        adId: p23.adId
+      };
+      adsMap.push(v26);
+      p23.id = v25;
+      v25++;
+      return p23;
+    });
+    accountGrid.api.setRowData(p22);
+  });
+  $(document).on("loadAdsSuccess2", function (p24, p25) {
+    const v27 = adsMap.filter(p26 => p26.adId == p25.id)[0].id;
+    accountGrid.api.getRowNode(v27).setDataValue("country", p25.country);
+    accountGrid.api.getRowNode(v27).setDataValue("payment", p25.payment);
+    if (p25.status) {
+      accountGrid.api.getRowNode(v27).setDataValue("status", p25.status);
+    }
+  });
+  $("[name=\"linkShareBm\"]").on("input", function () {
+    const v28 = $("[name=\"linkShareBm\"]").val().split(/\r?\n|\r|\n/g).filter(p27 => p27);
+    $("#linkShareBmCount").text(v28.length);
+  });
+  $(document).on("updateShareBmLink", function (p28, p29) {
+    const v29 = $("[name=\"linkShareBm\"]").val().split(/\r?\n|\r|\n/g).filter(p30 => p30);
+    v29.push(p29.link);
+    $("[name=\"linkShareBm\"]").val(v29.join("\r\n"));
+    $("#linkShareBmCount").text(v29.length);
+  });
+  $(document).on("updateAdsName", function (p31, p32) {
+    accountGrid.api.getRowNode(parseInt(p32.id)).setDataValue("account", p32.name);
+  });
+  $(document).on("updateAdInfo", function (p33, p34) {
+    if (p34.timezone) {
+      accountGrid.api.getRowNode(parseInt(p34.id)).setDataValue("timezone", p34.timezone);
+    }
+    if (p34.currency) {
+      accountGrid.api.getRowNode(parseInt(p34.id)).setDataValue("currency", p34.currency);
+    }
+    if (p34.country) {
+      accountGrid.api.getRowNode(parseInt(p34.id)).setDataValue("country", p34.country);
+    }
+  });
+  async function pasteCard() {
+    const v30 = (await navigator.clipboard.readText()) ?? "";
+    if (v30.length > 0) {
+      accountGrid.api.clearRangeSelection();
+      const v31 = v30.split(/\r?\n|\r|\n/g);
+      for (let v32 = 0; v32 < v31.length; v32++) {
+        let v33 = v31[v32];
+        const v34 = v33.split("|");
+        if (v34.length > 2) {
+          localStorage.setItem("card_" + v34[1], JSON.stringify({
+            cardName: v34[0],
+            cardNumber: v34[1],
+            expMonth: v34[2].split("/")[0],
+            expYear: v34[2].split("/")[1],
+            expDate: v34[2],
+            cardCsv: v34[3],
+            count: 0
+          }));
+        }
+      }
+      loadCards();
+    }
+    return false;
+  }
+  $("#cardModal").on("show.bs.modal", function (p35) {
+    loadCards();
+    const v35 = [{
+      text: "Paste",
+      onclick: p36 => {
+        pasteCard();
+      }
+    }, {
+      text: "Delete",
+      onclick: p37 => {
+        cardGrid.api.forEachNodeAfterFilterAndSort(p38 => {
+          if (p38.selected) {
+            localStorage.removeItem("card_" + p38.data.cardNumber);
+          }
+        });
+        loadCards();
+      }
+    }];
+    const v36 = new ContextMenu(document.getElementById("cards"), v35);
+    v36.install();
+  });
+  function loadCards() {
+    const v37 = {
+      ...localStorage
+    };
+    const vV37 = v37;
+    let v38 = 1;
+    const v39 = Object.keys(vV37).filter(p39 => p39.includes("card_")).map(p40 => {
+      return {
+        id: v38++,
+        ...JSON.parse(vV37[p40])
+      };
+    });
+    cardGrid.api.setRowData(v39);
+    $("#cardCount").text(v39.length);
+  }
+  function countStatus(p41, p42) {
+    let v40 = 0;
+    let v41 = 0;
+    let v42 = 0;
+    let v43 = 0;
+    let v44 = 0;
+    let v45 = 0;
+    let v46 = 0;
+    let v47 = 0;
+    let v48 = 0;
+    p41.api.forEachNode(p43 => {
+      if (p43.data.status == 1) {
+        v40++;
+      }
+      if (p43.data.status == 2) {
+        v41++;
+      }
+      if (p43.data.status == 3) {
+        v42++;
+      }
+      if (p43.data.status == 4) {
+        v43++;
+      }
+      if (p43.data.status == 5) {
+        v44++;
+      }
+      if (p43.data.status == 6) {
+        v45++;
+      }
+      if (p43.data.status == 7) {
+        v46++;
+      }
+      if (p43.data.status == 101) {
+        v47++;
+      }
+      if (p43.data.status == 999) {
+        v48++;
+      }
+    });
+    $(".status1Count").text(v40);
+    $(".status2Count").text(v41);
+    $(".status3Count").text(v42);
+    $(".status4Count").text(v43);
+    $(".status5Count").text(v44);
+    $(".status6Count").text(v45);
+    $(".status7Count").text(v46);
+    $(".status101Count").text(v47);
+    $(".status999Count").text(v48);
+  }
