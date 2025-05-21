@@ -10,10 +10,10 @@ const checkExtension = async function () {
     Swal.fire({
       icon: "error", 
       title: "Ha ocurrido un error",
-      html: "No has instalado la extensión <strong>ToolFB.vn</strong> o no está activada",
+      html: "No has instalado la extensión <strong>DiviAnds</strong> o no está activada",
       allowOutsideClick: false,
       showConfirmButton: true,
-      confirmButtonText: "Descargar Extensión ToolFB.vn",
+      confirmButtonText: "Descargar Extensión DiviAnds",
       confirmButtonColor: "#4267B2"
     }).then(p5 => {
       if (p5.isConfirmed) {
