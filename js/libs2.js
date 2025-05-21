@@ -5,15 +5,15 @@ function loadBm() {
         if (v182.length > 0) {
           $(document).trigger("loadSavedBm", [v182]);
         } else {
-          const v183 = await this.getBm();
+          const v183 = await fb.getBm();
           try {
-            const v184 = await this.getBmStatus();
+            const v184 = await fb.getBmStatus();
             $(document).trigger("loadBmSuccess", [v184]);
           } catch (e33) {
             $(document).trigger("loadBmSuccess3", [v183]);
           }
           try {
-            const v185 = await this.getBmPage();
+            const v185 = await fb.getBmPage();
             $(document).trigger("loadBmSuccess4", [v185]);
           } catch (e34) {
             console.log(e34);
@@ -22,7 +22,7 @@ function loadBm() {
           const vF8 = p191 => {
             return new Promise(async (p192, p193) => {
               try {
-                const v186 = await this.getBmLimit(p191.id);
+                const v186 = await fb.getBmLimit(p191.id);
                 $(document).trigger("loadLimitSuccess", [{
                   id: p191.id,
                   type: "BM" + v186 + " - " + moment(p191.created_time).format("DD/MM/YYYY"),
@@ -30,7 +30,7 @@ function loadBm() {
                 }]);
               } catch {}
               try {
-                const v187 = await this.getBmAccounts(p191.id);
+                const v187 = await fb.getBmAccounts(p191.id);
                 const vO15 = {
                   id: p191.id,
                   count: v187.length
@@ -38,7 +38,7 @@ function loadBm() {
                 $(document).trigger("loadQtvSuccess", [vO15]);
               } catch {}
               try {
-                const v188 = await this.getInsta(p191.id);
+                const v188 = await fb.getInsta(p191.id);
                 const vO16 = {
                   id: p191.id,
                   count: v188.data.length
