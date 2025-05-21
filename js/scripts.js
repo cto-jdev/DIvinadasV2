@@ -745,7 +745,7 @@ $(document).on("click", ".loginButton", async function () {
       confirmButtonText: "Editar clave"
     }).then(p87 => {
       if (p87.isConfirmed) {
-        $("#settingModal").modal("show");
+        // $('#settingModal').modal('show'); // Evito mostrar el modal automáticamente
       }
     });
   }
