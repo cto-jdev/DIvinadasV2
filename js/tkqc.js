@@ -14,42 +14,42 @@ const columnDefs = [{
     lockPosition: "left"
   }, {
     field: "status",
-    headerName: "Trạng thái",
-    filter: "agSetColumnFilter",
+    headerName: "Estado",
+    filter: "agSetColumnFilter", 
     cellRenderer: p5 => {
       let vLS = "";
       if (p5.data.status == 101) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-info\">Đóng</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-info\">Cerrado</strong></span>";
       }
       if (p5.data.status == 999) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-secondary\">Hold</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-secondary\">En espera</strong></span>";
       }
       if (p5.data.status == 1 || p5.data.status == 100) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">Hoạt động</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">Activo</strong></span>";
       }
       if (p5.data.status == 2) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Vô hiệu hóa</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Deshabilitado</strong></span>";
       }
       if (p5.data.status == 3) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Cần thanh toán</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Pago pendiente</strong></span>";
       }
       if (p5.data.status == 4) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Đang kháng 3 dòng</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Apelando 3 líneas</strong></span>";
       }
       if (p5.data.status == 5) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Die 3 dòng</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Muerto 3 líneas</strong></span>";
       }
       if (p5.data.status == 6) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Die XMDT</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Muerto XMDT</strong></span>";
       }
       if (p5.data.status == 7) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Die vĩnh viễn</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">Muerto permanente</strong></span>";
       }
       return vLS;
     }
   }, {
     field: "account",
-    headerName: "Tài khoản",
+    headerName: "Cuenta",
     minWidth: 250,
     cellRenderer: p6 => {
       return "\n                <div class=\"d-flex align-items-center\">\n                    <span class=\"avatar-letter\" data-letter=\"" + p6.data.account.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                    <a href=\"https://business.facebook.com/billing_hub/payment_settings/?asset_id=" + p6.data.adId + "\" target=\"_BLANK\" class=\"ps-3 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + p6.data.account + "</strong>\n                        <span>" + p6.data.adId + "</span>\n                    </a>\n                </div>\n            ";
@@ -59,61 +59,61 @@ const columnDefs = [{
     hide: true
   }, {
     field: "adId",
-    headerName: "ID TKQC"
+    headerName: "ID Cuenta Ads"
   }, {
     field: "process",
-    headerName: "Process",
+    headerName: "Proceso",
     cellRenderer: p7 => {
       if (p7.data.process === "RUNNING") {
-        return "<span class=\"badge text-bg-warning\" style=\"font-size: 10px\">RUNNING</span>";
+        return "<span class=\"badge text-bg-warning\" style=\"font-size: 10px\">EN PROCESO</span>";
       }
       if (p7.data.process === "FINISHED") {
-        return "<span class=\"badge text-bg-success\" style=\"font-size: 10px\">FINISHED</span>";
+        return "<span class=\"badge text-bg-success\" style=\"font-size: 10px\">FINALIZADO</span>";
       }
     }
   }, {
     field: "message",
-    headerName: "Message",
+    headerName: "Mensaje",
     minWidth: 300
   }, {
     field: "balance",
-    headerName: "Số dư",
+    headerName: "Saldo",
     cellRenderer: p8 => {
       return "<span class=\"currency\" data-value=\"" + p8.data.balance.toString().replaceAll(",", "") + "\" data-currency=\"" + p8.data.currency.split("-")[0] + "\">" + p8.data.balance + "</span>";
     }
   }, {
     field: "threshold",
-    headerName: "Ngưỡng",
+    headerName: "Umbral",
     cellRenderer: p9 => {
       return "<span class=\"currency\" data-value=\"" + p9.data.threshold.toString().replaceAll(",", "") + "\" data-currency=\"" + p9.data.currency.split("-")[0] + "\">" + p9.data.threshold + "</span>";
     }
   }, {
     field: "remain",
-    headerName: "Ngưỡng còn lại",
+    headerName: "Umbral restante",
     cellRenderer: p10 => {
       return "<span class=\"currency\" data-value=\"" + p10.data.remain.toString().replaceAll(",", "") + "\" data-currency=\"" + p10.data.currency.split("-")[0] + "\">" + p10.data.remain + "</span>";
     }
   }, {
     field: "limit",
-    headerName: "Limit",
+    headerName: "Límite",
     cellRenderer: p11 => {
       return "<span class=\"currency\" data-value=\"" + p11.data.limit.toString().replaceAll(",", "") + "\" data-currency=\"" + p11.data.currency.split("-")[0] + "\">" + p11.data.limit + "</span>";
     }
   }, {
     field: "spend",
-    headerName: "Tổng tiêu"
+    headerName: "Gasto total"
   }, {
     field: "currency",
-    headerName: "Tiền tệ"
+    headerName: "Moneda"
   }, {
     field: "adminNumber",
-    headerName: "SL Admin"
+    headerName: "Cant. Admins"
   }, {
     field: "role",
-    headerName: "Quyền sở hữu"
+    headerName: "Rol de propiedad"
   }, {
     field: "payment",
-    headerName: "Thanh toán",
+    headerName: "Pago",
     minWidth: 200,
     cellRenderer: p12 => {
       let vLS2 = "";
@@ -150,33 +150,33 @@ const columnDefs = [{
           vLS2 = "<div class=\"accountPayments\" style=\"line-height: initial;\">";
           let vLS3 = "";
           if (v14.usability === "USABLE") {
-            vLS3 = "<span class=\"badge rounded-pill text-bg-success\">Hoạt động</span>";
+            vLS3 = "<span class=\"badge rounded-pill text-bg-success\">Activo</span>";
           }
           if (v14.usability === "PENDING_VERIFICATION" || v14.usability === "UNVERIFIED_OR_PENDING_AUTH") {
-            vLS3 = "<span class=\"badge rounded-pill text-bg-warning\">Xác minh</span>";
+            vLS3 = "<span class=\"badge rounded-pill text-bg-warning\">Verificar</span>";
           }
           if (v14.usability === "ADS_PAYMENTS_RESTRICTED" || v14.usability === "UNVERIFIABLE") {
-            vLS3 = "<span class=\"badge rounded-pill text-bg-danger\">Hạn chế</span>";
+            vLS3 = "<span class=\"badge rounded-pill text-bg-danger\">Restringido</span>";
           }
           vLS2 += "\n                        <div class=\"d-flex align-items-center\">\n                            <img src=\"" + v14.img + "\" class=\"me-2\"><strong>" + v14.credential.last_four_digits + "</strong><span class=\"mx-1\">&#8226;</span><span>" + vLS3 + "</span>\n                        </div>\n\n                    ";
           if (v13.length > 1) {
-            vLS2 += "\n                            <strong class=\"more text-primary d-block\" style=\"margin-top: 2px\">" + (v13.length - 1) + " thẻ khác...</strong>\n                            <div class=\"subMenu d-none\">\n                        ";
+            vLS2 += "\n                            <strong class=\"more text-primary d-block\" style=\"margin-top: 2px\">" + (v13.length - 1) + " otras tarjetas...</strong>\n                            <div class=\"subMenu d-none\">\n                        ";
             v13.forEach(p15 => {
               let vLS4 = "";
               let vLS5 = "";
               if (!p15.credential.email) {
-                vLS4 = "<small>Ngày hết hạn: " + p15.credential.expiry_month + "/" + p15.credential.expiry_year + "</small>";
+                vLS4 = "<small>Fecha vencimiento: " + p15.credential.expiry_month + "/" + p15.credential.expiry_year + "</small>";
               } else {
                 vLS4 = "<small>" + p15.credential.email + "</small>";
               }
               if (p15.usability === "USABLE") {
-                vLS5 = "<span class=\"badge rounded-pill text-bg-success\">Hoạt động</span>";
+                vLS5 = "<span class=\"badge rounded-pill text-bg-success\">Activo</span>";
               }
               if (p15.usability === "PENDING_VERIFICATION" || p15.usability === "UNVERIFIED_OR_PENDING_AUTH") {
-                vLS5 = "<span class=\"badge rounded-pill text-bg-warning\">Xác minh</span>";
+                vLS5 = "<span class=\"badge rounded-pill text-bg-warning\">Verificar</span>";
               }
               if (p15.usability === "ADS_PAYMENTS_RESTRICTED" || p15.usability === "UNVERIFIABLE") {
-                vLS5 = "<span class=\"badge rounded-pill text-bg-danger\">Hạn chế</span>";
+                vLS5 = "<span class=\"badge rounded-pill text-bg-danger\">Restringido</span>";
               }
               if (p15.credential.__typename === "AdsToken") {
                 vLS4 = "";
@@ -192,28 +192,28 @@ const columnDefs = [{
     }
   }, {
     field: "nextBillDate",
-    headerName: "Ngày lập hóa đơn"
+    headerName: "Fecha próxima factura"
   }, {
     field: "nextBillDay",
-    headerName: "Số ngày đến hạn TT"
+    headerName: "Días para facturación"
   }, {
     field: "country",
-    headerName: "Quốc gia"
+    headerName: "País"
   }, {
     field: "reason",
-    headerName: "Lý do khóa"
+    headerName: "Motivo de bloqueo"
   }, {
     field: "createdTime",
-    headerName: "Ngày tạo"
+    headerName: "Fecha creación"
   }, {
     field: "type",
-    headerName: "Loại"
+    headerName: "Tipo"
   }, {
     field: "bm",
     headerName: "BM"
   }, {
     field: "timezone",
-    headerName: "Múi giờ"
+    headerName: "Zona horaria"
   }];
   const accountGrid = {
     rowHeight: 50,
@@ -313,13 +313,13 @@ const columnDefs = [{
     suppressMovable: true
   }, {
     field: "cardName",
-    headerName: "Tên trên thẻ"
+    headerName: "Nombre en tarjeta"
   }, {
     field: "cardNumber",
-    headerName: "Số thẻ"
+    headerName: "Número de tarjeta"
   }, {
     field: "expDate",
-    headerName: "Ngày hết hạn"
+    headerName: "Fecha vencimiento"
   }, {
     field: "expMonth",
     hide: true
@@ -331,7 +331,7 @@ const columnDefs = [{
     headerName: "CCV"
   }, {
     field: "count",
-    headerName: "Lượt dùng"
+    headerName: "Usos"
   }];
   const vO30 = {
     rowSelection: "multiple",
@@ -487,12 +487,12 @@ const columnDefs = [{
   $("#cardModal").on("show.bs.modal", function (p46) {
     loadCards();
     const vA3 = [{
-      text: "Paste",
+      text: "Pegar",
       onclick: p47 => {
         pasteCard();
       }
     }, {
-      text: "Delete",
+      text: "Eliminar",
       onclick: p48 => {
         cardGrid.api.forEachNodeAfterFilterAndSort(p49 => {
           if (p49.selected) {

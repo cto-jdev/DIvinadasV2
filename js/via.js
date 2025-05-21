@@ -7,31 +7,31 @@ $(document).ready(async function () {
       $("#adImage").html("<span style=\"width:40px;height:40px;font-size:18px\" class=\"avatar-letter\" data-letter=\"" + p5.account.substring(0, 1).toUpperCase() + "\"></span>");
       let vLS = "";
       if (p5.status == 101) {
-        vLS = "<span class=\"badge text-bg-success\">Đóng</span>";
+        vLS = "<span class=\"badge text-bg-success\">Cerrado</span>";
       }
       if (p5.status == 999) {
-        vLS = "<span class=\"badge text-bg-info\">Hold</span>";
+        vLS = "<span class=\"badge text-bg-info\">En espera</span>";
       }
       if (p5.status == 1 || p5.status == 100) {
-        vLS = "<span class=\"badge text-bg-success\">Hoạt động</span>";
+        vLS = "<span class=\"badge text-bg-success\">Activo</span>";
       }
       if (p5.status == 2) {
-        vLS = "<span class=\"badge text-bg-danger\">Vô hiệu hóa</span>";
+        vLS = "<span class=\"badge text-bg-danger\">Deshabilitado</span>";
       }
       if (p5.status == 3) {
-        vLS = "<span class=\"badge text-bg-warning\">Cần thanh toán</span>";
+        vLS = "<span class=\"badge text-bg-warning\">Pago pendiente</span>";
       }
       if (p5.status == 4) {
-        vLS = "<span class=\"badge text-bg-warning\">Đang kháng 3 dòng</span>";
+        vLS = "<span class=\"badge text-bg-warning\">Apelando 3 líneas</span>";
       }
       if (p5.status == 5) {
-        vLS = "<span class=\"badge text-bg-danger\">Die 3 dòng</span>";
+        vLS = "<span class=\"badge text-bg-danger\">Muerto 3 líneas</span>";
       }
       if (p5.status == 6) {
-        vLS = "<span class=\"badge text-bg-warning\">Die XMDT</span>";
+        vLS = "<span class=\"badge text-bg-warning\">Muerto por revisión</span>";
       }
       if (p5.status == 7) {
-        vLS = "<span class=\"badge text-bg-warning\">Die vĩnh viễn</span>";
+        vLS = "<span class=\"badge text-bg-warning\">Muerto permanente</span>";
       }
       const v13 = p5.currency.split("-")[0];
       const v14 = await fb.checkHiddenAdmin(p5.adId);
@@ -70,7 +70,7 @@ $(document).ready(async function () {
         try {
           const v15 = await checkUser();
           if (v15.success) {
-            $("#balance .card").html("\n                        <div class=\"d-flex justify-content-between align-items-center\">\n                            <div class=\"\">\n                                <strong class=\"fs-5 mb-2 d-block\">Số dư tài khoản</strong>\n                                <strong class=\"fs-2\" id=\"\">" + v15.balance + "</strong>\n                            </div>\n                            <div class=\"rounded-circle d-flex align-items-center justify-content-center text-white\" style=\"width: 60px; height: 60px; background: rgb(249 116 132 / 20%)\">\n                                <i class=\"ri-wallet-line fs-3\" style=\"color: #ff6384\"></i>\n                            </div>\n                        </div>\n                    ");
+            $("#balance .card").html("\n                        <div class=\"d-flex justify-content-between align-items-center\">\n                            <div class=\"\">\n                                <strong class=\"fs-5 mb-2 d-block\">Saldo de la cuenta</strong>\n                                <strong class=\"fs-2\" id=\"\">" + v15.balance + "</strong>\n                            </div>\n                            <div class=\"rounded-circle d-flex align-items-center justify-content-center text-white\" style=\"width: 60px; height: 60px; background: rgb(249 116 132 / 20%)\">\n                                <i class=\"ri-wallet-line fs-3\" style=\"color: #ff6384\"></i>\n                            </div>\n                        </div>\n                    ");
             clearInterval(vSetInterval);
             p6();
           } else {
@@ -94,7 +94,7 @@ $(document).ready(async function () {
           v16.sort((p8, p9) => {
             return parseInt(p9.spend) - parseInt(p8.spend);
           }).slice(0, 4).forEach(p10 => {
-            vLS3 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://business.facebook.com/billing_hub/payment_settings/?asset_id=" + p10.adId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 60px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p10.account.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p10.account + "</strong>\n                                    <span>" + p10.adId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Tổng tiêu</strong>\n                                <span class=\"badge text-bg-success\">" + p10.spend + "</span>\n                            </div>\n                        </a>\n                    ";
+            vLS3 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://business.facebook.com/billing_hub/payment_settings/?asset_id=" + p10.adId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 60px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p10.account.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p10.account + "</strong>\n                                    <span>" + p10.adId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Gasto total</strong>\n                                <span class=\"badge text-bg-success\">" + p10.spend + "</span>\n                            </div>\n                        </a>\n                    ";
           });
           $("#topAds").html(vLS3);
           $("#adSelect select").on("select2:select", function (p11) {
@@ -137,7 +137,7 @@ $(document).ready(async function () {
           $("#countBm").text(v19.length);
           let vLS4 = "";
           v19.slice(0, 4).forEach(p16 => {
-            vLS4 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://business.facebook.com/settings/?business_id=" + p16.bmId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 50px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p16.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p16.name + "</strong>\n                                    <span>" + p16.bmId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Loại BM</strong>\n                                <span class=\"badge text-bg-success\">" + (p16.bmType ? p16.bmType.split(" - ")[0] : "") + "</span>\n                            </div>\n                        </a>\n                    ";
+            vLS4 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://business.facebook.com/settings/?business_id=" + p16.bmId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 50px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p16.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p16.name + "</strong>\n                                    <span>" + p16.bmId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Tipo de BM</strong>\n                                <span class=\"badge text-bg-success\">" + (p16.bmType ? p16.bmType.split(" - ")[0] : "") + "</span>\n                            </div>\n                        </a>\n                    ";
           });
           $("#topBm").html(vLS4);
           const v20 = document.querySelector("#bmChart canvas");
@@ -150,9 +150,9 @@ $(document).ready(async function () {
             data: {}
           };
           vO2.options.cutout = "50%";
-          vO2.data.labels = ["BM Live", "BM Die XMDT", "BM Die Vĩnh Viễn"];
+          vO2.data.labels = ["BM Activo", "BM Muerto por revisión", "BM Muerto permanente"];
           vO2.data.datasets = [{
-            label: "Số lượng: ",
+            label: "Cantidad: ",
             data: [v21, v22, v23],
             borderRadius: 5,
             borderWidth: 2,
@@ -177,7 +177,7 @@ $(document).ready(async function () {
           v24.sort((p20, p21) => {
             return p21.like - p20.like;
           }).slice(0, 4).forEach(p22 => {
-            vLS5 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://www.facebook.com/profile.php?id=" + p22.pageId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 60px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p22.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p22.name + "</strong>\n                                    <span>" + p22.pageId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Like</strong>\n                                <span class=\"badge text-bg-success\">" + p22.like + "</span>\n                            </div>\n                        </a>\n                    ";
+            vLS5 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://www.facebook.com/profile.php?id=" + p22.pageId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 60px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p22.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p22.name + "</strong>\n                                    <span>" + p22.pageId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Me gusta</strong>\n                                <span class=\"badge text-bg-success\">" + p22.like + "</span>\n                            </div>\n                        </a>\n                    ";
           });
           $("#topPage").html(vLS5);
           try {

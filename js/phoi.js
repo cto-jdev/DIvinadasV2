@@ -1,21 +1,5 @@
 $(document).ready(async function() {
 
-
-    // chrome.fontSettings.getFontList(function(fonts) {
-
-    //     let options = '<option></option>'
-
-    //     for (let index = 0; index < fonts.length; index++) {
-    //         const font = fonts[index]
-
-    //         options += '<option value="'+font.fontId+'">'+font.fontId+'</option>'
-            
-    //     }
-
-    //     $('select[name="fontFamily"]').html(options)
-
-    // })
-
     const id = new URL(window.location.href).searchParams.get('id')
     const data = await getLocalStorage(id) || false
 
@@ -334,7 +318,7 @@ $(document).on('click', '#test', async function() {
 
     if (image === 'ERRPR') {
 
-        alert('ERROR!')
+        alert('¡ERROR!')
 
     } else {
         $('#previewImage').attr('src', 'data:image/png;base64,'+image)
@@ -363,12 +347,12 @@ $(document).on('click', '#save', async function() {
         }
 
         Swal.fire({
-            title: 'Nhập tên phôi',
+            title: 'Ingresa el nombre de la plantilla',
             input: 'text',
             showCancelButton: true,
             confirmButtonColor: '#0d6efd',
-            confirmButtonText: 'Lưu',
-            cancelButtonText: 'Hủy',
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar', 
             inputValue,
             inputValidator: async (value) => {
 
@@ -384,13 +368,13 @@ $(document).on('click', '#save', async function() {
 
                     Swal.fire({
                         icon: 'success',
-                        title: 'Thành công!',
-                        text: 'Đã lưu phôi',
+                        title: '¡Éxito!',
+                        text: 'Plantilla guardada',
                         confirmButtonColor: '#0d6efd'
                     })
 
                 } else {
-                    return 'Tên không thể để trống'
+                    return 'El nombre no puede estar vacío'
                 }
 
             }

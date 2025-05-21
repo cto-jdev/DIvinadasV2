@@ -124,7 +124,7 @@ async function getNumber() {
         $('#testNumber').val(data.number)
         $('#testId').val(data.id)
     } else {
-        alert('Không thể lấy số')
+        alert('No se pudo obtener el número')
     }
 
     $('button[onclick="getNumber()"]').prop('disabled', false)
@@ -141,10 +141,10 @@ async function getCode() {
 
     if (data) {
 
-        alert('Code: '+data)
+        alert('Código: '+data)
         
     } else {
-        alert('Không lấy được code')
+        alert('No se pudo obtener el código')
     }
 
     $('button[onclick="getCode()"]').prop('disabled', false)
@@ -201,12 +201,12 @@ function deletePhone() {
 
     if (selected) {
         Swal.fire({
-            title: 'Bạn có chắc muốn xóa',
+            title: '¿Estás seguro que deseas eliminar?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
-            confirmButtonText: 'Xóa',
-            cancelButtonText: 'Hủy'
+            confirmButtonText: 'Eliminar',
+            cancelButtonText: 'Cancelar'
         }).then(async (res) => {
             if (res.isConfirmed) {
 

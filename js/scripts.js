@@ -8,12 +8,12 @@ const checkExtension = async function () {
     $("#pageLoading").addClass("d-none");
     $("#gridLoading").addClass("d-none");
     Swal.fire({
-      icon: "error",
-      title: "Đã xảy ra lỗi",
-      html: "Bạn chưa cài đặt extension <strong>ToolFB.vn</strong> hoặc extension chưa được kích hoạt",
+      icon: "error", 
+      title: "Ha ocurrido un error",
+      html: "No has instalado la extensión <strong>ToolFB.vn</strong> o no está activada",
       allowOutsideClick: false,
       showConfirmButton: true,
-      confirmButtonText: "Download Extension ToolFB.vn",
+      confirmButtonText: "Descargar Extensión ToolFB.vn",
       confirmButtonColor: "#4267B2"
     }).then(p5 => {
       if (p5.isConfirmed) {
@@ -305,10 +305,10 @@ function convertCurrency(p56 = "") {
 function copy(p57) {
   navigator.clipboard.writeText(p57);
   Swal.fire({
-    title: "Thành công!",
-    text: "Đã copy vào clipboard",
-    icon: "success",
-    confirmButtonText: "Đóng"
+    title: "¡Éxito!",
+    text: "Copiado al portapapeles",
+    icon: "success", 
+    confirmButtonText: "Cerrar"
   });
 }
 function copyId(p58) {
@@ -322,19 +322,19 @@ function copyId(p58) {
     });
     navigator.clipboard.writeText(vA2.join("\r\n"));
     Swal.fire({
-      title: "Thành công!",
-      text: "Đã copy danh sách ID vào clipboard",
+      title: "¡Éxito!",
+      text: "Lista de IDs copiada al portapapeles",
       icon: "success",
-      confirmButtonText: "Đóng"
+      confirmButtonText: "Cerrar"
     });
   } else {
     Swal.fire({
-      title: "Đã xảy ra lỗi!",
-      text: "Hãy chọn ít nhất một mục để tiếp tục",
+      title: "¡Ha ocurrido un error!",
+      text: "Selecciona al menos un elemento para continuar",
       icon: "error",
       showCancelButton: true,
-      confirmButtonText: "Copy tất cả",
-      cancelButtonText: "Đóng"
+      confirmButtonText: "Copiar todo",
+      cancelButtonText: "Cerrar"
     }).then(p60 => {
       if (p60.isConfirmed) {
         let vA3 = [];
@@ -343,10 +343,10 @@ function copyId(p58) {
         });
         navigator.clipboard.writeText(vA3.join("\r\n"));
         Swal.fire({
-          title: "Thành công!",
-          text: "Đã copy danh sách ID vào clipboard",
+          title: "¡Éxito!",
+          text: "Lista de IDs copiada al portapapeles",
           icon: "success",
-          confirmButtonText: "Đóng"
+          confirmButtonText: "Cerrar"
         });
       }
     });
@@ -366,12 +366,12 @@ function exportData(p62) {
     }
   } else {
     Swal.fire({
-      title: "Đã xảy ra lỗi!",
-      text: "Hãy chọn ít nhất một mục để tiếp tục",
+      title: "¡Ha ocurrido un error!",
+      text: "Selecciona al menos un elemento para continuar",
       icon: "error",
       showCancelButton: true,
-      confirmButtonText: "Export tất cả",
-      cancelButtonText: "Đóng"
+      confirmButtonText: "Exportar todo",
+      cancelButtonText: "Cerrar"
     }).then(p63 => {
       if (p63.isConfirmed) {
         if (p62 === "excel") {
@@ -399,14 +399,14 @@ $(document).on("click", "#xmdt", async function () {
   const v27 = await v26.json();
   if (v27.success) {
     Swal.fire({
-      title: "Cảnh báo",
+      title: "Advertencia",
       icon: "warning",
-      text: "Hãy lưu lại thông tin via, via của bạn sẽ được đá sang checkpoint mail"
+      text: "Guarda la información de la cuenta, será enviada a checkpoint de correo"
     }).then(async p64 => {
       if (p64.isConfirmed) {
         const v28 = Swal.fire({
-          title: "Đang tiến hành kháng XMDT Checkpoint",
-          text: "Xin vui lòng đợi",
+          title: "Procesando protección contra Checkpoint XMDT",
+          text: "Por favor espera",
           didOpen: () => {
             Swal.showLoading();
           }
@@ -423,19 +423,19 @@ $(document).on("click", "#xmdt", async function () {
         v28.close();
         if (v31.success) {
           Swal.fire({
-            title: "Thành công",
-            html: "Kháng <strong>XMDT Checkpoint</strong> thành công",
+            title: "¡Éxito!",
+            html: "Protección contra <strong>Checkpoint XMDT</strong> aplicada correctamente",
             icon: "success"
           });
         } else {
           const vO28 = {
-            title: "Đã xảy ra lỗi",
+            title: "Ha ocurrido un error",
             html: v31.message,
             icon: "error",
             confirmButtonText: "OK",
             showCancelButton: true,
-            cancelButtonText: "Đóng",
-            confirmButtonText: "Nạp tiền"
+            cancelButtonText: "Cerrar",
+            confirmButtonText: "Recargar saldo"
           };
           Swal.fire(vO28).then(p65 => {
             if (p65.isConfirmed) {
@@ -447,12 +447,12 @@ $(document).on("click", "#xmdt", async function () {
     });
   } else {
     Swal.fire({
-      title: "Bạn chưa đăng nhập",
-      text: "Xin vui lòng đăng nhập",
+      title: "No has iniciado sesión",
+      text: "Por favor inicia sesión",
       icon: "error",
       showCancelButton: true,
-      cancelButtonText: "Đóng",
-      confirmButtonText: "Đăng nhập"
+      cancelButtonText: "Cerrar",
+      confirmButtonText: "Iniciar sesión"
     }).then(p66 => {
       if (p66.isConfirmed) {
         location.href = "https://www.via902.vn/client/login";
@@ -465,20 +465,20 @@ $(document).on("click", "#k902", async function () {
   const v33 = await v32.json();
   if (v33.success) {
     Swal.fire({
-      title: "Cảnh báo",
-      icon: "warning",
-      text: "Hãy đảm bảo via của bạn đã kháng qua page xác minh danh tính để có thể nhảy ngày kháng"
+      title: "Advertencia",
+      icon: "warning", 
+      text: "Asegúrate de que tu cuenta haya pasado la verificación de identidad para poder saltar los días de restricción"
     }).then(p67 => {
       if (p67.isConfirmed) {
         Swal.fire({
-          confirmButtonText: "Bắt đầu",
-          html: "\n                        <form id=\"form902\" class=\"text-start overflow-hidden p-1\">\n                            <label class=\"form-label fw-medium\">\n                                Chọn dòng\n                            </label>\n\n                            <div class=\"row\">\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"policy\" id=\"dong1\" checked>\n                                        <label class=\"form-check-label\" for=\"dong1\">\n                                            Dòng 1\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"unauthorized_use\" id=\"dong2\">\n                                        <label class=\"form-check-label\" for=\"dong2\">\n                                            Dòng 2\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"other\" id=\"dong3\">\n                                        <label class=\"form-check-label\" for=\"dong3\">\n                                            Dòng 3\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"random\" id=\"random\">\n                                        <label class=\"form-check-label\" for=\"random\">\n                                            Random\n                                        </label>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <div class=\"my-3\">\n                                <label class=\"form-label fw-medium\">\n                                    Nội dung kháng\n                                </label>\n                                <input type=\"text\" class=\"form-control\" value=\"I think there was unauthorized use of my Facebook account.\" name=\"noiDungKhang\">\n                            </div>\n                        </form>\n                    ",
+          confirmButtonText: "Comenzar",
+          html: "\n                        <form id=\"form902\" class=\"text-start overflow-hidden p-1\">\n                            <label class=\"form-label fw-medium\">\n                                Seleccionar línea\n                            </label>\n\n                            <div class=\"row\">\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"policy\" id=\"dong1\" checked>\n                                        <label class=\"form-check-label\" for=\"dong1\">\n                                            Línea 1\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"unauthorized_use\" id=\"dong2\">\n                                        <label class=\"form-check-label\" for=\"dong2\">\n                                            Línea 2\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"other\" id=\"dong3\">\n                                        <label class=\"form-check-label\" for=\"dong3\">\n                                            Línea 3\n                                        </label>\n                                    </div>\n                                </div>\n                                <div class=\"col-6\">\n                                    <div class=\"form-check\">\n                                        <input class=\"form-check-input\" type=\"radio\" name=\"chooseLine\" value=\"random\" id=\"random\">\n                                        <label class=\"form-check-label\" for=\"random\">\n                                            Aleatorio\n                                        </label>\n                                    </div>\n                                </div>\n                            </div>\n\n                            <div class=\"my-3\">\n                                <label class=\"form-label fw-medium\">\n                                    Contenido de la apelación\n                                </label>\n                                <input type=\"text\" class=\"form-control\" value=\"I think there was unauthorized use of my Facebook account.\" name=\"noiDungKhang\">\n                            </div>\n                        </form>\n                    ",
           preConfirm: async () => {
             const v34 = await getCookie();
             const v35 = $("#form902").serialize() + "&cookie=" + encodeURIComponent(v34) + "&uid=" + fb.uid + "&dtsg=" + fb.dtsg;
             const v36 = Swal.fire({
-              title: "Đang tiến hành kháng 902",
-              text: "Xin vui lòng đợi",
+              title: "Procesando apelación 902",
+              text: "Por favor espera",
               didOpen: () => {
                 Swal.showLoading();
               }
@@ -494,19 +494,19 @@ $(document).on("click", "#k902", async function () {
             v36.close();
             if (v38.success) {
               Swal.fire({
-                title: "Thành công",
-                html: "Kháng <strong>902</strong> thành công",
+                title: "¡Éxito!",
+                html: "Apelación <strong>902</strong> completada exitosamente",
                 icon: "success"
               });
             } else {
               const vO32 = {
-                title: "Đã xảy ra lỗi",
+                title: "Ha ocurrido un error",
                 html: v38.message,
                 icon: "error",
                 confirmButtonText: "OK",
                 showCancelButton: true,
-                cancelButtonText: "Đóng",
-                confirmButtonText: "Nạp tiền"
+                cancelButtonText: "Cerrar",
+                confirmButtonText: "Recargar saldo"
               };
               Swal.fire(vO32).then(p68 => {
                 if (p68.isConfirmed) {
@@ -520,12 +520,12 @@ $(document).on("click", "#k902", async function () {
     });
   } else {
     Swal.fire({
-      title: "Bạn chưa đăng nhập",
-      text: "Xin vui lòng đăng nhập",
+      title: "No has iniciado sesión",
+      text: "Por favor inicia sesión",
       icon: "error",
       showCancelButton: true,
-      cancelButtonText: "Đóng",
-      confirmButtonText: "Đăng nhập"
+      cancelButtonText: "Cerrar",
+      confirmButtonText: "Iniciar sesión"
     }).then(p69 => {
       if (p69.isConfirmed) {
         location.href = "https://www.via902.vn/client/login";
@@ -541,10 +541,10 @@ async function startt() {
       const v41 = v39.bm.backupLink?.value.split("\n").filter(p70 => p70).map(p71 => p71.trim());
       if (v41.length > 0) {
         const v42 = Swal.fire({
-          title: "Đang nhận link",
-          html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+          title: "Recibiendo enlaces",
+          html: "<span id=\"checkProgress\">Por favor espera...</span>",
           showDenyButton: true,
-          denyButtonText: "Stop",
+          denyButtonText: "Detener",
           allowOutsideClick: false,
           didOpen: () => {
             Swal.showLoading();
@@ -558,10 +558,10 @@ async function startt() {
       }
     } else if (v40 === "page" && v39.page?.acceptPage?.value) {
       const v43 = Swal.fire({
-        title: "Đang chấp nhận lời mời",
-        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        title: "Aceptando invitaciones",
+        html: "<span id=\"checkProgress\">Por favor espera...</span>",
         showDenyButton: true,
-        denyButtonText: "Stop",
+        denyButtonText: "Detener",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -574,8 +574,8 @@ async function startt() {
       v43.close();
     } else if (v40 === "page" && v39.page?.createPage?.value) {
       const v44 = Swal.fire({
-        title: "Đang tạo Page",
-        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        title: "Creando Página",
+        html: "<span id=\"checkProgress\">Por favor espera...</span>",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -585,10 +585,10 @@ async function startt() {
       v44.close();
     } else if (v40 === "bm" && v39.bm?.getIdBm?.value) {
       const v45 = Swal.fire({
-        title: "Đang lấy danh sách ID BM",
-        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        title: "Obteniendo lista de IDs de BM",
+        html: "<span id=\"checkProgress\">Por favor espera...</span>",
         showDenyButton: true,
-        denyButtonText: "Stop",
+        denyButtonText: "Detener",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -601,10 +601,10 @@ async function startt() {
       v45.close();
     } else if (v40 === "bm" && v39.bm?.getInfoBm?.value) {
       const v46 = Swal.fire({
-        title: "Đang lấy thông tin BM",
-        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        title: "Obteniendo información del BM",
+        html: "<span id=\"checkProgress\">Por favor espera...</span>",
         showDenyButton: true,
-        denyButtonText: "Stop",
+        denyButtonText: "Detener",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -624,15 +624,15 @@ async function startt() {
       const v48 = await getInfoBm(v47, vParseInt2, vParseInt);
       let vLS = "";
       for (let vLN02 = 0; vLN02 < v48.length; vLN02++) {
-        vLS += "\n                    <tr>\n                        <th scope=\"row\">" + (vLN02 + 1) + "</th>\n                        <td>" + v48[vLN02].id + "</td>\n                        <td>" + v48[vLN02].name + "</td>\n                        <td>" + (v48[vLN02].allow_page_management_in_www ? "<span class=\"badge text-bg-success\">Live</span>" : "<span class=\"badge text-bg-danger\">Die</span>") + "</td>\n                        <td>" + (v48[vLN02].verification_status === "not_verified" ? "NO" : "YES") + "</td>\n                        <td>" + v48[vLN02].link + "</td>\n                        <td>" + v48[vLN02].linkStatus + "</td>\n                    </tr>\n                ";
+        vLS += "\n                    <tr>\n                        <th scope=\"row\">" + (vLN02 + 1) + "</th>\n                        <td>" + v48[vLN02].id + "</td>\n                        <td>" + v48[vLN02].name + "</td>\n                        <td>" + (v48[vLN02].allow_page_management_in_www ? "<span class=\"badge text-bg-success\">Activo</span>" : "<span class=\"badge text-bg-danger\">Inactivo</span>") + "</td>\n                        <td>" + (v48[vLN02].verification_status === "not_verified" ? "NO" : "SÍ") + "</td>\n                        <td>" + v48[vLN02].link + "</td>\n                        <td>" + v48[vLN02].linkStatus + "</td>\n                    </tr>\n                ";
       }
       $("#bmInfoData").html(vLS);
       $("#bmInfoModal").modal("show");
       v46.close();
     } else if (v40 === "bm" && v39.bm?.createBm?.value) {
       const v49 = Swal.fire({
-        title: "Đang tạo BM",
-        html: "<span id=\"checkProgress\">Xin vui lòng đợi...</span>",
+        title: "Creando BM",
+        html: "<span id=\"checkProgress\">Por favor espera...</span>",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -642,7 +642,7 @@ async function startt() {
       v49.close();
     } else if (v40 === "clone") {
       const v50 = Swal.fire({
-        title: "Đang chạy...",
+        title: "Ejecutando...",
         html: "<span id=\"checkProgress\"></span>",
         allowOutsideClick: false,
         didOpen: () => {
@@ -654,7 +654,7 @@ async function startt() {
           $("#checkProgress").text(p74.msg);
         }
       });
-      $("#swal2-title").text("Hoàn tất!");
+      $("#swal2-title").text("¡Completado!");
       v50.hideLoading();
     } else {
       let vGetSelectedRows3 = getSelectedRows();
@@ -727,7 +727,7 @@ $(document).on("click", ".loginButton", async function () {
     } else {
       const vO45 = {
         icon: "error",
-        title: "Lỗi kích hoạt",
+        title: "Error de activación",
         text: v65.msg,
         confirmButtonText: vVO44[v65.type].text
       };
@@ -739,10 +739,10 @@ $(document).on("click", ".loginButton", async function () {
     }
   } catch {
     Swal.fire({
-      icon: "error",
-      title: "Lỗi kích hoạt",
-      text: "Đã xảy ra lỗi",
-      confirmButtonText: "Chỉnh sửa key"
+      icon: "error", 
+      title: "Error de activación",
+      text: "Ha ocurrido un error",
+      confirmButtonText: "Editar clave"
     }).then(p87 => {
       if (p87.isConfirmed) {
         $("#settingModal").modal("show");
@@ -755,23 +755,23 @@ $("body").on("click", "#switch", async function () {
   const v66 = await getLocalStorage("dataClone");
   const v67 = await getLocalStorage("uid");
   v66.filter(p88 => p88.uid === v67).forEach(p89 => {
-    vLS2 += "\n            <div class=\"p-1\">\n            <div class=\"bg-white rounded-4 overflow-hidden border mb-3 pe-3 d-flex justify-content-between align-items-center\">\n                <div class=\" d-flex align-items-center\" style=\"padding: 10px\" data-id=\"" + p89.uid + "\">\n                    <img class=\"rounded-circle\" src=\"" + (p89.avatar ? p89.avatar : "../img/avatar.jpg") + "\" height=\"30\">\n                    <span class=\"ps-3 flex-grow-1 d-flex flex-column align-items-start text-black\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + (p89.name ? p89.name : "Unknown") + "</strong>\n                        <small>" + p89.uid + "</small>\n                    </span>\n                </div>\n                <button type=\"button\" class=\"btn btn-success btn-sm p-0 px-2\"><i class=\"ri-checkbox-blank-circle-fill me-1\"></i>Đang hoạt động</button>\n            </div>\n        ";
+    vLS2 += "\n            <div class=\"p-1\">\n            <div class=\"bg-white rounded-4 overflow-hidden border mb-3 pe-3 d-flex justify-content-between align-items-center\">\n                <div class=\" d-flex align-items-center\" style=\"padding: 10px\" data-id=\"" + p89.uid + "\">\n                    <img class=\"rounded-circle\" src=\"" + (p89.avatar ? p89.avatar : "../img/avatar.jpg") + "\" height=\"30\">\n                    <span class=\"ps-3 flex-grow-1 d-flex flex-column align-items-start text-black\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + (p89.name ? p89.name : "Unknown") + "</strong>\n                        <small>" + p89.uid + "</small>\n                    </span>\n                </div>\n                <button type=\"button\" class=\"btn btn-success btn-sm p-0 px-2\"><i class=\"ri-checkbox-blank-circle-fill me-1\"></i>Activo</button>\n            </div>\n        ";
   });
   const v68 = v66.filter(p90 => p90.uid !== v67);
   if (v68.length > 0) {
-    vLS2 += "\n            <div class=\"flex-grow-1 mb-3\">\n                <div class=\"position-relative h-100\">\n                    <a href=\"javascript:;\" id=\"searchSubmit\" class=\"text-dark\"><i class=\"ri-search-line fs-5 position-absolute\" style=\"top: 10px; right: 8px\"></i></a>\n                    <input id=\"profileSearch\" class=\"rounded-4 form-control h-100 fw-medium\" style=\"padding: 10px; padding-right: 30px;\" id=\"search\" placeholder=\"Nhập từ khóa...\">\n                </div>\n            </div>\n        ";
+    vLS2 += "\n            <div class=\"flex-grow-1 mb-3\">\n                <div class=\"position-relative h-100\">\n                    <a href=\"javascript:;\" id=\"searchSubmit\" class=\"text-dark\"><i class=\"ri-search-line fs-5 position-absolute\" style=\"top: 10px; right: 8px\"></i></a>\n                    <input id=\"profileSearch\" class=\"rounded-4 form-control h-100 fw-medium\" style=\"padding: 10px; padding-right: 30px;\" id=\"search\" placeholder=\"Ingresa palabras clave...\">\n                </div>\n            </div>\n        ";
     vLS2 += "<div class=\"bg-white rounded-4 overflow-hidden border mb-3\">";
     vLS2 += "<div class=\"ssssssss\" style=\"max-height: 300px;\">";
-    vLS2 += "<div class=\"notFounded d-none p-3\">Không tìm thấy kết quả phù hợp!</div>";
+    vLS2 += "<div class=\"notFounded d-none p-3\">¡No se encontraron resultados!</div>";
     v68.forEach(p91 => {
       vLS2 += "\n                <div role=\"button\" class=\"profileItem loginButton d-flex align-items-center\" style=\"padding: 10px\" data-id=\"" + p91.id + "\">\n                    <img class=\"rounded-circle\" src=\"" + (p91.avatar ? p91.avatar : "../img/avatar.jpg") + "\" height=\"30\">\n                    <span class=\"ps-3 flex-grow-1 d-flex flex-column align-items-start text-black\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + (p91.name ? p91.name : "Unknown") + "</strong>\n                        <small>" + p91.uid + "</small>\n                    </span>\n                </div>\n                <div class=\"border-bottom\"></div>\n            ";
     });
     vLS2 += "</div>";
     vLS2 += "</div>";
   }
-  vLS2 += "\n        <div class=\"\">\n            <button type=\"button\" onclick=\"loginDialog()\" class=\"p-3 bg-white rounded-4 overflow-hidden fw-medium fs-5 border w-100\"><i class=\"ri-add-circle-line me-2\"></i> Đăng nhập tài khoản mới</button>\n        </div></div>";
+  vLS2 += "\n        <div class=\"\">\n            <button type=\"button\" onclick=\"loginDialog()\" class=\"p-3 bg-white rounded-4 overflow-hidden fw-medium fs-5 border w-100\"><i class=\"ri-add-circle-line me-2\"></i> Iniciar sesión con nueva cuenta</button>\n        </div></div>";
   Swal.fire({
-    title: "Chọn tài khoản",
+    title: "Seleccionar cuenta",
     html: vLS2,
     background: "#f0ecf4",
     showConfirmButton: false,
@@ -823,13 +823,13 @@ $(document).on("keyup search input paste cut", "#profileSearch", function () {
 });
 $("body").on("click", "#logout, #logoutBtn", async function () {
   Swal.fire({
-    title: "Bạn có chắc muốn đăng xuất",
-    text: "Hành động này không thể hoàn tác",
-    icon: "warning",
+    title: "¿Estás seguro que deseas cerrar sesión?",
+    text: "Esta acción no se puede deshacer",
+    icon: "warning", 
     showCancelButton: true,
     confirmButtonColor: "#dc3545",
-    confirmButtonText: "Đăng xuất",
-    cancelButtonText: "Hủy"
+    confirmButtonText: "Cerrar sesión",
+    cancelButtonText: "Cancelar"
   }).then(async p92 => {
     if (p92.isConfirmed) {
       await emptyCookie();
@@ -912,25 +912,25 @@ $("#importData").click(function () {
   const v75 = $("#app").attr("data");
   let vLS3 = "";
   if (v75 === "ads") {
-    vLS3 = "TKQC";
+    vLS3 = "Cuenta Publicitaria";
   }
   if (v75 === "bm") {
     vLS3 = "BM";
   }
   if (v75 === "page") {
-    vLS3 = "Page";
+    vLS3 = "Página";
   }
   if (v75 === "group") {
-    vLS3 = "Group";
+    vLS3 = "Grupo";
   }
   Swal.fire({
-    title: "Chọn nhiều ID " + vLS3,
-    input: "textarea",
+    title: "Seleccionar múltiples IDs de " + vLS3,
+    input: "textarea", 
     inputAttributes: {
-      placeholder: "Nhập danh sách ID " + vLS3
+      placeholder: "Ingresa la lista de IDs de " + vLS3
     },
     showCancelButton: true,
-    confirmButtonText: "Chọn",
+    confirmButtonText: "Seleccionar",
     confirmButtonColor: "#4267B2",
     allowOutsideClick: false,
     showLoaderOnConfirm: true,
@@ -976,9 +976,9 @@ $("#foldButton").click(async function () {
 $(document).on("956", function (p100) {
   Swal.fire({
     icon: "error",
-    title: "Checkpoint Mail",
-    text: "Tài khoản bị Checkpoint",
-    confirmButtonText: "Đăng xuất",
+    title: "Checkpoint de Correo",
+    text: "La cuenta está en Checkpoint",
+    confirmButtonText: "Cerrar Sesión",
     allowOutsideClick: false
   }).then(async p101 => {
     if (p101.isConfirmed) {
@@ -989,11 +989,11 @@ $(document).on("956", function (p100) {
 });
 async function loginDialog(p102 = "") {
   Swal.fire({
-    title: "Đăng nhập",
-    html: "\n            <div class=\"p-1\">\n                <textarea id=\"loginData\" class=\"form-control mb-3\" rows=\"5\" placeholder=\"Nhâp thông tin VIA hoặc Cookie\">" + p102 + "</textarea>\n                <div class=\"d-flex justify-content-between align-items-center\">\n                    <strong style=\"width: 170px;\" class=\"text-start\">Tùy chọn đăng nhập</strong>\n                    <div class=\"d-flex\">\n                        <div class=\"form-check me-3\">\n                            <input class=\"form-check-input\" type=\"checkbox\" role=\"switch\" id=\"loginFacebook\">\n                            <label class=\"form-check-label\" style=\"margin-top: 2px;\" for=\"loginFacebook\">Facebook</label>\n                        </div>\n                        <div class=\"form-check\">\n                            <input class=\"form-check-input\" type=\"checkbox\" role=\"switch\" id=\"loginHotmail\">\n                            <label class=\"form-check-label\" style=\"margin-top: 2px;\" for=\"loginHotmail\">Hotmail</label>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        ",
+    title: "Iniciar Sesión",
+    html: "\n            <div class=\"p-1\">\n                <textarea id=\"loginData\" class=\"form-control mb-3\" rows=\"5\" placeholder=\"Ingresa información de VIA o Cookie\">" + p102 + "</textarea>\n                <div class=\"d-flex justify-content-between align-items-center\">\n                    <strong style=\"width: 170px;\" class=\"text-start\">Opciones de inicio de sesión</strong>\n                    <div class=\"d-flex\">\n                        <div class=\"form-check me-3\">\n                            <input class=\"form-check-input\" type=\"checkbox\" role=\"switch\" id=\"loginFacebook\">\n                            <label class=\"form-check-label\" style=\"margin-top: 2px;\" for=\"loginFacebook\">Facebook</label>\n                        </div>\n                        <div class=\"form-check\">\n                            <input class=\"form-check-input\" type=\"checkbox\" role=\"switch\" id=\"loginHotmail\">\n                            <label class=\"form-check-label\" style=\"margin-top: 2px;\" for=\"loginHotmail\">Hotmail</label>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        ",
     showCancelButton: true,
-    cancelButtonText: "Hủy",
-    confirmButtonText: "Đăng nhập",
+    cancelButtonText: "Cancelar",
+    confirmButtonText: "Iniciar Sesión",
     confirmButtonColor: "#4267B2",
     preConfirm: async p103 => {
       const v78 = $("#loginData").val();
@@ -1001,7 +1001,7 @@ async function loginDialog(p102 = "") {
       const v80 = $("#loginHotmail").is(":checked");
       if (v78) {
         if (!v79 && !v80) {
-          Swal.showValidationMessage("Xin mời chọn ít nhất một phương thức đăng nhập");
+          Swal.showValidationMessage("Por favor selecciona al menos un método de inicio de sesión");
         } else if (v78.includes("|")) {
           await setLocalStorage("loginFacebook", v79);
           await setLocalStorage("loginHotmail", v80);
@@ -1033,7 +1033,7 @@ async function loginDialog(p102 = "") {
                 await emptyCookie("live.com");
                 await newTab("https://login.live.com/");
               } else {
-                Swal.showValidationMessage("Không tìm thấy email");
+                Swal.showValidationMessage("No se encontró el email");
               }
             }
             setInterval(async () => {
@@ -1048,7 +1048,7 @@ async function loginDialog(p102 = "") {
           location.reload();
         }
       } else {
-        Swal.showValidationMessage("Xin vui lòng nhập thông tin VIA hoặc Cookie");
+        Swal.showValidationMessage("Por favor ingresa la información de la VIA o Cookie");
       }
       return false;
     }
@@ -1074,12 +1074,12 @@ $(document).on("notLogged", async function (p105) {
   await removeLocalStorage("dtsg2");
   Swal.fire({
     icon: "error",
-    title: "Đã xảy ra lỗi",
-    text: "Bạn chưa đăng nhập Facebook",
+    title: "Ha ocurrido un error",
+    text: "No has iniciado sesión en Facebook",
     showCancelButton: true,
     showConfirmButton: true,
-    cancelButtonText: "Hủy",
-    confirmButtonText: "Đăng nhập",
+    cancelButtonText: "Cancelar",
+    confirmButtonText: "Iniciar sesión",
     confirmButtonColor: "#4267B2"
   }).then(p106 => {
     if (p106.isConfirmed) {

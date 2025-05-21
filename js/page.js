@@ -14,33 +14,33 @@ const columnDefs = [{
     lockPosition: "left"
   }, {
     field: "status",
-    headerName: "Trạng thái",
-    filter: "agSetColumnFilter",
+    headerName: "Estado",
+    filter: "agSetColumnFilter", 
     cellRenderer: p5 => {
       let vLS = "";
       if (p5.data.status === 1) {
         vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">HCVV</strong></span>";
       }
       if (p5.data.status === 2) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Cần kháng</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Necesita Apelación</strong></span>";
       }
       if (p5.data.status === 3) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">Đang kháng</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">En Apelación</strong></span>";
       }
       if (p5.data.status === 4) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">Live</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">Activo</strong></span>";
       }
       if (p5.data.status === 5) {
         vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-primary rounded-circle me-2\"></span><strong class=\"text-primary\">XMDT</strong></span>";
       }
       if (p5.data.status === 6) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-secondary\">Page kháng</strong></span>";
+        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-secondary\">Página en Apelación</strong></span>";
       }
       return vLS;
     }
   }, {
     field: "name",
-    headerName: "Tên",
+    headerName: "Nombre",
     minWidth: 250,
     cellRenderer: p6 => {
       return "\n                <div class=\"d-flex align-items-center\">\n                    <img src=\"" + p6.data.avatar + "\" height=\"30\" class=\"rounded-circle\">\n                    <a href=\"https://www.facebook.com/profile.php?id=" + p6.data.pageId + "\" target=\"_BLANK\" class=\"ps-3 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + p6.data.name + "</strong>\n                        <span>" + p6.data.pageId + "</span>\n                    </a>\n                </div>\n            ";
@@ -50,40 +50,40 @@ const columnDefs = [{
     hide: true
   }, {
     field: "pageId",
-    headerName: "Page ID"
+    headerName: "ID de Página"
   }, {
     field: "process",
-    headerName: "Process",
+    headerName: "Proceso",
     cellRenderer: p7 => {
       if (p7.data.process === "RUNNING") {
-        return "<span class=\"badge text-bg-warning\" style=\"font-size: 10px\">RUNNING</span>";
+        return "<span class=\"badge text-bg-warning\" style=\"font-size: 10px\">EN PROCESO</span>";
       }
       if (p7.data.process === "FINISHED") {
-        return "<span class=\"badge text-bg-success\" style=\"font-size: 10px\">FINISHED</span>";
+        return "<span class=\"badge text-bg-success\" style=\"font-size: 10px\">FINALIZADO</span>";
       }
     }
   }, {
     field: "message",
     minWidth: 300,
-    headerName: "Message"
+    headerName: "Mensaje"
   }, {
     field: "pageId2",
     hide: true
   }, {
     field: "role",
-    headerName: "Quyền"
+    headerName: "Rol"
   }, {
     field: "bm",
     headerName: "BM"
   }, {
     field: "createdDate",
-    headerName: "Ngày tạo"
+    headerName: "Fecha de Creación"
   }, {
     field: "like",
-    headerName: "Like"
+    headerName: "Me gusta"
   }, {
     field: "follow",
-    headerName: "Follow"
+    headerName: "Seguidores"
   }];
   const accountGrid = {
     rowHeight: 50,
