@@ -1,4 +1,5 @@
 $(document).ready(async function () {
+    await window.fbReady;
     let v12;
     const vF4 = async p5 => {
       $("#adName").text(p5.account);
@@ -186,46 +187,32 @@ $(document).ready(async function () {
         }
       } catch {}
     }, 1000);
-    $("#loadBm").click(async function () {
-      try {
-        v12 = Swal.fire({
-          title: "Đang tải dữ liệu",
-          text: "Xin vui lòng đợi",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
-        await setLocalStorage("loadBm", true);
-        $("#iframe").attr("src", "/bm");
-      } catch {}
+    $('#loadBm').click(async function () {
+      // Datos de prueba para BM
+      const testBm = [
+        { id: 1, bmId: '123456789', name: 'BM Test 1', bmType: 'BM350', status: 'LIVE' },
+        { id: 2, bmId: '987654321', name: 'BM Test 2', bmType: 'BM50', status: 'DIE' },
+        { id: 3, bmId: '555555555', name: 'BM Test 3', bmType: 'BM350', status: 'DIE_VV' }
+      ];
+      await setLocalStorage('dataBm_' + fb.uid, testBm);
+      location.reload();
     });
-    $("#loadAds").click(async function () {
-      try {
-        v12 = Swal.fire({
-          title: "Đang tải dữ liệu",
-          text: "Xin vui lòng đợi",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
-        await setLocalStorage("loadAds", true);
-        $("#iframe").attr("src", "/ads");
-      } catch {}
+    $('#loadAds').click(async function () {
+      // Datos de prueba para Ads
+      const testAds = [
+        { adId: 'ad1', account: 'Ad Account 1', spend: 1000, limit: 5000, remain: 4000, balance: 200, currency: 'VND', status: 1, payment: '[]', createdTime: '2024-01-01', nextBillDate: '2024-02-01', type: 'Type1', timezone: 'Asia/Ho_Chi_Minh', role: 'admin' },
+        { adId: 'ad2', account: 'Ad Account 2', spend: 2000, limit: 6000, remain: 4000, balance: 300, currency: 'VND', status: 2, payment: '[]', createdTime: '2024-01-02', nextBillDate: '2024-02-02', type: 'Type2', timezone: 'Asia/Ho_Chi_Minh', role: 'user' }
+      ];
+      await setLocalStorage('dataAds_' + fb.uid, testAds);
+      location.reload();
     });
-    $("#loadPage").click(async function () {
-      try {
-        v12 = Swal.fire({
-          title: "Đang tải dữ liệu",
-          text: "Xin vui lòng đợi",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
-        await setLocalStorage("loadPage", true);
-        $("#iframe").attr("src", "/page");
-      } catch {}
+    $('#loadPage').click(async function () {
+      // Datos de prueba para Page
+      const testPage = [
+        { pageId: 'page1', name: 'Page 1', like: 100 },
+        { pageId: 'page2', name: 'Page 2', like: 200 }
+      ];
+      await setLocalStorage('dataPage_' + fb.uid, testPage);
+      location.reload();
     });
   });

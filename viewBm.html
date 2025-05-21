@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/sweetalert2.min.css" rel="stylesheet">
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/remixicon.css" rel="stylesheet">
+        <link href="css/chrome-bright.css" rel="stylesheet" />
+        <link href="css/style.css" rel="stylesheet">
+
+        <script src="js/jquery.js"></script>
+        
+    </head>
+    <body class="folded">
+        
+
+        <!-- <div id="loadingScreen" class="d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-secondary" role="status"></div>
+        </div> -->
+        <div>
+            
+            <div class="app-wrapper rounded overflow-hidden d-flex">
+                <div class="account-wrapper d-flex flex-column overflow-hidden flex-grow-1 position-relative overflow-hidden" style="height: 100vh;">
+
+                   
+
+                    <div class="border-bottom bg-white dark-border-0 dark-body-bg">
+                        <div class="p-3 d-flex justify-content-between align-items-center" style="height: 59px;">
+                            <div class="pe-3">
+                                <h5 class="m-0 fw-bold">Lista de BM <span id="count" class="badge text-bg-success ms-3">0</span></h5>
+                            </div>
+                            <div class="d-flex border-end me-3 pe-3">
+                                <div class="dropdown me-2">
+                                    <button class="shadow-sm control-btn btn border h-100 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ri-filter-line fs-5 m-0" style="color: #666"></i>
+                                    </button>
+                                    <div class="dropdown-menu mt-2 border dropdown-menu-end shadow-sm p-2" style="width: 250px;">
+                                        <div class="mb-2">
+                                            <strong>Estado</strong>
+                                        </div>
+                                        <label class="border rounded mb-2 p-2 d-flex align-items-center">
+                                            <div class="form-check me-2">
+                                                <input class="form-check-input statusFilter" type="checkbox" value="LIVE">
+                                            </div>
+                                            <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-success rounded-circle me-2"></span><strong class="text-success">LIVE</strong></span>
+                                            <span class="badge rounded-pill text-bg-primary status1Count">0</span>
+                                        </label>
+                                        <label class="border rounded mb-2 p-2 d-flex align-items-center">
+                                            <div class="form-check me-2">
+                                                <input class="form-check-input statusFilter" type="checkbox" value="DIE">
+                                            </div>
+                                            <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DIE VeryID</strong></span>
+                                            <span class="badge rounded-pill text-bg-primary status2Count">0</span>
+                                        </label>
+                                        <label class="border rounded mb-2 p-2 d-flex align-items-center">
+                                            <div class="form-check me-2">
+                                                <input class="form-check-input statusFilter" type="checkbox" value="DIE_3DONG">
+                                            </div>
+                                            <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DIE 3 LÍNEAS</strong></span>
+                                            <span class="badge rounded-pill text-bg-primary status4Count">0</span>
+                                        </label>
+                                        <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
+                                            <div class="form-check me-2">
+                                                <input class="form-check-input statusFilter" type="checkbox" value="DIE_VV">
+                                            </div>
+                                            <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">DIE PERMANENTE</strong></span>
+                                            <span class="badge rounded-pill text-bg-primary status3Count">0</span>
+                                        </label>
+                                        <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
+                                            <div class="form-check me-2">
+                                                <input class="form-check-input statusFilter" type="checkbox" value="DIE_DK">
+                                            </div>
+                                            <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-secondary rounded-circle me-2"></span><strong class="text-secondary">DIE EN APELACIÓN</strong></span>
+                                            <span class="badge rounded-pill text-bg-primary status101Count">0</span>
+                                        </label>
+                                        <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
+                                            <div class="form-check me-2">
+                                                <input class="form-check-input statusFilter" type="checkbox" value="BM_KHANG">
+                                            </div>
+                                            <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-info rounded-circle me-2"></span><strong class="text-info">BM APELACIÓN VeryID</strong></span>
+                                            <span class="badge rounded-pill text-bg-primary status999Count">0</span>
+                                        </label>
+                                        <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
+                                            <div class="form-check me-2">
+                                                <input class="form-check-input statusFilter" type="checkbox" value="BM_KHANG_3DONG">
+                                            </div>
+                                            <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-info rounded-circle me-2"></span><strong class="text-info">BM APELACIÓN 3 LÍNEAS</strong></span>
+                                            <span class="badge rounded-pill text-bg-primary status999Count">0</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 me-5">
+                                <div class="position-relative h-100">
+                                    <a href="javascript:;" id="searchSubmit" class="text-dark"><i class="ri-search-line fs-5 position-absolute" style="top: 3px; right: 8px"></i></a>
+                                    <input class="form-control h-100 fw-medium" style="padding-right: 30px;" id="search" placeholder="Ingrese palabra clave...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="accounts" class="ag-theme-balham flex-grow-1 h-100"></div>
+
+                    <div class="border-top p-3 py-2 d-flex justify-content-between align-items-center" style="height: 45px;">
+
+                        <div>
+                            <span class="border-end me-2 pe-2">
+                                <strong class="text-success">Live:</strong> 
+                                <span class="status1Count">0</span>
+                            </span>
+                            <span class="border-end me-2 pe-2">
+                                <strong class="text-danger">Die VeryID:</strong> 
+                                <span class="status2Count">0</span>
+                            </span>
+                            <span class="border-end me-2 pe-2">
+                                <strong class="text-danger">Die 3 líneas:</strong> 
+                                <span class="status4Count">0</span>
+                            </span>
+                            <span class="border-end me-2 pe-2">
+                                <strong class="text-warning">Die permanente:</strong> 
+                                <span class="status3Count">0</span>
+                            </span>
+                            <span class="border-end me-2 pe-2">
+                                <strong class="text-secondary">Die en apelación:</strong> 
+                                <span class="status101Count">0</span>
+                            </span>
+                            <span class="border-end me-2 pe-2">
+                                <strong class="text-info">BM apelación VeryID:</strong> 
+                                <span class="status999Count">0</span>
+                            </span>
+                            <span>
+                                <strong class="text-info">BM apelación 3 líneas:</strong> 
+                                <span class="status5Count">0</span>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!--script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script-->
+        <script src="js/ag-grid-enterprise.min.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="js/bm.js"></script>
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

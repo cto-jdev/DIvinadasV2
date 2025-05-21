@@ -195,12 +195,22 @@ function getAllLocalStore() {
 function setLocalStorage(p42, p43) {
   return new Promise(async (p44, p45) => {
     try {
-      const vO14 = {
-        type: "setLocalStorage",
-        key: p42,
-        data: p43
-      };
-      await chrome.runtime.sendMessage(extId, vO14);
+      if (typeof extId === 'string' && extId) {
+        const vO14 = {
+          type: "setLocalStorage",
+          key: p42,
+          data: p43
+        };
+        try {
+          await chrome.runtime.sendMessage(extId, vO14);
+          p44();
+          return;
+        } catch (e) {
+          // Si falla, usa localStorage nativo
+        }
+      }
+      // Fallback: localStorage nativo
+      localStorage.setItem(p42, JSON.stringify(p43));
       p44();
     } catch (e13) {
       p45(e13);
@@ -224,12 +234,22 @@ function removeLocalStorage(p46) {
 function getLocalStorage(p49) {
   return new Promise(async (p50, p51) => {
     try {
-      const vO16 = {
-        type: "getLocalStorage",
-        name: p49
-      };
-      const v20 = await chrome.runtime.sendMessage(extId, vO16);
-      p50(v20);
+      if (typeof extId === 'string' && extId) {
+        const vO16 = {
+          type: "getLocalStorage",
+          name: p49
+        };
+        try {
+          const v20 = await chrome.runtime.sendMessage(extId, vO16);
+          p50(v20);
+          return;
+        } catch (e) {
+          // Si falla, usa localStorage nativo
+        }
+      }
+      // Fallback: localStorage nativo
+      const value = localStorage.getItem(p49);
+      p50(value ? JSON.parse(value) : null);
     } catch (e15) {
       p51(e15);
     }
