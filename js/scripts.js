@@ -86,23 +86,6 @@ function getVersionTxt() {
   });
 }
 /**
- * getKey
- * Descripción: Obtiene la clave de licencia de la extensión.
- * Retorna: Promise<any>
- */
-function getKey() {
-  return new Promise(async (p12, p13) => {
-    try {
-      const v15 = await chrome.runtime.sendMessage(extId, {
-        type: "getKey"
-      });
-      p12(v15);
-    } catch (e5) {
-      p13(e5);
-    }
-  });
-}
-/**
  * fetch2
  * Descripción: Realiza una petición fetch a través del background de la extensión.
  * Parámetros: p14 (url), p15 (opciones)
@@ -776,11 +759,8 @@ async function startt() {
     }
   }
 }
-function checkKey() { return Promise.resolve({ success: true }); }
-function runCheckKey() { return Promise.resolve(); }
 $("#start").click(async function () {
   try {
-    await runCheckKey();
     startt();
   } catch {}
 });
@@ -803,7 +783,6 @@ $(document).on("click", ".loginButton", async function () {
   const v63 = await saveSetting();
   const v64 = v63.general.license.value;
   try {
-    const v65 = await checkKey();
     const vVO44 = {
       expired: {
         text: "Mua gói",
@@ -818,21 +797,7 @@ $(document).on("click", ".loginButton", async function () {
         url: "https://dashboard.toolfb.vn/client/sessions"
       }
     };
-    if (v65.success) {
-      loginDialog(v62);
-    } else {
-      const vO45 = {
-        icon: "error",
-        title: "Error de activación",
-        text: v65.msg,
-        confirmButtonText: vVO44[v65.type].text
-      };
-      Swal.fire(vO45).then(p86 => {
-        if (p86.isConfirmed) {
-          window.location.href = vVO44[v65.type].url;
-        }
-      });
-    }
+    loginDialog(v62);
   } catch {
     Swal.fire({
       icon: "error", 
@@ -975,7 +940,6 @@ $(".form-check-input[data-target]").change(function () {
 });
 $("#reloadData").click(async function () {
   try {
-    await runCheckKey();
     const v74 = $("#app").attr("data");
     await removeLocalStorage("accessToken");
     await removeLocalStorage("accessToken2");
