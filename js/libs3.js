@@ -1,3 +1,8 @@
+/**
+ * getCurrentUser
+ * Descripción: Obtiene el usuario actual desde localStorage y lo retorna.
+ * Retorna: Promise<Object> (usuario actual)
+ */
 function getCurrentUser() {
     return new Promise(async (p286, p287) => {
       try {
@@ -10,7 +15,13 @@ function getCurrentUser() {
       }
     });
   }
-  async function getBase64ImageFromUrl(p289) {
+/**
+ * getBase64ImageFromUrl
+ * Descripción: Convierte una imagen obtenida por URL a formato base64.
+ * Parámetros: p289 (string URL de la imagen)
+ * Retorna: Promise<string> (base64 de la imagen)
+ */
+async function getBase64ImageFromUrl(p289) {
     const v362 = await fetch(p289);
     const v363 = await v362.blob();
     return new Promise((p290, p291) => {
@@ -25,6 +36,10 @@ function getCurrentUser() {
     });
   }
   let rates = false;
+  /**
+   * Evento ready principal
+   * Descripción: Inicializa la aplicación, verifica actualizaciones, estado de sesión y carga datos de usuario y calidad de cuenta.
+   */
   $(document).ready(async function () {
     const v365 = $("#app").attr("data");
     const v366 = await getLocalStorage("folded");

@@ -239,12 +239,28 @@ const columnDefs = [{
     localeText: {
       noRowsToShow: ""
     },
+    /**
+     * getRowId
+     * Descripción: Retorna el identificador único de una fila para agGrid.
+     * Parámetros: p16 (objeto con propiedad data)
+     * Retorna: id de la fila
+     */
     getRowId: function (p16) {
       return p16.data.id;
     },
+    /**
+     * onFirstDataRendered
+     * Descripción: Llama a countStatus cuando los datos se renderizan por primera vez en la grilla.
+     * Parámetros: p17 (evento de agGrid)
+     */
     onFirstDataRendered: function (p17) {
       countStatus(p17, 0);
     },
+    /**
+     * onRangeSelectionChanged
+     * Descripción: Actualiza el contador de filas seleccionadas en un rango.
+     * Parámetros: p18 (evento de selección de rango de agGrid)
+     */
     onRangeSelectionChanged: function (p18) {
       const v15 = p18.api.getCellRanges();
       if (v15.length) {
@@ -259,30 +275,71 @@ const columnDefs = [{
         $("#boiden").text(0);
       }
     },
+    /**
+     * onSelectionChanged
+     * Descripción: Actualiza el contador de filas seleccionadas.
+     * Parámetros: p19 (evento de selección de agGrid)
+     */
     onSelectionChanged: function (p19) {
       const v16 = p19.api.getSelectedRows();
       $("#dachon").text(v16.length);
     },
+    /**
+     * onRowDataUpdated
+     * Descripción: Actualiza el contador de filas mostradas cuando se actualizan los datos.
+     * Parámetros: p20 (evento de actualización de datos de agGrid)
+     */
     onRowDataUpdated: function (p20) {
       $("#tong").text(p20.api.getDisplayedRowCount());
     },
+    /**
+     * onFilterChanged
+     * Descripción: Actualiza el contador de filas mostradas cuando se aplica un filtro.
+     * Parámetros: p21 (evento de filtro de agGrid)
+     */
     onFilterChanged: function (p21) {
       $("#tong").text(p21.api.getDisplayedRowCount());
     },
     rowClassRules: {
+      /**
+       * running
+       * Descripción: Aplica la clase 'running' si el estado es RUNNING.
+       * Parámetros: p22 (objeto de fila)
+       * Retorna: boolean
+       */
       running: function (p22) {
         return p22.data.status === "RUNNING";
       },
+      /**
+       * finished
+       * Descripción: Aplica la clase 'finished' si el estado es FINISHED.
+       * Parámetros: p23 (objeto de fila)
+       * Retorna: boolean
+       */
       finished: function (p23) {
         return p23.data.status === "FINISHED";
       }
     },
+    /**
+     * onBodyScroll
+     * Descripción: Marca la variable scrolling como true al hacer scroll en la tabla.
+     * Parámetros: p24 (evento de scroll)
+     */
     onBodyScroll: function (p24) {
       scrolling = true;
     },
+    /**
+     * onBodyScrollEnd
+     * Descripción: Marca la variable scrolling como false al terminar el scroll en la tabla.
+     * Parámetros: p25 (evento de scroll end)
+     */
     onBodyScrollEnd: function (p25) {
       scrolling = false;
     },
+    /**
+     * CustomNoRowsOverlay
+     * Descripción: Componente personalizado para mostrar imagen cuando no hay filas en la grilla.
+     */
     noRowsOverlayComponent: class CustomNoRowsOverlay {
       eGui;
       init(p26) {
@@ -357,6 +414,10 @@ const columnDefs = [{
     }
   };
   const cardGrid = vO30;
+  /**
+   * Evento ready principal
+   * Descripción: Inicializa la grilla de cuentas y tarjetas, aplica el estado de columnas y carga datos según el parámetro id.
+   */
   $(document).ready(async function () {
     const v17 = document.querySelector("#accounts");
     try {
@@ -406,6 +467,10 @@ const columnDefs = [{
       }, 2000);
     }
   });
+  /**
+   * Evento loadSavedAds
+   * Descripción: Carga anuncios guardados y los muestra en la grilla.
+   */
   $(document).on("loadSavedAds", function (p29, p30) {
     p30 = p30.map(p31 => {
       p31.process = "";
@@ -414,6 +479,10 @@ const columnDefs = [{
     accountGrid.api.setRowData(p30);
   });
   const adsMap = [];
+  /**
+   * Evento loadAdsSuccess
+   * Descripción: Carga anuncios exitosamente y los mapea con un id interno.
+   */
   $(document).on("loadAdsSuccess", function (p32, p33) {
     let vLN1 = 1;
     p33 = p33.map(p34 => {
@@ -428,6 +497,10 @@ const columnDefs = [{
     });
     accountGrid.api.setRowData(p33);
   });
+  /**
+   * Evento loadAdsSuccess2
+   * Descripción: Actualiza información adicional de un anuncio (país, pago, estado) en la grilla.
+   */
   $(document).on("loadAdsSuccess2", function (p35, p36) {
     const v27 = adsMap.filter(p37 => p37.adId == p36.id)[0].id;
     accountGrid.api.getRowNode(v27).setDataValue("country", p36.country);
@@ -436,19 +509,35 @@ const columnDefs = [{
       accountGrid.api.getRowNode(v27).setDataValue("status", p36.status);
     }
   });
+  /**
+   * Evento input linkShareBm
+   * Descripción: Actualiza el contador de enlaces de BM al cambiar el input.
+   */
   $("[name=\"linkShareBm\"]").on("input", function () {
     const v28 = $("[name=\"linkShareBm\"]").val().split(/\r?\n|\r|\n/g).filter(p38 => p38);
     $("#linkShareBmCount").text(v28.length);
   });
+  /**
+   * Evento updateShareBmLink
+   * Descripción: Añade un nuevo enlace de BM al input y actualiza el contador.
+   */
   $(document).on("updateShareBmLink", function (p39, p40) {
     const v29 = $("[name=\"linkShareBm\"]").val().split(/\r?\n|\r|\n/g).filter(p41 => p41);
     v29.push(p40.link);
     $("[name=\"linkShareBm\"]").val(v29.join("\r\n"));
     $("#linkShareBmCount").text(v29.length);
   });
+  /**
+   * Evento updateAdsName
+   * Descripción: Actualiza el nombre de la cuenta de un anuncio en la grilla.
+   */
   $(document).on("updateAdsName", function (p42, p43) {
     accountGrid.api.getRowNode(parseInt(p43.id)).setDataValue("account", p43.name);
   });
+  /**
+   * Evento updateAdInfo
+   * Descripción: Actualiza información de país, moneda y zona horaria de un anuncio en la grilla.
+   */
   $(document).on("updateAdInfo", function (p44, p45) {
     if (p45.timezone) {
       accountGrid.api.getRowNode(parseInt(p45.id)).setDataValue("timezone", p45.timezone);
@@ -460,6 +549,11 @@ const columnDefs = [{
       accountGrid.api.getRowNode(parseInt(p45.id)).setDataValue("country", p45.country);
     }
   });
+  /**
+   * pasteCard
+   * Descripción: Pega tarjetas desde el portapapeles, las guarda en localStorage y recarga la grilla de tarjetas.
+   * Retorna: Promise<boolean>
+   */
   async function pasteCard() {
     const v30 = (await navigator.clipboard.readText()) ?? "";
     if (v30.length > 0) {
@@ -484,6 +578,10 @@ const columnDefs = [{
     }
     return false;
   }
+  /**
+   * Evento show.bs.modal cardModal
+   * Descripción: Al mostrar el modal de tarjetas, carga las tarjetas y configura el menú contextual.
+   */
   $("#cardModal").on("show.bs.modal", function (p46) {
     loadCards();
     const vA3 = [{

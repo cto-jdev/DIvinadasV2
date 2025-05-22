@@ -1,3 +1,7 @@
+/**
+ * Evento ready principal
+ * Descripción: Inicializa la vista de cuentas, BM y páginas, actualiza los datos y gráficos, y gestiona la selección de cuentas Ads.
+ */
 $(document).ready(async function () {
     await window.fbReady;
     let v12;
@@ -187,6 +191,10 @@ $(document).ready(async function () {
         }
       } catch {}
     }, 1000);
+    /**
+     * Evento click loadBm
+     * Descripción: Carga datos de prueba para Business Manager (BM) y recarga la página.
+     */
     $('#loadBm').click(async function () {
       // Datos de prueba para BM
       const testBm = [
@@ -197,6 +205,10 @@ $(document).ready(async function () {
       await setLocalStorage('dataBm_' + fb.uid, testBm);
       location.reload();
     });
+    /**
+     * Evento click loadAds
+     * Descripción: Carga datos de prueba para cuentas Ads y recarga la página.
+     */
     $('#loadAds').click(async function () {
       // Datos de prueba para Ads
       const testAds = [
@@ -206,6 +218,10 @@ $(document).ready(async function () {
       await setLocalStorage('dataAds_' + fb.uid, testAds);
       location.reload();
     });
+    /**
+     * Evento click loadPage
+     * Descripción: Carga datos de prueba para páginas y recarga la página.
+     */
     $('#loadPage').click(async function () {
       // Datos de prueba para Page
       const testPage = [

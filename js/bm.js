@@ -141,12 +141,28 @@ const columnDefs = [{
         format: "0"
       }
     }],
+    /**
+     * getRowId
+     * Descripción: Retorna el identificador único de una fila para agGrid.
+     * Parámetros: p9 (objeto con propiedad data)
+     * Retorna: id de la fila
+     */
     getRowId: function (p9) {
       return p9.data.id;
     },
+    /**
+     * onFirstDataRendered
+     * Descripción: Llama a countStatus cuando los datos se renderizan por primera vez en la grilla.
+     * Parámetros: p10 (evento de agGrid)
+     */
     onFirstDataRendered: function (p10) {
       countStatus(p10, 0);
     },
+    /**
+     * onRangeSelectionChanged
+     * Descripción: Actualiza el contador de filas seleccionadas en un rango.
+     * Parámetros: p11 (evento de selección de rango de agGrid)
+     */
     onRangeSelectionChanged: function (p11) {
       const v12 = p11.api.getCellRanges();
       if (v12.length) {
@@ -161,38 +177,85 @@ const columnDefs = [{
         $("#boiden").text(0);
       }
     },
+    /**
+     * onSelectionChanged
+     * Descripción: Actualiza el contador de filas seleccionadas.
+     * Parámetros: p12 (evento de selección de agGrid)
+     */
     onSelectionChanged: function (p12) {
       const v13 = p12.api.getSelectedRows();
       $("#dachon").text(v13.length);
     },
+    /**
+     * onRowDataUpdated
+     * Descripción: Actualiza el contador total de filas mostradas en la grilla.
+     * Parámetros: p13 (evento de actualización de datos de agGrid)
+     */
     onRowDataUpdated: function (p13) {
       $("#tong").text(p13.api.getDisplayedRowCount());
     },
+    /**
+     * onFilterChanged
+     * Descripción: Actualiza el contador total de filas mostradas tras aplicar un filtro.
+     * Parámetros: p14 (evento de filtrado de agGrid)
+     */
     onFilterChanged: function (p14) {
       $("#tong").text(p14.api.getDisplayedRowCount());
     },
     rowClassRules: {
+      /**
+       * running
+       * Descripción: Devuelve true si el estado de la fila es "RUNNING" para aplicar una clase CSS.
+       * Parámetros: p15 (objeto con propiedad data)
+       */
       running: function (p15) {
         return p15.data.status === "RUNNING";
       },
+      /**
+       * finished
+       * Descripción: Devuelve true si el estado de la fila es "FINISHED" para aplicar una clase CSS.
+       * Parámetros: p16 (objeto con propiedad data)
+       */
       finished: function (p16) {
         return p16.data.status === "FINISHED";
       }
     },
+    /**
+     * noRowsOverlayComponent
+     * Descripción: Componente personalizado para mostrar cuando no hay filas en la grilla.
+     */
     noRowsOverlayComponent: class CustomNoRowsOverlay {
       eGui;
+      /**
+       * init
+       * Descripción: Inicializa el componente de overlay sin filas.
+       * Parámetros: p17 (parámetros de agGrid)
+       */
       init(p17) {
         this.eGui = document.createElement("div");
         this.refresh(p17);
       }
+      /**
+       * getGui
+       * Descripción: Retorna el elemento HTML del overlay.
+       */
       getGui() {
         return this.eGui;
       }
+      /**
+       * refresh
+       * Descripción: Refresca el contenido del overlay.
+       * Parámetros: p18 (parámetros de agGrid)
+       */
       refresh(p18) {
         this.eGui.innerHTML = "<img width=\"300\" src=\"../img/no_data.png\">";
       }
     }
   };
+  /**
+   * Evento ready principal
+   * Descripción: Inicializa la grilla de cuentas BM, carga datos desde localStorage, configura eventos y sincronización periódica.
+   */
   $(document).ready(async function () {
     const v14 = document.querySelector("#accounts");
     new agGrid.Grid(v14, accountGrid);
@@ -227,6 +290,10 @@ const columnDefs = [{
       }, 2000);
     }
   });
+  /**
+   * Evento click phoiItem
+   * Descripción: Selecciona un ítem de phoi y actualiza el control asociado.
+   */
   $("body").on("click", ".phoiItem", function () {
     const v20 = $(this).attr("data-file");
     $(".phoiItem").removeClass("active");
@@ -234,10 +301,18 @@ const columnDefs = [{
     $("[name=\"phoiId\"]").val(v20);
     $("#phoiControl").removeClass("d-none").addClass("d-flex");
   });
+  /**
+   * Evento click editPhoi
+   * Descripción: Abre la edición del phoi seleccionado en una nueva pestaña.
+   */
   $("#editPhoi").click(function () {
     const v21 = $(".phoiItem.active").attr("data-file");
     window.open("/phoi?id=" + v21, "_blank").focus();
   });
+  /**
+   * Evento click deletePhoi
+   * Descripción: Elimina el phoi seleccionado tras confirmación.
+   */
   $("#deletePhoi").click(function () {
     Swal.fire({
       title: "¿Estás seguro que deseas eliminar?",
@@ -259,9 +334,17 @@ const columnDefs = [{
       }
     });
   });
+  /**
+   * Evento show.bs.modal phoiModal
+   * Descripción: Carga la lista de phoi al mostrar el modal.
+   */
   $("#phoiModal").on("show.bs.modal", async function (p21) {
     loadPhoi();
   });
+  /**
+   * loadPhoi
+   * Descripción: Carga todos los phoi almacenados y los muestra en la interfaz.
+   */
   async function loadPhoi() {
     const v24 = await getAllLocalStore();
     const v25 = Object.keys(v24).filter(p22 => p22.includes("phoi_")).map(p23 => {
@@ -285,26 +368,50 @@ const columnDefs = [{
     vLSdivClassrow += "</div>";
     $("#phoiList").html(vLSdivClassrow);
   }
+  /**
+   * Evento input backUpEmail
+   * Descripción: Actualiza el contador de emails de respaldo al cambiar el input.
+   */
   $("[name=\"backUpEmail\"]").on("input", function () {
     const v27 = $("[name=\"backUpEmail\"]").val().split(/\r?\n|\r|\n/g).filter(p26 => p26);
     $("#backupEmailCount").text(v27.length);
   });
+  /**
+   * Evento input linkDaNhan
+   * Descripción: Actualiza el contador de links recibidos al cambiar el input.
+   */
   $("[name=\"linkDaNhan\"]").on("input", function () {
     const v28 = $("[name=\"linkDaNhan\"]").val().split(/\r?\n|\r|\n/g).filter(p27 => p27);
     $("#backupLinkCount1").text(v28.length);
   });
+  /**
+   * Evento input backupLink
+   * Descripción: Actualiza el contador de links de respaldo al cambiar el input.
+   */
   $("[name=\"backupLink\"]").on("input", function () {
     const v29 = $("[name=\"backupLink\"]").val().split(/\r?\n|\r|\n/g).filter(p28 => p28);
     $("#backupLinkCount").text(v29.length);
   });
+  /**
+   * Evento input backupLinkSuccess
+   * Descripción: Actualiza el contador de links de respaldo exitosos al cambiar el input.
+   */
   $("[name=\"backupLinkSuccess\"]").on("input", function () {
     const v30 = $("[name=\"backupLinkSuccess\"]").val().split(/\r?\n|\r|\n/g).filter(p29 => p29);
     $("#backupLinkSuccessCount").text(v30.length);
   });
+  /**
+   * Evento input backupLinkError
+   * Descripción: Actualiza el contador de links de respaldo con error al cambiar el input.
+   */
   $("[name=\"backupLinkError\"]").on("input", function () {
     const v31 = $("[name=\"backupLinkError\"]").val().split(/\r?\n|\r|\n/g).filter(p30 => p30);
     $("#backupLinkErrorCount").text(v31.length);
   });
+  /**
+   * Evento loadSavedBm
+   * Descripción: Carga BMs guardados y los muestra en la grilla.
+   */
   $(document).on("loadSavedBm", function (p31, p32) {
     p32 = p32.map(p33 => {
       p33.process = "";
@@ -313,6 +420,10 @@ const columnDefs = [{
     accountGrid.api.setRowData(p32);
   });
   const bmMap = [];
+  /**
+   * Evento loadBmSuccess3
+   * Descripción: Procesa y muestra BMs tras una carga exitosa, asignando IDs y mapeando BMs.
+   */
   $(document).on("loadBmSuccess3", function (p34, p35) {
     let vLN1 = 1;
     p35 = p35.map(p36 => {
@@ -333,6 +444,10 @@ const columnDefs = [{
     });
     accountGrid.api.setRowData(p35);
   });
+  /**
+   * Evento loadBmSuccess
+   * Descripción: Procesa y muestra BMs tras una carga exitosa, asignando IDs y mapeando BMs.
+   */
   $(document).on("loadBmSuccess", function (p37, p38) {
     let vLN12 = 1;
     p38 = p38.map(p39 => {
@@ -354,12 +469,20 @@ const columnDefs = [{
     });
     accountGrid.api.setRowData(p38);
   });
+  /**
+   * Evento loadBmSuccess4
+   * Descripción: Actualiza el número de páginas de un BM específico en la grilla.
+   */
   $(document).on("loadBmSuccess4", function (p40, p41) {
     for (let vLN03 = 0; vLN03 < p41.length; vLN03++) {
       const v32 = bmMap.filter(p42 => p42.bmId == p41[vLN03].businessID)[0].id;
       accountGrid.api.getRowNode(v32).setDataValue("bmPage", p41[vLN03].pageNumber);
     }
   });
+  /**
+   * Evento loadBmSuccess2
+   * Descripción: Actualiza información detallada de un BM (cuentas, admins, tipo, rol, etc.) en la grilla.
+   */
   $(document).on("loadBmSuccess2", function (p43, p44) {
     p44.forEach(p45 => {
       const v33 = bmMap.filter(p46 => p46.bmId == p45.id)[0].id;
@@ -394,33 +517,61 @@ const columnDefs = [{
       force: true
     });
   });
+  /**
+   * Evento loadInstaSuccess
+   * Descripción: Actualiza la cantidad de cuentas de Instagram asociadas a un BM en la grilla.
+   */
   $(document).on("loadInstaSuccess", function (p49, p50) {
     const v39 = bmMap.filter(p51 => p51.bmId == p50.id)[0].id;
     accountGrid.api.getRowNode(v39).setDataValue("instaAccount", p50.count);
   });
+  /**
+   * Evento loadLimitSuccess
+   * Descripción: Actualiza el tipo de BM en la grilla tras cargar límites.
+   */
   $(document).on("loadLimitSuccess", function (p52, p53) {
     const v40 = bmMap.filter(p54 => p54.bmId == p53.id)[0].id;
     accountGrid.api.getRowNode(v40).setDataValue("bmType", p53.type);
   });
+  /**
+   * Evento loadQtvSuccess
+   * Descripción: Actualiza la cantidad de administradores de un BM en la grilla.
+   */
   $(document).on("loadQtvSuccess", function (p55, p56) {
     const v41 = bmMap.filter(p57 => p57.bmId == p56.id)[0].id;
     accountGrid.api.getRowNode(v41).setDataValue("adminAccount", p56.count);
   });
+  /**
+   * Evento updateListBm
+   * Descripción: Actualiza el listado de IDs de BM en el input correspondiente.
+   */
   $(document).on("updateListBm", function (p58, p59) {
     $("[name=\"listIdBm\"]").val(p59.join("\r\n"));
     $("#getBmIdCount").text(p59.length);
   });
+  /**
+   * Evento updateBackupLink
+   * Descripción: Añade un nuevo link recibido y actualiza el contador.
+   */
   $(document).on("updateBackupLink", function (p60, p61) {
     const v42 = $("[name=\"linkDaNhan\"]").val().split(/\r?\n|\r|\n/g).filter(p62 => p62);
     v42.push(p61.link);
     $("[name=\"linkDaNhan\"]").val(v42.join("\r\n"));
     $("#backupLinkCount1").text(v42.length);
   });
+  /**
+   * Evento updateLinkAll
+   * Descripción: Actualiza el listado de links de respaldo, eliminando los que ya están en la lista de éxito/error.
+   */
   $(document).on("updateLinkAll", function (p63, p64) {
     const v43 = $("[name=\"backupLink\"]").val().split(/\r?\n|\r|\n/g).filter(p65 => p65 && !p64.includes(p65));
     $("#backupLinkCount").text(v43.length);
     $("[name=\"backupLink\"]").val(v43.join("\r\n"));
   });
+  /**
+   * Evento updateLinkError
+   * Descripción: Añade links con error al listado y actualiza el contador.
+   */
   $(document).on("updateLinkError", function (p66, p67) {
     const v44 = $("[name=\"backupLinkError\"]").val().split(/\r?\n|\r|\n/g).filter(p68 => p68);
     p67.forEach(p69 => {
@@ -429,6 +580,10 @@ const columnDefs = [{
     $("#backupLinkErrorCount").text(v44.length);
     $("[name=\"backupLinkError\"]").val(v44.join("\r\n"));
   });
+  /**
+   * Evento updateLinkSuccess
+   * Descripción: Añade links exitosos al listado y actualiza el contador.
+   */
   $(document).on("updateLinkSuccess", function (p70, p71) {
     const v45 = $("[name=\"backupLinkSuccess\"]").val().split(/\r?\n|\r|\n/g).filter(p72 => p72);
     p71.forEach(p73 => {
@@ -437,9 +592,18 @@ const columnDefs = [{
     $("#backupLinkSuccessCount").text(v45.length);
     $("[name=\"backupLinkSuccess\"]").val(v45.join("\r\n"));
   });
+  /**
+   * Evento updateBmName
+   * Descripción: Actualiza el nombre de un BM en la grilla.
+   */
   $(document).on("updateBmName", function (p74, p75) {
     accountGrid.api.getRowNode(parseInt(p75.id)).setDataValue("name", p75.name);
   });
+  /**
+   * countStatus
+   * Descripción: Cuenta la cantidad de BMs por cada estado y actualiza los contadores en la interfaz.
+   * Parámetros: p76 (objeto agGrid), p77 (filtro opcional por uid)
+   */
   function countStatus(p76, p77) {
     let vLN04 = 0;
     let vLN05 = 0;

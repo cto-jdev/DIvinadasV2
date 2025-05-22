@@ -14,6 +14,11 @@ $(document).ready(async function() {
     
 })
 
+/**
+ * loadPhone
+ * Descripción: Carga los servicios de teléfono desde localStorage y los muestra en el select correspondiente.
+ * Retorna: Promise<void>
+ */
 async function loadPhone() {
 
     const data = await getLocalStorage('serviceData') || []
@@ -107,6 +112,11 @@ $('.editPhoneForm').on('submit', async function(e) {
 
 })
 
+/**
+ * getNumber
+ * Descripción: Obtiene un número de teléfono de prueba usando la plantilla configurada y lo muestra en el modal de test.
+ * Retorna: Promise<void>
+ */
 async function getNumber() {
 
     $('button[onclick="getNumber()"]').prop('disabled', true)
@@ -124,6 +134,11 @@ async function getNumber() {
 
 }
 
+/**
+ * getCode
+ * Descripción: Obtiene el código de verificación para el número de prueba y lo muestra en un alert.
+ * Retorna: Promise<void>
+ */
 async function getCode() {
 
     $('button[onclick="getCode()"]').prop('disabled', true)
@@ -144,6 +159,11 @@ async function getCode() {
 
 }
 
+/**
+ * testPhone
+ * Descripción: Abre el modal de prueba de teléfono y limpia los campos de test.
+ * Retorna: void
+ */
 function testPhone() {
 
     saveSetting()
@@ -155,12 +175,22 @@ function testPhone() {
 
 }
 
+/**
+ * addPhone
+ * Descripción: Abre el modal para agregar un nuevo servicio de teléfono.
+ * Retorna: void
+ */
 function addPhone() {
 
     $('#addPhoneModal').modal('show')
 
 }
 
+/**
+ * editPhone
+ * Descripción: Abre el modal para editar el servicio de teléfono seleccionado, cargando sus datos en el formulario.
+ * Retorna: Promise<void>
+ */
 async function editPhone() {
 
     const services = await getLocalStorage('serviceData') || []
@@ -188,6 +218,11 @@ async function editPhone() {
 
 }
 
+/**
+ * deletePhone
+ * Descripción: Elimina el servicio de teléfono seleccionado tras confirmación del usuario.
+ * Retorna: void
+ */
 function deletePhone() {
     
     const selected = $('select[name="customPhone"]').find(':selected').val()

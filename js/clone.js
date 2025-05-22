@@ -153,12 +153,28 @@ const columnDefs = [{
     localeText: {
       noRowsToShow: ""
     },
+    /**
+     * getRowId
+     * Descripción: Retorna el identificador único de una fila para agGrid.
+     * Parámetros: p12 (objeto con propiedad data)
+     * Retorna: id de la fila
+     */
     getRowId: function (p12) {
       return p12.data.id;
     },
+    /**
+     * onFirstDataRendered
+     * Descripción: Llama a countStatus cuando los datos se renderizan por primera vez en la grilla.
+     * Parámetros: p13 (evento de agGrid)
+     */
     onFirstDataRendered: function (p13) {
       countStatus(p13);
     },
+    /**
+     * onRangeSelectionChanged
+     * Descripción: Actualiza el contador de filas seleccionadas en un rango.
+     * Parámetros: p14 (evento de selección de rango de agGrid)
+     */
     onRangeSelectionChanged: function (p14) {
       const v12 = p14.api.getCellRanges();
       if (v12.length) {
@@ -173,27 +189,62 @@ const columnDefs = [{
         $("#boiden").text(0);
       }
     },
+    /**
+     * onSelectionChanged
+     * Descripción: Actualiza el contador de filas seleccionadas.
+     * Parámetros: p15 (evento de selección de agGrid)
+     */
     onSelectionChanged: function (p15) {
       const v13 = p15.api.getSelectedRows();
       $("#dachon").text(v13.length);
     },
+    /**
+     * onRowDataUpdated
+     * Descripción: Actualiza el contador total de filas mostradas en la grilla.
+     * Parámetros: p16 (evento de actualización de datos de agGrid)
+     */
     onRowDataUpdated: function (p16) {
       $("#tong").text(p16.api.getDisplayedRowCount());
     },
+    /**
+     * onFilterChanged
+     * Descripción: Actualiza el contador total de filas mostradas tras aplicar un filtro.
+     * Parámetros: p17 (evento de filtrado de agGrid)
+     */
     onFilterChanged: function (p17) {
       $("#tong").text(p17.api.getDisplayedRowCount());
     },
     rowClassRules: {
+      /**
+       * running
+       * Descripción: Devuelve true si el estado de la fila es "RUNNING" para aplicar una clase CSS.
+       * Parámetros: p18 (objeto con propiedad data)
+       */
       running: function (p18) {
         return p18.data.status === "RUNNING";
       },
+      /**
+       * finished
+       * Descripción: Devuelve true si el estado de la fila es "FINISHED" para aplicar una clase CSS.
+       * Parámetros: p19 (objeto con propiedad data)
+       */
       finished: function (p19) {
         return p19.data.status === "FINISHED";
       }
     },
+    /**
+     * onBodyScroll
+     * Descripción: Marca la variable global 'scrolling' como true cuando se detecta scroll en la tabla.
+     * Parámetros: p20 (evento de scroll)
+     */
     onBodyScroll: function (p20) {
       scrolling = true;
     },
+    /**
+     * onBodyScrollEnd
+     * Descripción: Marca la variable global 'scrolling' como false cuando termina el scroll en la tabla.
+     * Parámetros: p21 (evento de fin de scroll)
+     */
     onBodyScrollEnd: function (p21) {
       scrolling = false;
     }
@@ -220,6 +271,10 @@ const columnDefs = [{
       left: "-999px"
     });
   });
+  /**
+   * Evento ready principal
+   * Descripción: Inicializa la grilla de clones, carga datos desde localStorage, configura eventos y sincronización periódica.
+   */
   $(document).ready(async function () {
     const v14 = document.querySelector("#accounts");
     new agGrid.Grid(v14, accountGrid);
@@ -287,6 +342,11 @@ const columnDefs = [{
       }
     }, 2000);
   });
+  /**
+   * countStatus
+   * Descripción: Cuenta la cantidad de clones por cada estado y actualiza los contadores en la interfaz.
+   * Parámetros: p24 (objeto agGrid)
+   */
   function countStatus(p24) {
     let vLN05 = 0;
     let vLN06 = 0;
@@ -301,6 +361,10 @@ const columnDefs = [{
     $(".status0Count").text(vLN05);
     $(".status1Count").text(vLN06);
   }
+  /**
+   * Evento click viewDataButton
+   * Descripción: Muestra un modal con los datos detallados del clon seleccionado.
+   */
   $(document).on("click", ".viewDataButton", function () {
     const v24 = $(this).attr("data-type");
     const v25 = $(this).attr("data-title");
@@ -309,6 +373,10 @@ const columnDefs = [{
     $("#viewDataModal iframe").attr("src", v24 + "?id=" + v27);
     $("#viewDataModal").modal("show");
   });
+  /**
+   * Evento click deleteSelect
+   * Descripción: Elimina los clones seleccionados y sus datos asociados tras confirmación.
+   */
   $("#deleteSelect").click(function () {
     Swal.fire({
       title: "¿Estás seguro que deseas eliminar?",
@@ -340,6 +408,10 @@ const columnDefs = [{
       }
     });
   });
+  /**
+   * Evento click importClone
+   * Descripción: Muestra un modal para importar una lista de clones y los agrega a la grilla.
+   */
   $("#importClone").click(function () {
     Swal.fire({
       title: "Importar Data",
@@ -361,6 +433,11 @@ const columnDefs = [{
       }
     });
   });
+  /**
+   * pasteData
+   * Descripción: Procesa y agrega datos de clones desde un texto pegado o importado.
+   * Parámetros: p28 (string con datos de clones)
+   */
   function pasteData(p28) {
     if (p28.length > 0) {
       accountGrid.api.clearRangeSelection();
@@ -485,10 +562,18 @@ const columnDefs = [{
       }
     }
   }
+  /**
+   * Evento click pasteData
+   * Descripción: Pega datos de clones desde el portapapeles y los agrega a la grilla.
+   */
   $("#pasteData").click(async function () {
     const v42 = (await navigator.clipboard.readText()) ?? "";
     pasteData(v42);
   });
+  /**
+   * Evento click selectRange
+   * Descripción: Selecciona un rango de filas en la grilla de clones.
+   */
   $("#selectRange").click(async function () {
     const v43 = accountGrid.api.getCellRanges();
     let v44;
@@ -508,6 +593,10 @@ const columnDefs = [{
       }
     });
   });
+  /**
+   * Evento click checkLive
+   * Descripción: Verifica el estado de las cuentas seleccionadas y actualiza su estado en la grilla.
+   */
   $("#checkLive").click(async function () {
     const v46 = Swal.fire({
       title: "Verificando estado de las cuentas",

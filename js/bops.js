@@ -14,6 +14,11 @@ proto.create = require('./create.js')
 mix(require('./read.js'), proto)
 mix(require('./write.js'), proto)
 
+/**
+ * mix
+ * Descripción: Copia todas las propiedades del objeto 'from' al objeto 'into'.
+ * Parámetros: from (objeto origen), into (objeto destino)
+ */
 function mix(from, into) {
   for(var key in from) {
     into[key] = from[key]
@@ -29,6 +34,12 @@ module.exports = function(buffer) {
 },{}],5:[function(require,module,exports){
 module.exports = subarray
 
+/**
+ * subarray
+ * Descripción: Devuelve una submatriz (subarray) de un Uint8Array entre los índices 'from' y 'to'.
+ * Parámetros: buf (Uint8Array), from (inicio), to (fin)
+ * Retorna: Uint8Array
+ */
 function subarray(buf, from, to) {
   return buf.subarray(from || 0, to || buf.length)
 }
@@ -36,6 +47,12 @@ function subarray(buf, from, to) {
 },{}],6:[function(require,module,exports){
 module.exports = join
 
+/**
+ * join
+ * Descripción: Une múltiples Uint8Array en uno solo.
+ * Parámetros: targets (array de Uint8Array), hint (opcional, longitud total)
+ * Retorna: Uint8Array
+ */
 function join(targets, hint) {
   if(!targets.length) {
     return new Uint8Array(0)
@@ -63,6 +80,12 @@ function join(targets, hint) {
   return out
 }
 
+/**
+ * get_length
+ * Descripción: Calcula la longitud total de un array de Uint8Array.
+ * Parámetros: targets (array de Uint8Array)
+ * Retorna: número (longitud total)
+ */
 function get_length(targets) {
   var size = 0
   for(var i = 0, len = targets.length; i < len; ++i) {
@@ -76,6 +99,11 @@ module.exports = copy
 
 var slice = [].slice
 
+/**
+ * copy
+ * Descripción: Copia datos de un Uint8Array origen a uno destino, con opciones de inicio y fin.
+ * Parámetros: source (Uint8Array), target (Uint8Array), target_start, source_start, source_end
+ */
 function copy(source, target, target_start, source_start, source_end) {
   target_start = arguments.length < 3 ? 0 : target_start
   source_start = arguments.length < 4 ? 0 : source_start
@@ -103,6 +131,11 @@ function copy(source, target, target_start, source_start, source_end) {
   return slow_copy(source, target, target_start, source_start, source_end)
 }
 
+/**
+ * fast_copy
+ * Descripción: Copia rápida de datos entre dos Uint8Array diferentes.
+ * Parámetros: source, target, target_start, source_start, source_end
+ */
 function fast_copy(source, target, target_start, source_start, source_end) {
   var len = (source_end - source_start) + target_start
 
@@ -114,6 +147,11 @@ function fast_copy(source, target, target_start, source_start, source_end) {
   }
 }
 
+/**
+ * slow_copy
+ * Descripción: Copia datos entre dos Uint8Array que pueden solaparse (overlap).
+ * Parámetros: from, to, j (inicio destino), i (inicio origen), jend (fin)
+ */
 function slow_copy(from, to, j, i, jend) {
   // the buffers could overlap.
   var iend = jend + i

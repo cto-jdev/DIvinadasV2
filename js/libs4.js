@@ -1,3 +1,9 @@
+/**
+ * runBm
+ * Descripción: Ejecuta operaciones avanzadas sobre un Business Manager (BM) como backup, cambio de nombre, actualización de roles, etc., según la configuración recibida.
+ * Parámetros: p469 (objeto BM), p470 (configuración de acciones), p471 (callback para mensajes y actualizaciones)
+ * Retorna: Promise<void>
+ */
 function runBm(p469, p470, p471) {
     return new Promise(async (p472, p473) => {
       try {

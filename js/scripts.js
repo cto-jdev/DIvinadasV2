@@ -30,6 +30,11 @@ const checkExtension = async function () {
   }
 };
 checkExtension();
+/**
+ * checkUser
+ * Descripción: Verifica el usuario actual mediante la extensión de Chrome.
+ * Retorna: Promise<any>
+ */
 function checkUser() {
   return new Promise(async (p6, p7) => {
     try {
@@ -42,6 +47,11 @@ function checkUser() {
     }
   });
 }
+/**
+ * getVersion
+ * Descripción: Obtiene la versión de la extensión desde el background de Chrome.
+ * Retorna: Promise<any>
+ */
 function getVersion() {
   return new Promise(async (p8, p9) => {
     try {
@@ -54,6 +64,11 @@ function getVersion() {
     }
   });
 }
+/**
+ * getVersionTxt
+ * Descripción: Obtiene el texto de la versión de la extensión.
+ * Retorna: Promise<any>
+ */
 function getVersionTxt() {
   return new Promise(async (p10, p11) => {
     try {
@@ -70,6 +85,11 @@ function getVersionTxt() {
     }
   });
 }
+/**
+ * getKey
+ * Descripción: Obtiene la clave de licencia de la extensión.
+ * Retorna: Promise<any>
+ */
 function getKey() {
   return new Promise(async (p12, p13) => {
     try {
@@ -82,6 +102,12 @@ function getKey() {
     }
   });
 }
+/**
+ * fetch2
+ * Descripción: Realiza una petición fetch a través del background de la extensión.
+ * Parámetros: p14 (url), p15 (opciones)
+ * Retorna: Promise<any>
+ */
 function fetch2(p14, p15 = {}) {
   return new Promise((p16, p17) => {
     const vO6 = {
@@ -98,6 +124,11 @@ function fetch2(p14, p15 = {}) {
     });
   });
 }
+/**
+ * getCookie
+ * Descripción: Obtiene las cookies actuales mediante la extensión.
+ * Retorna: Promise<any>
+ */
 function getCookie() {
   return new Promise(async (p19, p20) => {
     try {
@@ -110,6 +141,12 @@ function getCookie() {
     }
   });
 }
+/**
+ * emptyCookie
+ * Descripción: Elimina las cookies del dominio especificado (por defecto facebook.com).
+ * Parámetros: p21 (dominio)
+ * Retorna: Promise<void>
+ */
 function emptyCookie(p21 = "facebook.com") {
   return new Promise(async (p22, p23) => {
     try {
@@ -124,6 +161,12 @@ function emptyCookie(p21 = "facebook.com") {
     }
   });
 }
+/**
+ * uploadImage
+ * Descripción: Sube una imagen a través del background de la extensión.
+ * Parámetros: p24, p25, p26, p27, p28 (datos de la imagen y contexto)
+ * Retorna: Promise<any>
+ */
 function uploadImage(p24, p25, p26, p27, p28) {
   return new Promise(async (p29, p30) => {
     try {
@@ -142,6 +185,12 @@ function uploadImage(p24, p25, p26, p27, p28) {
     }
   });
 }
+/**
+ * getBase64
+ * Descripción: Convierte una URL de imagen a base64 usando la extensión.
+ * Parámetros: p31 (url)
+ * Retorna: Promise<string>
+ */
 function getBase64(p31) {
   return new Promise(async (p32, p33) => {
     try {
@@ -156,6 +205,12 @@ function getBase64(p31) {
     }
   });
 }
+/**
+ * setCookie
+ * Descripción: Establece las cookies proporcionadas usando la extensión.
+ * Parámetros: p34 (string de cookies)
+ * Retorna: Promise<void>
+ */
 function setCookie(p34) {
   return new Promise(async (p35, p36) => {
     try {
@@ -171,6 +226,12 @@ function setCookie(p34) {
     }
   });
 }
+/**
+ * newTab
+ * Descripción: Abre una nueva pestaña en el navegador con la URL dada.
+ * Parámetros: p37 (url)
+ * Retorna: Promise<void>
+ */
 function newTab(p37) {
   return new Promise(async (p38, p39) => {
     try {
@@ -185,6 +246,11 @@ function newTab(p37) {
     }
   });
 }
+/**
+ * getAllLocalStore
+ * Descripción: Obtiene todos los datos almacenados en localStorage a través de la extensión.
+ * Retorna: Promise<any>
+ */
 function getAllLocalStore() {
   return new Promise(async (p40, p41) => {
     try {
@@ -197,6 +263,12 @@ function getAllLocalStore() {
     }
   });
 }
+/**
+ * setLocalStorage
+ * Descripción: Guarda un valor en localStorage (o en la extensión si es posible).
+ * Parámetros: p42 (clave), p43 (valor)
+ * Retorna: Promise<void>
+ */
 function setLocalStorage(p42, p43) {
   return new Promise(async (p44, p45) => {
     try {
@@ -222,6 +294,12 @@ function setLocalStorage(p42, p43) {
     }
   });
 }
+/**
+ * removeLocalStorage
+ * Descripción: Elimina un valor de localStorage (o de la extensión si es posible).
+ * Parámetros: p46 (clave)
+ * Retorna: Promise<void>
+ */
 function removeLocalStorage(p46) {
   return new Promise(async (p47, p48) => {
     try {
@@ -236,6 +314,12 @@ function removeLocalStorage(p46) {
     }
   });
 }
+/**
+ * getLocalStorage
+ * Descripción: Obtiene un valor de localStorage (o de la extensión si es posible).
+ * Parámetros: p49 (clave)
+ * Retorna: Promise<any>
+ */
 function getLocalStorage(p49) {
   return new Promise(async (p50, p51) => {
     try {
@@ -260,6 +344,12 @@ function getLocalStorage(p49) {
     }
   });
 }
+/**
+ * clearLocalStorage
+ * Descripción: Elimina todos los datos almacenados en localStorage a través de la extensión.
+ * Parámetros: p52 (clave), p53 (clave)
+ * Retorna: Promise<void>
+ */
 function clearLocalStorage() {
   return new Promise(async (p52, p53) => {
     try {
@@ -274,6 +364,11 @@ function clearLocalStorage() {
     }
   });
 }
+/**
+ * reloadExtension
+ * Descripción: Recarga la extensión de Chrome.
+ * Retorna: Promise<void>
+ */
 function reloadExtension() {
   return new Promise(async (p54, p55) => {
     try {

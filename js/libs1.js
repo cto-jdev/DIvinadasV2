@@ -1,3 +1,9 @@
+/**
+ * delayTime
+ * Descripción: Devuelve una promesa que se resuelve después de un tiempo en milisegundos.
+ * Parámetros: p5 (número de milisegundos a esperar)
+ * Retorna: Promise<void>
+ */
 function delayTime(p5) {
     return new Promise((p6, p7) => {
       setTimeout(() => {
@@ -6,11 +12,20 @@ function delayTime(p5) {
     });
   }
   class FB {
+    /**
+     * constructor
+     * Descripción: Inicializa la clase FB con propiedades userInfo, accessToken y dtsg en false.
+     */
     constructor() {
       this.userInfo = false;
       this.accessToken = false;
       this.dtsg = false;
     }
+    /**
+     * checkLive
+     * Descripción: Verifica el estado de la sesión de Facebook (login, checkpoint, etc).
+     * Retorna: Promise<string> ("not_login", "new_login", "success", "282", "956", "error")
+     */
     checkLive() {
       return new Promise(async (p8, p9) => {
         try {
@@ -57,6 +72,11 @@ function delayTime(p5) {
         }
       });
     }
+    /**
+     * getAccessToken
+     * Descripción: Obtiene el accessToken y tokens de seguridad de Facebook Business.
+     * Retorna: Promise<Object|string> (objeto con accessToken, dtsg, dtsg2 o string de error)
+     */
     getAccessToken() {
       return new Promise(async (p11, p12) => {
         try {
@@ -93,6 +113,11 @@ function delayTime(p5) {
         }
       });
     }
+    /**
+     * getAccessToken2
+     * Descripción: Obtiene el accessToken desde Ads Manager.
+     * Retorna: Promise<string> (accessToken)
+     */
     getAccessToken2() {
       return new Promise(async (p15, p16) => {
         try {
@@ -111,6 +136,11 @@ function delayTime(p5) {
         }
       });
     }
+    /**
+     * getFriends
+     * Descripción: Obtiene el número total de amigos del usuario autenticado.
+     * Retorna: Promise<number>
+     */
     getFriends() {
       return new Promise(async (p17, p18) => {
         try {
@@ -122,6 +152,11 @@ function delayTime(p5) {
         }
       });
     }
+    /**
+     * getUserInfo
+     * Descripción: Obtiene la información del usuario autenticado y la guarda en localStorage si es necesario.
+     * Retorna: Promise<Object> (información del usuario)
+     */
     getUserInfo() {
       return new Promise(async (p19, p20) => {
         try {
@@ -180,6 +215,12 @@ function delayTime(p5) {
         }
       });
     }
+    /**
+     * getDeactivedPage
+     * Descripción: Obtiene las páginas desactivadas de un negocio de Facebook.
+     * Parámetros: p22 (id del negocio)
+     * Retorna: Promise<Array> (páginas desactivadas)
+     */
     getDeactivedPage(p22) {
       return new Promise(async (p23, p24) => {
         try {
@@ -1210,7 +1251,7 @@ function delayTime(p5) {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "variables={\"paymentAccountID\":\"" + p161 + "\"}&doc_id=5746473718752934&__usid=6-Ts5btmh131oopb:Ps5bu98bb7oey:0-As5btmhrwegfg-RV=6:F=&__user=" + this.uid + "&__a=1&__req=s&__hs=19699.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010282616&__s=flj1ty:75294s:o83s9c&__hsi=7310049091311550655&__dyn=7xeUmxa3-Q5E9EdoK2abBAqwIBwCwgE98nCG6UtyEgwjojyUW3qiidBxa7GzU726US2Sfxq4U5i4824yoyaxG4o4B0l898885G0Eo9FE4Wqmm2Z17wJBGEpiwzlBwgrxK261UxO4VA48a8lwWxe4oeUa85vzo2vw9G12x67EK3i1uK6o6fBwFwBgak48W2e2i11grzUeUmwvC6UgzE8EhAy88rwzzXwAyo98gxu5ogAzEowwwTxu1cwwwzzobEaUiwYxKexe5U4qp0au58Gm2W1Ez84e6ohxabDAAzawSyES2e0UFU6K19xq1ox3wlFbwCwiUWawCwNwDwr8rwMxO1sDx27o721Qw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25610&lsd=HExoeF2styyeq_LWWUo9db&__aaid=" + p161 + "&__spin_r=1010282616&__spin_b=trunk&__spin_t=1702003435&__jssesw=1"
+            body: "variables={\"paymentAccountID\":\"" + p161 + "\"}&doc_id=5746473718752934&__usid=6-Ts5btmh131oopb:Ps5bu98bb7oey:0-As5btmhrwegfg-RV=6:F=&__user=" + this.uid + "&__a=1&__req=s&__hs=19699.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010282616&__s=flj1ty:75294s:o83s9c&__hsi=7310049091311550655&__dyn=7xeUmxa3-Q5E9EdoK2abBAqwIBwCwgE98nCG6UtyEgwjojyUW3qiidBxa7GzU726US2Sfxq4U5i4824yoyaxG4o4B0l898885G0Eo9FE4Wqmm2Z17wJBGEpiwzlBwgrxK261UxO4VA48a8lwWxe4oeUa8465udw9-0CE4a4ouyUd85WUpwo-m2C2l0FggzE8U98451KfwXxq1-orx2ewyx6i8wxK2efK2i9wAx25Ulx2iexy223u5U4O222edwKwHxa3O6UW4UnwhFA0FUkyFobE6ycwgUpx64EKuiicG3qazo8U3yDwqU4C5E5y4e1mAK2q1bzEG2q362u1IxK32785Ou48tws8&fb_dtsg=" + this.dtsg + "&jazoest=25610&lsd=HExoeF2styyeq_LWWUo9db&__aaid=" + p161 + "&__spin_r=1010282616&__spin_b=trunk&__spin_t=1702003435&__jssesw=1"
           });
           const v160 = v159.json;
           vA11 = v160.data?.billable_account_by_payment_account?.billing_payment_account?.billing_payment_methods;

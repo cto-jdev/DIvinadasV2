@@ -84,14 +84,30 @@ $(document).ready(async function() {
 
 })
 
+/**
+ * randomNumberRange
+ * Descripción: Devuelve un número entero aleatorio entre min (incluido) y max (excluido).
+ * Parámetros: min (número mínimo), max (número máximo)
+ * Retorna: número
+ */
 function randomNumberRange(min, max) {
     return Math.floor(Math.random() * (max - min) + min)
 }
 
+/**
+ * allowDrop
+ * Descripción: Permite soltar elementos en un área de drop (drag & drop).
+ * Parámetros: e (evento)
+ */
 function allowDrop(e) {
     e.preventDefault()
 }
 
+/**
+ * drag
+ * Descripción: Inicia el arrastre de un elemento, guardando su tipo y texto en dataTransfer.
+ * Parámetros: e (evento)
+ */
 function drag(e) {
 
     $.event.addProp('dataTransfer')
@@ -100,6 +116,11 @@ function drag(e) {
     e.dataTransfer.setData('text', e.target.innerText)
 }
 
+/**
+ * drop
+ * Descripción: Maneja el evento de soltar un elemento en el área de drop, agregando el elemento al DOM según su tipo.
+ * Parámetros: e (evento)
+ */
 function drop(e) {
 
     e.preventDefault()
@@ -143,6 +164,11 @@ function drop(e) {
 
 }
 
+/**
+ * getPhoi
+ * Descripción: Obtiene todos los phoi almacenados y los muestra en la interfaz.
+ * Retorna: void
+ */
 async function getPhoi() {
 
     const phoiData = await getAllLocalStore()
@@ -183,15 +209,32 @@ async function getPhoi() {
 
 getPhoi()
 
+/**
+ * hex
+ * Descripción: Convierte un número a su representación hexadecimal de dos dígitos.
+ * Parámetros: x (número)
+ * Retorna: string
+ */
 function hex(x) {
     return ("0" + parseInt(x).toString(16)).slice(-2);
 }
 
+/**
+ * rgb2hex
+ * Descripción: Convierte un color en formato rgb/rgba a formato hexadecimal.
+ * Parámetros: rgb (string en formato rgb o rgba)
+ * Retorna: string (color hexadecimal)
+ */
 function rgb2hex(rgb) {
     rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(,\s*\d+\.*\d+)?\)$/)
     return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3])
 }
 
+/**
+ * getTextStyle
+ * Descripción: Actualiza los inputs de estilo de texto según el elemento activo seleccionado.
+ * Retorna: void
+ */
 function getTextStyle() {
 
     const type = $('.elm.active').attr('data-type')
@@ -217,6 +260,11 @@ function getTextStyle() {
 
 }
 
+/**
+ * getFormattedTime
+ * Descripción: Devuelve la fecha y hora actual en formato YYYY-M-D-H-MIN-S.
+ * Retorna: string
+ */
 function getFormattedTime() {
     const today = new Date()
     const y = today.getFullYear()
@@ -228,6 +276,12 @@ function getFormattedTime() {
     return y + "-" + m + "-" + d + "-" + h + "-" + mi + "-" + s
 }
 
+/**
+ * getBase64
+ * Descripción: Convierte un archivo a una cadena base64.
+ * Parámetros: file (archivo a convertir)
+ * Retorna: Promise<string>
+ */
 function getBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
@@ -237,6 +291,11 @@ function getBase64(file) {
     })
 }
 
+/**
+ * getData
+ * Descripción: Obtiene los datos de la tarjeta y los elementos (elm) en el DOM para su almacenamiento o procesamiento.
+ * Retorna: objeto con src y data
+ */
 function getData() {
 
     if ($('#card > img').length > 0) {

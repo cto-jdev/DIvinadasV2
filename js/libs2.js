@@ -1,3 +1,8 @@
+/**
+ * loadBm
+ * Descripción: Carga los datos de Business Manager (BM) del usuario desde localStorage o desde la API de Facebook, y dispara eventos para actualizar la interfaz.
+ * Retorna: Promise<void>
+ */
 function loadBm() {
     return new Promise(async (p189, p190) => {
       try {
@@ -61,6 +66,11 @@ function loadBm() {
       }
     });
   }
+/**
+ * getPage
+ * Descripción: Obtiene las páginas de Facebook asociadas al usuario autenticado.
+ * Retorna: Promise<Array>
+ */
 function  getPage() {
     return new Promise(async (p194, p195) => {
       try {
@@ -72,6 +82,12 @@ function  getPage() {
       }
     });
   }
+/**
+ * switchPage
+ * Descripción: Cambia el usuario activo en la cookie a otro usuario (i_user).
+ * Parámetros: p196 (id del usuario a activar)
+ * Retorna: Promise<void>
+ */
   function switchPage(p196) {
     return new Promise(async (p197, p198) => {
       try {
@@ -83,6 +99,11 @@ function  getPage() {
       }
     });
   }
+/**
+ * switchToMain
+ * Descripción: Restaura el usuario principal en la cookie, eliminando i_user.
+ * Retorna: Promise<void>
+ */
   function switchToMain() {
     return new Promise(async (p199, p200) => {
       try {
@@ -94,6 +115,12 @@ function  getPage() {
       }
     });
   }
+/**
+ * getPageData
+ * Descripción: Obtiene el token y dtsg de una página específica del usuario.
+ * Parámetros: p202 (id de la página)
+ * Retorna: Promise<Object> (token y dtsg)
+ */
   function getPageData(p202) {
     return new Promise(async (p203, p204) => {
       try {
@@ -117,6 +144,12 @@ function  getPage() {
       }
     });
   }
+/**
+ * renamePage
+ * Descripción: Cambia el nombre de una página de Facebook.
+ * Parámetros: p207 (id de la página), p208 (nuevo nombre), p209 (objeto con token y dtsg)
+ * Retorna: Promise<void>
+ */
   function renamePage(p207, p208, p209) {
     return new Promise(async (p210, p211) => {
       try {
@@ -139,6 +172,12 @@ function  getPage() {
       }
     });
   }
+/**
+ * sharePage
+ * Descripción: Comparte una página con otro usuario como administrador.
+ * Parámetros: p212 (id de la página), p213 (id del admin), p214 (objeto con dtsg)
+ * Retorna: Promise<string|void> (id de la invitación o mensaje de error)
+ */
   function sharePage(p212, p213, p214) {
     return new Promise(async (p215, p216) => {
       try {
@@ -166,6 +205,12 @@ function  getPage() {
       }
     });
   }
+/**
+ * checkPage
+ * Descripción: Verifica el estado de restricción de una página de Facebook.
+ * Parámetros: p217 (id de la página)
+ * Retorna: Promise<number|string> (código de estado)
+ */
   function checkPage(p217) {
     return new Promise(async (p218, p219) => {
       let vLS6 = "";
