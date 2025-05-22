@@ -8,13 +8,6 @@ $(document).ready(async function() {
     const cookie = await getCookie()
     const manualToken = await getLocalStorage('manualAccessToken')
     const accessToken = manualToken || await getLocalStorage('accessToken')
-    const license = $('input[name="license"]').val()
-    const key = await getKey()
-
-    if (!license && key) {
-
-        $('input[name="license"]').val(key)
-    }
 
     $('#cookie').val(cookie)
     $('#accessToken').val(accessToken)

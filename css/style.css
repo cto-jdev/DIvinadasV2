@@ -38,7 +38,7 @@ body {
 
 #app {
     padding: 45px 10px 10px 10px;
-    background-image: linear-gradient(100deg, #10a8a8 0%, #0ae2d3 100%);
+    background-image: linear-gradient(100deg, #013b3b 0%, #03524c 100%);
 }
 
 [class*=ag-theme-] {

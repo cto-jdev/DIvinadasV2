@@ -819,7 +819,7 @@ function delayTime(p5) {
                 headers: {
                   "content-type": "application/x-www-form-urlencoded"
                 },
-                body: "av=" + this.uid + "&__usid=6-Tsp5238al5avw%3APsp523617ulfhv%3A0-Asp51sr4mptu7-RV%3D6%3AF%3D&__aaid=0&__bid=" + p109 + "&__user=" + this.uid + "&__a=1&__req=25&__hs=20084.BP%3Abrands_pkg.2.0.0.0.0&dpr=1&__ccg=GOOD&__rev=1019084625&__s=bh7b95%3A72s3d7%3Ayv2miq&__hsi=7452967898814735127&__dyn=7xeUmxa2C5rgydwCwRyUbFp4Unxim2q1DxuqErxqqawgErxebzA3miidBxa7EiwnovzES2S2q1Ex21FxG9y8Gdz8hw9-3a4EuCwQwCxq0yFE4WqbwLjzobUyEpg9BDwRyXxK260BojxiUa8lwWwBwXwEw-G2mcwuEnw8ScwgECu7E422a3Fe6rwnVUao9k2B0q8doa84K5E6a6S6UgyHwyx6i2GU8U-UvzE4S4EOq4VEhwwwj84-i6UjzUS1qxa1ozFUK1gzo8EfEO32fxiEf8bGwgUy1CyUix6fwLCyKbwzweau0Jo6-4e1mAK2q1bzFHwCxu6o9U4S7ErwAwEg5Ku0hi1TwmUaEeE5K227o&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25388&lsd=tD-h8jfAcIJCp9QTA2mzVt&__spin_r=1019084625&__spin_b=trunk&__spin_t=1735279313&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometFacebookIXTNextMutation&variables=%7B%22input%22%3A%7B%22advertiser_authenticity_enter_email_code%22%3A%7B%22check_id%22%3Anull%2C%22code%22%3A%22" + v111 + "%22%2C%22serialized_state%22%3A%22" + v110 + "%22%7D%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22client_mutation_id%22%3A%223%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=8680151995437244",
+                body: "av=" + this.uid + "&__usid=6-Tsp5238al5avw%3APsp523617ulfhv%3A0-Asp51sr4mptu7-RV%3D6%3AF%3D&__aaid=0&__bid=" + p109 + "&__user=" + this.uid + "&__a=1&__req=25&__hs=20084.BP%3Abrands_pkg.2.0.0.0.0&dpr=1&__ccg=GOOD&__rev=1019084625&__s=bh7b95%3A72s3d7%3Ayv2miq&__hsi=7452967898814735127&__dyn=7xeUmxa2C5rgydwCwRyUbFp4Unxim2q1DxuqErxqqawgErxebzA3miidBxa7EiwnovzES2S2q1Ex21FxG9y8Gdz8hw9-3a4EuCwQwCxq0yFE4WqbwLjzobUyEpg9BDwRyXxK260BojxiUa8lwWwBwXwEw-G2mcwuEnw8ScwgECu7E422a3Fe6rwnVUao9k2B0q8doa84K5E6a6S6UgyHwyx6i8wxK2efK7UW1dxacCxeq4o884O1fAwLzUS2W2K4E5yeDyU52dCgqw-z8K2ifxiFVoa9obGwSz8y1kx6bCyVUCfwLCyKbwzweau1Hwio4m2C4e1mAK2q1bzFHwCwmo4S7ErwAwEwn82Dw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25388&lsd=tD-h8jfAcIJCp9QTA2mzVt&__spin_r=1019084625&__spin_b=trunk&__spin_t=1735279313&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometFacebookIXTNextMutation&variables=%7B%22input%22%3A%7B%22advertiser_authenticity_enter_email_code%22%3A%7B%22check_id%22%3Anull%2C%22code%22%3A%22" + v111 + "%22%2C%22serialized_state%22%3A%22" + v110 + "%22%7D%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22client_mutation_id%22%3A%223%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=8680151995437244",
                 method: "POST"
               });
               const v114 = v113.json.data.ixt_screen_next.view_model.serialized_state;
@@ -1210,7 +1210,7 @@ function delayTime(p5) {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "variables={\"paymentAccountID\":\"" + p161 + "\"}&doc_id=5746473718752934&__usid=6-Ts5btmh131oopb:Ps5bu98bb7oey:0-As5btmhrwegfg-RV=6:F=&__user=" + this.uid + "&__a=1&__req=s&__hs=19699.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010282616&__s=flj1ty:75294s:o83s9c&__hsi=7310049091311550655&__dyn=7xeUmxa3-Q5E9EdoK2abBAqwIBwCwgE98nCG6UtyEgwjojyUW3qiidBxa7GzU726US2Sfxq4U5i4824yoyaxG4o4B0l898885G0Eo9FE4Wqmm2Z17wJBGEpiwzlBwgrxK261UxO4VA48a8lwWxe4oeUa85vzo2vw9G12x67EK3i1uK6o6fBwFwBgak48W2e2i11grzUeUmwvC6UgzE8EhAy88rwzzXwAyo98gxu5ogAzEowwwTxu1cwwwzzobEaUiwYxKexe5U4qp0au58Gm2W1Ez84e6ohxabDAAzawSyES2e0UFU6K19xq1ox3wlFbwCwiUWawCwNwDwr8rwMxO1sDx27o72&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25610&lsd=HExoeF2styyeq_LWWUo9db&__aaid=" + p161 + "&__spin_r=1010282616&__spin_b=trunk&__spin_t=1702003435&__jssesw=1"
+            body: "variables={\"paymentAccountID\":\"" + p161 + "\"}&doc_id=5746473718752934&__usid=6-Ts5btmh131oopb:Ps5bu98bb7oey:0-As5btmhrwegfg-RV=6:F=&__user=" + this.uid + "&__a=1&__req=s&__hs=19699.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010282616&__s=flj1ty:75294s:o83s9c&__hsi=7310049091311550655&__dyn=7xeUmxa3-Q5E9EdoK2abBAqwIBwCwgE98nCG6UtyEgwjojyUW3qiidBxa7GzU726US2Sfxq4U5i4824yoyaxG4o4B0l898885G0Eo9FE4Wqmm2Z17wJBGEpiwzlBwgrxK261UxO4VA48a8lwWxe4oeUa85vzo2vw9G12x67EK3i1uK6o6fBwFwBgak48W2e2i11grzUeUmwvC6UgzE8EhAy88rwzzXwAyo98gxu5ogAzEowwwTxu1cwwwzzobEaUiwYxKexe5U4qp0au58Gm2W1Ez84e6ohxabDAAzawSyES2e0UFU6K19xq1ox3wlFbwCwiUWawCwNwDwr8rwMxO1sDx27o721Qw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25610&lsd=HExoeF2styyeq_LWWUo9db&__aaid=" + p161 + "&__spin_r=1010282616&__spin_b=trunk&__spin_t=1702003435&__jssesw=1"
           });
           const v160 = v159.json;
           vA11 = v160.data?.billable_account_by_payment_account?.billing_payment_account?.billing_payment_methods;
@@ -1263,7 +1263,7 @@ function delayTime(p5) {
               headers: {
                 "content-type": "application/x-www-form-urlencoded"
               },
-              body: "av=" + v161 + "&payment_dev_cycle=prod&__usid=6-Ts5nduusqru6%3APs5nduu1s4ryxb%3A0-As5nduuzgap66-RV%3D6%3AF%3D&__user=" + v161 + "&__a=1&__req=1o&__hs=19705.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010413747&__s=a9ss2l%3Aptab0y%3Ae2tqc1&__hsi=7312362442079618026&__dyn=7xeUmxa3-Q5E9EdoK2abBAqwIBwCwgE98nCG6UtyEgwjojyUW3qiidBxa7GzU726US2Sfxq4U5i4824yoyaxG4o4B0l898885G0Eo9FE4Wqmm2Z17wJBGEpiwzlBwgrxKaxq1UxO4VA48a8lwWxe4oeUa85vzo2vw9G12x67EK3i1uK6o6fBwFwBgak48W2e2i11grzUeUmwYwgm6UgzE8EhAy88rwzzXwAyo98gxu5ogAzEowwwTxu1cwwwzzobEaUiwYxKexe5U4qp0au58Gm2W1Ez84e6ohxabDAAzawSyES2e0UFU6K19xq1ox3wlFbwCwiUWawCwNwDwr8rwMxO1sDx27o72&fb_dtsg=" + v162 + "&jazoest=25289&lsd=WCAAksbHDq9ktWk0fRV9iq&__aaid=" + p164 + "&__spin_r=1010413747&__spin_b=trunk&__spin_t=1702542054&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useBillingAddCreditCardMutation&variables=%7B%22input%22%3A%7B%22billing_address%22%3A%7B%22country_code%22%3A%22VN%22%7D%2C%22billing_logging_data%22%3A%7B%22logging_counter%22%3A45%2C%22logging_id%22%3A%223760170890%22%7D%2C%22cardholder_name%22%3A%22" + encodeURIComponent(p165.cardName) + "%22%2C%22credit_card_first_6%22%3A%7B%22sensitive_string_value%22%3A%22" + v164 + "%22%7D%2C%22credit_card_last_4%22%3A%7B%22sensitive_string_value%22%3A%22" + v165 + "%22%7D%2C%22credit_card_number%22%3A%7B%22sensitive_string_value%22%3A%22" + v163 + "%22%7D%2C%22csc%22%3A%7B%22sensitive_string_value%22%3A%22" + p165.cardCsv + "%22%7D%2C%22expiry_month%22%3A%22" + vParseInt + "%22%2C%22expiry_year%22%3A%2220" + vParseInt2 + "%22%2C%22payment_account_id%22%3A%22" + p164 + "%22%2C%22payment_type%22%3A%22MOR_ADS_INVOICE%22%2C%22unified_payments_api%22%3Atrue%2C%22upl_logging_data%22%3A%7B%22context%22%3A%22billingcreditcard%22%2C%22target_name%22%3A%22useBillingAddCreditCardMutation%22%2C%22user_session_id%22%3A%22upl_1702542056078_4b48c676-8dff-447d-8576-be8eace3fa70%22%2C%22wizard_session_id%22%3A%22upl_wizard_1702542056078_63cbaee3-ff87-45c3-8093-96bbd0331e68%22%7D%2C%22actor_id%22%3A%22" + v161 + "%22%2C%22client_mutation_id%22%3A%227%22%7D%7D&server_timestamps=true&doc_id=7203358526347017",
+              body: "av=" + v161 + "&payment_dev_cycle=prod&__usid=6-Ts5nduusqru6%3APs5nduu1s4ryxb%3A0-As5nduuzgap66-RV%3D6%3AF%3D&__user=" + v161 + "&__a=1&__req=1o&__hs=19705.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010413747&__s=a9ss2l%3Aptab0y%3Ae2tqc1&__hsi=7312362442079618026&__dyn=7xeUmxa3-Q5E9EdoK2abBAqwIBwCwgE98nCG6UtyEgwjojyUW3qiidBxa7GzU726US2Sfxq4U5i4824yoyaxG4o4B0l898885G0Eo9FE4Wqmm2Z17wJBGEpiwzlBwgrxKaxq1UxO4VA48a8lwWxe4oeUa85vzo2vw9G12x67EK3i1uK6o6fBwFwBgak48W2e2i11grzUeUmwYwgm6UgzE8EhAy88rwzzXwAyo98gxu5ogAzEowwwTxu1cwwwzzobEaUiwYxKexe5U4qp0au58Gm2W1Ez84e6ohxabDAAzawSyES2e0UFU6K19xq1ox3wlFbwCwiUWawCwNwDwr8rwMxO1sDx27o721Qw&fb_dtsg=" + v162 + "&jazoest=25289&lsd=WCAAksbHDq9ktWk0fRV9iq&__aaid=" + p164 + "&__spin_r=1010413747&__spin_b=trunk&__spin_t=1702542054&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useBillingAddCreditCardMutation&variables=%7B%22input%22%3A%7B%22billing_address%22%3A%7B%22country_code%22%3A%22VN%22%7D%2C%22billing_logging_data%22%3A%7B%22logging_counter%22%3A45%2C%22logging_id%22%3A%223760170890%22%7D%2C%22cardholder_name%22%3A%22" + encodeURIComponent(p165.cardName) + "%22%2C%22credit_card_first_6%22%3A%7B%22sensitive_string_value%22%3A%22" + v164 + "%22%7D%2C%22credit_card_last_4%22%3A%7B%22sensitive_string_value%22%3A%22" + v165 + "%22%7D%2C%22credit_card_number%22%3A%7B%22sensitive_string_value%22%3A%22" + v163 + "%22%7D%2C%22csc%22%3A%7B%22sensitive_string_value%22%3A%22" + p165.cardCsv + "%22%7D%2C%22expiry_month%22%3A%22" + vParseInt + "%22%2C%22expiry_year%22%3A%2220" + vParseInt2 + "%22%2C%22payment_account_id%22%3A%22" + p164 + "%22%2C%22payment_type%22%3A%22MOR_ADS_INVOICE%22%2C%22unified_payments_api%22%3Atrue%2C%22upl_logging_data%22%3A%7B%22context%22%3A%22billingcreditcard%22%2C%22target_name%22%3A%22useBillingAddCreditCardMutation%22%2C%22user_session_id%22%3A%22upl_1702542056078_4b48c676-8dff-447d-8576-be8eace3fa70%22%2C%22wizard_session_id%22%3A%22upl_wizard_1702542056078_63cbaee3-ff87-45c3-8093-96bbd0331e68%22%7D%2C%22actor_id%22%3A%22" + v161 + "%22%2C%22client_mutation_id%22%3A%227%22%7D%7D&server_timestamps=true&doc_id=7203358526347017",
               method: "POST"
             });
           }
@@ -1272,7 +1272,7 @@ function delayTime(p5) {
               headers: {
                 "content-type": "application/x-www-form-urlencoded"
               },
-              body: "av=" + v161 + "&payment_dev_cycle=prod&__usid=6-Ts5nebgytlglm%3APs5ned212v0lbj%3A0-As5nebgnh3ghe-RV%3D6%3AF%3D&__user=" + v161 + "&__a=1&__req=1d&__hs=19705.BP%3Aads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1010413747&__s=338clt%3Ahvf4zf%3Afrhk6f&__hsi=7312365256460775839&__dyn=7AgSXgWGgWEjgDBxmSudgf64ECbxGuml4AqxuUgBwCwXCwABzGCGq5axeqaScCCG225pojACjyocuF98SmqnK7GzUuwDxq4EOezoK26UKbC-mdwTxOESegGbwgEmK9y8Gdz8hyUuxqt1eiUO4EgCyku4oS4EWfGUhwyg9p44889EScxyu6UGq13yHGmmUTxJe9LgbeWG9DDl0zlBwyzp8KUV0JyU6O78qgOVp8W9AylmnyUb8jz98eUS48C11xny-cyo725UiGm1ixWcgsxN6ypVoKcyV8W22m78eF8pK3m2DBCG4UK4EigK7oOiewzxG8gdoJ3byEZ0Wx6i2Sq7oV1JyEgx2aK48OimbAy8tKU-4U-UG7F8a898O4FEjCx6EO489UW5ohwZAxK4U-dwKUjyEG4E949BGUryrhUK5Ue8Sp1G3WaUjxy-dxiFAm9KcyrBwGLg-2qcy9oCagixi48hyVEKu9DAG228BCyKqi2e4EdomyE6-uvAxO17wgVoK3Cd868g-cwNxaHgaEeU-eC-5u8BwNU9oboS4ouK5Qq78ohXF3U8pE8FUlxuiueyK5okyEC8wVw&__comet_req=25&fb_dtsg=" + v162 + "&jazoest=25466&lsd=V93_40ILei7NAmQfSh_tls&__aaid=" + item.ad + "&__spin_r=1010413747&__spin_b=trunk&__spin_t=1702542709&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useBillingAddCreditCardMutation&variables=%7B%22input%22%3A%7B%22billing_address%22%3A%7B%22country_code%22%3A%22VN%22%7D%2C%22billing_logging_data%22%3A%7B%22logging_counter%22%3A41%2C%22logging_id%22%3A%223115641264%22%7D%2C%22cardholder_name%22%3A%22" + encodeURIComponent(p165.cardName) + "%22%2C%22credit_card_first_6%22%3A%7B%22sensitive_string_value%22%3A%22" + v164 + "%22%7D%2C%22credit_card_last_4%22%3A%7B%22sensitive_string_value%22%3A%22" + v165 + "%22%7D%2C%22credit_card_number%22%3A%7B%22sensitive_string_value%22%3A%22" + v163 + "%22%7D%2C%22csc%22%3A%7B%22sensitive_string_value%22%3A%22" + p165.cardCsv + "%22%7D%2C%22expiry_month%22%3A%22" + vParseInt + "%22%2C%22expiry_year%22%3A%2220" + vParseInt2 + "%22%2C%22payment_account_id%22%3A%22" + p164 + "%22%2C%22payment_type%22%3A%22MOR_ADS_INVOICE%22%2C%22unified_payments_api%22%3Atrue%2C%22upl_logging_data%22%3A%7B%22context%22%3A%22billingcreditcard%22%2C%22target_name%22%3A%22useBillingAddCreditCardMutation%22%2C%22user_session_id%22%3A%22upl_1702542711187_368e9941-43bc-4e54-8a9a-78e0e48980fd%22%2C%22wizard_session_id%22%3A%22upl_wizard_1702542711187_088ec65b-5388-4d82-8e28-12533de0fff5%22%7D%2C%22actor_id%22%3A%22" + v161 + "%22%2C%22client_mutation_id%22%3A%228%22%7D%7D&server_timestamps=true&doc_id=7203358526347017",
+              body: "av=" + v161 + "&payment_dev_cycle=prod&__usid=6-Ts5nebgytlglm%3APs5ned212v0lbj%3A0-As5nebgnh3ghe-RV%3D6%3AF%3D&__user=" + v161 + "&__a=1&__req=1d&__hs=19705.BP%3Aads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1010413747&__s=338clt%3Ahvf4zf%3Afrhk6f&__hsi=7312365256460775839&__dyn=7AgSXgWGgWEjgDBxmSudgf64ECbxGuml4AqxuUgBwCwXCwABzGCGq5axeqaScCCG225pojACjyocuF98SmqnK7GzUuwDxq4EOezoK26UKbC-mdwTxOESegGbwgEmK9y8Gdz8hyUuxqt1eiUO4EgCyku4oS4EWfGUhwyg9p44889EScxyu6UGq13yHGmmUTxJe9LgbeWG9DDl0zlBwyzp8KUV2U8oK1IxO4VAcKmieyp8BlBUK2O4UOi3Kdx29wgojKbUO1Wxu4GBwkEuz478shECumbz8KiewwBK68eF8pK1vDyojyUix92UtgKi3a6Ex0RyQcKazQ3G5EbpEtzA6Sax248GUgz98hAy8kybKfxefKaxWi2y2i7VEjCx6EO489UW5ohwZAxK4U-dwMxeayEiwAgCmq6UCQubxu3ydDxG8wRyK4UoLzokGp5yrz8C9wGLg-9wFy9oCagixi48hyUix6cG228BCyKbwzxa10yUG1LDDV8sw8KmbwVzi1y4fz8coiGQU9EeVVUWrUlUym5UpU9oeUhxWUnposxx7KAfwxCwyDxm5V9UWaV-bxhem9xq2K9AwHxq5kiV89bx5e8wAAAVQEhyeucyEy68WaJ129ho&__comet_req=25&fb_dtsg=" + v162 + "&jazoest=25466&lsd=V93_40ILei7NAmQfSh_tls&__aaid=" + item.ad + "&__spin_r=1010413747&__spin_b=trunk&__spin_t=1702542709&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useBillingAddCreditCardMutation&variables=%7B%22input%22%3A%7B%22billing_address%22%3A%7B%22country_code%22%3A%22VN%22%7D%2C%22billing_logging_data%22%3A%7B%22logging_counter%22%3A41%2C%22logging_id%22%3A%223115641264%22%7D%2C%22cardholder_name%22%3A%22" + encodeURIComponent(p165.cardName) + "%22%2C%22credit_card_first_6%22%3A%7B%22sensitive_string_value%22%3A%22" + v164 + "%22%7D%2C%22credit_card_last_4%22%3A%7B%22sensitive_string_value%22%3A%22" + v165 + "%22%7D%2C%22credit_card_number%22%3A%7B%22sensitive_string_value%22%3A%22" + v163 + "%22%7D%2C%22csc%22%3A%7B%22sensitive_string_value%22%3A%22" + p165.cardCsv + "%22%7D%2C%22expiry_month%22%3A%22" + vParseInt + "%22%2C%22expiry_year%22%3A%2220" + vParseInt2 + "%22%2C%22payment_account_id%22%3A%22" + p164 + "%22%2C%22payment_type%22%3A%22MOR_ADS_INVOICE%22%2C%22unified_payments_api%22%3Atrue%2C%22upl_logging_data%22%3A%7B%22context%22%3A%22billingcreditcard%22%2C%22target_name%22%3A%22useBillingAddCreditCardMutation%22%2C%22user_session_id%22%3A%22upl_1702542711187_368e9941-43bc-4e54-8a9a-78e0e48980fd%22%2C%22wizard_session_id%22%3A%22upl_wizard_1702542711187_088ec65b-5388-4d82-8e28-12533de0fff5%22%7D%2C%22actor_id%22%3A%22" + v161 + "%22%2C%22client_mutation_id%22%3A%228%22%7D%7D&server_timestamps=true&doc_id=7203358526347017",
               method: "POST"
             });
           }
@@ -1368,7 +1368,7 @@ function delayTime(p5) {
                       headers: {
                         "content-type": "application/x-www-form-urlencoded"
                       },
-                      body: "av=" + this.uid + "&__usid=6-Tse1ovt1j8u6wd%3APse1oxj1m4rr33%3A0-Ase1ovtochuga-RV%3D6%3AF%3D&session_id=144e97c8e5fc4969&__aaid=" + p183 + "&__bid=" + p184 + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19868.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1013767953&__s=qxxa8s%3Ax39hkh%3Apw4cw7&__hsi=7372940659475198570&__dyn=7xeUmxa2C5rgydwn8K2abBAjxu59o9E6u5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hw9yq3a4EuCwQwCxq1zwCCwjFFpobQUTwJBGEpiwzlwXyXwZwu8sxF3bwExm3G4UhwXxW9wgo9oO1Wxu0zoO12ypUuwg88EeAUpK19xmu2C2l0Fz98W2e2i3mbgrzUiwExq1yxJUpx2awCx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyUhzawLCyKbwzweau0Jo6-1FAyo884KeCK2q362u1dxW6U98a85Ou0DU7i1TwUw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25134&lsd=nZD2aEOcch1tFKEE4sGoAT&__spin_r=1013767953&__spin_b=trunk&__spin_t=1716646518&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetViewQuery&variables=%7B%22assetOwnerId%22%3A%223365254127037950%22%2C%22assetId%22%3A%22" + p183 + "%22%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=6875615999208668",
+                      body: "av=" + this.uid + "&__usid=6-Tse1ovt1j8u6wd%3APse1oxj1m4rr33%3A0-Ase1ovtochuga-RV%3D6%3AF%3D&session_id=144e97c8e5fc4969&__aaid=" + p183 + "&__bid=" + p184 + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19868.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1013767953&__s=qxxa8s%3Ax39hkh%3Apw4cw7&__hsi=7372940659475198570&__dyn=7xeUmxa2C5rgydwn8K2abBAjxu59o9E6u5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hw9yq3a4EuCwQwCxq1zwCCwjFFpobQUTwJBGEpiwzlwXyXwZwu8sxF3bwExm3G4UhwXxW9wgo9oO1Wxu0zoO12ypUuwg88EeAUpK19xmu2C2l0Fz98W2e2i3mbgrzUiwExq1yxJUpx2awCx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e18w9Cu0Jo6-4e1mAyo884KeCK2q362u1dxW6U98a85Ou0DU7i1TwUw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25134&lsd=nZD2aEOcch1tFKEE4sGoAT&__spin_r=1013767953&__spin_b=trunk&__spin_t=1716646518&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetViewQuery&variables=%7B%22assetOwnerId%22%3A%223365254127037950%22%2C%22assetId%22%3A%22" + p183 + "%22%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=6875615999208668",
                       method: "POST"
                     });
                     const v180 = v179.json;
@@ -1477,13 +1477,18 @@ function delayTime(p5) {
         });
     }
     getPage() {
-        return new Promise(async (p194, p195) => {
+        return new Promise(async (resolve, reject) => {
             try {
-                const v189 = await fetch2("https://graph.facebook.com/me/accounts?type=page&fields=id,additional_profile_id,birthday,name,likes,followers_count,is_published,page_created_time,business,perms&access_token=" + this.accessToken);
-                const v190 = v189.json.data;
-                p194(v190);
-            } catch {
-                p195();
+                const response = await fetch2("https://graph.facebook.com/me/accounts?type=page&fields=id,additional_profile_id,birthday,name,likes,followers_count,is_published,page_created_time,business,perms&access_token=" + this.accessToken);
+                // Validar que la respuesta sea JSON y tenga el campo data
+                if (response && response.json && Array.isArray(response.json.data)) {
+                    resolve(response.json.data);
+                } else {
+                    // Si la respuesta no es válida, rechazar con mensaje claro
+                    reject("No se pudo obtener las páginas de Facebook. Es posible que la sesión haya expirado, el token sea inválido o Facebook devolvió un error inesperado. Intenta recargar o volver a iniciar sesión.");
+                }
+            } catch (e) {
+                reject("Error de red o de autenticación al obtener las páginas: " + (e && e.message ? e.message : e));
             }
         });
     }
@@ -1589,7 +1594,7 @@ function delayTime(p5) {
                     headers: {
                         "content-type": "application/x-www-form-urlencoded"
                     },
-                    body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19552.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1007841040&__s=779bk7%3Adtflwd%3Al2ozr1&__hsi=7255550840262710485&__dyn=7xeUmxa2C5rgydwn8K2abBWqxu59o9E4a2i5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hwgo5qq3a4EuCwQwCxq1zwCCwjFFpobQUTwJHiG6kE8RoeUKUfo7y78qgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2C4oW2e2i3mbxOfxa2y5E5WUru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyUhzawLCyKbwzweau0Jo6-1FAyo884KeCK2q362u1dxW6U98a85Ou0DU7i1TwUw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25578&lsd=pdtuMMg6hmB03Ocb2TuVkx&__spin_r=1007841040&__spin_b=trunk&__spin_t=1689314572&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetViewV2Query&variables=%7B%22assetOwnerId%22%3A%22" + this.uid + "%22%2C%22assetId%22%3A%22" + p217 + "%22%7D&server_timestamps=true&doc_id=6228297077225495",
+                    body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19552.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1007841040&__s=779bk7%3Adtflwd%3Al2ozr1&__hsi=7255550840262710485&__dyn=7xeUmxa2C5rgydwn8K2abBWqxu59o9E4a2i5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hwgo5qq3a4EuCwQwCxq1zwCCwjFFpobQUTwJHiG6kE8RoeUKUfo7y78qgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2C4oW2e2i3mbxOfxa2y5E5WUru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e18w9Cu0Jo6-4e1mAyo884KeCK2q362u1dxW6U98a85Ou0DU7i1TwUw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25578&lsd=pdtuMMg6hmB03Ocb2TuVkx&__spin_r=1007841040&__spin_b=trunk&__spin_t=1689314572&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetViewV2Query&variables=%7B%22assetOwnerId%22%3A%22" + this.uid + "%22%2C%22assetId%22%3A%22" + p217 + "%22%7D&server_timestamps=true&doc_id=6228297077225495",
                     method: "POST"
                 });
                 const v206 = v205.json;
@@ -1655,6 +1660,187 @@ function delayTime(p5) {
           p285();
         }
       });
+    }
+    // Método restaurado de la versión OLD para calidad de cuenta
+    getAccountQuality() {
+      return new Promise(async (p228, p229) => {
+        try {
+          const v276 = await fetch2("https://www.facebook.com/api/graphql/?_flowletID=1&_triggerFlowletID=2", {
+            headers: {
+              "content-type": "application/x-www-form-urlencoded"
+            },
+            body: "av=" + this.uid + "&__usid=6-Tsas5n6h0it5h%3APsas5n4jqrxdy%3A0-Asas5ms1bzoc6y-RV%3D6%3AF%3D&session_id=2791d1615dda0cb8&__aaid=0&__user=" + this.uid + "&__a=1&__req=1&__hs=19805.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1012251909&__s=p9dz00%3A3ya0mx%3Aafup89&__hsi=7349388123137635674&__dyn=7xeUmxa2C5rgydwn8K2abBAjxu59o9E6u5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hw9yq3a4EuCwQwCxq1zwCCwjFFpobQUTwJBGEpiwzlwXyXwZwu8sxF3bwExm3G4UhwXxW9wgo9oO1Wxu0zoO12ypUuwg88EeAUpK19xmu2C2l0Fx6ewzwAwRyQ6U-4Ea8mwoEru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e18w9Cu0Jo6-4e1mAyo884KeCK2q362u1dxW6U98a85Ou0DU7i1TwUw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25334&lsd=" + this.lsd + "&__spin_r=1012251909&__spin_b=trunk&__spin_t=1711162767&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetOwnerViewQuery&variables=%7B%22assetOwnerId%22%3A%22" + this.uid + "%22%7D&server_timestamps=true&doc_id=7327539680662016",
+            method: "POST"
+          });
+          const v277 = await v276.json;
+          if (!v277.errors) {
+            let v278 = "N/A";
+            let v279 = "";
+            const v280 = v277.data.assetOwnerData.advertising_restriction_info.is_restricted;
+            const v281 = v277.data.assetOwnerData.advertising_restriction_info.status;
+            const v282 = v277.data.assetOwnerData.advertising_restriction_info.restriction_type;
+            if (!v280) {
+              if (v282 == "PREHARM" && v281 == "APPEAL_ACCEPTED") {
+                v278 = "Verificación Azul VeryID";
+                v279 = "success";
+              }
+              if (v282 == "ALE" && v281 == "APPEAL_ACCEPTED") {
+                v278 = "Verificación Azul 902";
+                v279 = "success";
+              }
+              if (v281 == "NOT_RESTRICTED") {
+                v278 = "Anuncios en Vivo - Sin Problemas";
+                v279 = "success";
+              }
+              if (v282 == "ADS_ACTOR_SCRIPTING") {
+                v278 = "Verificación azul VeryID oculta";
+                v279 = "success";
+              }
+              if (v281 == "NOT_RESTRICTED" && v282 == "BUSINESS_INTEGRITY") {
+                v278 = "Verificación azul 902 oculta";
+                v279 = "success";
+              }
+            } else {
+              if (v281 == "VANILLA_RESTRICTED" && v282 == "BUSINESS_INTEGRITY") {
+                v278 = "HCQC 902 VeryID";
+                v279 = "danger";
+              }
+              if (v281 == "APPEAL_INCOMPLETE" && v282 == "BUSINESS_INTEGRITY") {
+                v278 = "VeryID 902 INCOMPLETO";
+                v279 = "danger";
+              }
+              if (v281 == "APPEAL_PENDING" && v282 == "BUSINESS_INTEGRITY") {
+                v278 = "Apelación 902 en Proceso";
+                v279 = "danger";
+              }
+              if (v281 == "APPEAL_REJECTED" && v282 == "BUSINESS_INTEGRITY") {
+                v278 = "HCQC 902 fallido - Reintentar VeryID 273";
+                v279 = "danger";
+              }
+              if (v280 && v282 == "PREHARM") {
+                if (v281 == "VANILLA_RESTRICTED") {
+                  v278 = "Restricción de Anuncios";
+                  v279 = "danger";
+                }
+                if (v281 == "APPEAL_PENDING") {
+                  v278 = "Apelación VeryID en Proceso";
+                  v279 = "danger";
+                }
+                if (v281 == "APPEAL_INCOMPLETE") {
+                  v278 = "VeryID Incompleto";
+                  v279 = "danger";
+                }
+                if (v281 == "APPEAL_REJECTED_NO_RETRY" || v281 == "APPEAL_TIMEOUT" || v281 == "APPEAL_TIMEOUT") {
+                  v278 = "VeryID Fallido - Reintentar VeryID 273";
+                  v279 = "danger";
+                }
+              }
+              if (v280 && v282 == "ALE") {
+                if (v281 == "APPEAL_PENDING") {
+                  v278 = "Apelación 902 en Proceso";
+                  v279 = "warning";
+                }
+                if (v281 == "APPEAL_REJECTED_NO_RETRY") {
+                  v278 = "HCQC Permanente";
+                  v279 = "danger";
+                }
+                const v283 = v277.data.assetOwnerData.advertising_restriction_info.additional_parameters.ufac_state;
+                const v284 = v277.data.assetOwnerData.advertising_restriction_info.additional_parameters.appeal_friction;
+                const v285 = v277.data.assetOwnerData.advertising_restriction_info.additional_parameters.appeal_ineligibility_reason;
+                if (v281 == "VANILLA_RESTRICTED" && v283 == "FAILED" || v281 == "VANILLA_RESTRICTED" && v283 == "TIMEOUT") {
+                  v278 = "HCQC 902 fallido - Reintentar VeryID 273";
+                  v279 = "danger";
+                }
+                if (v281 == "VANILLA_RESTRICTED" && v283 == null && v284 == "UFAC") {
+                  v278 = "HCQC 902 VeryID";
+                  v279 = "danger";
+                }
+                if (v281 == "VANILLA_RESTRICTED" && v283 == null && v284 == null && v285 == "ENTITY_APPEAL_LIMIT_REACHED") {
+                  v278 = "HCQC 902 fallido - Reintentar VeryID 273";
+                  v279 = "danger";
+                } else {
+                  if (v281 == "VANILLA_RESTRICTED" && v283 == null && v284 == null) {
+                    v278 = "HCQC 902 Seleccionar Línea";
+                    v279 = "danger";
+                  }
+                  if (v281 == "VANILLA_RESTRICTED" && v283 == "SUCCESS" && v284 == null) {
+                    v278 = "HCQC 902 Seleccionar Línea";
+                    v279 = "danger";
+                  }
+                }
+              }
+              if (v280 && v282 == "ACE" || v282 === "GENERIC") {
+                v278 = "VeryID Fallido - Reintentar VeryID 273";
+                v279 = "danger";
+              }
+              if (v280 && v282 == "RISK_REVIEW" || v282 === "RISK_REVIEW_EMAIL_VERIFICATION") {
+                v278 = "VeryID Punto de Control";
+                v279 = "danger";
+              }
+              if (v282 == "ADS_ACTOR_SCRIPTING") {
+                if (v281 == "APPEAL_REJECTED") {
+                  v278 = "VeryID Fallido - Reintentar VeryID 273";
+                  v279 = "danger";
+                } else if (v281 == "APPEAL_PENDING") {
+                  v278 = "Apelación VeryID en Proceso";
+                  v279 = "warning";
+                } else if (v281 == "APPEAL_ACCEPTED") {
+                  v278 = "Verificación Azul 902";
+                  v279 = "success";
+                } else if (v281 == "APPEAL_INCOMPLETE") {
+                  v278 = "VeryID Incompleto";
+                  v279 = "danger";
+                } else {
+                  v278 = "Restricción de Anuncios";
+                  v279 = "danger";
+                }
+              }
+            }
+            const v286 = {
+              status: v278,
+              color: v279
+            };
+            p228(v286);
+          } else {
+            p229(v277.errors[0].summary);
+          }
+        } catch (_0xa74635) {
+          p229(_0xa74635);
+        }
+      });
+    }
+    loadPage() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const localData = JSON.parse(localStorage.getItem("dataPage")) || [];
+                if (localData.length > 0) {
+                    $(document).trigger("loadSavedPage", [localData]);
+                    resolve();
+                } else {
+                    const pages = await this.getPage();
+                    $(document).trigger("loadPageSuccess", [pages]);
+                    // Actualizar el estado de cada página (status)
+                    const updateStatus = (page) => {
+                        return new Promise(async (res) => {
+                            try {
+                                const status = await this.checkPage(page.id);
+                                const statusObj = { id: page.id, status };
+                                $(document).trigger("updatePageStatus", [statusObj]);
+                            } catch {}
+                            res();
+                        });
+                    };
+                    const promises = [];
+                    for (let i = 0; i < pages.length; i++) {
+                        promises.push(updateStatus(pages[i]));
+                    }
+                    await Promise.all(promises);
+                    resolve();
+                }
+            } catch (e) {
+                reject(e);
+            }
+        });
     }
 } // Cierro la clase FB correctamente
 window.fb = new FB();

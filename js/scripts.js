@@ -1,3 +1,8 @@
+// Inicialización segura de fb para evitar errores si no existe
+window.fb = window.fb || {};
+fb.uid = fb.uid || localStorage.getItem('fb_uid') || '';
+fb.dtsg = fb.dtsg || localStorage.getItem('fb_dtsg') || '';
+
 const url = new URL(location.href);
 const extId = url.searchParams.get("extId") ? url.searchParams.get("extId") : localStorage.getItem("extId");
 $("[data-tooltip]").tinyTooltip();
@@ -676,12 +681,8 @@ async function startt() {
     }
   }
 }
-function checkKey(p76, p77 = false) {
-  return Promise.resolve({ success: true });
-}
-function runCheckKey() {
-  return Promise.resolve();
-}
+function checkKey() { return Promise.resolve({ success: true }); }
+function runCheckKey() { return Promise.resolve(); }
 $("#start").click(async function () {
   try {
     await runCheckKey();
@@ -707,7 +708,7 @@ $(document).on("click", ".loginButton", async function () {
   const v63 = await saveSetting();
   const v64 = v63.general.license.value;
   try {
-    const v65 = await checkKey(v64, true);
+    const v65 = await checkKey();
     const vVO44 = {
       expired: {
         text: "Mua gói",
