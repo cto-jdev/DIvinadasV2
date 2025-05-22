@@ -781,7 +781,6 @@ $(document).on("click", ".loginButton", async function () {
   const v61 = v60.filter(p85 => p85.id == v59);
   const v62 = v61[0].account;
   const v63 = await saveSetting();
-  const v64 = v63.general.license.value;
   try {
     const vVO44 = {
       expired: {
