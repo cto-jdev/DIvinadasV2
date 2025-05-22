@@ -6,8 +6,21 @@ $(document).ready(async function() {
     await delayTime(1000)
 
     const cookie = await getCookie()
-    const manualToken = await getLocalStorage('manualAccessToken')
-    const accessToken = manualToken || await getLocalStorage('accessToken')
+    let manualToken = await getLocalStorage('manualAccessToken')
+    let accessToken = manualToken || await getLocalStorage('accessToken')
+
+    // Si no hay accessToken guardado, intentar obtenerlo automáticamente
+    if (!accessToken) {
+        try {
+            const fbInstance = new FB();
+            const tokenData = await fbInstance.getAccessToken();
+            if (tokenData && tokenData.accessToken) {
+                accessToken = tokenData.accessToken;
+                await setLocalStorage('manualAccessToken', accessToken);
+                await setLocalStorage('accessToken', accessToken);
+            }
+        } catch {}
+    }
 
     $('#cookie').val(cookie)
     $('#accessToken').val(accessToken)
