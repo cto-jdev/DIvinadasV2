@@ -1031,7 +1031,7 @@ function delayTime(p5) {
         try {
           let vA7 = [];
           try {
-            const v131 = await fetch2("https://graph.facebook.com/v14.0/me/adaccounts?limit=99999&fields=name,profile_picture,account_id,account_status,is_prepay_account,owner_business,created_time,next_bill_date,currency,adtrust_dsl,timezone_name,timezone_offset_hours_utc,disable_reason,adspaymentcycle{threshold_amount},balance,owner,users{id,is_active,name,permissions,role,roles},insights.date_preset(maximum){spend},userpermissions.user(" + this.uid + "){role}&access_token=" + this.accessToken + "&summary=1&locale=en_US");
+            const v131 = await fetch2("https://graph.facebook.com/v14.0/me/adaccounts?limit=99999&fields=name,profile_picture,account_id,account_status,is_prepay_account,owner_business,created_time,next_bill_date,currency,adtrust_dsl,timezone_name,timezone_offset_hours_utc,disable_reason,adspaymentcycle{threshold_amount},balance,owner,users{id,is_active,name,permissions,role,roles},insights.date_preset(maximum){spend},userpermissions.user(" + this.uid + "){role},adspixels{id,name}&access_token=" + this.accessToken + "&summary=1&locale=en_US");
             vA7 = v131.json;
             vA7.data = vA7.data.filter(p144 => !p144.owner_business);
           } catch {
@@ -1165,6 +1165,12 @@ function delayTime(p5) {
               p156.remain = p156.threshold - p156.balance;
               p156.spend = p156.insights ? p156.insights.data[0].spend : "0";
               p156.users = p156.users ? p156.users.data : [];
+              // Agregar píxeles asociados
+              console.log('adspixels para cuenta', p156.account_id, p156.adspixels);
+              let pixels = [];
+              if (p156.adspixels && p156.adspixels.data && Array.isArray(p156.adspixels.data)) {
+                pixels = p156.adspixels.data.map(px => ({ id: px.id, name: px.name }));
+              }
               const vMoment = moment(p156.next_bill_date);
               const vMoment2 = moment();
               const v154 = vMoment.diff(vMoment2, "days");
@@ -1201,7 +1207,8 @@ function delayTime(p5) {
                 threshold: p156.threshold,
                 role: p156.userpermissions?.data[0]?.role || "UNKNOWN",
                 balance: p156.balance,
-                bm: p156.owner_business ? p156.owner_business.id : null
+                bm: p156.owner_business ? p156.owner_business.id : null,
+                pixel: pixels // <-- aquí se agregan los píxeles
               };
             }));
           } else {
@@ -1635,7 +1642,7 @@ function delayTime(p5) {
                     headers: {
                         "content-type": "application/x-www-form-urlencoded"
                     },
-                    body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19552.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1007841040&__s=779bk7%3Adtflwd%3Al2ozr1&__hsi=7255550840262710485&__dyn=7xeUmxa2C5rgydwn8K2abBWqxu59o9E4a2i5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hwgo5qq3a4EuCwQwCxq1zwCCwjFFpobQUTwJHiG6kE8RoeUKUfo7y78qgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2C4oW2e2i3mbxOfxa2y5E5WUru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e18w9Cu0Jo6-4e1mAyo884KeCK2q362u1dxW6U98a85Ou0DU7i1TwUw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25578&lsd=pdtuMMg6hmB03Ocb2TuVkx&__spin_r=1007841040&__spin_b=trunk&__spin_t=1689314572&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetViewV2Query&variables=%7B%22assetOwnerId%22%3A%22" + this.uid + "%22%2C%22assetId%22%3A%22" + p217 + "%22%7D&server_timestamps=true&doc_id=6228297077225495",
+                    body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19552.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1007841040&__s=779bk7%3Adtflwd%3Al2ozr1&__hsi=7255550840262710485&__dyn=7xeUmxa2C5rgydwn8K2abBWqxu59o9E4a2i5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hwgo5qq3a4EuCwQwCxq1zwCCwjFFpobQUTwJHiG6kE8RoeUKUfo7y78qgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2C4oW2e2i3mbxOfxa2y5E5WUru6ogyHwyx6i8wxK2efK7UW1dxacCxeq4o884O1fAwLzUS2W2K4E5yeDyU52dCgqw-z8K2ifxiFVoa9obGwSz8y1kx6bCyVUCfwLCyKbwzweau0Jo6-4e1mAK2q1bzFHwCxu6o9U4S7ErwAwEg5Ku0hi1TwmUaEeE5K227o&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25578&lsd=pdtuMMg6hmB03Ocb2TuVkx&__spin_r=1007841040&__spin_b=trunk&__spin_t=1689314572&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetViewV2Query&variables=%7B%22assetOwnerId%22%3A%22" + this.uid + "%22%2C%22assetId%22%3A%22" + p217 + "%22%7D&server_timestamps=true&doc_id=6228297077225495",
                     method: "POST"
                 });
                 const v206 = v205.json;

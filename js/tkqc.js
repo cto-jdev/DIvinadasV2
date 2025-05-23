@@ -214,6 +214,14 @@ const columnDefs = [{
   }, {
     field: "timezone",
     headerName: "Zona horaria"
+  }, {
+    field: "pixel",
+    headerName: "Pixel",
+    minWidth: 200,
+    cellRenderer: p => {
+      if (!p.data.pixel || !Array.isArray(p.data.pixel) || p.data.pixel.length === 0) return '';
+      return p.data.pixel.map(px => `<div><strong>${px.name}</strong> <small>${px.id}</small></div>`).join('');
+    }
   }];
   const accountGrid = {
     rowHeight: 50,
@@ -492,6 +500,7 @@ const columnDefs = [{
       };
       adsMap.push(vO32);
       p34.id = vLN1;
+      if (!p34.pixel) p34.pixel = [];
       vLN1++;
       return p34;
     });
