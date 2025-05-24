@@ -110,11 +110,11 @@ const columnDefs = [{
     field: "dieDate",
     headerName: "Fecha Muerte"
   }];
-  const accountGrid = {
+
+const accountGrid = {
     rowHeight: 50,
     rowSelection: "multiple",
     suppressColumnVirtualisation: true,
-    suppressRowVirtualisation: true,
     suppressRowVirtualisation: true,
     suppressContextMenu: true,
     suppressMovableColumns: false,
@@ -141,28 +141,12 @@ const columnDefs = [{
         format: "0"
       }
     }],
-    /**
-     * getRowId
-     * Descripción: Retorna el identificador único de una fila para agGrid.
-     * Parámetros: p9 (objeto con propiedad data)
-     * Retorna: id de la fila
-     */
     getRowId: function (p9) {
       return p9.data.id;
     },
-    /**
-     * onFirstDataRendered
-     * Descripción: Llama a countStatus cuando los datos se renderizan por primera vez en la grilla.
-     * Parámetros: p10 (evento de agGrid)
-     */
     onFirstDataRendered: function (p10) {
       countStatus(p10, 0);
     },
-    /**
-     * onRangeSelectionChanged
-     * Descripción: Actualiza el contador de filas seleccionadas en un rango.
-     * Parámetros: p11 (evento de selección de rango de agGrid)
-     */
     onRangeSelectionChanged: function (p11) {
       const v12 = p11.api.getCellRanges();
       if (v12.length) {
@@ -177,86 +161,43 @@ const columnDefs = [{
         $("#boiden").text(0);
       }
     },
-    /**
-     * onSelectionChanged
-     * Descripción: Actualiza el contador de filas seleccionadas.
-     * Parámetros: p12 (evento de selección de agGrid)
-     */
     onSelectionChanged: function (p12) {
       const v13 = p12.api.getSelectedRows();
       $("#dachon").text(v13.length);
     },
-    /**
-     * onRowDataUpdated
-     * Descripción: Actualiza el contador total de filas mostradas en la grilla.
-     * Parámetros: p13 (evento de actualización de datos de agGrid)
-     */
     onRowDataUpdated: function (p13) {
       $("#tong").text(p13.api.getDisplayedRowCount());
     },
-    /**
-     * onFilterChanged
-     * Descripción: Actualiza el contador total de filas mostradas tras aplicar un filtro.
-     * Parámetros: p14 (evento de filtrado de agGrid)
-     */
     onFilterChanged: function (p14) {
       $("#tong").text(p14.api.getDisplayedRowCount());
     },
     rowClassRules: {
-      /**
-       * running
-       * Descripción: Devuelve true si el estado de la fila es "RUNNING" para aplicar una clase CSS.
-       * Parámetros: p15 (objeto con propiedad data)
-       */
       running: function (p15) {
         return p15.data.status === "RUNNING";
       },
-      /**
-       * finished
-       * Descripción: Devuelve true si el estado de la fila es "FINISHED" para aplicar una clase CSS.
-       * Parámetros: p16 (objeto con propiedad data)
-       */
       finished: function (p16) {
         return p16.data.status === "FINISHED";
       }
     },
-    /**
-     * noRowsOverlayComponent
-     * Descripción: Componente personalizado para mostrar cuando no hay filas en la grilla.
-     */
     noRowsOverlayComponent: class CustomNoRowsOverlay {
       eGui;
-      /**
-       * init
-       * Descripción: Inicializa el componente de overlay sin filas.
-       * Parámetros: p17 (parámetros de agGrid)
-       */
       init(p17) {
         this.eGui = document.createElement("div");
         this.refresh(p17);
       }
-      /**
-       * getGui
-       * Descripción: Retorna el elemento HTML del overlay.
-       */
       getGui() {
         return this.eGui;
       }
-      /**
-       * refresh
-       * Descripción: Refresca el contenido del overlay.
-       * Parámetros: p18 (parámetros de agGrid)
-       */
       refresh(p18) {
         this.eGui.innerHTML = "<img width=\"300\" src=\"../img/no_data.png\">";
       }
     }
   };
-  /**
-   * Evento ready principal
-   * Descripción: Inicializa la grilla de cuentas BM, carga datos desde localStorage, configura eventos y sincronización periódica.
-   */
-  $(document).ready(async function () {
+
+// Evento ready principal
+$(document).ready(async function () {
+    console.log("🔄 [BM.JS] Inicializando página BM...");
+    
     const v14 = document.querySelector("#accounts");
     new agGrid.Grid(v14, accountGrid);
     const v15 = (await getLocalStorage("stateBm")) || [];
@@ -289,322 +230,12 @@ const columnDefs = [{
         }
       }, 2000);
     }
+    
+    console.log("✅ [BM.JS] Página BM inicializada correctamente");
   });
-  /**
-   * Evento click phoiItem
-   * Descripción: Selecciona un ítem de phoi y actualiza el control asociado.
-   */
-  $("body").on("click", ".phoiItem", function () {
-    const v20 = $(this).attr("data-file");
-    $(".phoiItem").removeClass("active");
-    $(this).addClass("active");
-    $("[name=\"phoiId\"]").val(v20);
-    $("#phoiControl").removeClass("d-none").addClass("d-flex");
-  });
-  /**
-   * Evento click editPhoi
-   * Descripción: Abre la edición del phoi seleccionado en una nueva pestaña.
-   */
-  $("#editPhoi").click(function () {
-    const v21 = $(".phoiItem.active").attr("data-file");
-    window.open("/phoi?id=" + v21, "_blank").focus();
-  });
-  /**
-   * Evento click deletePhoi
-   * Descripción: Elimina el phoi seleccionado tras confirmación.
-   */
-  $("#deletePhoi").click(function () {
-    Swal.fire({
-      title: "¿Estás seguro que deseas eliminar?",
-      text: "Esta acción no se puede deshacer",
-      icon: "warning", 
-      showCancelButton: true,
-      confirmButtonColor: "#dc3545",
-      confirmButtonText: "Eliminar",
-      cancelButtonText: "Cancelar"
-    }).then(async p20 => {
-      if (p20.isConfirmed) {
-        const v22 = $(".phoiItem.active").attr("data-file");
-        const v23 = $("[name=\"phoiId\"]").val();
-        if (v23 === v22) {
-          $("[name=\"phoiId\"]").val("");
-        }
-        await removeLocalStorage(v22);
-        loadPhoi();
-      }
-    });
-  });
-  /**
-   * Evento show.bs.modal phoiModal
-   * Descripción: Carga la lista de phoi al mostrar el modal.
-   */
-  $("#phoiModal").on("show.bs.modal", async function (p21) {
-    loadPhoi();
-  });
-  /**
-   * loadPhoi
-   * Descripción: Carga todos los phoi almacenados y los muestra en la interfaz.
-   */
-  async function loadPhoi() {
-    const v24 = await getAllLocalStore();
-    const v25 = Object.keys(v24).filter(p22 => p22.includes("phoi_")).map(p23 => {
-      const vO20 = {
-        id: p23,
-        ...v24[p23]
-      };
-      return vO20;
-    });
-    const v26 = $("[name=\"phoiId\"]").val();
-    if (v26) {
-      $("#phoiControl").removeClass("d-none").addClass("d-flex");
-    } else {
-      $("#phoiControl").addClass("d-none");
-    }
-    $("#phoiList").html("");
-    let vLSdivClassrow = "<div class=\"row\">";
-    v25.forEach((p24, p25) => {
-      vLSdivClassrow += "\n            <div class=\"col-3 mb-3\">\n                <div class=\"phoiItem " + (p24.id === v26 ? "active" : "") + " d-block p-3 border rounded\" data-file=\"" + p24.id + "\">\n                    <i class=\"ri-checkbox-circle-fill fs-4 text-success\"></i>\n                    <div class=\"ratio ratio-4x3\">\n                        <img class=\"object-fit-contain w-100 h-100\" src=\"" + p24.src + "\">\n                    </div>\n                    <div class=\"d-flex\">\n                        <span class=\"fw-medium\">" + p24.name + "</span>\n                    </div>\n                </div>\n            </div>\n        ";
-    });
-    vLSdivClassrow += "</div>";
-    $("#phoiList").html(vLSdivClassrow);
-  }
-  /**
-   * Evento input backUpEmail
-   * Descripción: Actualiza el contador de emails de respaldo al cambiar el input.
-   */
-  $("[name=\"backUpEmail\"]").on("input", function () {
-    const v27 = $("[name=\"backUpEmail\"]").val().split(/\r?\n|\r|\n/g).filter(p26 => p26);
-    $("#backupEmailCount").text(v27.length);
-  });
-  /**
-   * Evento input linkDaNhan
-   * Descripción: Actualiza el contador de links recibidos al cambiar el input.
-   */
-  $("[name=\"linkDaNhan\"]").on("input", function () {
-    const v28 = $("[name=\"linkDaNhan\"]").val().split(/\r?\n|\r|\n/g).filter(p27 => p27);
-    $("#backupLinkCount1").text(v28.length);
-  });
-  /**
-   * Evento input backupLink
-   * Descripción: Actualiza el contador de links de respaldo al cambiar el input.
-   */
-  $("[name=\"backupLink\"]").on("input", function () {
-    const v29 = $("[name=\"backupLink\"]").val().split(/\r?\n|\r|\n/g).filter(p28 => p28);
-    $("#backupLinkCount").text(v29.length);
-  });
-  /**
-   * Evento input backupLinkSuccess
-   * Descripción: Actualiza el contador de links de respaldo exitosos al cambiar el input.
-   */
-  $("[name=\"backupLinkSuccess\"]").on("input", function () {
-    const v30 = $("[name=\"backupLinkSuccess\"]").val().split(/\r?\n|\r|\n/g).filter(p29 => p29);
-    $("#backupLinkSuccessCount").text(v30.length);
-  });
-  /**
-   * Evento input backupLinkError
-   * Descripción: Actualiza el contador de links de respaldo con error al cambiar el input.
-   */
-  $("[name=\"backupLinkError\"]").on("input", function () {
-    const v31 = $("[name=\"backupLinkError\"]").val().split(/\r?\n|\r|\n/g).filter(p30 => p30);
-    $("#backupLinkErrorCount").text(v31.length);
-  });
-  /**
-   * Evento loadSavedBm
-   * Descripción: Carga BMs guardados y los muestra en la grilla.
-   */
-  $(document).on("loadSavedBm", function (p31, p32) {
-    p32 = p32.map(p33 => {
-      p33.process = "";
-      return p33;
-    });
-    accountGrid.api.setRowData(p32);
-  });
-  const bmMap = [];
-  /**
-   * Evento loadBmSuccess3
-   * Descripción: Procesa y muestra BMs tras una carga exitosa, asignando IDs y mapeando BMs.
-   */
-  $(document).on("loadBmSuccess3", function (p34, p35) {
-    let vLN1 = 1;
-    p35 = p35.map(p36 => {
-      const vO21 = {
-        id: vLN1,
-        bmId: p36.id
-      };
-      bmMap.push(vO21);
-      p36 = {
-        id: vLN1,
-        status: p36.allow_page_management_in_www ? "LIVE" : "DIE",
-        bmId: p36.id,
-        name: p36.name,
-        avatar: "img/avatar.jpg"
-      };
-      vLN1++;
-      return p36;
-    });
-    accountGrid.api.setRowData(p35);
-  });
-  /**
-   * Evento loadBmSuccess
-   * Descripción: Procesa y muestra BMs tras una carga exitosa, asignando IDs y mapeando BMs.
-   */
-  $(document).on("loadBmSuccess", function (p37, p38) {
-    let vLN12 = 1;
-    p38 = p38.map(p39 => {
-      const vO22 = {
-        id: vLN12,
-        bmId: p39.id
-      };
-      bmMap.push(vO22);
-      p39 = {
-        id: vLN12,
-        status: p39.type,
-        bmId: p39.id,
-        name: p39.name,
-        avatar: p39.avatar,
-        dieDate: p39.dieDate
-      };
-      vLN12++;
-      return p39;
-    });
-    accountGrid.api.setRowData(p38);
-  });
-  /**
-   * Evento loadBmSuccess4
-   * Descripción: Actualiza el número de páginas de un BM específico en la grilla.
-   */
-  $(document).on("loadBmSuccess4", function (p40, p41) {
-    for (let vLN03 = 0; vLN03 < p41.length; vLN03++) {
-      const v32 = bmMap.filter(p42 => p42.bmId == p41[vLN03].businessID)[0].id;
-      accountGrid.api.getRowNode(v32).setDataValue("bmPage", p41[vLN03].pageNumber);
-    }
-  });
-  /**
-   * Evento loadBmSuccess2
-   * Descripción: Actualiza información detallada de un BM (cuentas, admins, tipo, rol, etc.) en la grilla.
-   */
-  $(document).on("loadBmSuccess2", function (p43, p44) {
-    p44.forEach(p45 => {
-      const v33 = bmMap.filter(p46 => p46.bmId == p45.id)[0].id;
-      let vLS2 = "";
-      let v34 = p45.permitted_roles[0];
-      if (p45.sharing_eligibility_status === "enabled") {
-        vLS2 = "BM350";
-      }
-      if (p45.sharing_eligibility_status === "disabled_due_to_trust_tier") {
-        vLS2 = "BM50";
-      }
-      if (p45.owned_ad_accounts?.data.length) {
-        const v35 = p45.owned_ad_accounts?.data.filter(p47 => p47.account_status == 1);
-        const v36 = p45.owned_ad_accounts?.data.filter(p48 => p48.account_status != 1);
-        accountGrid.api.getRowNode(v33).setDataValue("adAccount", "Total: " + p45.owned_ad_accounts.summary.total_count + " - " + (v35.length ? "Activas: " + v35.length + " - " : "") + (v36.length ? "Muertas: " + v36.length : ""));
-        const v37 = p45.owned_ad_accounts?.data[0].adtrust_dsl;
-        const v38 = p45.owned_ad_accounts?.data[0].currency;
-        accountGrid.api.getRowNode(v33).setDataValue("limit", v37);
-        accountGrid.api.getRowNode(v33).setDataValue("currency", v38);
-      } else {
-        accountGrid.api.getRowNode(v33).setDataValue("adAccount", 0);
-      }
-      if (p45.business_users?.data.length) {
-        accountGrid.api.getRowNode(v33).setDataValue("adminAccount", p45.business_users?.data.length);
-      } else {
-        accountGrid.api.getRowNode(v33).setDataValue("adminAccount", 0);
-      }
-      accountGrid.api.getRowNode(v33).setDataValue("type", vLS2);
-      accountGrid.api.getRowNode(v33).setDataValue("role", v34);
-    });
-    accountGrid.api.refreshCells({
-      force: true
-    });
-  });
-  /**
-   * Evento loadInstaSuccess
-   * Descripción: Actualiza la cantidad de cuentas de Instagram asociadas a un BM en la grilla.
-   */
-  $(document).on("loadInstaSuccess", function (p49, p50) {
-    const v39 = bmMap.filter(p51 => p51.bmId == p50.id)[0].id;
-    accountGrid.api.getRowNode(v39).setDataValue("instaAccount", p50.count);
-  });
-  /**
-   * Evento loadLimitSuccess
-   * Descripción: Actualiza el tipo de BM en la grilla tras cargar límites.
-   */
-  $(document).on("loadLimitSuccess", function (p52, p53) {
-    const v40 = bmMap.filter(p54 => p54.bmId == p53.id)[0].id;
-    accountGrid.api.getRowNode(v40).setDataValue("bmType", p53.type);
-  });
-  /**
-   * Evento loadQtvSuccess
-   * Descripción: Actualiza la cantidad de administradores de un BM en la grilla.
-   */
-  $(document).on("loadQtvSuccess", function (p55, p56) {
-    const v41 = bmMap.filter(p57 => p57.bmId == p56.id)[0].id;
-    accountGrid.api.getRowNode(v41).setDataValue("adminAccount", p56.count);
-  });
-  /**
-   * Evento updateListBm
-   * Descripción: Actualiza el listado de IDs de BM en el input correspondiente.
-   */
-  $(document).on("updateListBm", function (p58, p59) {
-    $("[name=\"listIdBm\"]").val(p59.join("\r\n"));
-    $("#getBmIdCount").text(p59.length);
-  });
-  /**
-   * Evento updateBackupLink
-   * Descripción: Añade un nuevo link recibido y actualiza el contador.
-   */
-  $(document).on("updateBackupLink", function (p60, p61) {
-    const v42 = $("[name=\"linkDaNhan\"]").val().split(/\r?\n|\r|\n/g).filter(p62 => p62);
-    v42.push(p61.link);
-    $("[name=\"linkDaNhan\"]").val(v42.join("\r\n"));
-    $("#backupLinkCount1").text(v42.length);
-  });
-  /**
-   * Evento updateLinkAll
-   * Descripción: Actualiza el listado de links de respaldo, eliminando los que ya están en la lista de éxito/error.
-   */
-  $(document).on("updateLinkAll", function (p63, p64) {
-    const v43 = $("[name=\"backupLink\"]").val().split(/\r?\n|\r|\n/g).filter(p65 => p65 && !p64.includes(p65));
-    $("#backupLinkCount").text(v43.length);
-    $("[name=\"backupLink\"]").val(v43.join("\r\n"));
-  });
-  /**
-   * Evento updateLinkError
-   * Descripción: Añade links con error al listado y actualiza el contador.
-   */
-  $(document).on("updateLinkError", function (p66, p67) {
-    const v44 = $("[name=\"backupLinkError\"]").val().split(/\r?\n|\r|\n/g).filter(p68 => p68);
-    p67.forEach(p69 => {
-      v44.push(p69);
-    });
-    $("#backupLinkErrorCount").text(v44.length);
-    $("[name=\"backupLinkError\"]").val(v44.join("\r\n"));
-  });
-  /**
-   * Evento updateLinkSuccess
-   * Descripción: Añade links exitosos al listado y actualiza el contador.
-   */
-  $(document).on("updateLinkSuccess", function (p70, p71) {
-    const v45 = $("[name=\"backupLinkSuccess\"]").val().split(/\r?\n|\r|\n/g).filter(p72 => p72);
-    p71.forEach(p73 => {
-      v45.push(p73);
-    });
-    $("#backupLinkSuccessCount").text(v45.length);
-    $("[name=\"backupLinkSuccess\"]").val(v45.join("\r\n"));
-  });
-  /**
-   * Evento updateBmName
-   * Descripción: Actualiza el nombre de un BM en la grilla.
-   */
-  $(document).on("updateBmName", function (p74, p75) {
-    accountGrid.api.getRowNode(parseInt(p75.id)).setDataValue("name", p75.name);
-  });
-  /**
-   * countStatus
-   * Descripción: Cuenta la cantidad de BMs por cada estado y actualiza los contadores en la interfaz.
-   * Parámetros: p76 (objeto agGrid), p77 (filtro opcional por uid)
-   */
-  function countStatus(p76, p77) {
+
+// Función para contar estados
+function countStatus(p76, p77) {
     let vLN04 = 0;
     let vLN05 = 0;
     let vLN06 = 0;
@@ -666,4 +297,541 @@ const columnDefs = [{
     $(".status5Count").text(vLN08);
     $(".status101Count").text(vLN09);
     $(".status999Count").text(vLN010);
-  }
+}
+
+// Eventos básicos para cargar datos
+$(document).on("loadSavedBm", function (p31, p32) {
+    p32 = p32.map(p33 => {
+      p33.process = "";
+      return p33;
+    });
+    accountGrid.api.setRowData(p32);
+});
+
+const bmMap = [];
+
+$(document).on("loadBmSuccess", function (p37, p38) {
+    let vLN12 = 1;
+    p38 = p38.map(p39 => {
+      const vO22 = {
+        id: vLN12,
+        bmId: p39.id
+      };
+      bmMap.push(vO22);
+      p39 = {
+        id: vLN12,
+        status: p39.type,
+        bmId: p39.id,
+        name: p39.name,
+        avatar: p39.avatar,
+        dieDate: p39.dieDate
+      };
+      vLN12++;
+      return p39;
+    });
+    accountGrid.api.setRowData(p38);
+});
+
+// Variable global para controlar la cancelación del proceso
+let pixelProcessCancelled = false;
+
+/**
+ * FUNCIONALIDAD DE PÍXELES DE FACEBOOK
+ * Utiliza la Facebook Marketing API v22.0
+ */
+
+/**
+ * createPixelsForSelectedBMs
+ * Descripción: Crea píxeles de Facebook para los Business Managers seleccionados
+ */
+async function createPixelsForSelectedBMs() {
+    console.log("🚀 [PIXEL] Iniciando función createPixelsForSelectedBMs...");
+    
+    const selectedRows = accountGrid.api.getSelectedRows();
+    const pixelName = $('[name="pixelName"]').val().trim();
+    const pixelQuantity = parseInt($('[name="pixelQuantity"]').val()) || 1; // Campo de cantidad
+    const enableAutomaticMatching = $('[name="enableAutomaticMatching"]').is(':checked');
+    const enableFirstPartyCookies = $('[name="enableFirstPartyCookies"]').is(':checked');
+
+    console.log("📊 [PIXEL] Datos del formulario:", {
+        selectedRows: selectedRows.length,
+        pixelName: pixelName,
+        pixelQuantity: pixelQuantity,
+        enableAutomaticMatching: enableAutomaticMatching,
+        enableFirstPartyCookies: enableFirstPartyCookies
+    });
+
+    // Validaciones
+    if (selectedRows.length === 0) {
+        console.warn("⚠️ [PIXEL] No hay Business Managers seleccionados");
+        Swal.fire({
+            title: '⚠️ Error de Selección',
+            text: 'Por favor selecciona al menos un Business Manager de la tabla.',
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+
+    if (!pixelName) {
+        console.warn("⚠️ [PIXEL] Nombre del píxel vacío");
+        Swal.fire({
+            title: '⚠️ Nombre Requerido',
+            text: 'Por favor ingresa un nombre para el píxel.',
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+
+    if (pixelQuantity < 1 || pixelQuantity > 10) {
+        console.warn("⚠️ [PIXEL] Cantidad inválida");
+        Swal.fire({
+            title: '⚠️ Cantidad Inválida',
+            text: 'La cantidad debe ser entre 1 y 10 píxeles.',
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+
+    // Verificar que tenemos access token
+    console.log("🔑 [PIXEL] Verificando access token...");
+    console.log("🔑 [PIXEL] fb object:", typeof fb !== 'undefined' ? fb : "UNDEFINED");
+    
+    if (typeof fb === 'undefined' || !fb.accessToken2) {
+        console.error("❌ [PIXEL] No se encontró access token de Facebook");
+        Swal.fire({
+            title: '⚠️ Token Requerido',
+            text: 'No se encontró access token de Facebook. Por favor inicia sesión primero.',
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+
+    console.log("✅ [PIXEL] Access token encontrado:", fb.accessToken2.substring(0, 20) + "...");
+
+    // CAMBIAR BOTÓN A DETENER Y MOSTRAR ALERTA DE PROCESANDO
+    $('#start').addClass('d-none');
+    $('#stop').removeClass('d-none');
+    
+    // Resetear variable de cancelación
+    pixelProcessCancelled = false;
+    
+    // Mostrar alerta de procesando
+    Swal.fire({
+        title: '🔄 Procesando Píxeles',
+        html: `
+            <div class="text-start">
+                <p><strong>📊 Creando píxeles de Facebook...</strong></p>
+                <hr>
+                <p>📋 <strong>Business Managers:</strong> ${selectedRows.length}</p>
+                <p>🎯 <strong>Píxeles por BM:</strong> ${pixelQuantity}</p>
+                <p>📈 <strong>Total a crear:</strong> ${selectedRows.length * pixelQuantity}</p>
+                <hr>
+                <p><small>🔍 Revisa el progreso en la columna "Mensaje" de la tabla</small></p>
+            </div>
+        `,
+        icon: 'info',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Inicializar tabla con proceso
+    selectedRows.forEach(bm => {
+        updateBMMessage(bm.id, `🔄 Preparando creación de ${pixelQuantity} píxel(es)...`);
+    });
+
+    let successCount = 0;
+    let errorCount = 0;
+    let successfulBMIds = []; // Solo IDs de BM exitosos
+
+    // Procesar cada Business Manager seleccionado
+    console.log("🔄 [PIXEL] Iniciando procesamiento de BMs...");
+    
+    for (let i = 0; i < selectedRows.length; i++) {
+        // Verificar si el proceso fue cancelado
+        if (pixelProcessCancelled) {
+            console.log("🛑 [PIXEL] Proceso cancelado por el usuario");
+            updateBMMessage(selectedRows[i].id, `🛑 CANCELADO: Proceso detenido por el usuario`);
+            break;
+        }
+        
+        const bm = selectedRows[i];
+        const bmId = bm.bmId;
+        const bmName = bm.name || 'Sin nombre';
+        
+        console.log(`📍 [PIXEL] Procesando BM ${i + 1}/${selectedRows.length}:`, {
+            bmId: bmId,
+            bmName: bmName
+        });
+        
+        updateBMMessage(bm.id, `📍 [${i + 1}/${selectedRows.length}] Procesando ${pixelQuantity} píxel(es) para ${bmName}...`);
+        
+        let bmSuccessCount = 0;
+        let bmErrorCount = 0;
+        
+        // Crear múltiples píxeles para este BM
+        for (let j = 0; j < pixelQuantity; j++) {
+            // Verificar si el proceso fue cancelado
+            if (pixelProcessCancelled) {
+                console.log("🛑 [PIXEL] Proceso cancelado durante la creación de píxeles");
+                updateBMMessage(bm.id, `🛑 CANCELADO: Proceso detenido durante creación de píxel ${j + 1}/${pixelQuantity}`);
+                break;
+            }
+            
+            try {
+                // Generar nombre único con formato: nombre_{6_dígitos_aleatorios}
+                const randomDigits = Math.floor(Math.random() * 900000) + 100000; // 100000-999999 (6 dígitos)
+                const finalPixelName = `${pixelName}_${randomDigits}`;
+
+                updateBMMessage(bm.id, `   🔄 Creando píxel ${j + 1}/${pixelQuantity}: "${finalPixelName}"...`);
+                console.log(`🔄 [PIXEL] Llamando createPixelViaBMAPI para píxel ${j + 1}:`, {
+                    bmId: bmId,
+                    finalPixelName: finalPixelName
+                });
+
+                // Llamada a la API de Facebook
+                const result = await createPixelViaBMAPI(bmId, finalPixelName, enableAutomaticMatching, enableFirstPartyCookies);
+                
+                console.log(`📊 [PIXEL] Resultado de createPixelViaBMAPI:`, result);
+                
+                if (result.success) {
+                    bmSuccessCount++;
+                    updateBMMessage(bm.id, `   ✅ Píxel ${j + 1}/${pixelQuantity} creado! ID: ${result.pixelId}`);
+                } else {
+                    throw new Error(result.error || 'Error desconocido en la API de Facebook');
+                }
+
+            } catch (error) {
+                console.error(`❌ [PIXEL] Error creando píxel ${j + 1} para BM ${bmId}:`, error);
+                bmErrorCount++;
+                updateBMMessage(bm.id, `   ❌ Error píxel ${j + 1}/${pixelQuantity}: ${error.message}`);
+            }
+
+            // Delay entre píxeles para evitar rate limiting
+            if (j < pixelQuantity - 1) {
+                if (!pixelProcessCancelled) {
+                    updateBMMessage(bm.id, `   ⏳ Esperando 1 segundo antes del siguiente píxel...`);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+        }
+        
+        // Si se canceló durante la creación de píxeles, salir del bucle principal
+        if (pixelProcessCancelled) {
+            break;
+        }
+        
+        // Resumen para este BM
+        if (bmSuccessCount > 0) {
+            successCount += bmSuccessCount;
+            successfulBMIds.push(bmId); // Solo agregar ID si hubo éxito
+            updateBMMessage(bm.id, `✅ COMPLETADO: ${bmSuccessCount}/${pixelQuantity} píxeles creados exitosamente`);
+        } else {
+            errorCount += bmErrorCount;
+            updateBMMessage(bm.id, `❌ FALLIDO: 0/${pixelQuantity} píxeles creados - Todos con errores`);
+        }
+
+        // Delay entre BMs para evitar rate limiting
+        if (i < selectedRows.length - 1) {
+            if (!pixelProcessCancelled) {
+                updateBMMessage(bm.id, `⏳ Esperando antes del siguiente BM...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+    }
+
+    // PROCESO FINALIZADO - CAMBIAR BOTÓN A FINALIZAR
+    $('#stop').addClass('d-none');
+    $('#start').removeClass('d-none');
+    
+    if (pixelProcessCancelled) {
+        // Si fue cancelado
+        $('#start i').removeClass('ri-play-fill').addClass('ri-close-fill');
+        $('#start i').css('background-color', '#f44336');
+        $('#start').html('<i class="ri-close-fill" style="background-color: #f44336;"></i> Cancelado');
+    } else {
+        // Si finalizó exitosamente
+        $('#start i').removeClass('ri-play-fill').addClass('ri-check-fill');
+        $('#start i').css('background-color', '#4caf50');
+        $('#start').html('<i class="ri-check-fill" style="background-color: #4caf50;"></i> Finalizado');
+    }
+    
+    // Cerrar alerta de procesando
+    Swal.close();
+
+    // Mostrar resultados finales
+    console.log("🎉 [PIXEL] Proceso completado:", {
+        successCount: successCount,
+        errorCount: errorCount,
+        total: selectedRows.length * pixelQuantity,
+        successfulBMIds: successfulBMIds
+    });
+
+    // Actualizar resultados en la interfaz
+    $('#pixelResults').show();
+    $('#pixelSuccessCount').text(successCount);
+    $('#pixelErrorCount').text(errorCount);
+    
+    // Solo mostrar IDs de BM exitosos
+    $('[name="pixelSuccessResults"]').val(successfulBMIds.join('\n'));
+    $('[name="pixelErrorResults"]').val(`${errorCount} errores en total. Ver detalles en la columna Mensaje de la tabla.`);
+
+    // Resetear botón después de 3 segundos
+    setTimeout(() => {
+        $('#start i').removeClass('ri-check-fill ri-close-fill').addClass('ri-play-fill');
+        $('#start').html('<i class="ri-play-fill" style="background-color: #4caf50;"></i> Iniciar');
+        
+        // Resetear también el botón stop
+        $('#stop').prop('disabled', false);
+        $('#stop').html('<i class="ri-stop-fill" style="background-color: #f44336;"></i> Detener');
+    }, 3000);
+}
+
+/**
+ * updateBMMessage
+ * Descripción: Actualiza la columna "Mensaje" de un BM específico en la tabla
+ */
+function updateBMMessage(bmRowId, message) {
+    console.log(`📝 [TABLE] Actualizando mensaje para BM ID ${bmRowId}: ${message}`);
+    
+    try {
+        const rowNode = accountGrid.api.getRowNode(bmRowId);
+        if (rowNode) {
+            rowNode.setDataValue("message", message);
+            console.log(`✅ [TABLE] Mensaje actualizado para BM ID ${bmRowId}`);
+        } else {
+            console.warn(`⚠️ [TABLE] No se encontró fila para BM ID ${bmRowId}`);
+        }
+    } catch (error) {
+        console.error(`❌ [TABLE] Error actualizando mensaje para BM ID ${bmRowId}:`, error);
+    }
+}
+
+/**
+ * createPixelViaBMAPI
+ * Descripción: Crea un píxel usando la Facebook Marketing API a nivel de Business Manager
+ */
+async function createPixelViaBMAPI(bmId, pixelName, enableAutomaticMatching, enableFirstPartyCookies) {
+    console.log("🔄 [API] Iniciando createPixelViaBMAPI...", {
+        bmId: bmId,
+        pixelName: pixelName,
+        enableAutomaticMatching: enableAutomaticMatching,
+        enableFirstPartyCookies: enableFirstPartyCookies
+    });
+    
+    try {
+        // Preparar datos para la API en formato string (como en el resto del código)
+        let bodyString = "name=" + encodeURIComponent(pixelName) + "&access_token=" + fb.accessToken2;
+
+        // Configuración avanzada opcional
+        if (enableAutomaticMatching) {
+            bodyString += "&enable_automatic_matching=true";
+            bodyString += "&automatic_matching_fields=" + encodeURIComponent('["em","fn","ln","ph","ge","zp","ct","st","country"]');
+        }
+
+        if (enableFirstPartyCookies) {
+            bodyString += "&first_party_cookie_status=" + encodeURIComponent('FIRST_PARTY_COOKIE_ENABLED');
+        }
+
+        // Endpoint correcto para Business Manager
+        const apiUrl = `https://graph.facebook.com/v14.0/${bmId}/adspixels`;
+        
+        // ALTERNATIVA: Si no funciona, podríamos probar con ad account específico
+        // const apiUrl = `https://graph.facebook.com/v14.0/act_{AD_ACCOUNT_ID}/adspixels`;
+        
+        console.log(`🔄 [API] Llamando a API: ${apiUrl}`);
+        console.log(`📝 [API] Body string enviado:`, bodyString);
+        
+        // Realizar la llamada a la API usando fetch2 (sistema de extensión)
+        // fetch2 devuelve {url, json, text}
+        const response = await fetch2(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: bodyString
+        });
+        
+        console.log(`📊 [API] Respuesta completa de fetch2:`, response);
+        
+        // Extraer los datos JSON de la respuesta de fetch2
+        const responseData = response.json || response;
+        
+        console.log(`📊 [API] Datos JSON extraídos:`, responseData);
+        console.log(`📊 [API] Text completo de respuesta:`, response.text);
+
+        // Verificar si la respuesta contiene un ID de píxel (éxito)
+        if (responseData && responseData.id) {
+            console.log(`✅ [API] Píxel creado exitosamente:`, responseData.id);
+            return {
+                success: true,
+                pixelId: responseData.id,
+                data: responseData
+            };
+        } 
+        // Verificar si hay un error de Facebook API
+        else if (responseData && responseData.error) {
+            const error = responseData.error;
+            console.error(`❌ [API] Error de Facebook API:`, error);
+            
+            let errorMessage = 'Error en la API de Facebook';
+            
+            switch (error.code) {
+                case 190:
+                    errorMessage = 'Token de acceso inválido o expirado';
+                    break;
+                case 200:
+                    errorMessage = 'Permisos insuficientes para este Business Manager';
+                    break;
+                case 100:
+                    if (error.message.includes('name is required')) {
+                        errorMessage = 'Error en el formato de datos - parámetro name no reconocido por Facebook';
+                    } else {
+                        errorMessage = `Parámetro inválido: ${error.error_user_msg || error.message}`;
+                    }
+                    break;
+                case 80004:
+                    errorMessage = 'Ya existe un píxel para este Business Manager';
+                    break;
+                case 10:
+                    errorMessage = 'No tienes permisos para crear píxeles en este Business Manager';
+                    break;
+                default:
+                    errorMessage = error.message || error.error_user_msg || `Error ${error.code}: ${error.type || 'Error desconocido'}`;
+            }
+            
+            console.error(`❌ [API] Error procesado:`, errorMessage);
+            throw new Error(errorMessage);
+        }
+        // Respuesta inesperada
+        else {
+            console.error(`❌ [API] Respuesta inesperada:`, responseData);
+            console.error(`❌ [API] Respuesta completa:`, response);
+            throw new Error('Respuesta inesperada de Facebook API - no contiene ID ni error');
+        }
+
+    } catch (error) {
+        console.error('❌ [API] Error en createPixelViaBMAPI:', error);
+        
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+/**
+ * addProgressMessage
+ * Descripción: Añade un mensaje al área de progreso
+ */
+function addProgressMessage(message, type = 'info') {
+    console.log(`📝 [PROGRESS] ${type.toUpperCase()}: ${message}`);
+    
+    const timestamp = new Date().toLocaleTimeString();
+    const typeClass = {
+        'info': 'text-info',
+        'success': 'text-success',
+        'error': 'text-danger',
+        'warning': 'text-warning'
+    }[type] || 'text-info';
+
+    const messageHtml = `<div class="${typeClass} mb-1"><small class="text-muted">[${timestamp}]</small> ${message}</div>`;
+    
+    // Asegurar que el contenedor existe
+    if ($('#pixelProgressMessages').length === 0) {
+        console.warn('⚠️ [PROGRESS] Contenedor de mensajes no encontrado');
+        return;
+    }
+    
+    $('#pixelProgressMessages').append(messageHtml);
+    
+    // Auto scroll al final
+    const progressContainer = document.getElementById('pixelProgressMessages');
+    if (progressContainer) {
+        progressContainer.scrollTop = progressContainer.scrollHeight;
+    }
+}
+
+/**
+ * Eventos para la funcionalidad de crear píxeles
+ */
+$(document).ready(function() {
+    console.log("🔧 [EVENTS] Configurando eventos de píxeles...");
+    
+    // Evento cuando se inicia el proceso (botón start con createPixel activo)
+    $(document).on('click', '#start', function() {
+        console.log("🎯 [EVENTS] Click en botón #start");
+        
+        const createPixelChecked = $('[name="createPixel"]').is(':checked');
+        console.log("🎯 [EVENTS] createPixel checkbox:", createPixelChecked);
+        
+        if (createPixelChecked) {
+            console.log("🚀 [EVENTS] Iniciando creación de píxeles...");
+            createPixelsForSelectedBMs();
+        } else {
+            console.log("ℹ️ [EVENTS] createPixel no está activado");
+        }
+    });
+
+    // Evento cuando se detiene el proceso (botón stop)
+    $(document).on('click', '#stop', function() {
+        console.log("🛑 [EVENTS] Click en botón #stop - Cancelando proceso...");
+        
+        pixelProcessCancelled = true;
+        
+        // Cambiar botón inmediatamente para feedback visual
+        $('#stop').prop('disabled', true);
+        $('#stop').html('<i class="ri-stop-fill" style="background-color: #f44336;"></i> Cancelando...');
+        
+        Swal.fire({
+            title: '🛑 Cancelando Proceso',
+            text: 'El proceso se detendrá después del píxel actual...',
+            icon: 'warning',
+            timer: 2000,
+            showConfirmButton: false
+        });
+        
+        console.log("🛑 [EVENTS] Variable pixelProcessCancelled establecida en true");
+    });
+
+    // Evento para validar formulario de píxeles
+    $('[name="pixelName"]').on('input', function() {
+        const pixelName = $(this).val().trim();
+        console.log("📝 [EVENTS] Input pixelName:", pixelName);
+        
+        if (pixelName.length > 50) {
+            $(this).addClass('is-invalid');
+            $(this).siblings('.form-text').text('El nombre debe tener menos de 50 caracteres');
+        } else {
+            $(this).removeClass('is-invalid');
+            $(this).siblings('.form-text').text('El nombre será seguido por el nombre del BM si se crean múltiples píxeles');
+        }
+    });
+
+    // Evento para limpiar resultados cuando se cierra la sección
+    $('[name="createPixel"]').on('change', function() {
+        const isChecked = $(this).is(':checked');
+        console.log("🔄 [EVENTS] createPixel toggle:", isChecked);
+        
+        if (!isChecked) {
+            $('#pixelProgressArea').hide();
+            $('#pixelResults').hide();
+            $('#pixelProgressMessages').html('');
+        } else {
+            // Inicializar área de progreso cuando se activa
+            $('#pixelProgressMessages').html('');
+            addProgressMessage('📝 Funcionalidad de crear píxeles activada. Selecciona Business Managers y haz clic en "Iniciar".', 'info');
+        }
+    });
+    
+    console.log("✅ [EVENTS] Eventos de píxeles configurados correctamente");
+});
+
+console.log("✅ [BM.JS] Archivo cargado correctamente con funcionalidad de píxeles"); 
