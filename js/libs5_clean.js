@@ -1,10 +1,10 @@
 /**
  * LIBS5 CLEAN - GESTIÓN DE PÍXELES DE FACEBOOK
- * Versión mejorada con manejo de permisos y métodos alternativos
- * CÓDIGO LIMPIO - NO COMPRIMIR
+ * Versión mejorada con UI visual y selección múltiple
+ * CÓDIGO LIMPIO - NO COMPRIMIR BAJO NINGUNA CIRCUNSTANCIA
  */
 
-// Función para obtener Business Managers
+// Función para obtener Business Managers con estado visual
 async function getBusinessManagers() {
     try {
         console.log('🔍 Cargando Business Managers...');
@@ -20,17 +20,34 @@ async function getBusinessManagers() {
             return [];
         }
         
-        const url = `https://graph.facebook.com/v14.0/me/businesses?limit=99999&access_token=${token}`;
+        const url = `https://graph.facebook.com/v14.0/me/businesses?fields=id,name,verification_status,permitted_tasks&limit=99999&access_token=${token}`;
         const response = await fetch2(url);
         const data = response.json;
         
         console.log('📊 Respuesta Business Managers:', data);
         
         if (data && data.data && data.data.length > 0) {
-            const businessManagers = data.data.map(bm => ({
-                id: bm.id,
-                name: bm.name || `BM ${bm.id}`
-            }));
+            const businessManagers = data.data.map(bm => {
+                // Determinar estado del BM
+                let status = 'active';
+                let statusColor = '#28a745'; // verde por defecto
+                
+                if (bm.verification_status === 'pending' || bm.verification_status === 'restricted') {
+                    status = 'restricted';
+                    statusColor = '#dc3545'; // rojo
+                } else if (bm.verification_status === 'verified' || !bm.verification_status) {
+                    status = 'active';
+                    statusColor = '#28a745'; // verde
+                }
+                
+                return {
+                    id: bm.id,
+                    name: bm.name || `BM ${bm.id}`,
+                    status: status,
+                    statusColor: statusColor,
+                    verification_status: bm.verification_status || 'unknown'
+                };
+            });
             console.log('✅ Business Managers encontrados:', businessManagers.length);
             return businessManagers;
         }
@@ -43,7 +60,7 @@ async function getBusinessManagers() {
     }
 }
 
-// Función para obtener píxeles disponibles
+// Función para obtener píxeles con formato mejorado
 async function getPixelsByBM() {
     try {
         console.log('🔍 Buscando píxeles disponibles...');
@@ -71,6 +88,7 @@ async function getPixelsByBM() {
                                 allPixels.set(pixel.id, {
                                     id: pixel.id,
                                     name: pixel.name || `Píxel ${pixel.id}`,
+                                    displayName: `${pixel.name || `Píxel ${pixel.id}`} (ID: ${pixel.id})`,
                                     status: 'ACTIVE'
                                 });
                             }
@@ -137,7 +155,7 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
             }
         }
         
-        // Método 2: Intentar asignar píxel directamente (método más simple)
+        // Método 2: Intentar asignar píxel directamente
         const assignUrl = `https://graph.facebook.com/v14.0/${formattedId}/adspixels?access_token=${token}`;
         const assignResponse = await fetch2(assignUrl, {
             method: "POST",
@@ -157,7 +175,7 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
             return true;
         }
         
-        // Método 3: Intentar compartir píxel (requiere permisos de admin)
+        // Método 3: Intentar compartir píxel
         const shareUrl = `https://graph.facebook.com/v14.0/${pixelId}/shared_accounts?access_token=${token}`;
         const shareResponse = await fetch2(shareUrl, {
             method: "POST",
@@ -180,11 +198,10 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
         
         // Análisis de errores específicos
         const errorMessage = assignData.error?.message || shareData.error?.message || 'Error desconocido';
-        const errorCode = assignData.error?.code || shareData.error?.code;
         
         if (errorMessage.includes('business admin') || errorMessage.includes('only business admin')) {
             if (progressCallback) {
-                progressCallback(`⚠️ ${formattedId}: Se requieren permisos de administrador de business para conectar píxeles`);
+                progressCallback(`⚠️ ${formattedId}: Se requieren permisos de administrador de business`);
             }
         } else if (errorMessage.includes('permissions') || errorMessage.includes('access')) {
             if (progressCallback) {
@@ -207,7 +224,7 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
     }
 }
 
-// Función principal para cargar BMs
+// Función principal para cargar BMs con UI mejorada
 async function loadBusinessManagersManually() {
     const loadBtn = document.querySelector('#loadBMsButton');
     const statusDiv = document.querySelector('#bmLoadingStatus');
@@ -229,7 +246,16 @@ async function loadBusinessManagersManually() {
             businessManagers.forEach(bm => {
                 const option = document.createElement('option');
                 option.value = bm.id;
-                option.textContent = bm.name;
+                
+                // Crear el texto con círculo de estado + nombre en negrita + ID
+                const statusCircle = '●'; // círculo sólido
+                const displayText = `${statusCircle} ${bm.name} (ID: ${bm.id})`;
+                option.textContent = displayText;
+                
+                // Aplicar color al círculo
+                option.style.color = bm.statusColor;
+                option.style.fontWeight = 'bold';
+                
                 bmSelect.appendChild(option);
             });
             
@@ -250,12 +276,12 @@ async function loadBusinessManagersManually() {
     }
 }
 
-// Función para cargar píxeles
+// Función para cargar píxeles con multi-select
 async function loadPixelsManually() {
     const loadBtn = document.querySelector('#loadPixelsButton');
     const statusDiv = document.querySelector('#pixelLoadingStatus');
     const statusText = document.querySelector('#pixelStatusText');
-    const pixelSelect = document.querySelector('select[name="pixel"]');
+    let pixelSelect = document.querySelector('select[name="pixel"]');
     
     try {
         if (loadBtn) loadBtn.disabled = true;
@@ -265,12 +291,20 @@ async function loadPixelsManually() {
         const pixels = await getPixelsByBM();
         
         if (pixelSelect) {
-            pixelSelect.innerHTML = '<option value="">Seleccionar Píxel...</option>';
+            // Convertir a multi-select si no lo es
+            if (!pixelSelect.multiple) {
+                pixelSelect.multiple = true;
+                pixelSelect.size = Math.min(pixels.length + 1, 8); // Máximo 8 líneas visibles
+                pixelSelect.style.height = 'auto';
+            }
+            
+            pixelSelect.innerHTML = '<option value="" disabled>Seleccionar Píxeles (puedes elegir varios)...</option>';
             
             pixels.forEach(pixel => {
                 const option = document.createElement('option');
                 option.value = pixel.id;
-                option.textContent = pixel.name;
+                option.textContent = pixel.displayName;
+                option.style.padding = '5px';
                 pixelSelect.appendChild(option);
             });
             
@@ -291,15 +325,21 @@ async function loadPixelsManually() {
     }
 }
 
-// Función para verificar si está listo
+// Función mejorada para verificar si está listo con multi-select
 function isPixelFunctionReady() {
     const pixelSwitch = document.querySelector('input[name="connectPixels"]');
     const pixelSelect = document.querySelector('select[name="pixel"]');
     
-    return pixelSwitch && pixelSwitch.checked && pixelSelect && pixelSelect.value;
+    if (!pixelSwitch || !pixelSwitch.checked || !pixelSelect) {
+        return false;
+    }
+    
+    // Verificar si hay píxeles seleccionados (para multi-select)
+    const selectedOptions = Array.from(pixelSelect.selectedOptions);
+    return selectedOptions.length > 0 && selectedOptions.some(option => option.value !== "");
 }
 
-// Función mejorada para ejecutar conexión con verificación previa
+// Función mejorada para ejecutar conexión con múltiples píxeles
 async function executePixelFunction() {
     if (!isPixelFunctionReady()) {
         console.log('⚠️ Función de píxeles no está lista');
@@ -307,7 +347,10 @@ async function executePixelFunction() {
     }
     
     const pixelSelect = document.querySelector('select[name="pixel"]');
-    const selectedPixel = pixelSelect.value;
+    const selectedOptions = Array.from(pixelSelect.selectedOptions);
+    const selectedPixels = selectedOptions
+        .map(option => option.value)
+        .filter(value => value !== "");
     
     // Obtener cuentas seleccionadas
     const selectedRows = (typeof getSelectedRows === 'function') ? getSelectedRows() : [];
@@ -339,41 +382,63 @@ async function executePixelFunction() {
         progressCallback(`👤 Usuario: ${userInfo.name} (${userInfo.id})`);
     }
     
-    progressCallback(`🎯 Iniciando conexión de píxel ${selectedPixel} a ${accountIds.length} cuentas`);
+    progressCallback(`🎯 Iniciando conexión de ${selectedPixels.length} píxeles a ${accountIds.length} cuentas`);
+    progressCallback(`📌 Píxeles seleccionados: ${selectedPixels.join(', ')}`);
     
-    let success = 0;
-    let failed = 0;
-    let alreadyConnected = 0;
+    let totalSuccess = 0;
+    let totalFailed = 0;
     
-    for (let i = 0; i < accountIds.length; i++) {
-        const accountId = accountIds[i];
-        progressCallback(`[${i + 1}/${accountIds.length}] Procesando cuenta: ${accountId}`);
+    // Procesar cada píxel
+    for (let pixelIndex = 0; pixelIndex < selectedPixels.length; pixelIndex++) {
+        const pixelId = selectedPixels[pixelIndex];
+        progressCallback(`\n🔹 PROCESANDO PÍXEL ${pixelIndex + 1}/${selectedPixels.length}: ${pixelId}`);
         
-        const result = await connectPixelToAccount(selectedPixel, accountId, progressCallback);
+        let pixelSuccess = 0;
+        let pixelFailed = 0;
         
-        if (result) {
-            success++;
-        } else {
-            failed++;
+        // Procesar cada cuenta para este píxel
+        for (let i = 0; i < accountIds.length; i++) {
+            const accountId = accountIds[i];
+            progressCallback(`   [${i + 1}/${accountIds.length}] Cuenta: ${accountId}`);
+            
+            const result = await connectPixelToAccount(pixelId, accountId, 
+                (msg) => progressCallback(`   ${msg}`));
+            
+            if (result) {
+                pixelSuccess++;
+                totalSuccess++;
+            } else {
+                pixelFailed++;
+                totalFailed++;
+            }
+            
+            // Pausa entre requests
+            if (i < accountIds.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
         }
         
-        // Pausa entre requests para evitar rate limiting
-        if (i < accountIds.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+        progressCallback(`🔹 Píxel ${pixelId}: ${pixelSuccess} exitosas, ${pixelFailed} fallidas`);
+        
+        // Pausa entre píxeles
+        if (pixelIndex < selectedPixels.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
     }
     
     // Resumen final
-    progressCallback(`🎯 RESUMEN FINAL:`);
-    progressCallback(`✅ Exitosas: ${success}`);
-    progressCallback(`❌ Fallidas: ${failed}`);
-    progressCallback(`📊 Total procesadas: ${accountIds.length}`);
+    progressCallback(`\n🎯 RESUMEN FINAL:`);
+    progressCallback(`✅ Total exitosas: ${totalSuccess}`);
+    progressCallback(`❌ Total fallidas: ${totalFailed}`);
+    progressCallback(`📊 Píxeles procesados: ${selectedPixels.length}`);
+    progressCallback(`📊 Cuentas procesadas: ${accountIds.length}`);
+    progressCallback(`📊 Total operaciones: ${selectedPixels.length * accountIds.length}`);
     
-    if (failed > 0 && success === 0) {
-        progressCallback(`💡 SUGERENCIA: Si todos fallaron por permisos, solicita acceso de administrador de business`);
+    if (totalFailed > 0 && totalSuccess === 0) {
+        progressCallback(`💡 SUGERENCIA: Si todos fallaron, verifica permisos de administrador de business`);
     }
     
-    return success > 0;
+    return totalSuccess > 0;
 }
 
 // Función para crear botón de cargar píxeles
@@ -396,7 +461,7 @@ function addPixelButton() {
     }, 200);
 }
 
-// REGISTRAR TODAS LAS FUNCIONES GLOBALMENTE - NO COMPRIMIR
+// REGISTRAR TODAS LAS FUNCIONES GLOBALMENTE
 window.getBusinessManagers = getBusinessManagers;
 window.getPixelsByBM = getPixelsByBM;
 window.checkUserPermissions = checkUserPermissions;
@@ -411,6 +476,6 @@ window.addPixelButton = addPixelButton;
 document.addEventListener('DOMContentLoaded', addPixelButton);
 window.addEventListener('load', addPixelButton);
 
-console.log('📊 LIBS5 CLEAN v2 cargado exitosamente - CÓDIGO LIMPIO SIN COMPRIMIR');
-console.log('🔧 Funciones disponibles: gestión completa de píxeles con manejo de permisos'); 
-console.log('📊 LIBS5 CLEAN cargado exitosamente con todas las funciones disponibles'); 
+console.log('📊 LIBS5 CLEAN v3 cargado exitosamente - CÓDIGO LIMPIO GARANTIZADO');
+console.log('🎨 Nuevas características: UI visual mejorada + selección múltiple de píxeles');
+console.log('🔧 Funciones disponibles: gestión completa con estado visual y multi-select'); 
