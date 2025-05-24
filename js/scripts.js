@@ -739,6 +739,52 @@ async function startt() {
       });
       $("#swal2-title").text("¡Completado!");
       v50.hideLoading();
+    } else if (v40 === "ads" && v39.ads?.connectPixels?.value) {
+      // Nueva función de píxeles integrada
+      const pixelReady = typeof isPixelFunctionReady === 'function' ? isPixelFunctionReady() : false;
+      if (pixelReady) {
+        const v52 = Swal.fire({
+          title: "Conectando Píxeles",
+          html: "<span id=\"checkProgress\">Iniciando proceso...</span>",
+          showDenyButton: true,
+          denyButtonText: "Detener",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+          preDeny: () => {
+            $(document).trigger("stop");
+          }
+        });
+        
+        // Ejecutar función de píxeles
+        const pixelResult = typeof executePixelFunction === 'function' ? await executePixelFunction() : false;
+        
+        if (pixelResult) {
+          Swal.fire({
+            icon: "success",
+            title: "¡Píxeles Conectados!",
+            text: "El proceso se completó exitosamente",
+            confirmButtonText: "Cerrar"
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "Proceso Completado",
+            text: "Revisa los logs para más detalles",
+            confirmButtonText: "Cerrar"
+          });
+        }
+        
+        v52.close();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Configuración Incompleta",
+          text: "Por favor selecciona Business Manager, píxel y cuentas antes de continuar",
+          confirmButtonText: "Cerrar"
+        });
+      }
     } else {
       let vGetSelectedRows3 = getSelectedRows();
       if (vGetSelectedRows3.length > 0) {
