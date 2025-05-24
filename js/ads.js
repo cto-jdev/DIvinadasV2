@@ -390,17 +390,7 @@ const columnDefs = [{
       $("#count").text(v19.length);
       accountGrid.api.setRowData(v19);
     } else {
-      $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {
-        if ($(this).find(".more").length > 0 && $(".moreCard").length === 0) {
-          const v20 = $(this).find(".more").offset();
-          const v21 = parseInt($(this).find(".more").attr("offset")) || 2;
-          const v22 = $(this).find(".subMenu").html();
-          $("body").append("\n                    <div class=\"moreCard shadow rounded p-3\" style=\"top: " + (v20.top + v21) + "px; left: " + (v20.left - 10) + "px\">" + v22 + "</div>\n                ");
-        }
-      });
-      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {
-        $(".moreCard").remove();
-      });
+            $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {        if ($(this).find(".more").length > 0 && $(".moreCard").length === 0) {          const v20 = $(this).find(".more").offset();          const v21 = parseInt($(this).find(".more").attr("offset")) || 2;          const v22 = $(this).find(".subMenu").html();                    // Mejorar el posicionamiento para evitar superposición          let topPosition = v20.top + v21;          let leftPosition = v20.left - 10;                    // Obtener dimensiones de la ventana          const windowHeight = $(window).height();          const windowWidth = $(window).width();          const cardEstimatedHeight = 200; // Altura estimada de la tarjeta          const cardEstimatedWidth = 350; // Ancho estimado de la tarjeta                    // Ajustar posición vertical si se sale de la pantalla por abajo          if (topPosition + cardEstimatedHeight > windowHeight) {            topPosition = v20.top - cardEstimatedHeight - 10;          }                    // Ajustar posición horizontal si se sale de la pantalla por la derecha          if (leftPosition + cardEstimatedWidth > windowWidth) {            leftPosition = windowWidth - cardEstimatedWidth - 20;          }                    // Asegurar que no se salga por la izquierda          if (leftPosition < 10) {            leftPosition = 10;          }                    // Asegurar que no se salga por arriba          if (topPosition < 10) {            topPosition = 10;          }                    $("body").append("\n                    <div class=\"moreCard shadow rounded p-3\" style=\"top: " + topPosition + "px; left: " + leftPosition + "px\">" + v22 + "</div>\n                ");        }      });      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {        $(".moreCard").remove();      });
       setInterval(async () => {
         if ($("body").hasClass("setting-loaded")) {
           saveSetting();

@@ -630,11 +630,61 @@ body.hideMenu .account-wrapper, body.hideMenu .header-bottom {
 
 .moreCard {
   position: absolute;
-  min-width: 100px;
-  z-index: 999;
+  min-width: 200px;
+  max-width: 350px;
+  z-index: 9999999;
   background: #fff;
   line-height: initial;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  animation: fadeInScale 0.15s ease-out;
+  overflow: hidden;
+  pointer-events: auto;
+  user-select: none;
+  backdrop-filter: blur(2px);
 }
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Mejoras adicionales para las tarjetas de píxeles */
+.moreCard .cardItem {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.moreCard .cardItem:last-child {
+  border-bottom: none;
+}
+
+.moreCard .cardItem img {
+  border-radius: 4px;
+}
+
+.moreCard .badge {
+  font-size: 0.7em;
+}
+
+/* Asegurar que las tarjetas se vean correctamente en modo oscuro */
+[data-bs-theme="dark"] .moreCard {
+  background: #2f333d;
+  border-color: #49505780;
+  color: #fff;
+}
+
+[data-bs-theme="dark"] .moreCard .cardItem {
+  border-bottom-color: #49505780;
+}
+
 .cardItem:not(:last-child) {
   margin-bottom: 10px;
 }
@@ -834,4 +884,27 @@ div:where(.swal2-container) button:where(.swal2-styled) {
 
 [data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
   background: #ffffff0f;
+}
+
+/* Asegurar que los elementos "more" sean clickeables */
+.more {
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.more:hover {
+  color: #0056b3 !important;
+  text-decoration: underline;
+}
+
+/* Mejora la visibilidad de los elementos more */.accountPayments .more {  font-weight: 600;  font-size: 0.85em;}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .moreCard {
+    max-width: calc(100vw - 20px);
+    min-width: 250px;
+  }
 }

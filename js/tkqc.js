@@ -220,7 +220,45 @@ const columnDefs = [{
     minWidth: 200,
     cellRenderer: p => {
       if (!p.data.pixel || !Array.isArray(p.data.pixel) || p.data.pixel.length === 0) return '';
-      return p.data.pixel.map(px => `<div><strong>${px.name}</strong> <small>${px.id}</small></div>`).join('');
+      
+      let pixelHtml = '<div class="accountPixels" style="line-height: initial;">';
+      
+      // Mostrar el primer píxel
+      const firstPixel = p.data.pixel[0];
+      pixelHtml += `
+        <div class="d-flex align-items-center">
+          <strong>${firstPixel.name}</strong>
+          <span class="mx-1">•</span>
+          <small class="text-muted">${firstPixel.id}</small>
+        </div>
+      `;
+      
+      // Si hay más píxeles, mostrar el enlace "X más píxeles..."
+      if (p.data.pixel.length > 1) {
+        pixelHtml += `
+          <strong class="more text-primary d-block" style="margin-top: 2px">
+            ${p.data.pixel.length - 1} Más píxeles...
+          </strong>
+          <div class="subMenu d-none">
+        `;
+        
+        // Agregar todos los píxeles al submenú
+        p.data.pixel.forEach(px => {
+          pixelHtml += `
+            <div class="cardItem d-flex align-items-center">
+              <div>
+                <span class="d-block"><strong>${px.name}</strong></span>
+                <small class="text-muted">${px.id}</small>
+              </div>
+            </div>
+          `;
+        });
+        
+        pixelHtml += '</div>';
+      }
+      
+      pixelHtml += '</div>';
+      return pixelHtml;
     }
   }];
   const accountGrid = {
@@ -446,17 +484,53 @@ const columnDefs = [{
       $("#count").text(v22.length);
       accountGrid.api.setRowData(v22);
     } else {
-      $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {
+      // Eventos para mostrar/ocultar tarjetas al hacer hover
+      $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"], div[col-id=\"pixel\"]", function () {
         if ($(this).find(".more").length > 0 && $(".moreCard").length === 0) {
           const v23 = $(this).find(".more").offset();
           const v24 = parseInt($(this).find(".more").attr("offset")) || 2;
           const v25 = $(this).find(".subMenu").html();
-          $("body").append("\n                    <div class=\"moreCard shadow rounded p-3\" style=\"top: " + (v23.top + v24) + "px; left: " + (v23.left - 10) + "px\">" + v25 + "</div>\n                ");
+          
+          // Mejorar el posicionamiento para evitar superposición
+          let topPosition = v23.top + v24;
+          let leftPosition = v23.left - 10;
+          
+          // Obtener dimensiones de la ventana
+          const windowHeight = $(window).height();
+          const windowWidth = $(window).width();
+          const cardEstimatedHeight = 200; // Altura estimada de la tarjeta
+          const cardEstimatedWidth = 350; // Ancho estimado de la tarjeta
+          
+          // Ajustar posición vertical si se sale de la pantalla por abajo
+          if (topPosition + cardEstimatedHeight > windowHeight) {
+            topPosition = v23.top - cardEstimatedHeight - 10;
+          }
+          
+          // Ajustar posición horizontal si se sale de la pantalla por la derecha
+          if (leftPosition + cardEstimatedWidth > windowWidth) {
+            leftPosition = windowWidth - cardEstimatedWidth - 20;
+          }
+          
+          // Asegurar que no se salga por la izquierda
+          if (leftPosition < 10) {
+            leftPosition = 10;
+          }
+          
+          // Asegurar que no se salga por arriba
+          if (topPosition < 10) {
+            topPosition = 10;
+          }
+          
+          $("body").append(`
+            <div class="moreCard shadow rounded p-3" style="top: ${topPosition}px; left: ${leftPosition}px">${v25}</div>
+          `);
         }
       });
-      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {
+      
+      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"], div[col-id=\"pixel\"]", function () {
         $(".moreCard").remove();
       });
+      
       setInterval(async () => {
         if ($("body").hasClass("setting-loaded")) {
           saveSetting();

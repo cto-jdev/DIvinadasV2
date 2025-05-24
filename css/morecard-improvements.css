@@ -1,0 +1,149 @@
+/* Mejoras para las tarjetas de píxeles - DivinAds */
+
+.moreCard {
+  position: absolute !important;
+  min-width: 200px !important;
+  max-width: 350px !important;
+  z-index: 9999999 !important;
+  background: #fff !important;
+  line-height: initial !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 8px !important;
+  animation: fadeInScale 0.15s ease-out !important;
+  overflow: hidden !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Mejoras adicionales para las tarjetas de píxeles */
+.moreCard .cardItem {
+  padding: 8px 0 !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  margin-bottom: 0 !important;
+}
+
+.moreCard .cardItem:last-child {
+  border-bottom: none !important;
+}
+
+.moreCard .cardItem img {
+  border-radius: 4px !important;
+}
+
+.moreCard .badge {
+  font-size: 0.7em !important;
+}
+
+/* Asegurar que las tarjetas se vean correctamente en modo oscuro */
+[data-bs-theme="dark"] .moreCard {
+  background: #2f333d !important;
+  border-color: #49505780 !important;
+  color: #fff !important;
+}
+
+[data-bs-theme="dark"] .moreCard .cardItem {
+  border-bottom-color: #49505780 !important;
+}
+
+/* Asegurar que los elementos "more" sean clickeables */
+.more {
+  position: relative !important;
+  z-index: 1 !important;
+  cursor: pointer !important;
+  transition: color 0.2s ease !important;
+}
+
+.more:hover {
+  color: #0056b3 !important;
+  text-decoration: underline !important;
+}
+
+/* Mejora la visibilidad de los elementos more */
+.accountPayments .more, .accountPixels .more {
+  font-weight: 600 !important;
+  font-size: 0.85em !important;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .moreCard {
+    max-width: calc(100vw - 20px) !important;
+    min-width: 250px !important;
+  }
+}
+
+/* Prevenir scroll cuando hay tarjetas activas */
+body.has-morecard {
+  overflow-x: hidden;
+}
+
+/* Mejora visual para identificar elementos interactivos */
+div[col-id="payment"] .more,
+div[col-id="hiddenAdmins"] .more,
+div[col-id="pixel"] .more {
+  border-bottom: 1px dotted #0d6efd !important;
+  padding-bottom: 1px !important;
+}
+
+/* Estilos específicos para la columna de píxeles */
+.accountPixels {
+  font-family: 'SFProDisplay', sans-serif !important;
+}
+
+.accountPixels .more {
+  color: #0d6efd !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  margin-top: 4px !important;
+}
+
+.accountPixels .more:hover {
+  color: #0a58ca !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Asegurar que las tarjetas de píxeles se vean bien */
+div[col-id="pixel"] .moreCard {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+  border: 2px solid #dee2e6 !important;
+}
+
+div[col-id="pixel"] .moreCard .cardItem {
+  background: rgba(13, 110, 253, 0.02) !important;
+  border-radius: 4px !important;
+  margin: 2px 0 !important;
+  padding: 6px 8px !important;
+}
+
+div[col-id="pixel"] .moreCard .cardItem:hover {
+  background: rgba(13, 110, 253, 0.05) !important;
+  transform: translateX(2px) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Forzar aplicación de estilos */
+body .moreCard {
+  z-index: 9999999 !important;
+}
+
+/* Debug: Destacar elementos more para verificar funcionamiento */
+.debug-mode .more {
+  background: yellow !important;
+  border: 2px solid red !important;
+}
+
+/* Cache buster - cambiar este número para forzar recarga */
+/* Version: 2.0.1 */ 
