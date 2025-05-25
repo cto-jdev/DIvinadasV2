@@ -1,0 +1,249 @@
+/* Card Modal Styles - Following project design patterns */
+
+/* Card Modal Improvements */
+#cardModal .modal-xl {
+    max-width: 1200px;
+}
+
+#cardModal .modal-header {
+    background: #fff;
+    border-bottom: 1px solid #e2e2e2;
+    color: #666;
+}
+
+#cardModal .modal-title {
+    font-family: 'SFProDisplay', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+#cardModal .modal-title i {
+    color: #666;
+}
+
+/* Form styling */
+#addCardForm {
+    background: #f8f9fa;
+    border-left: 3px solid #e2e2e2;
+}
+
+#addCardForm .form-control {
+    border: 1px solid #e2e2e2;
+    border-radius: 3px;
+    font-family: 'SFProDisplay', sans-serif;
+    font-size: 13px;
+    transition: border-color 0.15s ease-in-out;
+}
+
+#addCardForm .form-control:focus {
+    border-color: #666;
+    box-shadow: none;
+    outline: 0;
+}
+
+/* Button enhancements - Following project control-btn style */
+#cardModal .btn {
+    border-radius: 3px;
+    font-family: 'SFProDisplay', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    transition: background-color 0.15s ease-in-out;
+}
+
+#cardModal .btn:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+#cardModal .btn-success {
+    background: #28a745;
+    border: 1px solid #28a745;
+    color: #fff;
+}
+
+#cardModal .btn-success:hover {
+    background: #218838;
+    border-color: #1e7e34;
+}
+
+#cardModal .btn-info {
+    background: #17a2b8;
+    border: 1px solid #17a2b8;
+    color: #fff;
+}
+
+#cardModal .btn-info:hover {
+    background: #138496;
+    border-color: #117a8b;
+}
+
+#cardModal .btn-warning {
+    background: #ffc107;
+    border: 1px solid #ffc107;
+    color: #212529;
+}
+
+#cardModal .btn-warning:hover {
+    background: #e0a800;
+    border-color: #d39e00;
+}
+
+#cardModal .btn-primary {
+    background: #007bff;
+    border: 1px solid #007bff;
+    color: #fff;
+}
+
+#cardModal .btn-primary:hover {
+    background: #0056b3;
+    border-color: #004085;
+}
+
+/* Card grid container */
+#cards.ag-theme-balham {
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid #e2e2e2;
+}
+
+/* Alert improvements */
+#cardModal .alert {
+    border-radius: 3px;
+    border: 1px solid #e2e2e2;
+    font-family: 'SFProDisplay', sans-serif;
+    font-size: 13px;
+}
+
+#cardModal .alert-info {
+    background: #f8f9fa;
+    color: #666;
+    border-color: #e2e2e2;
+}
+
+/* Context menu styles - Following project style */
+.context-menu-simple {
+    background: #fff;
+    border: 1px solid #e2e2e2;
+    border-radius: 3px;
+    box-shadow: 0 0.3rem 1rem rgba(0,0,0,.15);
+    font-family: 'SFProDisplay', sans-serif;
+    font-size: 13px;
+}
+
+.context-menu-item {
+    border-radius: 0;
+    margin: 0;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.context-menu-item:hover {
+    background: #f5f5f5 !important;
+    color: #666 !important;
+    transform: none;
+}
+
+/* Badge improvements */
+#cardModal .badge {
+    border-radius: 3px;
+    font-weight: 700;
+    font-family: 'SFProDisplay', sans-serif;
+    font-size: 11px;
+}
+
+/* Modal footer enhancements */
+#cardModal .modal-footer {
+    border-top: 1px solid #e2e2e2;
+    background: #f8f9fa;
+}
+
+#cardModal .modal-footer .text-muted {
+    font-size: 12px;
+    font-family: 'SFProDisplay', sans-serif;
+}
+
+/* Form labels */
+#cardModal .form-label {
+    font-family: 'SFProDisplay', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: #666;
+}
+
+/* Remove special animations that don't fit project style */
+#cardCountButton {
+    animation: none;
+}
+
+/* Header action bar */
+#cardModal .border-bottom {
+    border-color: #e2e2e2 !important;
+}
+
+/* Form validation styles */
+#cardModal .is-invalid {
+    border-color: #dc3545 !important;
+}
+
+#cardModal .is-valid {
+    border-color: #28a745 !important;
+}
+
+/* Loading states */
+#cardModal .btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    #cardModal .modal-xl {
+        max-width: 95%;
+        margin: 10px auto;
+    }
+    
+    #addCardForm .row {
+        margin: 0;
+    }
+    
+    #addCardForm .col-md-3,
+    #addCardForm .col-md-2 {
+        margin-bottom: 1rem;
+    }
+    
+    #cardModal .d-flex.gap-2 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    #cardModal .btn-sm {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Following project's dark theme patterns */
+[data-bs-theme="dark"] #cardModal .modal-content {
+    background-color: #fff;
+    color: #666;
+}
+
+[data-bs-theme="dark"] #cardModal .modal-header {
+    background: #fff;
+    border-bottom-color: #e2e2e2;
+}
+
+[data-bs-theme="dark"] #addCardForm {
+    background: #f8f9fa;
+}
+
+[data-bs-theme="dark"] #cardModal .form-control {
+    background-color: #fff;
+    border-color: #e2e2e2;
+    color: #666;
+}
+
+[data-bs-theme="dark"] #cardModal .form-control:focus {
+    background-color: #fff;
+    border-color: #666;
+    color: #666;
+} 
