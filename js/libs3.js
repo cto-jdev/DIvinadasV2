@@ -47,30 +47,32 @@ async function getBase64ImageFromUrl(p289) {
       $("body").removeClass("folded");
     }
     if (v365 !== "setting") {
-      const v367 = await fetch("https://dashboard.toolfb.vn/update/versions.json", {
+      const v367 = await fetch("https://divinads.com/wp-json/divinads/v1/updates", {
         cache: "no-cache"
       });
       rates = await (await fetch("../rates.json")).json();
       const v368 = await v367.json();
-      const v369 = v368.filter(p292 => p292.type === "ext");
+      
+      // Usar directamente los elementos web ya que es todo lo que tenemos
+      const v369 = v368.filter(p292 => p292.type === "web");
       const v370 = await getVersion();
-      const v371 = v369[0].version;
-      const v372 = v369[0].note;
-      if (v371 === v370) {
-        const v373 = v368.filter(p293 => p293.type === "web");
-        const v374 = v373[0].version;
-        const v375 = v373[0].note;
+      
+      // Verificar que tenemos datos antes de acceder
+      if (v369.length > 0) {
+        const v371 = v369[0].version;
+        const v372 = v369[0].note;
         const v376 = await getLocalStorage("ver");
-        if (v376 !== v374) {
-          await setLocalStorage("ver", v374);
-          $(".appVersion").html("<span class=\"mb-0 text-decoration-none badge text-bg-light\">v" + v374 + "</span>");
+        
+        if (v376 !== v371) {
+          await setLocalStorage("ver", v371);
+          $(".appVersion").html("<span class=\"mb-0 text-decoration-none badge text-bg-light\">v" + v371 + "</span>");
           Swal.fire({
             icon: "success",
-            title: "Actualización exitosa v" + v374,
+            title: "Actualización exitosa v" + v371,
             text: "¿Qué hay de nuevo en esta versión?",
             confirmButtonText: "Continuar",
             input: "textarea",
-            inputValue: v375.replaceAll("<br>", "\r\n"),
+            inputValue: v372.replaceAll("<br>", "\r\n"),
             allowOutsideClick: false,
             inputAttributes: {
               rows: 7,
@@ -78,185 +80,185 @@ async function getBase64ImageFromUrl(p289) {
             }
           });
         }
-        let v377 = false;
-        const vF11 = async () => {
-          const v378 = await fb.checkLive();
-          if (v378 !== "success") {
-            if (v378 === "not_login") {
-              $(document).trigger("notLogged");
-            }
-            if (v378 === "282") {
-              $(document).trigger("282");
-              Swal.fire({
-                icon: "error",
-                title: "Checkpoint 282",
-                text: "La cuenta ha sido checkpoint",
-                confirmButtonText: "Cerrar sesión",
-                confirmButtonColor: "#dc3545",
-                cancelButtonText: "Cancelar",
-                showCancelButton: true,
-                allowOutsideClick: false
-              }).then(async p294 => {
-                if (p294.isConfirmed) {
-                  await emptyCookie();
-                  location.reload();
-                }
-              });
-            }
-            if (v378 === "956") {
-              $(document).trigger("956");
-              Swal.fire({
-                icon: "error",
-                title: "Checkpoint 956",
-                text: "La cuenta ha sido checkpoint",
-                confirmButtonText: "Cerrar sesión",
-                confirmButtonColor: "#dc3545",
-                cancelButtonText: "Cancelar",
-                showCancelButton: true,
-                allowOutsideClick: false
-              }).then(async p295 => {
-                if (p295.isConfirmed) {
-                  await emptyCookie();
-                  location.reload();
-                }
-              });
-            }
-            $("#pageLoading").addClass("d-none");
-            $("#gridLoading").addClass("d-none");
-            $("body").addClass("data-loaded");
-            try {
-              clearInterval(v377);
-            } catch (e61) {
-              console.log(e61);
-            }
+      }
+      let v377 = false;
+      const vF11 = async () => {
+        const v378 = await fb.checkLive();
+        if (v378 !== "success") {
+          if (v378 === "not_login") {
+            $(document).trigger("notLogged");
           }
-        };
-        v377 = setInterval(async () => {
-          await vF11();
-        }, 5000);
-        await vF11();
-        if (v365 === "via") {
-          let vLS8 = "";
-          v368.forEach(p296 => {
-            vLS8 += "\n                        <div class=\"d-flex\">\n                            <div class=\"me-3 pt-2\">\n                                <span class=\"badge text-bg-success\">v" + p296.version + "</span>\n                                <small class=\"d-block mt-2 text-nowrap\">" + p296.date.split("T")[0] + "</small>\n                            </div>\n                            <div class=\"alert alert-light w-100\" role=\"alert\">" + p296.note + "</div>\n                        </div>\n                    ";
-          });
-          $("#versions").html(vLS8);
-        }
-        const vF12 = async () => {
-          await fb.init();
-          let vLS9 = "";
-          let vLS10 = "";
-          try {
-            const v379 = await fb.getAccountQuality();
-            vLS10 = "<a href=\"https://www.facebook.com/business-support-home/" + fb.uid + "\" target=\"_BLANK\" class=\"text-decoration-none badge text-bg-" + v379.color + " mb-1\" style=\"font-size: 12px;\">" + v379.status + "</a>";
-            $("#quality").html(vLS10);
-            if (vLS10.status === "XMDT Checkpoint") {
-              vLS9 = "<button id=\"xmdt\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar</button>";
-            }
-            if (vLS10.status === "HCQC 902 Rechazado - Volver a XMDT 273" || vLS10.status === "Apelando 902" || vLS10.status === "Restricción 902 XMDT" || vLS10.status === "HCQC 902 Pendiente") {
-              vLS9 = "<button id=\"k902\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar 902</button>";
-            }
-          } catch (e62) {
-            console.log(e62);
+          if (v378 === "282") {
+            $(document).trigger("282");
+            Swal.fire({
+              icon: "error",
+              title: "Checkpoint 282",
+              text: "La cuenta ha sido checkpoint",
+              confirmButtonText: "Cerrar sesión",
+              confirmButtonColor: "#dc3545",
+              cancelButtonText: "Cancelar",
+              showCancelButton: true,
+              allowOutsideClick: false
+            }).then(async p294 => {
+              if (p294.isConfirmed) {
+                await emptyCookie();
+                location.reload();
+              }
+            });
           }
-          $("#userInfo").html("\n                    <div class=\"dropdown\">\n                        <div data-bs-toggle=\"dropdown\" data-bs-auto-close=\"outside\" style=\"cursor: pointer\">\n                            <span class=\"d-flex justify-content-between align-items-center border-start ms-3 ps-3\" style=\"width:calc(350px - 1rem);\">\n                                <span class=\"d-flex flex-column\">\n                                    <span class=\"position-relative\">\n                                        " + vLS9 + "\n                                        <span class=\"d-flex align-items-center flex-wrap\">\n                                            <span class=\"rounded-circle overflow-hidden\" style=\"width: 33px;\">\n                                                <img id=\"fbAvatar\" class=\"w-100 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                            </span>\n                                            <span class=\"ps-2\" style=\"width: calc(100% - 33px)\">\n                                                <span class=\"d-block mb-0 fw-bold text-truncate\" style=\"width: 200px;\">" + fb.userInfo.name + "</span>\n                                                <small class=\"d-block\">" + fb.uid + "</small>\n                                            </span>\n                                        </span>\n                                    </span>\n                                </span>\n                                <i class=\"ri-arrow-down-s-fill fs-5 m-0\" style=\"color: #666\"></i>\n                            </span>\n                        </div>\n                        <div class=\"dropdown-menu dropdown-menu-end overflow-hidden p-0 shadow\" style=\"width:calc(350px - 3rem);\">\n                            <div class=\"p-2\" style=\"background: #f0ecf4\">\n                                <div class=\"d-flex align-items-center justify-content-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px; margin-bottom: -35px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                </div>\n                            </div>\n                            <div class=\"p-3 mt-4\">\n                                <div class=\"d-flex flex-column align-items-center\">\n                                    <span class=\"fw-bold fs-5\">" + fb.userInfo.name + "</span>\n                                    <span class=\"mb-2\">" + fb.uid + "</span>\n                                    " + vLS10 + "\n                                </div>\n                            </div>\n                            <ul class=\"p-3 m-0 border-top list-unstyled\">\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-mail-line me-2\"></i> Email: " + fb.userInfo.email + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-calendar-line me-2\"></i> Fecha de nacimiento: " + fb.userInfo.birthday + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-group-line me-2\"></i> Amigos: " + fb.userInfo.friends + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-men-line me-2\"></i> Género: " + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "\n                                    </span>\n                                </li>\n                            </ul>\n                            <ul class=\"border-top p-3 m-0 list-unstyled\">\n                                <li>\n                                    <a href=\"#\" id=\"switch\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-repeat-line me-2\"></i> Cambiar cuenta\n                                    </a>\n                                </li>\n                                <li>\n                                    <a href=\"#\" id=\"logout\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-logout-box-r-line me-2\"></i> Cerrar sesión\n                                    </a>\n                                </li>\n                            </ul>\n                        </div>\n                    </div>\n                ");
-          if (v365 === "via") {
-            $("#viaInfo").html("\n                        <div class=\"card border-0 rounded-4 shadow-sm mb-4 p-4\" style=\"background: #013b3b \">\n                            <div class=\"d-flex align-items-center justify-content-between\">\n                                <div class=\"d-flex align-items-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                    <div class=\"ms-3\">\n                                        <span class=\"text-white fs-4 fw-medium d-block mb-0\">" + fb.userInfo.name + "</span>\n                                        <span class=\"text-white d-block\"><i class=\"ri-user-line\"></i> " + fb.uid + "</span>\n                                        <span class=\"text-white\"><i class=\"ri-mail-line\"></i> " + fb.userInfo.email + "</span>\n                                    </div>\n                                </div>\n                                <div class=\"rounded-4 p-3\" style=\"background-color: #ffffff1c; width: 500px;\">\n                                    <div class=\"row flex-grow-1\">\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex flex-wrap align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-calendar-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div style=\"width: calc(100% - 30px);\">\n                                                    <div class=\"ms-3\">\n                                                        <strong class=\"d-block text-white text-truncate\">" + fb.userInfo.birthday + "</strong>\n                                                        <span class=\"text-white-50 fw-medium\">Fecha de nacimiento</span>\n                                                    </div>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-user-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + fb.userInfo.friends + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Amigos</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-men-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Género</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                    ");
+          if (v378 === "956") {
+            $(document).trigger("956");
+            Swal.fire({
+              icon: "error",
+              title: "Checkpoint 956",
+              text: "La cuenta ha sido checkpoint",
+              confirmButtonText: "Cerrar sesión",
+              confirmButtonColor: "#dc3545",
+              cancelButtonText: "Cancelar",
+              showCancelButton: true,
+              allowOutsideClick: false
+            }).then(async p295 => {
+              if (p295.isConfirmed) {
+                await emptyCookie();
+                location.reload();
+              }
+            });
           }
-          try {
-            if (v365 === "bm") {
-              const v380 = await getLocalStorage("loadBm");
-              const v381 = await getLocalStorage("dataBm_" + fb.uid);
-              if (v380) {
-                await removeLocalStorage("loadBm");
-                await removeLocalStorage("dataBm_" + fb.uid);
-                await fb.loadBm();
-              } else if (v381) {
-                await fb.loadBm();
-              } else {
-                Swal.fire({
-                  title: "Sin datos",
-                  text: "Por favor haz clic en el botón para cargar la información",
-                  icon: "warning",
-                  showCancelButton: true,
-                  confirmButtonText: "Cargar datos",
-                  cancelButtonText: "Cancelar"
-                }).then(async p297 => {
-                  if (p297.isConfirmed) {
-                    try {
-                      await runCheckKey();
-                      await setLocalStorage("loadBm", true);
-                      location.reload();
-                    } catch {}
-                  }
-                });
-              }
-            }
-            if (v365 === "page") {
-              const v382 = await getLocalStorage("loadPage");
-              const v383 = await getLocalStorage("dataPage_" + fb.uid);
-              if (v382) {
-                await removeLocalStorage("loadPage");
-                await removeLocalStorage("dataPage_" + fb.uid);
-                await fb.loadPage();
-              } else if (v383) {
-                await fb.loadPage();
-              } else {
-                Swal.fire({
-                  title: "No data",
-                  text: "Please click on the load data button to display the information",
-                  icon: "warning",
-                  showCancelButton: true,
-                  confirmButtonText: "Load data",
-                  cancelButtonText: "Cancel"
-                }).then(async p298 => {
-                  if (p298.isConfirmed) {
-                    try {
-                      await runCheckKey();
-                      await setLocalStorage("loadPage", true);
-                      location.reload();
-                    } catch {}
-                  }
-                });
-              }
-            }
-            if (v365 === "ads") {
-              const v384 = await getLocalStorage("loadAds");
-              const v385 = await getLocalStorage("dataAds_" + fb.uid);
-              if (v384) {
-                await removeLocalStorage("loadAds");
-                await removeLocalStorage("dataAds_" + fb.uid);
-                await fb.loadAds();
-              } else if (v385) {
-                await fb.loadAds();
-              } else {
-                Swal.fire({
-                  title: "No data",
-                  text: "Please click on the load data button to display the information",
-                  icon: "warning",
-                  showCancelButton: true,
-                  confirmButtonText: "Load data",
-                  cancelButtonText: "Cancel"
-                }).then(async p299 => {
-                  if (p299.isConfirmed) {
-                    try {
-                      await runCheckKey();
-                      await setLocalStorage("loadAds", true);
-                      location.reload();
-                    } catch {}
-                  }
-                });
-              }
-            }
-          } catch {}
+          $("#pageLoading").addClass("d-none");
           $("#gridLoading").addClass("d-none");
           $("body").addClass("data-loaded");
-          if ($("#app").attr("data") !== "popup") {
-            loadSetting();
+          try {
+            clearInterval(v377);
+          } catch (e61) {
+            console.log(e61);
           }
-        };
-        vF12();
+        }
+      };
+      v377 = setInterval(async () => {
+        await vF11();
+      }, 5000);
+      await vF11();
+      if (v365 === "via") {
+        let vLS8 = "";
+        v368.forEach(p296 => {
+          vLS8 += "\n                        <div class=\"d-flex\">\n                            <div class=\"me-3 pt-2\">\n                                <span class=\"badge text-bg-success\">v" + p296.version + "</span>\n                                <small class=\"d-block mt-2 text-nowrap\">" + p296.date.split("T")[0] + "</small>\n                            </div>\n                            <div class=\"alert alert-light w-100\" role=\"alert\">" + p296.note + "</div>\n                        </div>\n                    ";
+        });
+        $("#versions").html(vLS8);
       }
+      const vF12 = async () => {
+        await fb.init();
+        let vLS9 = "";
+        let vLS10 = "";
+        try {
+          const v379 = await fb.getAccountQuality();
+          vLS10 = "<a href=\"https://www.facebook.com/business-support-home/" + fb.uid + "\" target=\"_BLANK\" class=\"text-decoration-none badge text-bg-" + v379.color + " mb-1\" style=\"font-size: 12px;\">" + v379.status + "</a>";
+          $("#quality").html(vLS10);
+          if (vLS10.status === "XMDT Checkpoint") {
+            vLS9 = "<button id=\"xmdt\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar</button>";
+          }
+          if (vLS10.status === "HCQC 902 Rechazado - Volver a XMDT 273" || vLS10.status === "Apelando 902" || vLS10.status === "Restricción 902 XMDT" || vLS10.status === "HCQC 902 Pendiente") {
+            vLS9 = "<button id=\"k902\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar 902</button>";
+          }
+        } catch (e62) {
+          console.log(e62);
+        }
+        $("#userInfo").html("\n                    <div class=\"dropdown\">\n                        <div data-bs-toggle=\"dropdown\" data-bs-auto-close=\"outside\" style=\"cursor: pointer\">\n                            <span class=\"d-flex justify-content-between align-items-center border-start ms-3 ps-3\" style=\"width:calc(350px - 1rem);\">\n                                <span class=\"d-flex flex-column\">\n                                    <span class=\"position-relative\">\n                                        " + vLS9 + "\n                                        <span class=\"d-flex align-items-center flex-wrap\">\n                                            <span class=\"rounded-circle overflow-hidden\" style=\"width: 33px;\">\n                                                <img id=\"fbAvatar\" class=\"w-100 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                            </span>\n                                            <span class=\"ps-2\" style=\"width: calc(100% - 33px)\">\n                                                <span class=\"d-block mb-0 fw-bold text-truncate\" style=\"width: 200px;\">" + fb.userInfo.name + "</span>\n                                                <small class=\"d-block\">" + fb.uid + "</small>\n                                            </span>\n                                        </span>\n                                    </span>\n                                </span>\n                                <i class=\"ri-arrow-down-s-fill fs-5 m-0\" style=\"color: #666\"></i>\n                            </span>\n                        </div>\n                        <div class=\"dropdown-menu dropdown-menu-end overflow-hidden p-0 shadow\" style=\"width:calc(350px - 3rem);\">\n                            <div class=\"p-2\" style=\"background: #f0ecf4\">\n                                <div class=\"d-flex align-items-center justify-content-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px; margin-bottom: -35px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                </div>\n                            </div>\n                            <div class=\"p-3 mt-4\">\n                                <div class=\"d-flex flex-column align-items-center\">\n                                    <span class=\"fw-bold fs-5\">" + fb.userInfo.name + "</span>\n                                    <span class=\"mb-2\">" + fb.uid + "</span>\n                                    " + vLS10 + "\n                                </div>\n                            </div>\n                            <ul class=\"p-3 m-0 border-top list-unstyled\">\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-mail-line me-2\"></i> Email: " + fb.userInfo.email + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-calendar-line me-2\"></i> Fecha de nacimiento: " + fb.userInfo.birthday + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-group-line me-2\"></i> Amigos: " + fb.userInfo.friends + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-men-line me-2\"></i> Género: " + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "\n                                    </span>\n                                </li>\n                            </ul>\n                            <ul class=\"border-top p-3 m-0 list-unstyled\">\n                                <li>\n                                    <a href=\"#\" id=\"switch\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-repeat-line me-2\"></i> Cambiar cuenta\n                                    </a>\n                                </li>\n                                <li>\n                                    <a href=\"#\" id=\"logout\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-logout-box-r-line me-2\"></i> Cerrar sesión\n                                    </a>\n                                </li>\n                            </ul>\n                        </div>\n                    </div>\n                ");
+        if (v365 === "via") {
+          $("#viaInfo").html("\n                        <div class=\"card border-0 rounded-4 shadow-sm mb-4 p-4\" style=\"background: #013b3b \">\n                            <div class=\"d-flex align-items-center justify-content-between\">\n                                <div class=\"d-flex align-items-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                    <div class=\"ms-3\">\n                                        <span class=\"text-white fs-4 fw-medium d-block mb-0\">" + fb.userInfo.name + "</span>\n                                        <span class=\"text-white d-block\"><i class=\"ri-user-line\"></i> " + fb.uid + "</span>\n                                        <span class=\"text-white\"><i class=\"ri-mail-line\"></i> " + fb.userInfo.email + "</span>\n                                    </div>\n                                </div>\n                                <div class=\"rounded-4 p-3\" style=\"background-color: #ffffff1c; width: 500px;\">\n                                    <div class=\"row flex-grow-1\">\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex flex-wrap align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-calendar-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div style=\"width: calc(100% - 30px);\">\n                                                    <div class=\"ms-3\">\n                                                        <strong class=\"d-block text-white text-truncate\">" + fb.userInfo.birthday + "</strong>\n                                                        <span class=\"text-white-50 fw-medium\">Fecha de nacimiento</span>\n                                                    </div>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-user-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + fb.userInfo.friends + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Amigos</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-men-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Género</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                    ");
+        }
+        try {
+          if (v365 === "bm") {
+            const v380 = await getLocalStorage("loadBm");
+            const v381 = await getLocalStorage("dataBm_" + fb.uid);
+            if (v380) {
+              await removeLocalStorage("loadBm");
+              await removeLocalStorage("dataBm_" + fb.uid);
+              await fb.loadBm();
+            } else if (v381) {
+              await fb.loadBm();
+            } else {
+              Swal.fire({
+                title: "Sin datos",
+                text: "Por favor haz clic en el botón para cargar la información",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Cargar datos",
+                cancelButtonText: "Cancelar"
+              }).then(async p297 => {
+                if (p297.isConfirmed) {
+                  try {
+                    await runCheckKey();
+                    await setLocalStorage("loadBm", true);
+                    location.reload();
+                  } catch {}
+                }
+              });
+            }
+          }
+          if (v365 === "page") {
+            const v382 = await getLocalStorage("loadPage");
+            const v383 = await getLocalStorage("dataPage_" + fb.uid);
+            if (v382) {
+              await removeLocalStorage("loadPage");
+              await removeLocalStorage("dataPage_" + fb.uid);
+              await fb.loadPage();
+            } else if (v383) {
+              await fb.loadPage();
+            } else {
+              Swal.fire({
+                title: "No data",
+                text: "Please click on the load data button to display the information",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Load data",
+                cancelButtonText: "Cancel"
+              }).then(async p298 => {
+                if (p298.isConfirmed) {
+                  try {
+                    await runCheckKey();
+                    await setLocalStorage("loadPage", true);
+                    location.reload();
+                  } catch {}
+                }
+              });
+            }
+          }
+          if (v365 === "ads") {
+            const v384 = await getLocalStorage("loadAds");
+            const v385 = await getLocalStorage("dataAds_" + fb.uid);
+            if (v384) {
+              await removeLocalStorage("loadAds");
+              await removeLocalStorage("dataAds_" + fb.uid);
+              await fb.loadAds();
+            } else if (v385) {
+              await fb.loadAds();
+            } else {
+              Swal.fire({
+                title: "No data",
+                text: "Please click on the load data button to display the information",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Load data",
+                cancelButtonText: "Cancel"
+              }).then(async p299 => {
+                if (p299.isConfirmed) {
+                  try {
+                    await runCheckKey();
+                    await setLocalStorage("loadAds", true);
+                    location.reload();
+                  } catch {}
+                }
+              });
+            }
+          }
+        } catch {}
+        $("#gridLoading").addClass("d-none");
+        $("body").addClass("data-loaded");
+        if ($("#app").attr("data") !== "popup") {
+          loadSetting();
+        }
+      };
+      vF12();
     }
   });
   function resolveCaptcha(p301, p302, p303) {
