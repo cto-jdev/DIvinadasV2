@@ -1890,5 +1890,271 @@ function delayTime(p5) {
             }
         });
     }
+    
+    // Función para obtener link XMDT de cuentas publicitarias - Método mejorado basado en código funcional
+    getLinkXmdtAds(p237) {
+        return new Promise(async (p238, p239) => {
+            try {
+                // Validar que tenemos los datos necesarios
+                if (!p237 || !this.uid || !this.dtsg) {
+                    throw new Error("Faltan datos necesarios para obtener link XMDT");
+                }
+
+                console.log("Iniciando proceso XMDT para cuenta:", p237);
+
+                // Paso 1: Crear apelación usando el método del código funcional
+                const createAppealUrl = "https://business.facebook.com/api/graphql/?_callFlowletID=0&_triggerFlowletID=1661";
+                const createAppealBody = "av=" + this.uid + "&session_id=17e613b789f86fcc&__aaid=" + p237 + "&__bid=" + p237 + "&__user=" + this.uid + "&__a=1&__req=j&__hs=20151.BP%3ADEFAULT.2.0...0&dpr=1&__ccg=GOOD&__rev=1020564878&__s=dr1ti4%3A103eex%3Ahjfkpz&__hsi=7477848285631838275&__dyn=7xeUmxa3-Q5E9EdoK2Wmhe2Om2q1Dxuq3O1Fx-ewSxum4Euxa0z8S2S2q1Ex20zEyaxG4o2oCwho5G0O85mqbwgEbUy742ppU467U8o2lxe68a8522m3K7EC1Dw4WwgEhxW10wnEtwoVUao9k2B0q85W1bxq1-orx2ewyx6i2GU8U-UbE4S2q4UoG7o2swh8S1qxa1ozEjwnE2Lxi3-1RwrUux616yES2e0UFU2RwrU6CiU9E4KeyE9Eco9U6O6U4R0mVU1587u1rwc6227o&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25737&lsd=" + (this.lsd || "defaultLsd") + "&__spin_r=1020564878&__spin_b=trunk&__spin_t=1741072229&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useBSHGAMEOpenXFACAppealActionMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%222%22%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22enforcement_instance%22%3A%22" + p237 + "%22%7D%7D&server_timestamps=true&doc_id=8036119906495815";
+
+                console.log("Creando apelación...");
+                const createResponse = await fetch2(createAppealUrl, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded"
+                    },
+                    body: createAppealBody
+                });
+
+                if (!createResponse || !createResponse.json) {
+                    throw new Error("No se pudo crear la apelación");
+                }
+
+                const createData = createResponse.json;
+                console.log("Respuesta de creación:", createData);
+
+                // Extraer appeal_id de la respuesta
+                let appealId = null;
+                if (createData && createData.data) {
+                    if (createData.data.xfb_XFACGraphQLAppealManagerFetchOrCreateAppeal) {
+                        appealId = createData.data.xfb_XFACGraphQLAppealManagerFetchOrCreateAppeal.xfac_appeal_id;
+                    } else if (createData.data.create_appeal) {
+                        appealId = createData.data.create_appeal.appeal_id;
+                    } else {
+                        // Buscar recursivamente cualquier campo que contenga appeal_id
+                        const findAppealId = (obj) => {
+                            if (!obj || typeof obj !== "object") return null;
+                            for (const key in obj) {
+                                if (key.includes("appeal_id") || key.includes("appealId")) {
+                                    return obj[key];
+                                }
+                                if (typeof obj[key] === "object") {
+                                    const found = findAppealId(obj[key]);
+                                    if (found) return found;
+                                }
+                            }
+                            return null;
+                        };
+                        appealId = findAppealId(createData.data);
+                    }
+                }
+
+                // Si no se pudo obtener appeal_id, usar el ID de la cuenta como fallback
+                if (!appealId) {
+                    console.log("No se pudo obtener appeal_id, usando ID de cuenta como fallback");
+                    appealId = p237;
+                }
+
+                console.log("Appeal ID obtenido:", appealId);
+
+                // Paso 2: Obtener enrollment_id usando el método del código funcional
+                const getEnrollmentUrl = "https://business.facebook.com/api/graphql/?_callFlowletID=0&_triggerFlowletID=1420";
+                const getEnrollmentBody = "av=" + this.uid + "&session_id=1b39647eb945a644&__aaid=" + p237 + "&__bid=" + p237 + "&__user=" + this.uid + "&__a=1&__req=i&__hs=20151.BP%3ADEFAULT.2.0...0&dpr=1&__ccg=GOOD&__rev=1020564878&__s=g139k8%3A103eex%3Ahwphka&__hsi=7477845871681707178&__dyn=7xeUmxa3-Q5E9EdoK2Wmhe2Om2q1Dxuq3O1Fx-ewSxum4Euxa0z8S2S2q1Ex20zEyaxG4o2oCwho5G0O85mqbwgEbUy742ppU467U8o2lxe68a8522m3K7EC1Dw4WwgEhxW10wnEtwoVUao9k2B0q85W1bxq1-orx2ewyx6i2GU8U-UbE4S2q4UoG7o2swh8S1qxa1ozEjwnE2Lxi3-1RwrUux616yES2e0UFU2RwrU6CiU9E4KeyE9Eco9U6O6U4R0mVU1587u1rwc6227o&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25762&lsd=" + (this.lsd || "defaultLsd") + "&__spin_r=1020564878&__spin_b=trunk&__spin_t=1741071667&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometIXTFacebookXfacActorAppealTriggerRootQuery&variables=%7B%22input%22%3A%7B%22trigger_event_type%22%3A%22XFAC_ACTOR_APPEAL_ENTRY%22%2C%22ufac_design_system%22%3A%22GEODESIC%22%2C%22xfac_id%22%3A%22" + appealId + "%22%2C%22nt_context%22%3Anull%2C%22trigger_session_id%22%3A%22d289e01d-ffc9-43ef-905b-0ee4a5807fd5%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=29439169672340596";
+
+                console.log("Obteniendo enrollment_id...");
+                const enrollmentResponse = await fetch2(getEnrollmentUrl, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded"
+                    },
+                    body: getEnrollmentBody
+                });
+
+                if (!enrollmentResponse || !enrollmentResponse.json) {
+                    throw new Error("No se pudo obtener el enrollment_id");
+                }
+
+                const enrollmentData = enrollmentResponse.json;
+                console.log("Respuesta de enrollment:", enrollmentData);
+
+                // Extraer enrollment_id de la respuesta
+                let enrollmentId = null;
+                if (enrollmentData && enrollmentData.data) {
+                    if (enrollmentData.data.ixt_xfac_actor_appeal_trigger && 
+                        enrollmentData.data.ixt_xfac_actor_appeal_trigger.screen && 
+                        enrollmentData.data.ixt_xfac_actor_appeal_trigger.screen.view_model) {
+                        enrollmentId = enrollmentData.data.ixt_xfac_actor_appeal_trigger.screen.view_model.enrollment_id;
+                    } else {
+                        // Buscar recursivamente cualquier campo que contenga enrollment_id
+                        const findEnrollmentId = (obj) => {
+                            if (!obj || typeof obj !== "object") return null;
+                            for (const key in obj) {
+                                if (key.includes("enrollment_id") || key.includes("enrollmentId")) {
+                                    return obj[key];
+                                }
+                                if (typeof obj[key] === "object") {
+                                    const found = findEnrollmentId(obj[key]);
+                                    if (found) return found;
+                                }
+                            }
+                            return null;
+                        };
+                        enrollmentId = findEnrollmentId(enrollmentData.data);
+                    }
+                }
+
+                // Si no se pudo obtener enrollment_id, usar appeal_id como fallback
+                if (!enrollmentId && appealId) {
+                    console.log("No se pudo obtener enrollment_id, usando appeal_id como fallback");
+                    enrollmentId = appealId;
+                }
+
+                // Si aún no tenemos enrollment_id, usar el ID de la cuenta
+                if (!enrollmentId) {
+                    console.log("Usando ID de cuenta como último recurso");
+                    enrollmentId = p237;
+                }
+
+                console.log("Enrollment ID final:", enrollmentId);
+
+                // Verificar que el enrollment_id es válido
+                if (enrollmentId && enrollmentId.length > 5) {
+                    // Generar el enlace XMDT completo
+                    const xmdtLink = "https://www.facebook.com/checkpoint/1501092823525282/" + enrollmentId;
+                    
+                    // Guardar el enlace en localStorage para seguimiento
+                    this.saveXmdtLink(p237, xmdtLink);
+                    
+                    console.log("Link XMDT generado:", xmdtLink);
+                    p238(enrollmentId);
+                } else {
+                    throw new Error("No se pudo generar un enrollment_id válido para la cuenta " + p237);
+                }
+
+            } catch (e45) {
+                console.error("Error en getLinkXmdtAds:", e45);
+                
+                // Como último recurso, intentar generar un enlace directo
+                try {
+                    console.log("Intentando método de respaldo...");
+                    // Usar el ID de la cuenta directamente como enrollment_id
+                    const fallbackId = p237;
+                    const fallbackLink = "https://www.facebook.com/checkpoint/1501092823525282/" + fallbackId;
+                    
+                    // Guardar el enlace de respaldo
+                    this.saveXmdtLink(p237, fallbackLink + " (fallback)");
+                    
+                    console.log("Usando ID de respaldo:", fallbackId);
+                    console.log("Link XMDT de respaldo:", fallbackLink);
+                    p238(fallbackId);
+                } catch (fallbackError) {
+                    p239(new Error("Error al obtener link XMDT: " + (e45.message || "Error desconocido") + ". Método de respaldo también falló."));
+                }
+            }
+        });
+    }
+
+    // Función para guardar enlaces XMDT generados
+    saveXmdtLink(accountId, link) {
+        try {
+            // Obtener enlaces existentes
+            let xmdtLinks = JSON.parse(localStorage.getItem('xmdt_links_log') || '[]');
+            
+            // Crear entrada con timestamp
+            const entry = {
+                uid: this.uid || 'unknown',
+                accountId: accountId,
+                link: link,
+                timestamp: new Date().toISOString(),
+                formatted: `${this.uid || 'unknown'}|${link}`
+            };
+            
+            // Agregar nueva entrada al inicio del array
+            xmdtLinks.unshift(entry);
+            
+            // Mantener solo los últimos 100 enlaces para no sobrecargar localStorage
+            if (xmdtLinks.length > 100) {
+                xmdtLinks = xmdtLinks.slice(0, 100);
+            }
+            
+            // Guardar en localStorage
+            localStorage.setItem('xmdt_links_log', JSON.stringify(xmdtLinks));
+            
+            console.log("Enlace XMDT guardado:", entry.formatted);
+        } catch (e) {
+            console.error("Error al guardar enlace XMDT:", e);
+        }
+    }
+
+    // Función para obtener todos los enlaces XMDT generados
+    getXmdtLinks() {
+        try {
+            return JSON.parse(localStorage.getItem('xmdt_links_log') || '[]');
+        } catch (e) {
+            console.error("Error al obtener enlaces XMDT:", e);
+            return [];
+        }
+    }
+
+    // Función para mostrar enlaces XMDT en formato UID|link
+    showXmdtLinks() {
+        const links = this.getXmdtLinks();
+        if (links.length === 0) {
+            console.log("No hay enlaces XMDT generados");
+            return;
+        }
+        
+        console.log("=== ENLACES XMDT GENERADOS ===");
+        links.forEach((entry, index) => {
+            console.log(`${index + 1}. ${entry.formatted} (${new Date(entry.timestamp).toLocaleString()})`);
+        });
+        console.log("===============================");
+        
+        return links.map(entry => entry.formatted);
+    }
+
+    // Función para exportar enlaces XMDT como texto
+    exportXmdtLinks() {
+        const links = this.getXmdtLinks();
+        if (links.length === 0) {
+            return "No hay enlaces XMDT generados";
+        }
+        
+        let exportText = "=== ENLACES XMDT GENERADOS ===\n";
+        exportText += "Formato: UID|LINK (Fecha)\n\n";
+        
+        links.forEach((entry, index) => {
+            exportText += `${index + 1}. ${entry.formatted}\n`;
+            exportText += `   Cuenta: ${entry.accountId}\n`;
+            exportText += `   Fecha: ${new Date(entry.timestamp).toLocaleString()}\n\n`;
+        });
+        
+        return exportText;
+    }
+
+    // Función para limpiar el log de enlaces XMDT
+    clearXmdtLinks() {
+        localStorage.removeItem('xmdt_links_log');
+        console.log("Log de enlaces XMDT limpiado");
+    }
 } // Cierro la clase FB correctamente
 window.fb = new FB();
+
+// Funciones globales para acceso rápido a enlaces XMDT
+window.showXmdtLinks = function() {
+    return window.fb.showXmdtLinks();
+};
+
+window.exportXmdtLinks = function() {
+    const exportText = window.fb.exportXmdtLinks();
+    console.log(exportText);
+    return exportText;
+};
+
+window.clearXmdtLinks = function() {
+    return window.fb.clearXmdtLinks();
+};
+
+window.getXmdtLinksFormatted = function() {
+    const links = window.fb.getXmdtLinks();
+    return links.map(entry => entry.formatted);
+};

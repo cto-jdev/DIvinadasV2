@@ -548,66 +548,145 @@ function  getPage() {
 function getLinkXmdtAds(p237) {
     return new Promise(async (p238, p239) => {
       try {
-        const v239 = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=1", {
+        // Validar que tenemos los datos necesarios
+        if (!p237 || !this.uid || !this.dtsg) {
+          throw new Error("Faltan datos necesarios para obtener link XMDT");
+        }
+
+        // Paso 1: Obtener información de la cuenta publicitaria
+        const v239 = await fetch2("https://business.facebook.com/api/graphql/", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
           method: "POST",
-          body: "variables={\"paymentAccountID\":\"" + p237 + "\"}&doc_id=5746473718752934&__usid=6-Ts5btmh131oopb:Ps5bu98bb7oey:0-As5btmhrwegfg-RV=6:F=&__user=" + this.uid + "&__a=1&__req=s&__hs=19699.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010282616&__s=flj1ty:75294s:o83s9c&__hsi=7310049091311550655&__dyn=7xeUmxa3-Q5E9EdoK2abBAqwIBwCwgE98nCG6UtyEgwjojyUW3qiidBxa7GzU726US2Sfxq4U5i4824yoyaxG4o4B0l898885G0Eo9FE4Wqmm2Z17wJBGEpiwzlBwgrxK261UxO4VA48a8lwWxe4oeUa85vzo2vw9G12x67EK3i1uK6o6fBwFwBgak48W2e2i11grzUeUmwvC6UgzE8EhAy88rwzzXwAyo98gxu5ogAzEowwwTxu1cwwwzzobEaUiwYxKexe5U4qp0au58Gm2W1Ez84e6ohxabDAAzawSyES2e0UFU6K19xq1ox3wlFbwCwiUWawCwNwDwr8rwMxO1sDx27o72&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25610&lsd=HExoeF2styyeq_LWWUo9db&__aaid=" + p237 + "&__spin_r=1010282616&__spin_b=trunk&__spin_t=1702003435&__jssesw=1"
+          body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19699.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010282616&__s=flj1ty:75294s:o83s9c&__hsi=7310049091311550655&__dyn=7xeUmxa3-Q5E9EdoK2abBAqwIBwCwgE98nCG6UtyEgwjojyUW3qiidBxa7GzU726US2Sfxq4U5i4824yoyaxG4o4B0l898885G0Eo9FE4Wqmm2Z17wJBGEpiwzlBwgrxK261UxO4VA48a8lwWxe4oeUa85vzo2vw9G12x67EK3i1uK6o6fBwFwBgak48W2e2i11grzUeUmwvC6UgzE8EhAy88rwzzXwAyo98gxu5ogAzEowwwTxu1cwwwzzobEaUiwYxKexe5U4qp0au58Gm2W1Ez84e6ohxabDAAzawSyES2e0UFU6K19xq1ox3wlFbwCwiUWawCwNwDwr8rwMxO1sDx27o72&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25610&lsd=HExoeF2styyeq_LWWUo9db&__aaid=" + p237 + "&__spin_r=1010282616&__spin_b=trunk&__spin_t=1702003435&__jssesw=1&variables={\"paymentAccountID\":\"" + p237 + "\"}&doc_id=5746473718752934"
         });
+        
+        if (!v239 || !v239.json) {
+          throw new Error("No se pudo obtener información de la cuenta publicitaria");
+        }
+
         const v240 = v239.json;
+        
+        // Verificar que la respuesta contiene los datos esperados
+        if (!v240.data || !v240.data.billable_account_by_payment_account) {
+          throw new Error("La cuenta publicitaria no tiene información de facturación válida");
+        }
+
         const v241 = v240.data.billable_account_by_payment_account.id;
-        const v242 = await fetch2("https://www.facebook.com/api/graphql/?_callFlowletID=0&_triggerFlowletID=370", {
+        
+        if (!v241) {
+          throw new Error("No se pudo obtener el ID de la cuenta de facturación");
+        }
+
+        // Paso 2: Obtener información de restricciones
+        const v242 = await fetch2("https://www.facebook.com/api/graphql/", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
-          body: "av=" + this.uid + "&__usid=6-Tsptewb4bad6z%3APsptfos1fajaid%3A0-Asptet91igfuw1-RV%3D6%3AF%3D&session_id=5d3404452e9bd1f&__aaid=0&__user=" + this.uid + "&__a=1&__req=14&__hs=20097.BP%3ADEFAULT.2.0.0.0.0&dpr=1&__ccg=EXCELLENT&__rev=1019227852&__s=0iltbe%3Advrmaz%3A103jkm&__hsi=7457852865934213148&__dyn=7xeUmxa3-Q5E9EdoK2Wmhe2Om2q1Dxuq3O1Fx-ewSAxam4Euxa1twKzobo9E6y4824yoyaxG4o2oCwho5G0O85mqbwgEbUy742ppU467U8o2lxe68a8522m3K7EC11wBz8188O12x67E421uxS1zDwFwBgak1EwRwEwiUmwvDxC48W2a4p8aHwzzXwKwjo9EjxyEtw9O222edwmEiwm8W4U5W0DU-58fU7m1LxW4o-3qazo8U3yDwbm1LwqpbBwwwiUWawCwNwDwr8rwjk1rDw4kwtU5K2G0yVHwwxS&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25406&lsd=ezom4RfqRqejfUWS5IqHv-&__spin_r=1019227852&__spin_b=trunk&__spin_t=1736416683&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useAccountQualityHubIssueQueryWrapperQuery&variables=%7B%22id%22%3A%22" + v241 + "%22%2C%22startTime%22%3Anull%7D&server_timestamps=true&doc_id=8742430529208614",
-          method: "POST"
+          method: "POST",
+          body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=14&__hs=20097.BP:DEFAULT.2.0.0.0.0&dpr=1&__ccg=EXCELLENT&__rev=1019227852&__s=0iltbe:dvrmaz:103jkm&__hsi=7457852865934213148&__dyn=7xeUmxa3-Q5E9EdoK2Wmhe2Om2q1Dxuq3O1Fx-ewSAxam4Euxa1twKzobo9E6y4824yoyaxG4o2oCwho5G0O85mqbwgEbUy742ppU467U8o2lxe68a8522m3K7EC11wBz8188O12x67E421uxS1zDwFwBgak1EwRwEwiUmwvDxC48W2a4p8aHwzzXwKwjo9EjxyEtw9O222edwmEiwm8W4U5W0DU-58fU7m1LxW4o-3qazo8U3yDwbm1LwqpbBwwwiUWawCwNwDwr8rwjk1rDw4kwtU5K2G0yVHwwxS&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25406&lsd=ezom4RfqRqejfUWS5IqHv-&__spin_r=1019227852&__spin_b=trunk&__spin_t=1736416683&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useAccountQualityHubIssueQueryWrapperQuery&variables={\"id\":\"" + v241 + "\",\"startTime\":null}&server_timestamps=true&doc_id=8742430529208614"
         });
-        const v243 = v242.json;
-        const v244 = v243.data.node.advertising_restriction_info.additional_parameters.paid_actor_root_appeal_container_id;
-        const v245 = v243.data.node.advertising_restriction_info.ids_issue_ent_id;
-        const v246 = v243.data.node.advertising_restriction_info.additional_parameters.decision_id;
-        const v247 = v243.data.node.advertising_restriction_info.additional_parameters.friction_decision_id;
-        if (v244) {
-          const v248 = await fetch2("https://business.facebook.com/accountquality/ufac/?entity_id=" + p237 + "&paid_actor_root_appeal_container_id=" + v244 + "&entity_type=2&_callFlowletID=2181&_triggerFlowletID=2181", {
-            headers: {
-              "content-type": "application/x-www-form-urlencoded"
-            },
-            body: "__usid=6-Tsc6xu718a07sn%3APsc6xui6pgn2f%3A0-Asc6xtp1nh4rnc-RV%3D6%3AF%3D&session_id=15e5a69ec0978238&__aaid=0&__bid=" + p237 + "&__user=" + this.uid + "&__a=1&__req=u&__hs=19832.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012906458&__s=9ubr7j%3Arv9koe%3Ads4ihh&__hsi=7359564425697670285&__dyn=7xeUmxa2C5rgydwCwRyU8EKmhe5UkBwCwpUnCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx60C9EcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo462mcwuEnw8ScwgECu7E422a3Fe6rwiolDwFwBgak48W2e2i3mbgrzUiwExq1yxJUpx2awCx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e0UFU2RwrU6CiVo884KeCK2q362u1dxW6U98a85Ou0DU7i1Tw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25352&lsd=MPaEvH-IKd3rimyUrjtr5C&__spin_r=1012906458&__spin_b=trunk&__spin_t=1713532122&__jssesw=1",
-            method: "POST"
-          });
-          const v249 = JSON.parse(v248.text.replace("for (;;);", ""));
-          const v250 = v249.payload.enrollment_id;
-          p238(v250);
-        } else if (v246) {
-          const v251 = await fetch2("https://www.facebook.com/accountquality/ufac/?decision_id=" + v246 + "&ids_issue_id=" + v245 + "&entity_type=2&entity_id=" + p237 + "&_flowletID=9999", {
-            headers: {
-              "content-type": "application/x-www-form-urlencoded"
-            },
-            method: "POST",
-            body: "__usid=6-Ts2rbmo1223bxs:Ps2rbmm1pafisj:0-As2rbmcwf48js-RV=6:F=&session_id=4d371069f94ed908&__user=" + this.uid + "&__a=1&__req=q&__hs=19649.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1009336620&__s=vkojb0:tpoa7e:m367w6&__hsi=7291509895584633584&__dyn=7xeUmxa2C5rgydwCwRyU8EKnFG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx611wlFEcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyUszUiwExq1yxJUpx2aK2a4p8y26U8U-UbE4S7VEjCx6Etwj84-3ifzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzwi82pDwbm1Lx3wlFbBwwwiUWqU9Eco9U4S7ErwAwEwn9U&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25489&lsd=QTfKpPcJRl9RAFTWridNry&__aaid=0&__spin_r=1009336620&__spin_b=trunk&__spin_t=1697686941"
-          });
-          const v252 = JSON.parse(v251.text.replace("for (;;);", ""));
-          const v253 = v252.payload.enrollment_id;
-          p238(v253);
-        } else if (v247) {
-          const v254 = await fetch2("https://www.facebook.com/accountquality/ufac/?decision_id=" + v247 + "&ids_issue_id=" + v245 + "&entity_type=2&entity_id=" + p237 + "&_flowletID=2169", {
-            headers: {
-              "content-type": "application/x-www-form-urlencoded"
-            },
-            method: "POST",
-            body: "__usid=6-Ts32udfp2ieqb%3APs32udrqbzoxh%3A0-As32ud2p8mux0-RV%3D6%3AF%3D&session_id=2478ab408501cdea&__user=" + this.uid + "&__a=1&__req=u&__hs=19655.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1009465523&__s=417qpb%3Alchip2%3Ayq4pb1&__hsi=7293818531390316856&__dyn=7xeUmxa2C5rgydwCwRyU8EKnFG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx611wlFEcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyUszUiwExq1yxJUpx2aK2a4p8y26U8U-UbE4S7VEjCx6Etwj84-3ifzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzwi82pDwbm1Lx3wlFbBwwwiUWqU9Eco9U4S7ErwAwEwn9U2vw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25548&lsd=A-HDfPRVoR7YG2zHwlCDBx&__aaid=0&__spin_r=1009465523&__spin_b=trunk&__spin_t=1698224463"
-          });
-          const v255 = JSON.parse(v254.text.replace("for (;;);", ""));
-          const v256 = v255.payload.enrollment_id;
-          p238(v256);
-        } else {
-          p239();
+
+        if (!v242 || !v242.json) {
+          throw new Error("No se pudo obtener información de restricciones");
         }
+
+        const v243 = v242.json;
+        
+        // Verificar que hay información de restricciones
+        if (!v243.data || !v243.data.node || !v243.data.node.advertising_restriction_info) {
+          throw new Error("La cuenta no tiene restricciones XMDT activas");
+        }
+
+        const restrictionInfo = v243.data.node.advertising_restriction_info;
+        const v244 = restrictionInfo.additional_parameters?.paid_actor_root_appeal_container_id;
+        const v245 = restrictionInfo.ids_issue_ent_id;
+        const v246 = restrictionInfo.additional_parameters?.decision_id;
+        const v247 = restrictionInfo.additional_parameters?.friction_decision_id;
+
+        // Intentar diferentes métodos para obtener el enrollment_id
+        let enrollmentId = null;
+
+        // Método 1: paid_actor_root_appeal_container_id
+        if (v244) {
+          try {
+            const v248 = await fetch2("https://business.facebook.com/accountquality/ufac/?entity_id=" + p237 + "&paid_actor_root_appeal_container_id=" + v244 + "&entity_type=2&_callFlowletID=2181&_triggerFlowletID=2181", {
+              headers: {
+                "content-type": "application/x-www-form-urlencoded"
+              },
+              method: "POST",
+              body: "__user=" + this.uid + "&__a=1&__req=u&__hs=19832.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012906458&__s=9ubr7j:rv9koe:ds4ihh&__hsi=7359564425697670285&__dyn=7xeUmxa2C5rgydwCwRyU8EKmhe5UkBwCwpUnCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx60C9EcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo462mcwuEnw8ScwgECu7E422a3Fe6rwiolDwFwBgak48W2e2i3mbgrzUiwExq1yxJUpx2awCx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e0UFU2RwrU6CiVo884KeCK2q362u1dxW6U98a85Ou0DU7i1Tw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25352&lsd=MPaEvH-IKd3rimyUrjtr5C&__spin_r=1012906458&__spin_b=trunk&__spin_t=1713532122&__jssesw=1"
+            });
+            
+            if (v248 && v248.text) {
+              const cleanText = v248.text.replace("for (;;);", "");
+              const v249 = JSON.parse(cleanText);
+              if (v249.payload && v249.payload.enrollment_id) {
+                enrollmentId = v249.payload.enrollment_id;
+              }
+            }
+          } catch (e) {
+            console.log("Método 1 falló:", e);
+          }
+        }
+
+        // Método 2: decision_id
+        if (!enrollmentId && v246 && v245) {
+          try {
+            const v251 = await fetch2("https://www.facebook.com/accountquality/ufac/?decision_id=" + v246 + "&ids_issue_id=" + v245 + "&entity_type=2&entity_id=" + p237 + "&_flowletID=9999", {
+              headers: {
+                "content-type": "application/x-www-form-urlencoded"
+              },
+              method: "POST",
+              body: "__user=" + this.uid + "&__a=1&__req=q&__hs=19649.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1009336620&__s=vkojb0:tpoa7e:m367w6&__hsi=7291509895584633584&__dyn=7xeUmxa2C5rgydwCwRyU8EKnFG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx611wlFEcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyUszUiwExq1yxJUpx2aK2a4p8y26U8U-UbE4S7VEjCx6Etwj84-3ifzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzwi82pDwbm1Lx3wlFbBwwwiUWqU9Eco9U4S7ErwAwEwn9U&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25489&lsd=QTfKpPcJRl9RAFTWridNry&__aaid=0&__spin_r=1009336620&__spin_b=trunk&__spin_t=1697686941"
+            });
+            
+            if (v251 && v251.text) {
+              const cleanText = v251.text.replace("for (;;);", "");
+              const v252 = JSON.parse(cleanText);
+              if (v252.payload && v252.payload.enrollment_id) {
+                enrollmentId = v252.payload.enrollment_id;
+              }
+            }
+          } catch (e) {
+            console.log("Método 2 falló:", e);
+          }
+        }
+
+        // Método 3: friction_decision_id
+        if (!enrollmentId && v247 && v245) {
+          try {
+            const v254 = await fetch2("https://www.facebook.com/accountquality/ufac/?decision_id=" + v247 + "&ids_issue_id=" + v245 + "&entity_type=2&entity_id=" + p237 + "&_flowletID=2169", {
+              headers: {
+                "content-type": "application/x-www-form-urlencoded"
+              },
+              method: "POST",
+              body: "__user=" + this.uid + "&__a=1&__req=u&__hs=19655.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1009465523&__s=417qpb:lchip2:yq4pb1&__hsi=7293818531390316856&__dyn=7xeUmxa2C5rgydwCwRyU8EKnFG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx611wlFEcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyUszUiwExq1yxJUpx2aK2a4p8y26U8U-UbE4S7VEjCx6Etwj84-3ifzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzwi82pDwbm1Lx3wlFbBwwwiUWqU9Eco9U4S7ErwAwEwn9U2vw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25548&lsd=A-HDfPRVoR7YG2zHwlCDBx&__aaid=0&__spin_r=1009465523&__spin_b=trunk&__spin_t=1698224463"
+            });
+            
+            if (v254 && v254.text) {
+              const cleanText = v254.text.replace("for (;;);", "");
+              const v255 = JSON.parse(cleanText);
+              if (v255.payload && v255.payload.enrollment_id) {
+                enrollmentId = v255.payload.enrollment_id;
+              }
+            }
+          } catch (e) {
+            console.log("Método 3 falló:", e);
+          }
+        }
+
+        // Verificar si obtuvimos el enrollment_id
+        if (enrollmentId) {
+          p238(enrollmentId);
+        } else {
+          throw new Error("No se pudo obtener el enrollment_id. La cuenta puede no tener restricciones XMDT activas o los parámetros han cambiado.");
+        }
+
       } catch (e45) {
-        console.log(e45);
-        p239(e45);
+        console.error("Error en getLinkXmdtAds:", e45);
+        p239(new Error("Error al obtener link XMDT: " + (e45.message || "Error desconocido")));
       }
     });
   }

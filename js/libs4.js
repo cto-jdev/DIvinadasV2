@@ -668,15 +668,63 @@ function runBm(p469, p470, p471) {
         if (p503.ads.getLinkXmdtAds.value) {
           try {
             p504("message", {
-              message: "Obteniendo link XMDT"
+              message: "Obteniendo link XMDT..."
             });
+            
+            // Verificar que tenemos los datos necesarios
+            if (!p502.adId) {
+              throw new Error("ID de cuenta publicitaria no válido");
+            }
+            
+            if (!window.fb || !window.fb.uid || !window.fb.dtsg) {
+              throw new Error("Sesión de Facebook no válida. Por favor, recarga la página.");
+            }
+            
             const v577 = await fb.getLinkXmdtAds(p502.adId);
-            p504("message", {
-              message: "https://www.facebook.com/checkpoint/1501092823525282/" + v577
-            });
+            
+            if (v577) {
+              const xmdtLink = "https://www.facebook.com/checkpoint/1501092823525282/" + v577;
+              p504("message", {
+                message: "✅ Link XMDT obtenido: " + xmdtLink
+              });
+              
+              // Disparar evento para actualizar el display
+              $(document).trigger('xmdtLinkGenerated');
+              
+              // Opcional: copiar al portapapeles si está disponible
+              if (navigator.clipboard) {
+                try {
+                  await navigator.clipboard.writeText(xmdtLink);
+                  p504("message", {
+                    message: "📋 Link copiado al portapapeles"
+                  });
+                } catch (e) {
+                  // Silenciar error de portapapeles
+                }
+              }
+            } else {
+              throw new Error("No se recibió enrollment_id válido");
+            }
+            
           } catch (e108) {
+            console.error("Error detallado en getLinkXmdtAds:", e108);
+            
+            let errorMessage = "❌ Error al obtener link XMDT";
+            
+            if (e108.message) {
+              if (e108.message.includes("no tiene restricciones XMDT")) {
+                errorMessage = "⚠️ Esta cuenta no tiene restricciones XMDT activas";
+              } else if (e108.message.includes("Sesión de Facebook")) {
+                errorMessage = "🔄 " + e108.message;
+              } else if (e108.message.includes("información de facturación")) {
+                errorMessage = "💳 La cuenta no tiene información de facturación válida";
+              } else {
+                errorMessage = "❌ " + e108.message;
+              }
+            }
+            
             p504("message", {
-              message: "Error al obtener link XMDT"
+              message: errorMessage
             });
           }
         }
@@ -1399,3 +1447,159 @@ function runBm(p469, p470, p471) {
       }
     });
   }
+
+  // Funciones para manejar enlaces XMDT
+  function updateXmdtLinksDisplay() {
+    try {
+      const links = window.fb.getXmdtLinks();
+      const displayArea = document.getElementById('xmdtLinksDisplay');
+      const countBadge = document.getElementById('xmdtLinksCount');
+      
+      if (displayArea && countBadge) {
+        // Actualizar contador
+        countBadge.textContent = links.length;
+        
+        // Actualizar área de texto con enlaces en formato UID|LINK
+        if (links.length > 0) {
+          const formattedLinks = links.map(entry => entry.formatted).join('\n');
+          displayArea.value = formattedLinks;
+        } else {
+          displayArea.value = 'No hay enlaces XMDT generados aún...';
+        }
+      }
+    } catch (e) {
+      console.error('Error al actualizar display de enlaces XMDT:', e);
+    }
+  }
+
+  function copyXmdtLinksToClipboard() {
+    try {
+      const displayArea = document.getElementById('xmdtLinksDisplay');
+      if (displayArea && displayArea.value && displayArea.value !== 'No hay enlaces XMDT generados aún...') {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(displayArea.value).then(() => {
+            Swal.fire({
+              title: '¡Copiado!',
+              text: 'Enlaces XMDT copiados al portapapeles',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          }).catch(e => {
+            console.error('Error al copiar:', e);
+            // Fallback para navegadores que no soportan clipboard API
+            displayArea.select();
+            document.execCommand('copy');
+            Swal.fire({
+              title: '¡Copiado!',
+              text: 'Enlaces XMDT copiados al portapapeles',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          });
+        } else {
+          // Fallback para navegadores antiguos
+          displayArea.select();
+          document.execCommand('copy');
+          Swal.fire({
+            title: '¡Copiado!',
+            text: 'Enlaces XMDT copiados al portapapeles',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      } else {
+        Swal.fire({
+          title: 'Sin enlaces',
+          text: 'No hay enlaces XMDT para copiar',
+          icon: 'warning',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    } catch (e) {
+      console.error('Error al copiar enlaces XMDT:', e);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudieron copiar los enlaces',
+        icon: 'error',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
+  }
+
+  function clearXmdtLinks() {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Se eliminarán todos los enlaces XMDT guardados',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        try {
+          window.fb.clearXmdtLinks();
+          updateXmdtLinksDisplay();
+          Swal.fire({
+            title: '¡Eliminado!',
+            text: 'Enlaces XMDT eliminados correctamente',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        } catch (e) {
+          console.error('Error al limpiar enlaces XMDT:', e);
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudieron eliminar los enlaces',
+            icon: 'error',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      }
+    });
+  }
+
+  // Event listeners para los botones de enlaces XMDT
+  $(document).ready(function() {
+    // Actualizar display cuando se abra la sección
+    $('input[name="getLinkXmdtAds"]').on('change', function() {
+      if (this.checked) {
+        setTimeout(updateXmdtLinksDisplay, 100);
+      }
+    });
+
+    // Botón de actualizar
+    $(document).on('click', '#refreshXmdtLinks', function() {
+      updateXmdtLinksDisplay();
+      Swal.fire({
+        title: 'Actualizado',
+        text: 'Lista de enlaces XMDT actualizada',
+        icon: 'info',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    });
+
+    // Botón de copiar
+    $(document).on('click', '#copyXmdtLinks', function() {
+      copyXmdtLinksToClipboard();
+    });
+
+    // Botón de limpiar
+    $(document).on('click', '#clearXmdtLinks', function() {
+      clearXmdtLinks();
+    });
+
+    // Actualizar display automáticamente cuando se genere un nuevo enlace
+    $(document).on('xmdtLinkGenerated', function() {
+      updateXmdtLinksDisplay();
+    });
+  });

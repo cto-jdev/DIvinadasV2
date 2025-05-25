@@ -355,8 +355,27 @@
 										<label class="form-check-label fw-medium d-flex align-items-center">
 											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Obtener Link XMDT</span>
 										</label>
-										<input class="form-check-input" name="getLinkXmdtAds" type="checkbox" role="switch">
+										<input class="form-check-input" data-target="getLinkXmdtSetting" name="getLinkXmdtAds" type="checkbox" role="switch">
 									</div>
+								</div>
+
+								<div id="getLinkXmdtSetting" class="p-3 d-none border-top">
+									<div class="d-flex justify-content-between align-items-center mb-2">
+										<label class="form-label fw-medium mb-0">Enlaces XMDT Generados <span class="ms-2 badge text-bg-success" id="xmdtLinksCount">0</span></label>
+										<div class="btn-group btn-group-sm">
+											<button type="button" class="btn btn-outline-primary btn-sm" id="refreshXmdtLinks" title="Actualizar">
+												<i class="ri-refresh-line"></i>
+											</button>
+											<button type="button" class="btn btn-outline-success btn-sm" id="copyXmdtLinks" title="Copiar todos">
+												<i class="ri-file-copy-line"></i>
+											</button>
+											<button type="button" class="btn btn-outline-danger btn-sm" id="clearXmdtLinks" title="Limpiar">
+												<i class="ri-delete-bin-line"></i>
+											</button>
+										</div>
+									</div>
+									<div class="small text-muted mb-2">Formato: UID|LINK</div>
+									<textarea class="form-control" id="xmdtLinksDisplay" rows="8" readonly placeholder="Los enlaces XMDT generados aparecerán aquí en formato UID|LINK..." style="font-family: monospace; font-size: 12px;"></textarea>
 								</div>
 
 							</div>
