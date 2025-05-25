@@ -9,7 +9,7 @@ $(document).ready(async function () {
     // Función para obtener UID real del usuario
     const getUserId = () => {
         try {
-            return fb.uid || null;
+            return window.fb?.uid || null;
         } catch {
             return null;
         }
@@ -50,7 +50,9 @@ $(document).ready(async function () {
       const v13 = p5.currency.split("-")[0];
       let v14 = [];
       try {
-        v14 = await fb.checkHiddenAdmin(p5.adId);
+        if (typeof window.fb !== 'undefined' && window.fb && typeof window.fb.checkHiddenAdmin === 'function') {
+          v14 = await window.fb.checkHiddenAdmin(p5.adId);
+        }
       } catch {
         v14 = [];
       }
@@ -123,14 +125,16 @@ $(document).ready(async function () {
     const loadUserProfile = async () => {
       try {
         // Intentar obtener datos reales del usuario de Facebook
-        if (typeof fb !== 'undefined' && fb.uid) {
+        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
           try {
             // Obtener información básica del usuario
-            const userInfo = await fb.getUserInfo();
-            
-            if (userInfo && userInfo.name) {
-              displayUserProfile(userInfo);
-              return;
+            if (typeof window.fb.getUserInfo === 'function') {
+              const userInfo = await window.fb.getUserInfo();
+              
+              if (userInfo && userInfo.name) {
+                displayUserProfile(userInfo);
+                return;
+              }
             }
           } catch (e) {
             // Error silencioso
@@ -138,9 +142,9 @@ $(document).ready(async function () {
           
           // Si no funciona la API, usar datos básicos disponibles
           const basicUserInfo = {
-            name: localStorage.getItem('userName') || 'Usuario Facebook',
-            id: fb.uid || 'No disponible',
-            avatar: localStorage.getItem('userAvatar') || null
+            name: localStorage.getItem('userName') || window.fb.userInfo?.name || 'Usuario Facebook',
+            id: window.fb.uid || 'No disponible',
+            avatar: localStorage.getItem('userAvatar') || window.fb.userInfo?.picture?.data?.url || null
           };
           
           displayUserProfile(basicUserInfo);
@@ -199,19 +203,62 @@ $(document).ready(async function () {
     // Eventos para recibir datos reales de Facebook
     $(document).on("loadAdsSuccess", function(event, realAdsData) {
       if (realAdsData && realAdsData.length > 0) {
+        localStorage.setItem('dashboard_ads_data', JSON.stringify(realAdsData));
         displayAdsData(realAdsData);
+      } else {
+        showNoDataState('ads');
       }
     });
     
     $(document).on("loadBmSuccess", function(event, realBmData) {
       if (realBmData && realBmData.length > 0) {
+        localStorage.setItem('dashboard_bm_data', JSON.stringify(realBmData));
         displayBmData(realBmData);
+      } else {
+        showNoDataState('bm');
       }
     });
     
     $(document).on("loadPageSuccess", function(event, realPageData) {
       if (realPageData && realPageData.length > 0) {
+        localStorage.setItem('dashboard_pages_data', JSON.stringify(realPageData));
         displayPageData(realPageData);
+      } else {
+        showNoDataState('page');
+      }
+    });
+    
+    // Eventos adicionales para otros tipos de datos BM
+    $(document).on("loadBmSuccess3", function(event, realBmData) {
+      if (realBmData && realBmData.length > 0) {
+        localStorage.setItem('dashboard_bm_data', JSON.stringify(realBmData));
+        displayBmData(realBmData);
+      }
+    });
+    
+    $(document).on("loadBmSuccess2", function(event, realBmData) {
+      if (realBmData && realBmData.length > 0) {
+        localStorage.setItem('dashboard_bm_data', JSON.stringify(realBmData));
+        displayBmData(realBmData);
+      }
+    });
+    
+    // Eventos para datos guardados
+    $(document).on("loadSavedAds", function(event, savedAdsData) {
+      if (savedAdsData && savedAdsData.length > 0) {
+        displayAdsData(savedAdsData);
+      }
+    });
+    
+    $(document).on("loadSavedBm", function(event, savedBmData) {
+      if (savedBmData && savedBmData.length > 0) {
+        displayBmData(savedBmData);
+      }
+    });
+    
+    $(document).on("loadSavedPage", function(event, savedPageData) {
+      if (savedPageData && savedPageData.length > 0) {
+        displayPageData(savedPageData);
       }
     });
     
@@ -328,31 +375,76 @@ $(document).ready(async function () {
         });
         $("#topBm").html(vLS4);
         
-        // Crear gráfico con datos reales
+        // Crear gráfico con datos reales de forma estable
         const liveCount = bmData.filter(bm => bm.status === 'LIVE' || bm.status === 'live' || !bm.status).length;
         const dieCount = bmData.filter(bm => bm.status === 'DIE' || bm.status === 'die').length;
         const dieVvCount = bmData.filter(bm => bm.status === 'DIE_VV' || bm.status === 'die_vv').length;
         
-        const chartCanvas = document.querySelector("#bmChart canvas");
-        if (chartCanvas && typeof Chart !== 'undefined') {
-          const chartConfig = {
-            type: "doughnut",
-            options: {
-              cutout: "50%"
-            },
-            data: {
-              labels: ["BM Activo", "BM Muerto por revisión", "BM Muerto permanente"],
-              datasets: [{
-                label: "Cantidad: ",
-                data: [liveCount, dieCount, dieVvCount],
-                borderRadius: 5,
-                borderWidth: 2,
-                backgroundColor: ["#198754", "#dc3545", "#ffc107"]
-              }]
+        // Solo crear gráfico si hay datos válidos
+        if (liveCount > 0 || dieCount > 0 || dieVvCount > 0) {
+          const chartCanvas = document.querySelector("#bmChart canvas");
+          if (chartCanvas && typeof Chart !== 'undefined') {
+            // Limpiar gráfico anterior si existe
+            const existingChart = Chart.getChart(chartCanvas);
+            if (existingChart) {
+              existingChart.destroy();
             }
-          };
-          new Chart(chartCanvas, chartConfig);
-          $("#bmChart").removeClass("d-none");
+            
+            const chartConfig = {
+              type: "doughnut",
+              options: {
+                cutout: "50%",
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      padding: 15,
+                      usePointStyle: true,
+                      font: {
+                        size: 12
+                      }
+                    }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.parsed * 100) / total).toFixed(1);
+                        return `${context.label}: ${context.parsed} (${percentage}%)`;
+                      }
+                    }
+                  }
+                },
+                animation: {
+                  animateRotate: true,
+                  animateScale: true,
+                  duration: 1000,
+                  easing: 'easeInOutQuart'
+                }
+              },
+              data: {
+                labels: ["BM Activo", "BM Muerto por revisión", "BM Muerto permanente"],
+                datasets: [{
+                  label: "Cantidad: ",
+                  data: [liveCount, dieCount, dieVvCount],
+                  borderRadius: 8,
+                  borderWidth: 3,
+                  backgroundColor: ["#198754", "#dc3545", "#ffc107"],
+                  borderColor: ["#ffffff", "#ffffff", "#ffffff"],
+                  hoverBackgroundColor: ["#157347", "#bb2d3b", "#ffca2c"],
+                  hoverBorderWidth: 4
+                }]
+              }
+            };
+            
+            new Chart(chartCanvas, chartConfig);
+            $("#bmChart").removeClass("d-none");
+          }
+        } else {
+          // Si no hay datos, ocultar el gráfico
+          $("#bmChart").addClass("d-none");
         }
         
       } catch (e) {
@@ -447,68 +539,122 @@ $(document).ready(async function () {
       }
     };
     
-    // Función principal para cargar datos reales
+
+    
+    // Función para cargar datos reales desde localStorage
+    const loadStoredData = () => {
+      try {
+        // Intentar cargar datos reales guardados
+        const storedAds = localStorage.getItem('dashboard_ads_data');
+        const storedBm = localStorage.getItem('dashboard_bm_data');
+        const storedPages = localStorage.getItem('dashboard_pages_data');
+        
+        if (storedAds) {
+          const adsData = JSON.parse(storedAds);
+          displayAdsData(adsData);
+        }
+        
+        if (storedBm) {
+          const bmData = JSON.parse(storedBm);
+          displayBmData(bmData);
+        }
+        
+        if (storedPages) {
+          const pagesData = JSON.parse(storedPages);
+          displayPageData(pagesData);
+        }
+        
+        return {
+          hasAds: !!storedAds,
+          hasBm: !!storedBm,
+          hasPages: !!storedPages
+        };
+      } catch (e) {
+        return { hasAds: false, hasBm: false, hasPages: false };
+      }
+    };
+    
+
+    
+    // Función principal para cargar solo datos reales
     const loadAllData = async () => {
       // Cargar primero el perfil del usuario
       await loadUserProfile();
       
-      // Mostrar estados de carga iniciales
-      showLoadingState('ads');
-      showLoadingState('bm');
-      showLoadingState('page');
+      // Intentar cargar datos guardados primero
+      const stored = loadStoredData();
+      
+      // Solo mostrar estados de carga si no hay datos previos
+      const hasAdsData = stored.hasAds || ($("#countAds").text() !== "0" && $("#countAds").text() !== "");
+      const hasBmData = stored.hasBm || ($("#countBm").text() !== "0" && $("#countBm").text() !== "");
+      const hasPageData = stored.hasPages || ($("#countPage").text() !== "0" && $("#countPage").text() !== "");
+      
+      if (!hasAdsData) showLoadingState('ads');
+      if (!hasBmData) showLoadingState('bm');
+      if (!hasPageData) showLoadingState('page');
       
       try {
         // Verificar si fb está disponible y inicializado
-        if (typeof fb !== 'undefined' && fb.uid) {
+        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
           
           // Intentar cargar datos reales de Ads
-          try {
-            const realAdsData = await fb.loadAds();
-            if (realAdsData && realAdsData.length > 0) {
-              displayAdsData(realAdsData);
-            } else {
-              showNoDataState('ads');
+          if (!hasAdsData) {
+            try {
+              if (typeof window.fb.loadAds === 'function') {
+                await window.fb.loadAds();
+                // Los datos se manejan a través de eventos
+              } else {
+                setTimeout(() => showNoDataState('ads'), 2000);
+              }
+            } catch (e) {
+              setTimeout(() => showNoDataState('ads'), 2000);
             }
-          } catch (e) {
-            showNoDataState('ads');
           }
           
           // Intentar cargar datos reales de BM
-          try {
-            const realBmData = await fb.loadBm();
-            if (realBmData && realBmData.length > 0) {
-              displayBmData(realBmData);
-            } else {
-              showNoDataState('bm');
+          if (!hasBmData) {
+            try {
+              if (typeof window.fb.loadBm === 'function') {
+                await window.fb.loadBm();
+                // Los datos se manejan a través de eventos
+              } else {
+                setTimeout(() => showNoDataState('bm'), 2000);
+              }
+            } catch (e) {
+              setTimeout(() => showNoDataState('bm'), 2000);
             }
-          } catch (e) {
-            showNoDataState('bm');
           }
           
           // Intentar cargar datos reales de Pages
-          try {
-            const realPageData = await fb.loadPage();
-            if (realPageData && realPageData.length > 0) {
-              displayPageData(realPageData);
-            } else {
-              showNoDataState('page');
+          if (!hasPageData) {
+            try {
+              if (typeof window.fb.loadPage === 'function') {
+                await window.fb.loadPage();
+                // Los datos se manejan a través de eventos
+              } else {
+                setTimeout(() => showNoDataState('page'), 2000);
+              }
+            } catch (e) {
+              setTimeout(() => showNoDataState('page'), 2000);
             }
-          } catch (e) {
-            showNoDataState('page');
           }
           
         } else {
           // Si no hay conexión con Facebook, mostrar estados sin datos
-          showNoDataState('ads');
-          showNoDataState('bm');
-          showNoDataState('page');
+          setTimeout(() => {
+            if (!hasAdsData) showNoDataState('ads');
+            if (!hasBmData) showNoDataState('bm');
+            if (!hasPageData) showNoDataState('page');
+          }, 3000);
         }
         
       } catch (e) {
         // En caso de error general, mostrar estados sin datos
-        showNoDataState('ads');
-        showNoDataState('bm');
-        showNoDataState('page');
+        setTimeout(() => {
+          if (!hasAdsData) showNoDataState('ads');
+          if (!hasBmData) showNoDataState('bm');
+          if (!hasPageData) showNoDataState('page');
+        }, 3000);
       }
     };
 
@@ -528,14 +674,14 @@ $(document).ready(async function () {
     // Cargar perfil inmediatamente cuando esté disponible
     const quickLoadProfile = async () => {
       // Intentar usar datos ya disponibles en localStorage o variables globales
-      if (typeof fb !== 'undefined' && fb.uid) {
-        const existingName = localStorage.getItem('fb_name') || localStorage.getItem('userName');
-        const existingAvatar = localStorage.getItem('fb_avatar') || localStorage.getItem('userAvatar');
+      if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+        const existingName = localStorage.getItem('fb_name') || localStorage.getItem('userName') || window.fb.userInfo?.name;
+        const existingAvatar = localStorage.getItem('fb_avatar') || localStorage.getItem('userAvatar') || window.fb.userInfo?.picture?.data?.url;
         
         if (existingName) {
           displayUserProfile({
             name: existingName,
-            id: fb.uid,
+            id: window.fb.uid,
             avatar: existingAvatar
           });
         }
@@ -545,28 +691,39 @@ $(document).ready(async function () {
     // Ejecutar carga rápida inmediatamente
     quickLoadProfile();
     
-    // Monitor para detectar cuando fb esté disponible
+    // Monitor para detectar cuando fb esté disponible de forma estable
     let fbCheckInterval = null;
     let fbWasAvailable = false;
+    let lastDataLoadTime = 0;
     
     const monitorFacebookStatus = () => {
       fbCheckInterval = setInterval(() => {
         try {
-          const isNowAvailable = typeof fb !== 'undefined' && fb.uid;
+          const isNowAvailable = typeof window.fb !== 'undefined' && window.fb && window.fb.uid;
+          const currentTime = Date.now();
           
           if (isNowAvailable && !fbWasAvailable) {
             fbWasAvailable = true;
             loadUserProfile();
             
-            // También recargar datos cuando fb esté disponible
-            loadAllData();
+            // Solo recargar datos si han pasado al menos 10 segundos desde la última carga
+            if (currentTime - lastDataLoadTime > 10000) {
+              lastDataLoadTime = currentTime;
+              
+              // Verificar si realmente necesitamos cargar datos
+              const hasAnyData = $("#countAds").text() !== "0" || $("#countBm").text() !== "0" || $("#countPage").text() !== "0";
+              
+              if (!hasAnyData) {
+                loadAllData();
+              }
+            }
           } else if (!isNowAvailable && fbWasAvailable) {
             fbWasAvailable = false;
           }
         } catch (e) {
           // Error silencioso, continuar monitoreando
         }
-      }, 2000);
+      }, 5000); // Aumentar intervalo para ser menos agresivo
     };
     
     // Iniciar monitoreo
@@ -579,96 +736,171 @@ $(document).ready(async function () {
       }
     });
     
-    // Iniciar carga automática de datos reales
+    // Limpiar cualquier dato de muestra que pueda existir
+    const clearSampleData = () => {
+      try {
+        // Solo limpiar si los datos parecen ser de muestra
+        const storedAds = localStorage.getItem('dashboard_ads_data');
+        const storedBm = localStorage.getItem('dashboard_bm_data');
+        const storedPages = localStorage.getItem('dashboard_pages_data');
+        
+        if (storedAds) {
+          const adsData = JSON.parse(storedAds);
+          // Verificar si son datos de muestra (por ID conocido)
+          if (adsData.some(ad => ad.adId === '1234567890123456' || ad.adId === '2345678901234567')) {
+            localStorage.removeItem('dashboard_ads_data');
+          }
+        }
+        
+        if (storedBm) {
+          const bmData = JSON.parse(storedBm);
+          // Verificar si son datos de muestra
+          if (bmData.some(bm => bm.bmId === '297391731418010916' || bm.name === 'BM Cuentas Publicitarias')) {
+            localStorage.removeItem('dashboard_bm_data');
+          }
+        }
+        
+        if (storedPages) {
+          const pagesData = JSON.parse(storedPages);
+          // Verificar si son datos de muestra
+          if (pagesData.some(page => page.pageId === '123456789012345' || page.name === 'Página Principal Marketing')) {
+            localStorage.removeItem('dashboard_pages_data');
+          }
+        }
+      } catch (e) {
+        // Error silencioso
+      }
+    };
+    
+    // Limpiar datos de muestra al iniciar
+    clearSampleData();
+    
+    // Iniciar carga automática de datos reales únicamente
     setTimeout(() => {
       loadAllData();
+      lastDataLoadTime = Date.now();
     }, 500);
     
-    // Reintento de carga si es necesario
+    // Reintento de carga solo si es realmente necesario
     setTimeout(() => {
-      if (typeof fb !== 'undefined' && fb.uid) {
+      if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
         loadUserProfile();
         
-        // Verificar si necesitamos recargar datos
+        // Solo verificar si hay estados de carga activos
         const adsHtml = $("#topAds").html();
         const bmHtml = $("#topBm").html();
         const pageHtml = $("#topPage").html();
         
-        if (adsHtml.includes('Cargando datos reales') || 
-            bmHtml.includes('Cargando datos reales') || 
-            pageHtml.includes('Cargando datos reales')) {
-          loadAllData();
+        const isStillLoading = (adsHtml && adsHtml.includes('Cargando datos reales')) || 
+                              (bmHtml && bmHtml.includes('Cargando datos reales')) || 
+                              (pageHtml && pageHtml.includes('Cargando datos reales'));
+        
+        if (isStillLoading) {
+          // Solo recargar las secciones que están cargando
+          if (adsHtml && adsHtml.includes('Cargando datos reales')) {
+            showNoDataState('ads');
+          }
+          if (bmHtml && bmHtml.includes('Cargando datos reales')) {
+            showNoDataState('bm');
+          }
+          if (pageHtml && pageHtml.includes('Cargando datos reales')) {
+            showNoDataState('page');
+          }
         }
       }
-    }, 3000);
+    }, 5000);
     
     // ============================
     // EVENTOS DE BOTONES
     // ============================
     
     /**
-     * Evento click loadBm - Recarga datos reales de BM
+     * Evento click loadBm - Recarga datos reales de BM de forma estable
      */
-    $('#loadBm').click(async function () {
+    $(document).on('click', '#loadBm', async function () {
+      const $button = $(this);
+      $button.prop('disabled', true);
+      
       showLoadingState('bm');
       
       try {
-        if (typeof fb !== 'undefined' && fb.uid && fb.loadBm) {
-          const realBmData = await fb.loadBm();
-          if (realBmData && realBmData.length > 0) {
-            displayBmData(realBmData);
+        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+          // Limpiar datos anteriores
+          localStorage.removeItem('dashboard_bm_data');
+          
+          if (typeof window.fb.loadBm === 'function') {
+            await window.fb.loadBm();
+            // Los datos se manejan a través de eventos
           } else {
-            showNoDataState('bm');
+            setTimeout(() => showNoDataState('bm'), 2000);
           }
         } else {
-          showNoDataState('bm');
+          setTimeout(() => showNoDataState('bm'), 2000);
         }
       } catch (e) {
-        showNoDataState('bm');
+        setTimeout(() => showNoDataState('bm'), 2000);
+      } finally {
+        setTimeout(() => $button.prop('disabled', false), 3000);
       }
     });
     
     /**
-     * Evento click loadAds - Recarga datos reales de Ads
+     * Evento click loadAds - Recarga datos reales de Ads de forma estable
      */
-    $('#loadAds').click(async function () {
+    $(document).on('click', '#loadAds', async function () {
+      const $button = $(this);
+      $button.prop('disabled', true);
+      
       showLoadingState('ads');
       
       try {
-        if (typeof fb !== 'undefined' && fb.uid && fb.loadAds) {
-          const realAdsData = await fb.loadAds();
-          if (realAdsData && realAdsData.length > 0) {
-            displayAdsData(realAdsData);
+        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+          // Limpiar datos anteriores
+          localStorage.removeItem('dashboard_ads_data');
+          
+          if (typeof window.fb.loadAds === 'function') {
+            await window.fb.loadAds();
+            // Los datos se manejan a través de eventos
           } else {
-            showNoDataState('ads');
+            setTimeout(() => showNoDataState('ads'), 2000);
           }
         } else {
-          showNoDataState('ads');
+          setTimeout(() => showNoDataState('ads'), 2000);
         }
       } catch (e) {
-        showNoDataState('ads');
+        setTimeout(() => showNoDataState('ads'), 2000);
+      } finally {
+        setTimeout(() => $button.prop('disabled', false), 3000);
       }
     });
     
     /**
-     * Evento click loadPage - Recarga datos reales de Pages
+     * Evento click loadPage - Recarga datos reales de Pages de forma estable
      */
-    $('#loadPage').click(async function () {
+    $(document).on('click', '#loadPage', async function () {
+      const $button = $(this);
+      $button.prop('disabled', true);
+      
       showLoadingState('page');
       
       try {
-        if (typeof fb !== 'undefined' && fb.uid && fb.loadPage) {
-          const realPageData = await fb.loadPage();
-          if (realPageData && realPageData.length > 0) {
-            displayPageData(realPageData);
+        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+          // Limpiar datos anteriores
+          localStorage.removeItem('dashboard_pages_data');
+          
+          if (typeof window.fb.loadPage === 'function') {
+            await window.fb.loadPage();
+            // Los datos se manejan a través de eventos
           } else {
-            showNoDataState('page');
+            setTimeout(() => showNoDataState('page'), 2000);
           }
         } else {
-          showNoDataState('page');
+          setTimeout(() => showNoDataState('page'), 2000);
         }
       } catch (e) {
-        showNoDataState('page');
+        setTimeout(() => showNoDataState('page'), 2000);
+      } finally {
+        setTimeout(() => $button.prop('disabled', false), 3000);
       }
     });
   });
