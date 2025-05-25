@@ -92,13 +92,17 @@ $(document).ready(async function () {
         try {
           const v15 = await checkUser();
           if (v15.success) {
-            $("#balance .card").html("\n                        <div class=\"d-flex justify-content-between align-items-center\">\n                            <div class=\"\">\n                                <strong class=\"fs-5 mb-2 d-block\">Saldo de la cuenta</strong>\n                                <strong class=\"fs-2\" id=\"\">" + v15.balance + "</strong>\n                            </div>\n                            <div class=\"rounded-circle d-flex align-items-center justify-content-center text-white\" style=\"width: 60px; height: 60px; background: rgb(249 116 132 / 20%)\">\n                                <i class=\"ri-wallet-line fs-3\" style=\"color: #ff6384\"></i>\n                            </div>\n                        </div>\n                    ");
+            // Actualizar información de balance/saldo
+            $("#balanceTitle").text("Saldo de la cuenta");
+            $("#balanceValue").html(`<strong class="fs-2">${v15.balance || '$0.00'}</strong>`);
+            $("#balanceIcon").html(`<i class="ri-wallet-line fs-3" style="color: #ff6384"></i>`);
+            
             clearInterval(vSetInterval);
             p6();
           } else {
             p7();
           }
-        } catch {
+        } catch (e) {
           p7();
         }
       });
@@ -112,23 +116,97 @@ $(document).ready(async function () {
     // SISTEMA DE CARGA DE DATOS REALES
     // ============================
     
+    // Función para cargar información real del usuario
+    const loadUserProfile = async () => {
+      try {
+        // Intentar obtener datos reales del usuario de Facebook
+        if (typeof fb !== 'undefined' && fb.uid) {
+          try {
+            // Obtener información básica del usuario
+            const userInfo = await fb.getUserInfo();
+            
+            if (userInfo && userInfo.name) {
+              displayUserProfile(userInfo);
+              return;
+            }
+          } catch (e) {
+            // Error silencioso
+          }
+          
+          // Si no funciona la API, usar datos básicos disponibles
+          const basicUserInfo = {
+            name: localStorage.getItem('userName') || 'Usuario Facebook',
+            id: fb.uid || 'No disponible',
+            avatar: localStorage.getItem('userAvatar') || null
+          };
+          
+          displayUserProfile(basicUserInfo);
+          
+        } else {
+          // Datos de demostración para cuando no hay sesión real
+          const demoUserInfo = {
+            name: 'Usuario Demo',
+            id: 'demo_user_123',
+            avatar: null
+          };
+          displayUserProfile(demoUserInfo);
+        }
+        
+      } catch (e) {
+        // Mostrar información mínima en caso de error
+        displayUserProfile({
+          name: 'Usuario',
+          id: 'No disponible',
+          avatar: null
+        });
+      }
+    };
+    
+    // Función para mostrar la información del usuario en la interfaz
+    const displayUserProfile = (userInfo) => {
+      try {
+        // Ocultar skeletons
+        $('#userAvatarSkeleton').addClass('d-none');
+        $('#userNameSkeleton').addClass('d-none');
+        $('#userIdSkeleton').addClass('d-none');
+        
+        // Mostrar avatar
+        if (userInfo.avatar) {
+          $('#userAvatar').attr('src', userInfo.avatar).removeClass('d-none');
+        } else {
+          // Si no hay avatar, mostrar avatar por defecto o inicial
+          const initial = userInfo.name ? userInfo.name.charAt(0).toUpperCase() : 'U';
+          $('#userAvatarContainer').html(`
+            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" 
+                 style="width: 33px; height: 33px; background: linear-gradient(45deg, #4267B2, #1877F2); font-size: 14px;">
+              ${initial}
+            </div>
+          `);
+        }
+        
+        // Mostrar nombre y ID
+        $('#userName').text(userInfo.name || 'Usuario').removeClass('d-none');
+        $('#userId').text(userInfo.id || 'No disponible').removeClass('d-none');
+        
+      } catch (e) {
+        // Error silencioso
+      }
+    };
+    
     // Eventos para recibir datos reales de Facebook
     $(document).on("loadAdsSuccess", function(event, realAdsData) {
-      console.log('[VIA] Datos reales de Ads recibidos:', realAdsData);
       if (realAdsData && realAdsData.length > 0) {
         displayAdsData(realAdsData);
       }
     });
     
     $(document).on("loadBmSuccess", function(event, realBmData) {
-      console.log('[VIA] Datos reales de BM recibidos:', realBmData);
       if (realBmData && realBmData.length > 0) {
         displayBmData(realBmData);
       }
     });
     
     $(document).on("loadPageSuccess", function(event, realPageData) {
-      console.log('[VIA] Datos reales de Pages recibidos:', realPageData);
       if (realPageData && realPageData.length > 0) {
         displayPageData(realPageData);
       }
@@ -137,7 +215,6 @@ $(document).ready(async function () {
     // Función para mostrar datos de Ads reales
     const displayAdsData = (adsData) => {
       try {
-        console.log('[VIA] Mostrando datos de Ads:', adsData);
         $("#countAds").text(adsData.length);
         
         let vLS3 = "";
@@ -217,14 +294,13 @@ $(document).ready(async function () {
         $("#adData").removeClass("d-none");
         
       } catch (e) {
-        console.error('[VIA] Error mostrando datos de Ads:', e);
+        // Error silencioso
       }
     };
     
     // Función para mostrar datos de BM reales
     const displayBmData = (bmData) => {
       try {
-        console.log('[VIA] Mostrando datos de BM:', bmData);
         $("#countBm").text(bmData.length);
         
         let vLS4 = "";
@@ -277,14 +353,13 @@ $(document).ready(async function () {
         }
         
       } catch (e) {
-        console.error('[VIA] Error mostrando datos de BM:', e);
+        // Error silencioso
       }
     };
     
     // Función para mostrar datos de Pages reales
     const displayPageData = (pageData) => {
       try {
-        console.log('[VIA] Mostrando datos de Pages:', pageData);
         $("#countPage").text(pageData.length || 0);
         
         let vLS5 = "";
@@ -314,14 +389,12 @@ $(document).ready(async function () {
         $("#topPage").html(vLS5);
         
       } catch (e) {
-        console.error('[VIA] Error mostrando datos de Pages:', e);
+        // Error silencioso
       }
     };
     
     // Función para cargar datos de prueba como respaldo
     const loadTestData = async () => {
-      console.log('[VIA] Cargando datos de prueba como respaldo...');
-      
       const userId = getUserId();
       
       // Datos de prueba para Ads
@@ -403,33 +476,30 @@ $(document).ready(async function () {
     
     // Función principal para cargar datos
     const loadAllData = async () => {
-      console.log('[VIA] Iniciando carga de datos...');
+      // Cargar primero el perfil del usuario
+      await loadUserProfile();
       
       try {
         // Verificar si fb está disponible y inicializado
         if (typeof fb !== 'undefined' && fb.uid && fb.accessToken) {
-          console.log('[VIA] Facebook API disponible, cargando datos reales...');
           
           // Intentar cargar datos reales
           try {
-            console.log('[VIA] Cargando datos de Ads...');
             await fb.loadAds();
           } catch (e) {
-            console.warn('[VIA] Error cargando Ads reales:', e);
+            // Error silencioso
           }
           
           try {
-            console.log('[VIA] Cargando datos de BM...');
             await fb.loadBm();
           } catch (e) {
-            console.warn('[VIA] Error cargando BM reales:', e);
+            // Error silencioso
           }
           
           try {
-            console.log('[VIA] Cargando datos de Pages...');
             await fb.loadPage();
           } catch (e) {
-            console.warn('[VIA] Error cargando Pages reales:', e);
+            // Error silencioso
           }
           
           // Esperar un poco para ver si llegan datos reales
@@ -440,26 +510,99 @@ $(document).ready(async function () {
             
             // Si no hay datos reales, usar datos de prueba
             if (adsCount === 0 && bmCount === 0 && pageCount === 0) {
-              console.log('[VIA] No se recibieron datos reales, usando datos de prueba...');
               loadTestData();
             }
           }, 3000);
           
         } else {
-          console.log('[VIA] Facebook API no disponible, usando datos de prueba...');
           await loadTestData();
         }
         
       } catch (e) {
-        console.error('[VIA] Error general cargando datos:', e);
         await loadTestData();
       }
     };
     
-    // Iniciar carga de datos
+    // Eventos para actualizar perfil cuando cambie información
+    $(document).on("userInfoChanged", function(event, userInfo) {
+      displayUserProfile(userInfo);
+    });
+    
+    // Evento para recargar perfil cuando se cambie de cuenta
+    $(document).on("accountSwitched", function() {
+      setTimeout(() => {
+        loadUserProfile();
+      }, 500);
+    });
+    
+    // Cargar perfil inmediatamente cuando esté disponible
+    const quickLoadProfile = async () => {
+      // Intentar usar datos ya disponibles en localStorage o variables globales
+      if (typeof fb !== 'undefined' && fb.uid) {
+        const existingName = localStorage.getItem('fb_name') || localStorage.getItem('userName');
+        const existingAvatar = localStorage.getItem('fb_avatar') || localStorage.getItem('userAvatar');
+        
+        if (existingName) {
+          displayUserProfile({
+            name: existingName,
+            id: fb.uid,
+            avatar: existingAvatar
+          });
+        }
+      }
+    };
+    
+    // Ejecutar carga rápida inmediatamente
+    quickLoadProfile();
+    
+    // Monitor para detectar cuando fb esté disponible
+    let fbCheckInterval = null;
+    let fbWasAvailable = false;
+    
+    const monitorFacebookStatus = () => {
+      fbCheckInterval = setInterval(() => {
+        try {
+          const isNowAvailable = typeof fb !== 'undefined' && fb.uid && fb.uid !== 'demo_user_123';
+          
+          if (isNowAvailable && !fbWasAvailable) {
+            fbWasAvailable = true;
+            loadUserProfile();
+            
+            // También actualizar datos si es necesario
+            const currentAdsCount = parseInt($("#countAds").text()) || 0;
+            if (currentAdsCount === 0) {
+              loadAllData();
+            }
+          } else if (!isNowAvailable && fbWasAvailable) {
+            fbWasAvailable = false;
+          }
+        } catch (e) {
+          // Error silencioso, continuar monitoreando
+        }
+      }, 2000);
+    };
+    
+    // Iniciar monitoreo
+    monitorFacebookStatus();
+    
+    // Limpiar interval cuando la página se descargue
+    $(window).on('beforeunload', () => {
+      if (fbCheckInterval) {
+        clearInterval(fbCheckInterval);
+      }
+    });
+    
+    // Iniciar carga completa de datos
     setTimeout(() => {
       loadAllData();
     }, 1000);
+    
+    // También intentar cargar datos adicionales después de un tiempo
+    setTimeout(() => {
+      if (typeof fb !== 'undefined' && fb.uid) {
+        loadUserProfile();
+      }
+    }, 3000);
     
     // ============================
     // EVENTOS DE BOTONES
@@ -469,21 +612,17 @@ $(document).ready(async function () {
      * Evento click loadBm - Regenera datos de BM
      */
     $('#loadBm').click(async function () {
-      console.log('[VIA] Botón loadBm presionado');
       const userId = getUserId();
       
       try {
         if (typeof fb !== 'undefined' && fb.uid && fb.loadBm) {
-          console.log('[VIA] Recargando BM reales...');
           await removeLocalStorage('dataBm_' + userId);
           await fb.loadBm();
         } else {
-          console.log('[VIA] Generando nuevos datos de prueba para BM...');
           await removeLocalStorage('dataBm_' + userId);
           await loadTestData();
         }
       } catch (e) {
-        console.error('[VIA] Error en loadBm:', e);
         await loadTestData();
       }
     });
@@ -492,21 +631,17 @@ $(document).ready(async function () {
      * Evento click loadAds - Regenera datos de Ads
      */
     $('#loadAds').click(async function () {
-      console.log('[VIA] Botón loadAds presionado');
       const userId = getUserId();
       
       try {
         if (typeof fb !== 'undefined' && fb.uid && fb.loadAds) {
-          console.log('[VIA] Recargando Ads reales...');
           await removeLocalStorage('dataAds_' + userId);
           await fb.loadAds();
         } else {
-          console.log('[VIA] Generando nuevos datos de prueba para Ads...');
           await removeLocalStorage('dataAds_' + userId);
           await loadTestData();
         }
       } catch (e) {
-        console.error('[VIA] Error en loadAds:', e);
         await loadTestData();
       }
     });
@@ -515,21 +650,17 @@ $(document).ready(async function () {
      * Evento click loadPage - Regenera datos de Pages
      */
     $('#loadPage').click(async function () {
-      console.log('[VIA] Botón loadPage presionado');
       const userId = getUserId();
       
       try {
         if (typeof fb !== 'undefined' && fb.uid && fb.loadPage) {
-          console.log('[VIA] Recargando Pages reales...');
           await removeLocalStorage('dataPage_' + userId);
           await fb.loadPage();
         } else {
-          console.log('[VIA] Generando nuevos datos de prueba para Pages...');
           await removeLocalStorage('dataPage_' + userId);
           await loadTestData();
         }
       } catch (e) {
-        console.error('[VIA] Error en loadPage:', e);
         await loadTestData();
       }
     });
