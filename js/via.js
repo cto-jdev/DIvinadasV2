@@ -108,341 +108,429 @@ $(document).ready(async function () {
       await vF5();
     } catch {}
     
-    // Función para cargar datos de Ads automáticamente si no existen
-    const loadAdsData = async () => {
+    // ============================
+    // SISTEMA DE CARGA DE DATOS REALES
+    // ============================
+    
+    // Eventos para recibir datos reales de Facebook
+    $(document).on("loadAdsSuccess", function(event, realAdsData) {
+      console.log('[VIA] Datos reales de Ads recibidos:', realAdsData);
+      if (realAdsData && realAdsData.length > 0) {
+        displayAdsData(realAdsData);
+      }
+    });
+    
+    $(document).on("loadBmSuccess", function(event, realBmData) {
+      console.log('[VIA] Datos reales de BM recibidos:', realBmData);
+      if (realBmData && realBmData.length > 0) {
+        displayBmData(realBmData);
+      }
+    });
+    
+    $(document).on("loadPageSuccess", function(event, realPageData) {
+      console.log('[VIA] Datos reales de Pages recibidos:', realPageData);
+      if (realPageData && realPageData.length > 0) {
+        displayPageData(realPageData);
+      }
+    });
+    
+    // Función para mostrar datos de Ads reales
+    const displayAdsData = (adsData) => {
       try {
-        const userId = getUserId();
-        let v16 = await getLocalStorage("dataAds_" + userId);
+        console.log('[VIA] Mostrando datos de Ads:', adsData);
+        $("#countAds").text(adsData.length);
         
-        // Si no hay datos, crear datos de prueba
-        if (!v16 || !Array.isArray(v16) || v16.length === 0) {
-          const testAds = [
-            { 
-              adId: '1234567890123456', 
-              account: 'Cuenta Publicitaria Principal', 
-              spend: '15,250', 
-              limit: '50,000', 
-              remain: '34,750', 
-              balance: '5,200', 
-              currency: 'USD-United States Dollar', 
-              status: 1, 
-              payment: '[{"credential":{"card_association":"VISA","last_four_digits":"1234"}}]', 
-              createdTime: '2024-01-15', 
-              nextBillDate: '2024-02-15', 
-              type: 'Personal', 
-              timezone: 'America/New_York', 
-              role: 'Administrador' 
-            },
-            { 
-              adId: '2345678901234567', 
-              account: 'Agencia Digital Marketing', 
-              spend: '28,900', 
-              limit: '75,000', 
-              remain: '46,100', 
-              balance: '3,800', 
-              currency: 'USD-United States Dollar', 
-              status: 1, 
-              payment: '[{"credential":{"card_association":"MASTERCARD","last_four_digits":"5678"}}]', 
-              createdTime: '2024-02-01', 
-              nextBillDate: '2024-03-01', 
-              type: 'Business', 
-              timezone: 'America/Los_Angeles', 
-              role: 'Administrador' 
-            },
-            { 
-              adId: '3456789012345678', 
-              account: 'E-commerce Solutions', 
-              spend: '8,750', 
-              limit: '25,000', 
-              remain: '16,250', 
-              balance: '1,200', 
-              currency: 'USD-United States Dollar', 
-              status: 2, 
-              payment: '[{"credential":{"card_association":"AMERICAN EXPRESS","last_four_digits":"9012"}}]', 
-              createdTime: '2024-01-20', 
-              nextBillDate: '2024-02-20', 
-              type: 'Business', 
-              timezone: 'Europe/London', 
-              role: 'Editor' 
-            },
-            { 
-              adId: '4567890123456789', 
-              account: 'Startup Growth Hub', 
-              spend: '12,300', 
-              limit: '40,000', 
-              remain: '27,700', 
-              balance: '2,100', 
-              currency: 'USD-United States Dollar', 
-              status: 1, 
-              payment: '[{"credential":{"card_association":"VISA","last_four_digits":"3456"}}]', 
-              createdTime: '2024-01-10', 
-              nextBillDate: '2024-02-10', 
-              type: 'Business', 
-              timezone: 'Asia/Singapore', 
-              role: 'Administrador' 
-            },
-            { 
-              adId: '5678901234567890', 
-              account: 'Local Business Pro', 
-              spend: '5,680', 
-              limit: '15,000', 
-              remain: '9,320', 
-              balance: '800', 
-              currency: 'USD-United States Dollar', 
-              status: 3, 
-              payment: '[]', 
-              createdTime: '2024-02-05', 
-              nextBillDate: '2024-03-05', 
-              type: 'Personal', 
-              timezone: 'America/Chicago', 
-              role: 'Analista' 
-            }
-          ];
-          await setLocalStorage("dataAds_" + userId, testAds);
-          v16 = testAds;
-        }
+        let vLS3 = "";
+        adsData.sort((a, b) => {
+          const spendA = parseInt((a.spend || '0').toString().replace(/,/g, ''));
+          const spendB = parseInt((b.spend || '0').toString().replace(/,/g, ''));
+          return spendB - spendA;
+        }).slice(0, 4).forEach(ad => {
+          const displaySpend = ad.spend || '0';
+          const currency = ad.currency ? ad.currency.split('-')[0] : '$';
+          vLS3 += `
+                        <div class="border-bottom opacity-50"></div>
+                        <a href="https://business.facebook.com/billing_hub/payment_settings/?asset_id=${ad.adId}" target="_BLANK" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
+                            <div class="d-flex align-items-center" style="width: calc(100% - 60px);">
+                                <span class="avatar-letter" data-letter="${(ad.account || ad.name || 'A').replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
+                                <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
+                                    <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${ad.account || ad.name || 'Cuenta sin nombre'}</strong>
+                                    <span>${ad.adId || ad.id}</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <strong style="margin-bottom: 3px" class="d-block">Gasto total</strong>
+                                <span class="badge text-bg-success">${currency}${displaySpend}</span>
+                            </div>
+                        </a>
+                    `;
+        });
+        $("#topAds").html(vLS3);
         
-        if (v16 && v16.length > 0) {
-          $("#countAds").text(v16.length);
-          let vLS3 = "";
-          v16.sort((p8, p9) => {
-            return parseInt(p9.spend.replace(/,/g, '')) - parseInt(p8.spend.replace(/,/g, ''));
-          }).slice(0, 4).forEach(p10 => {
-            vLS3 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://business.facebook.com/billing_hub/payment_settings/?asset_id=" + p10.adId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 60px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p10.account.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p10.account + "</strong>\n                                    <span>" + p10.adId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Gasto total</strong>\n                                <span class=\"badge text-bg-success\">$" + p10.spend + "</span>\n                            </div>\n                        </a>\n                    ";
-          });
-          $("#topAds").html(vLS3);
-          
-          $("#adSelect select").on("select2:select", function (p11) {
-            const v17 = v16.filter(p12 => p12.adId === p11.params.data.id)[0];
-            vF4(v17);
-          });
-          
+        // Configurar select2 para datos reales
+        if (typeof $.fn.select2 !== 'undefined') {
           $("#adSelect select").select2({
-            data: v16.map(p13 => {
-              const vO = {
-                id: p13.adId,
-                text: p13.account,
-                adId: p13.adId
-              };
-              return vO;
-            }),
-            templateSelection: function (p14) {
-              return $("\n                            <div class=\"d-flex align-items-center\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p14.text.substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-2 text-black text-decoration-none\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 13px; margin-bottom: 3px\">" + p14.text + "</strong>\n                                    <span style=\"font-size: 13px;\">" + p14.id + "</span>\n                                </div>\n                            </div>\n                        ");
+            data: adsData.map(ad => ({
+              id: ad.adId || ad.id,
+              text: ad.account || ad.name || 'Cuenta sin nombre',
+              adId: ad.adId || ad.id
+            })),
+            templateSelection: function (data) {
+              return $(`
+                            <div class="d-flex align-items-center">
+                                <span class="avatar-letter" data-letter="${data.text.substring(0, 1).toUpperCase()}"></span>
+                                <div class="d-flex flex-column ps-2 text-black text-decoration-none" style="line-height: initial; width: calc(100% - 30px)">
+                                    <strong class="text-truncate pe-1" style="font-size: 13px; margin-bottom: 3px">${data.text}</strong>
+                                    <span style="font-size: 13px;">${data.id}</span>
+                                </div>
+                            </div>
+                        `);
             },
-            templateResult: function (p15) {
-              return $("\n                            <div class=\"d-flex align-items-center\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p15.text.substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-2 text-black text-decoration-none\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 13px; margin-bottom: 3px\">" + p15.text + "</strong>\n                                    <span style=\"font-size: 13px;\">" + p15.id + "</span>\n                                </div>\n                            </div>\n                        ");
+            templateResult: function (data) {
+              return $(`
+                            <div class="d-flex align-items-center">
+                                <span class="avatar-letter" data-letter="${data.text.substring(0, 1).toUpperCase()}"></span>
+                                <div class="d-flex flex-column ps-2 text-black text-decoration-none" style="line-height: initial; width: calc(100% - 30px)">
+                                    <strong class="text-truncate pe-1" style="font-size: 13px; margin-bottom: 3px">${data.text}</strong>
+                                    <span style="font-size: 13px;">${data.id}</span>
+                                </div>
+                            </div>
+                        `);
             }
           });
           
-          const v18 = v16[0];
-          try {
-            vF4(v18);
-          } catch {}
-          $("#adData").removeClass("d-none");
+          $("#adSelect select").on("select2:select", function (e) {
+            const selectedAd = adsData.find(ad => (ad.adId || ad.id) === e.params.data.id);
+            if (selectedAd) {
+              vF4(selectedAd);
+            }
+          });
           
-          try {
-            v12.close();
-            $("#iframe").attr("src", "");
-          } catch {}
+          // Mostrar el primer elemento por defecto
+          if (adsData[0]) {
+            try {
+              vF4(adsData[0]);
+            } catch {}
+          }
         }
-      } catch (e2) {
-        console.log('Error loading ads data:', e2);
+        
+        $("#adData").removeClass("d-none");
+        
+      } catch (e) {
+        console.error('[VIA] Error mostrando datos de Ads:', e);
       }
     };
     
-    // Función para cargar datos de BM automáticamente si no existen
-    const loadBmData = async () => {
+    // Función para mostrar datos de BM reales
+    const displayBmData = (bmData) => {
       try {
-        const userId = getUserId();
-        let v19 = await getLocalStorage("dataBm_" + userId);
+        console.log('[VIA] Mostrando datos de BM:', bmData);
+        $("#countBm").text(bmData.length);
         
-        // Si no hay datos, crear datos de prueba
-        if (!v19 || !Array.isArray(v19) || v19.length === 0) {
-          const testBm = [
-            { 
-              id: 1, 
-              bmId: '1234567890123456', 
-              name: 'DivinAds Marketing Agency', 
-              bmType: 'BM350 - Business Premium', 
-              status: 'LIVE' 
-            },
-            { 
-              id: 2, 
-              bmId: '2345678901234567', 
-              name: 'Global E-commerce Solutions', 
-              bmType: 'BM50 - Business Standard', 
-              status: 'LIVE' 
-            },
-            { 
-              id: 3, 
-              bmId: '3456789012345678', 
-              name: 'Digital Growth Partners', 
-              bmType: 'BM350 - Business Premium', 
-              status: 'DIE' 
-            },
-            { 
-              id: 4, 
-              bmId: '4567890123456789', 
-              name: 'Local Business Network', 
-              bmType: 'BM25 - Business Basic', 
-              status: 'LIVE' 
-            },
-            { 
-              id: 5, 
-              bmId: '5678901234567890', 
-              name: 'Startup Accelerator Hub', 
-              bmType: 'BM350 - Business Premium', 
-              status: 'DIE_VV' 
-            },
-            { 
-              id: 6, 
-              bmId: '6789012345678901', 
-              name: 'Creative Design Studio', 
-              bmType: 'BM50 - Business Standard', 
-              status: 'LIVE' 
-            }
-          ];
-          await setLocalStorage("dataBm_" + userId, testBm);
-          v19 = testBm;
-        }
+        let vLS4 = "";
+        bmData.slice(0, 4).forEach(bm => {
+          const bmType = bm.bmType || bm.type || (bm.limit ? `BM${bm.limit}` : 'BM');
+          vLS4 += `
+                        <div class="border-bottom opacity-50"></div>
+                        <a href="https://business.facebook.com/settings/?business_id=${bm.bmId || bm.id}" target="_BLANK" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
+                            <div class="d-flex align-items-center" style="width: calc(100% - 50px);">
+                                <span class="avatar-letter" data-letter="${(bm.name || 'B').replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
+                                <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
+                                    <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${bm.name || 'Business Manager'}</strong>
+                                    <span>${bm.bmId || bm.id}</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <strong style="margin-bottom: 3px" class="d-block">Tipo de BM</strong>
+                                <span class="badge text-bg-success">${bmType.split(' - ')[0]}</span>
+                            </div>
+                        </a>
+                    `;
+        });
+        $("#topBm").html(vLS4);
         
-        if (v19 && v19.length > 0) {
-          $("#countBm").text(v19.length);
-          let vLS4 = "";
-          v19.slice(0, 4).forEach(p16 => {
-            vLS4 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://business.facebook.com/settings/?business_id=" + p16.bmId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 50px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p16.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p16.name + "</strong>\n                                    <span>" + p16.bmId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Tipo de BM</strong>\n                                <span class=\"badge text-bg-success\">" + (p16.bmType ? p16.bmType.split(" - ")[0] : "") + "</span>\n                            </div>\n                        </a>\n                    ";
-          });
-          $("#topBm").html(vLS4);
-          
-          const v20 = document.querySelector("#bmChart canvas");
-          const v21 = v19.filter(p17 => p17.status === "LIVE").length;
-          const v22 = v19.filter(p18 => p18.status === "DIE").length;
-          const v23 = v19.filter(p19 => p19.status === "DIE_VV").length;
-          const vO2 = {
+        // Crear gráfico con datos reales
+        const liveCount = bmData.filter(bm => bm.status === 'LIVE' || bm.status === 'live' || !bm.status).length;
+        const dieCount = bmData.filter(bm => bm.status === 'DIE' || bm.status === 'die').length;
+        const dieVvCount = bmData.filter(bm => bm.status === 'DIE_VV' || bm.status === 'die_vv').length;
+        
+        const chartCanvas = document.querySelector("#bmChart canvas");
+        if (chartCanvas && typeof Chart !== 'undefined') {
+          const chartConfig = {
             type: "doughnut",
-            options: {},
-            data: {}
-          };
-          vO2.options.cutout = "50%";
-          vO2.data.labels = ["BM Activo", "BM Muerto por revisión", "BM Muerto permanente"];
-          vO2.data.datasets = [{
-            label: "Cantidad: ",
-            data: [v21, v22, v23],
-            borderRadius: 5,
-            borderWidth: 2,
-            backgroundColor: ["#198754", "#dc3545", "#ffc107"]
-          }];
-          new Chart(v20, vO2);
-          $("#bmChart").removeClass("d-none");
-          
-          try {
-            v12.close();
-            $("#iframe").attr("src", "");
-          } catch {}
-        }
-      } catch (e) {
-        console.log('Error loading BM data:', e);
-      }
-    };
-    
-    // Función para cargar datos de Pages automáticamente si no existen  
-    const loadPageData = async () => {
-      try {
-        const userId = getUserId();
-        let v24 = await getLocalStorage("dataPage_" + userId);
-        
-        // Si no hay datos, crear datos de prueba
-        if (!v24 || !Array.isArray(v24) || v24.length === 0) {
-          const testPage = [
-            { 
-              pageId: '1234567890123456', 
-              name: 'DivinAds - Marketing Digital', 
-              like: '125,450' 
+            options: {
+              cutout: "50%"
             },
-            { 
-              pageId: '2345678901234567', 
-              name: 'Tienda Online Moderna', 
-              like: '89,320' 
-            },
-            { 
-              pageId: '3456789012345678', 
-              name: 'Restaurante La Esquina', 
-              like: '45,789' 
-            },
-            { 
-              pageId: '4567890123456789', 
-              name: 'Centro de Belleza Elite', 
-              like: '67,234' 
-            },
-            { 
-              pageId: '5678901234567890', 
-              name: 'Academia de Programación', 
-              like: '34,567' 
-            },
-            { 
-              pageId: '6789012345678901', 
-              name: 'Gimnasio Fitness Pro', 
-              like: '23,890' 
+            data: {
+              labels: ["BM Activo", "BM Muerto por revisión", "BM Muerto permanente"],
+              datasets: [{
+                label: "Cantidad: ",
+                data: [liveCount, dieCount, dieVvCount],
+                borderRadius: 5,
+                borderWidth: 2,
+                backgroundColor: ["#198754", "#dc3545", "#ffc107"]
+              }]
             }
-          ];
-          await setLocalStorage("dataPage_" + userId, testPage);
-          v24 = testPage;
+          };
+          new Chart(chartCanvas, chartConfig);
+          $("#bmChart").removeClass("d-none");
         }
         
-        if (v24 && v24.length > 0) {
-          $("#countPage").text(v24.length ?? 0);
-          let vLS5 = "";
-          v24.sort((p20, p21) => {
-            return parseInt(p21.like.replace(/,/g, '')) - parseInt(p20.like.replace(/,/g, ''));
-          }).slice(0, 4).forEach(p22 => {
-            vLS5 += "\n                        <div class=\"border-bottom opacity-50\"></div>\n                        <a href=\"https://www.facebook.com/profile.php?id=" + p22.pageId + "\" target=\"_BLANK\" class=\"text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link\">\n                            <div class=\"d-flex align-items-center\" style=\"width: calc(100% - 60px);\">\n                                <span class=\"avatar-letter\" data-letter=\"" + p22.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                                <div class=\"d-flex flex-column ps-3\" style=\"line-height: initial; width: calc(100% - 30px)\">\n                                    <strong class=\"text-truncate pe-1\" style=\"font-size: 14px; margin-bottom: 3px\">" + p22.name + "</strong>\n                                    <span>" + p22.pageId + "</span>\n                                </div>\n                            </div>\n                            <div class=\"text-end\">\n                                <strong style=\"margin-bottom: 3px\" class=\"d-block\">Me gusta</strong>\n                                <span class=\"badge text-bg-success\">" + p22.like + "</span>\n                            </div>\n                        </a>\n                    ";
-          });
-          $("#topPage").html(vLS5);
-          
-          try {
-            v12.close();
-            $("#iframe").attr("src", "");
-          } catch {}
-        }
       } catch (e) {
-        console.log('Error loading page data:', e);
+        console.error('[VIA] Error mostrando datos de BM:', e);
       }
     };
     
-    // Cargar todos los datos automáticamente
+    // Función para mostrar datos de Pages reales
+    const displayPageData = (pageData) => {
+      try {
+        console.log('[VIA] Mostrando datos de Pages:', pageData);
+        $("#countPage").text(pageData.length || 0);
+        
+        let vLS5 = "";
+        pageData.sort((a, b) => {
+          const likesA = parseInt((a.likes || a.like || a.followers_count || '0').toString().replace(/,/g, ''));
+          const likesB = parseInt((b.likes || b.like || b.followers_count || '0').toString().replace(/,/g, ''));
+          return likesB - likesA;
+        }).slice(0, 4).forEach(page => {
+          const likes = page.likes || page.like || page.followers_count || '0';
+          vLS5 += `
+                        <div class="border-bottom opacity-50"></div>
+                        <a href="https://www.facebook.com/profile.php?id=${page.pageId || page.id}" target="_BLANK" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
+                            <div class="d-flex align-items-center" style="width: calc(100% - 60px);">
+                                <span class="avatar-letter" data-letter="${(page.name || 'P').replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
+                                <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
+                                    <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${page.name || 'Página sin nombre'}</strong>
+                                    <span>${page.pageId || page.id}</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <strong style="margin-bottom: 3px" class="d-block">Me gusta</strong>
+                                <span class="badge text-bg-success">${likes}</span>
+                            </div>
+                        </a>
+                    `;
+        });
+        $("#topPage").html(vLS5);
+        
+      } catch (e) {
+        console.error('[VIA] Error mostrando datos de Pages:', e);
+      }
+    };
+    
+    // Función para cargar datos de prueba como respaldo
+    const loadTestData = async () => {
+      console.log('[VIA] Cargando datos de prueba como respaldo...');
+      
+      const userId = getUserId();
+      
+      // Datos de prueba para Ads
+      const testAds = [
+        { 
+          adId: '1234567890123456', 
+          account: 'Cuenta Publicitaria Principal', 
+          spend: '15,250', 
+          limit: '50,000', 
+          remain: '34,750', 
+          balance: '5,200', 
+          currency: 'USD-United States Dollar', 
+          status: 1, 
+          payment: '[{"credential":{"card_association":"VISA","last_four_digits":"1234"}}]', 
+          createdTime: '2024-01-15', 
+          nextBillDate: '2024-02-15', 
+          type: 'Personal', 
+          timezone: 'America/New_York', 
+          role: 'Administrador' 
+        },
+        { 
+          adId: '2345678901234567', 
+          account: 'Agencia Digital Marketing', 
+          spend: '28,900', 
+          limit: '75,000', 
+          remain: '46,100', 
+          balance: '3,800', 
+          currency: 'USD-United States Dollar', 
+          status: 1, 
+          payment: '[{"credential":{"card_association":"MASTERCARD","last_four_digits":"5678"}}]', 
+          createdTime: '2024-02-01', 
+          nextBillDate: '2024-03-01', 
+          type: 'Business', 
+          timezone: 'America/Los_Angeles', 
+          role: 'Administrador' 
+        }
+      ];
+      
+      // Datos de prueba para BM
+      const testBm = [
+        { 
+          id: 1, 
+          bmId: '1234567890123456', 
+          name: 'DivinAds Marketing Agency', 
+          bmType: 'BM350 - Business Premium', 
+          status: 'LIVE' 
+        },
+        { 
+          id: 2, 
+          bmId: '2345678901234567', 
+          name: 'Global E-commerce Solutions', 
+          bmType: 'BM50 - Business Standard', 
+          status: 'LIVE' 
+        }
+      ];
+      
+      // Datos de prueba para Pages
+      const testPage = [
+        { 
+          pageId: '1234567890123456', 
+          name: 'DivinAds - Marketing Digital', 
+          like: '125,450' 
+        },
+        { 
+          pageId: '2345678901234567', 
+          name: 'Tienda Online Moderna', 
+          like: '89,320' 
+        }
+      ];
+      
+      await setLocalStorage("dataAds_" + userId, testAds);
+      await setLocalStorage("dataBm_" + userId, testBm);
+      await setLocalStorage("dataPage_" + userId, testPage);
+      
+      displayAdsData(testAds);
+      displayBmData(testBm);
+      displayPageData(testPage);
+    };
+    
+    // Función principal para cargar datos
+    const loadAllData = async () => {
+      console.log('[VIA] Iniciando carga de datos...');
+      
+      try {
+        // Verificar si fb está disponible y inicializado
+        if (typeof fb !== 'undefined' && fb.uid && fb.accessToken) {
+          console.log('[VIA] Facebook API disponible, cargando datos reales...');
+          
+          // Intentar cargar datos reales
+          try {
+            console.log('[VIA] Cargando datos de Ads...');
+            await fb.loadAds();
+          } catch (e) {
+            console.warn('[VIA] Error cargando Ads reales:', e);
+          }
+          
+          try {
+            console.log('[VIA] Cargando datos de BM...');
+            await fb.loadBm();
+          } catch (e) {
+            console.warn('[VIA] Error cargando BM reales:', e);
+          }
+          
+          try {
+            console.log('[VIA] Cargando datos de Pages...');
+            await fb.loadPage();
+          } catch (e) {
+            console.warn('[VIA] Error cargando Pages reales:', e);
+          }
+          
+          // Esperar un poco para ver si llegan datos reales
+          setTimeout(() => {
+            const adsCount = parseInt($("#countAds").text()) || 0;
+            const bmCount = parseInt($("#countBm").text()) || 0;
+            const pageCount = parseInt($("#countPage").text()) || 0;
+            
+            // Si no hay datos reales, usar datos de prueba
+            if (adsCount === 0 && bmCount === 0 && pageCount === 0) {
+              console.log('[VIA] No se recibieron datos reales, usando datos de prueba...');
+              loadTestData();
+            }
+          }, 3000);
+          
+        } else {
+          console.log('[VIA] Facebook API no disponible, usando datos de prueba...');
+          await loadTestData();
+        }
+        
+      } catch (e) {
+        console.error('[VIA] Error general cargando datos:', e);
+        await loadTestData();
+      }
+    };
+    
+    // Iniciar carga de datos
     setTimeout(() => {
-      loadAdsData();
-      loadBmData(); 
-      loadPageData();
+      loadAllData();
     }, 1000);
     
+    // ============================
+    // EVENTOS DE BOTONES
+    // ============================
+    
     /**
-     * Evento click loadBm
-     * Descripción: Regenera datos de prueba para Business Manager (BM) y recarga la página.
+     * Evento click loadBm - Regenera datos de BM
      */
     $('#loadBm').click(async function () {
+      console.log('[VIA] Botón loadBm presionado');
       const userId = getUserId();
-      await removeLocalStorage('dataBm_' + userId);
-      await loadBmData();
+      
+      try {
+        if (typeof fb !== 'undefined' && fb.uid && fb.loadBm) {
+          console.log('[VIA] Recargando BM reales...');
+          await removeLocalStorage('dataBm_' + userId);
+          await fb.loadBm();
+        } else {
+          console.log('[VIA] Generando nuevos datos de prueba para BM...');
+          await removeLocalStorage('dataBm_' + userId);
+          await loadTestData();
+        }
+      } catch (e) {
+        console.error('[VIA] Error en loadBm:', e);
+        await loadTestData();
+      }
     });
     
     /**
-     * Evento click loadAds
-     * Descripción: Regenera datos de prueba para cuentas Ads y recarga la página.
+     * Evento click loadAds - Regenera datos de Ads
      */
     $('#loadAds').click(async function () {
+      console.log('[VIA] Botón loadAds presionado');
       const userId = getUserId();
-      await removeLocalStorage('dataAds_' + userId);
-      await loadAdsData();
+      
+      try {
+        if (typeof fb !== 'undefined' && fb.uid && fb.loadAds) {
+          console.log('[VIA] Recargando Ads reales...');
+          await removeLocalStorage('dataAds_' + userId);
+          await fb.loadAds();
+        } else {
+          console.log('[VIA] Generando nuevos datos de prueba para Ads...');
+          await removeLocalStorage('dataAds_' + userId);
+          await loadTestData();
+        }
+      } catch (e) {
+        console.error('[VIA] Error en loadAds:', e);
+        await loadTestData();
+      }
     });
     
     /**
-     * Evento click loadPage
-     * Descripción: Regenera datos de prueba para páginas y recarga la página.
+     * Evento click loadPage - Regenera datos de Pages
      */
     $('#loadPage').click(async function () {
+      console.log('[VIA] Botón loadPage presionado');
       const userId = getUserId();
-      await removeLocalStorage('dataPage_' + userId);
-      await loadPageData();
+      
+      try {
+        if (typeof fb !== 'undefined' && fb.uid && fb.loadPage) {
+          console.log('[VIA] Recargando Pages reales...');
+          await removeLocalStorage('dataPage_' + userId);
+          await fb.loadPage();
+        } else {
+          console.log('[VIA] Generando nuevos datos de prueba para Pages...');
+          await removeLocalStorage('dataPage_' + userId);
+          await loadTestData();
+        }
+      } catch (e) {
+        console.error('[VIA] Error en loadPage:', e);
+        await loadTestData();
+      }
     });
   });

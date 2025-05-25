@@ -831,7 +831,7 @@ $(document).on("click", ".loginButton", async function () {
     const vVO44 = {
       expired: {
         text: "Mua gói",
-        url: "https://dashboard.toolfb.vn/client/buy"
+        url: "https://divinads.com/inicio-de-sesion/"
       },
       key_error: {
         text: "Đăng ký",
