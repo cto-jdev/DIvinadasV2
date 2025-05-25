@@ -6,12 +6,12 @@ $(document).ready(async function () {
     await window.fbReady;
     let v12;
     
-    // Función para obtener UID de prueba si fb.uid no está disponible
+    // Función para obtener UID real del usuario
     const getUserId = () => {
         try {
-            return fb.uid || 'demo_user_123';
+            return fb.uid || null;
         } catch {
-            return 'demo_user_123';
+            return null;
         }
     };
     
@@ -92,14 +92,17 @@ $(document).ready(async function () {
         try {
           const v15 = await checkUser();
           if (v15.success) {
-            // Actualizar información de balance/saldo
-            $("#balanceTitle").text("Saldo de la cuenta");
-            $("#balanceValue").html(`<strong class="fs-2">${v15.balance || '$0.00'}</strong>`);
+            // Actualizar información de balance/saldo real
+            $("#balanceTitle").text("Saldo de cuenta");
+            const realBalance = v15.balance || v15.data?.balance || '$0.00';
+            $("#balanceValue").html(`<strong class="fs-2">${realBalance}</strong>`);
             $("#balanceIcon").html(`<i class="ri-wallet-line fs-3" style="color: #ff6384"></i>`);
             
             clearInterval(vSetInterval);
             p6();
           } else {
+            // Si no hay datos reales, mostrar estado sin conexión
+            $("#balanceValue").html(`<span class="text-muted">Sin conexión</span>`);
             p7();
           }
         } catch (e) {
@@ -143,13 +146,13 @@ $(document).ready(async function () {
           displayUserProfile(basicUserInfo);
           
         } else {
-          // Datos de demostración para cuando no hay sesión real
-          const demoUserInfo = {
-            name: 'Usuario Demo',
-            id: 'demo_user_123',
+          // Información mínima cuando no hay sesión
+          const defaultUserInfo = {
+            name: 'Usuario',
+            id: 'No conectado',
             avatar: null
           };
-          displayUserProfile(demoUserInfo);
+          displayUserProfile(defaultUserInfo);
         }
         
       } catch (e) {
@@ -393,135 +396,122 @@ $(document).ready(async function () {
       }
     };
     
-    // Función para cargar datos de prueba como respaldo
-    const loadTestData = async () => {
-      const userId = getUserId();
+    // Función para mostrar estado de carga
+    const showLoadingState = (section) => {
+      const loadingHtml = `
+        <div class="p-3 border-top text-center">
+          <div class="d-flex align-items-center justify-content-center">
+            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <span class="text-muted">Cargando datos reales...</span>
+          </div>
+        </div>
+      `;
       
-      // Datos de prueba para Ads
-      const testAds = [
-        { 
-          adId: '1234567890123456', 
-          account: 'Cuenta Publicitaria Principal', 
-          spend: '15,250', 
-          limit: '50,000', 
-          remain: '34,750', 
-          balance: '5,200', 
-          currency: 'USD-United States Dollar', 
-          status: 1, 
-          payment: '[{"credential":{"card_association":"VISA","last_four_digits":"1234"}}]', 
-          createdTime: '2024-01-15', 
-          nextBillDate: '2024-02-15', 
-          type: 'Personal', 
-          timezone: 'America/New_York', 
-          role: 'Administrador' 
-        },
-        { 
-          adId: '2345678901234567', 
-          account: 'Agencia Digital Marketing', 
-          spend: '28,900', 
-          limit: '75,000', 
-          remain: '46,100', 
-          balance: '3,800', 
-          currency: 'USD-United States Dollar', 
-          status: 1, 
-          payment: '[{"credential":{"card_association":"MASTERCARD","last_four_digits":"5678"}}]', 
-          createdTime: '2024-02-01', 
-          nextBillDate: '2024-03-01', 
-          type: 'Business', 
-          timezone: 'America/Los_Angeles', 
-          role: 'Administrador' 
-        }
-      ];
+      switch(section) {
+        case 'ads':
+          $("#topAds").html(loadingHtml);
+          break;
+        case 'bm':
+          $("#topBm").html(loadingHtml);
+          break;
+        case 'page':
+          $("#topPage").html(loadingHtml);
+          break;
+      }
+    };
+
+    // Función para mostrar estado sin datos
+    const showNoDataState = (section) => {
+      const noDataHtml = `
+        <div class="p-3 border-top text-center">
+          <div class="text-muted">
+            <i class="ri-information-line fs-4 mb-2 d-block"></i>
+            <p class="mb-0">No hay datos disponibles</p>
+            <small>Conecta tu cuenta de Facebook para ver información real</small>
+          </div>
+        </div>
+      `;
       
-      // Datos de prueba para BM
-      const testBm = [
-        { 
-          id: 1, 
-          bmId: '1234567890123456', 
-          name: 'DivinAds Marketing Agency', 
-          bmType: 'BM350 - Business Premium', 
-          status: 'LIVE' 
-        },
-        { 
-          id: 2, 
-          bmId: '2345678901234567', 
-          name: 'Global E-commerce Solutions', 
-          bmType: 'BM50 - Business Standard', 
-          status: 'LIVE' 
-        }
-      ];
-      
-      // Datos de prueba para Pages
-      const testPage = [
-        { 
-          pageId: '1234567890123456', 
-          name: 'DivinAds - Marketing Digital', 
-          like: '125,450' 
-        },
-        { 
-          pageId: '2345678901234567', 
-          name: 'Tienda Online Moderna', 
-          like: '89,320' 
-        }
-      ];
-      
-      await setLocalStorage("dataAds_" + userId, testAds);
-      await setLocalStorage("dataBm_" + userId, testBm);
-      await setLocalStorage("dataPage_" + userId, testPage);
-      
-      displayAdsData(testAds);
-      displayBmData(testBm);
-      displayPageData(testPage);
+      switch(section) {
+        case 'ads':
+          $("#topAds").html(noDataHtml);
+          break;
+        case 'bm':
+          $("#topBm").html(noDataHtml);
+          break;
+        case 'page':
+          $("#topPage").html(noDataHtml);
+          break;
+      }
     };
     
-    // Función principal para cargar datos
+    // Función principal para cargar datos reales
     const loadAllData = async () => {
       // Cargar primero el perfil del usuario
       await loadUserProfile();
       
+      // Mostrar estados de carga iniciales
+      showLoadingState('ads');
+      showLoadingState('bm');
+      showLoadingState('page');
+      
       try {
         // Verificar si fb está disponible y inicializado
-        if (typeof fb !== 'undefined' && fb.uid && fb.accessToken) {
+        if (typeof fb !== 'undefined' && fb.uid) {
           
-          // Intentar cargar datos reales
+          // Intentar cargar datos reales de Ads
           try {
-            await fb.loadAds();
-          } catch (e) {
-            // Error silencioso
-          }
-          
-          try {
-            await fb.loadBm();
-          } catch (e) {
-            // Error silencioso
-          }
-          
-          try {
-            await fb.loadPage();
-          } catch (e) {
-            // Error silencioso
-          }
-          
-          // Esperar un poco para ver si llegan datos reales
-          setTimeout(() => {
-            const adsCount = parseInt($("#countAds").text()) || 0;
-            const bmCount = parseInt($("#countBm").text()) || 0;
-            const pageCount = parseInt($("#countPage").text()) || 0;
-            
-            // Si no hay datos reales, usar datos de prueba
-            if (adsCount === 0 && bmCount === 0 && pageCount === 0) {
-              loadTestData();
+            const realAdsData = await fb.loadAds();
+            if (realAdsData && realAdsData.length > 0) {
+              displayAdsData(realAdsData);
+            } else {
+              showNoDataState('ads');
             }
-          }, 3000);
+          } catch (e) {
+            showNoDataState('ads');
+          }
+          
+          // Intentar cargar datos reales de BM
+          try {
+            const realBmData = await fb.loadBm();
+            if (realBmData && realBmData.length > 0) {
+              displayBmData(realBmData);
+            } else {
+              showNoDataState('bm');
+            }
+          } catch (e) {
+            showNoDataState('bm');
+          }
+          
+          // Intentar cargar datos reales de Pages
+          try {
+            const realPageData = await fb.loadPage();
+            if (realPageData && realPageData.length > 0) {
+              displayPageData(realPageData);
+            } else {
+              showNoDataState('page');
+            }
+          } catch (e) {
+            showNoDataState('page');
+          }
           
         } else {
-          await loadTestData();
+          // Si no hay conexión con Facebook, mostrar estados sin datos
+          showNoDataState('ads');
+          showNoDataState('bm');
+          showNoDataState('page');
         }
         
       } catch (e) {
-        await loadTestData();
+        // En caso de error general, mostrar estados sin datos
+        showNoDataState('ads');
+        showNoDataState('bm');
+        showNoDataState('page');
       }
     };
+
     
     // Eventos para actualizar perfil cuando cambie información
     $(document).on("userInfoChanged", function(event, userInfo) {
@@ -562,17 +552,14 @@ $(document).ready(async function () {
     const monitorFacebookStatus = () => {
       fbCheckInterval = setInterval(() => {
         try {
-          const isNowAvailable = typeof fb !== 'undefined' && fb.uid && fb.uid !== 'demo_user_123';
+          const isNowAvailable = typeof fb !== 'undefined' && fb.uid;
           
           if (isNowAvailable && !fbWasAvailable) {
             fbWasAvailable = true;
             loadUserProfile();
             
-            // También actualizar datos si es necesario
-            const currentAdsCount = parseInt($("#countAds").text()) || 0;
-            if (currentAdsCount === 0) {
-              loadAllData();
-            }
+            // También recargar datos cuando fb esté disponible
+            loadAllData();
           } else if (!isNowAvailable && fbWasAvailable) {
             fbWasAvailable = false;
           }
@@ -592,15 +579,26 @@ $(document).ready(async function () {
       }
     });
     
-    // Iniciar carga completa de datos
+    // Iniciar carga automática de datos reales
     setTimeout(() => {
       loadAllData();
-    }, 1000);
+    }, 500);
     
-    // También intentar cargar datos adicionales después de un tiempo
+    // Reintento de carga si es necesario
     setTimeout(() => {
       if (typeof fb !== 'undefined' && fb.uid) {
         loadUserProfile();
+        
+        // Verificar si necesitamos recargar datos
+        const adsHtml = $("#topAds").html();
+        const bmHtml = $("#topBm").html();
+        const pageHtml = $("#topPage").html();
+        
+        if (adsHtml.includes('Cargando datos reales') || 
+            bmHtml.includes('Cargando datos reales') || 
+            pageHtml.includes('Cargando datos reales')) {
+          loadAllData();
+        }
       }
     }, 3000);
     
@@ -609,59 +607,68 @@ $(document).ready(async function () {
     // ============================
     
     /**
-     * Evento click loadBm - Regenera datos de BM
+     * Evento click loadBm - Recarga datos reales de BM
      */
     $('#loadBm').click(async function () {
-      const userId = getUserId();
+      showLoadingState('bm');
       
       try {
         if (typeof fb !== 'undefined' && fb.uid && fb.loadBm) {
-          await removeLocalStorage('dataBm_' + userId);
-          await fb.loadBm();
+          const realBmData = await fb.loadBm();
+          if (realBmData && realBmData.length > 0) {
+            displayBmData(realBmData);
+          } else {
+            showNoDataState('bm');
+          }
         } else {
-          await removeLocalStorage('dataBm_' + userId);
-          await loadTestData();
+          showNoDataState('bm');
         }
       } catch (e) {
-        await loadTestData();
+        showNoDataState('bm');
       }
     });
     
     /**
-     * Evento click loadAds - Regenera datos de Ads
+     * Evento click loadAds - Recarga datos reales de Ads
      */
     $('#loadAds').click(async function () {
-      const userId = getUserId();
+      showLoadingState('ads');
       
       try {
         if (typeof fb !== 'undefined' && fb.uid && fb.loadAds) {
-          await removeLocalStorage('dataAds_' + userId);
-          await fb.loadAds();
+          const realAdsData = await fb.loadAds();
+          if (realAdsData && realAdsData.length > 0) {
+            displayAdsData(realAdsData);
+          } else {
+            showNoDataState('ads');
+          }
         } else {
-          await removeLocalStorage('dataAds_' + userId);
-          await loadTestData();
+          showNoDataState('ads');
         }
       } catch (e) {
-        await loadTestData();
+        showNoDataState('ads');
       }
     });
     
     /**
-     * Evento click loadPage - Regenera datos de Pages
+     * Evento click loadPage - Recarga datos reales de Pages
      */
     $('#loadPage').click(async function () {
-      const userId = getUserId();
+      showLoadingState('page');
       
       try {
         if (typeof fb !== 'undefined' && fb.uid && fb.loadPage) {
-          await removeLocalStorage('dataPage_' + userId);
-          await fb.loadPage();
+          const realPageData = await fb.loadPage();
+          if (realPageData && realPageData.length > 0) {
+            displayPageData(realPageData);
+          } else {
+            showNoDataState('page');
+          }
         } else {
-          await removeLocalStorage('dataPage_' + userId);
-          await loadTestData();
+          showNoDataState('page');
         }
       } catch (e) {
-        await loadTestData();
+        showNoDataState('page');
       }
     });
   });

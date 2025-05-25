@@ -145,9 +145,14 @@
                                         <div class="d-flex justify-content-between align-items-center" id="balanceContent">
                                             <div class="">
                                                 <strong class="fs-5 mb-2 d-block" id="balanceTitle">Saldo de cuenta</strong>
-                                                <div id="balanceValue">
-                                                    <strong class="fs-2">$0.00</strong>
-                                                </div>
+                                                                                <div id="balanceValue">
+                                    <div class="d-flex align-items-center">
+                                        <div class="spinner-border spinner-border-sm text-muted me-2" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                        <span class="text-muted">Cargando saldo...</span>
+                                    </div>
+                                </div>
                                             </div>
                                             <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(249 116 132 / 20%)" id="balanceIcon">
                                                 <i class="ri-wallet-line fs-3" style="color: #ff6384"></i>
@@ -211,8 +216,12 @@
                                         </div>
                                         <div id="topBm">
                                             <div class="p-3 border-top text-center">
-                                                <p>Sin datos</p>
-                                                <button id="loadBm" class="btn btn-primary btn-sm">Cargar Datos</button>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                                        <span class="visually-hidden">Cargando...</span>
+                                                    </div>
+                                                    <span class="text-muted">Cargando datos reales...</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>  
@@ -233,8 +242,12 @@
                                         </div>
                                         <div id="topAds">
                                             <div class="p-3 border-top text-center">
-                                                <p>Sin datos</p>
-                                                <button id="loadAds" class="btn btn-primary btn-sm">Cargar Datos</button>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                                        <span class="visually-hidden">Cargando...</span>
+                                                    </div>
+                                                    <span class="text-muted">Cargando datos reales...</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div> 
@@ -305,10 +318,13 @@
                                             <a href="page.html" class="d-flex align-items-center text-decoration-none"><i class="ri-external-link-line ms-2 fs-5"></i></a>
                                         </div>
                                         <div id="topPage">
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="p-3 text-center">
-                                                <p>Sin datos</p>
-                                                <button id="loadPage" class="btn btn-primary btn-sm">Cargar Datos</button>
+                                            <div class="p-3 border-top text-center">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                                        <span class="visually-hidden">Cargando...</span>
+                                                    </div>
+                                                    <span class="text-muted">Cargando datos reales...</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div> 
