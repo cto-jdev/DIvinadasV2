@@ -177,6 +177,11 @@ $(document).ready(function() {
                 // Recargar tarjetas
                 setTimeout(() => reloadCardsRobust(), 300);
                 
+                // Actualizar selector de asignación si existe
+                if (typeof window.loadCardsForAssignment === 'function') {
+                    setTimeout(() => window.loadCardsForAssignment(), 400);
+                }
+                
                 alert('✅ Tarjeta agregada correctamente');
             } else {
                 throw new Error('La tarjeta no se guardó correctamente en localStorage');
@@ -273,6 +278,12 @@ $(document).ready(function() {
             
             setTimeout(() => {
                 reloadCardsRobust();
+                
+                // Actualizar selector de asignación si existe
+                if (typeof window.loadCardsForAssignment === 'function') {
+                    setTimeout(() => window.loadCardsForAssignment(), 300);
+                }
+                
                 alert(`✅ Proceso completado: ${addedCount} tarjetas agregadas, ${errorCount} errores`);
             }, 200);
             
@@ -293,6 +304,12 @@ $(document).ready(function() {
                 console.log('Eliminadas', keysToRemove.length, 'tarjetas');
                 
                 reloadCardsRobust();
+                
+                // Actualizar selector de asignación si existe
+                if (typeof window.loadCardsForAssignment === 'function') {
+                    setTimeout(() => window.loadCardsForAssignment(), 300);
+                }
+                
                 alert('Todas las tarjetas han sido eliminadas');
             } catch (error) {
                 console.error('Error al eliminar tarjetas:', error);

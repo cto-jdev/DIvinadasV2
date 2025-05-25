@@ -739,6 +739,61 @@ async function startt() {
       });
       $("#swal2-title").text("¡Completado!");
       v50.hideLoading();
+    } else if (v40 === "ads" && v39.ads?.assignCards?.value) {
+      // Nueva función de asignación de tarjetas
+      const selectedAccounts = getSelectedRows();
+      const selectedCard = v39.ads?.selectedCardForAssignment?.value || $('#cardSelectForAssign').val();
+      
+      console.log('🎯 Sistema de asignación de tarjetas activado');
+      console.log('📋 Cuentas seleccionadas:', selectedAccounts.length);
+      console.log('💳 Tarjeta seleccionada:', selectedCard);
+      
+      if (selectedAccounts.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Selecciona Cuentas",
+          text: "Debes seleccionar al menos una cuenta publicitaria en la tabla principal",
+          confirmButtonText: "Cerrar"
+        });
+      } else if (!selectedCard) {
+        Swal.fire({
+          icon: "warning", 
+          title: "Selecciona Tarjeta",
+          text: "Debes seleccionar una tarjeta en la sección 'Asignar tarjetas a cuentas'",
+          confirmButtonText: "Cerrar"
+        });
+      } else {
+        const v52 = Swal.fire({
+          title: "Asignando Tarjetas",
+          html: "<span id=\"checkProgress\">Asignando tarjeta a " + selectedAccounts.length + " cuenta(s)...</span>",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        // Ejecutar función de asignación
+        const assignResult = typeof window.executeCardAssignment === 'function' ? 
+          await window.executeCardAssignment(selectedCard, selectedAccounts) : false;
+        
+        v52.close();
+        
+        if (assignResult) {
+          Swal.fire({
+            icon: "success",
+            title: "¡Tarjetas Asignadas!",
+            text: `Tarjeta asignada exitosamente a ${selectedAccounts.length} cuenta(s)`,
+            confirmButtonText: "Cerrar"
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error en Asignación",
+            text: "Hubo un problema al asignar las tarjetas. Revisa la consola para más detalles.",
+            confirmButtonText: "Cerrar"
+          });
+        }
+      }
     } else if (v40 === "ads" && v39.ads?.connectPixels?.value) {
       // Nueva función de píxeles integrada
       const pixelReady = typeof isPixelFunctionReady === 'function' ? isPixelFunctionReady() : false;
