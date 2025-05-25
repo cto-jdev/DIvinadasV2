@@ -187,10 +187,39 @@ async function getBase64ImageFromUrl(p289) {
               }).then(async p297 => {
                 if (p297.isConfirmed) {
                   try {
-                    await runCheckKey();
+                    // Verificar que fb esté disponible antes de cargar
+                    if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+                      await setLocalStorage("loadBm", true);
+                      // Mostrar indicador de carga
+                      Swal.fire({
+                        title: 'Cargando datos...',
+                        text: 'Por favor espera mientras se cargan los datos de BM',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                          Swal.showLoading();
+                        }
+                      });
+                      
+                      // Cargar datos directamente sin recargar la página
+                      await window.fb.loadBm();
+                      
+                      // Cerrar el modal de carga después de un breve delay
+                      setTimeout(() => {
+                        Swal.close();
+                      }, 1000);
+                    } else {
+                      // Si fb no está disponible, recargar la página
+                      await setLocalStorage("loadBm", true);
+                      location.reload();
+                    }
+                  } catch (e) {
+                    console.error('Error loading BM data:', e);
+                    // En caso de error, recargar la página como fallback
                     await setLocalStorage("loadBm", true);
                     location.reload();
-                  } catch {}
+                  }
                 }
               });
             }
@@ -215,10 +244,39 @@ async function getBase64ImageFromUrl(p289) {
               }).then(async p298 => {
                 if (p298.isConfirmed) {
                   try {
-                    await runCheckKey();
+                    // Verificar que fb esté disponible antes de cargar
+                    if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+                      await setLocalStorage("loadPage", true);
+                      // Mostrar indicador de carga
+                      Swal.fire({
+                        title: 'Loading data...',
+                        text: 'Please wait while Page data is being loaded',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                          Swal.showLoading();
+                        }
+                      });
+                      
+                      // Cargar datos directamente sin recargar la página
+                      await window.fb.loadPage();
+                      
+                      // Cerrar el modal de carga después de un breve delay
+                      setTimeout(() => {
+                        Swal.close();
+                      }, 1000);
+                    } else {
+                      // Si fb no está disponible, recargar la página
+                      await setLocalStorage("loadPage", true);
+                      location.reload();
+                    }
+                  } catch (e) {
+                    console.error('Error loading Page data:', e);
+                    // En caso de error, recargar la página como fallback
                     await setLocalStorage("loadPage", true);
                     location.reload();
-                  } catch {}
+                  }
                 }
               });
             }
@@ -243,10 +301,39 @@ async function getBase64ImageFromUrl(p289) {
               }).then(async p299 => {
                 if (p299.isConfirmed) {
                   try {
-                    await runCheckKey();
+                    // Verificar que fb esté disponible antes de cargar
+                    if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+                      await setLocalStorage("loadAds", true);
+                      // Mostrar indicador de carga
+                      Swal.fire({
+                        title: 'Loading data...',
+                        text: 'Please wait while Ads data is being loaded',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                          Swal.showLoading();
+                        }
+                      });
+                      
+                      // Cargar datos directamente sin recargar la página
+                      await window.fb.loadAds();
+                      
+                      // Cerrar el modal de carga después de un breve delay
+                      setTimeout(() => {
+                        Swal.close();
+                      }, 1000);
+                    } else {
+                      // Si fb no está disponible, recargar la página
+                      await setLocalStorage("loadAds", true);
+                      location.reload();
+                    }
+                  } catch (e) {
+                    console.error('Error loading Ads data:', e);
+                    // En caso de error, recargar la página como fallback
                     await setLocalStorage("loadAds", true);
                     location.reload();
-                  } catch {}
+                  }
                 }
               });
             }
