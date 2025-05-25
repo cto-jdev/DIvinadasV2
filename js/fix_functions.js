@@ -72,4 +72,4 @@ if (typeof fb === 'undefined') {
     };
 }
 
-console.log('🔧 FIX FUNCTIONS cargado - Funciones básicas disponibles'); 
+// FIX FUNCTIONS cargado - Funciones básicas disponibles 

@@ -4,8 +4,6 @@ $(document).ready(function() {
     
     // Función para cargar tarjetas en el selector
     function loadCardsForAssignment() {
-        console.log('🔄 Cargando tarjetas para asignación...');
-        
         const cardKeys = Object.keys(localStorage).filter(key => key.startsWith('card_'));
         const $select = $('#cardSelectForAssign');
         
@@ -27,25 +25,21 @@ $(document).ready(function() {
                 const lastFour = cardNumber.slice(-4);
                 
                 $select.append(`<option value="${cardNumber}">${cardName} (****${lastFour})</option>`);
-                console.log(`✅ Tarjeta agregada al selector: ${cardName}`);
             } catch (error) {
-                console.error('❌ Error procesando tarjeta:', key, error);
+                // Error silencioso
             }
         });
         
         $('#cardCountButton2').text(cardKeys.length);
-        console.log(`📊 Total de tarjetas cargadas: ${cardKeys.length}`);
     }
     
     // Función para obtener cuentas seleccionadas
     function getSelectedAccounts() {
         if (typeof accountGrid === 'undefined' || !accountGrid.api) {
-            console.error('❌ accountGrid no disponible');
             return [];
         }
         
         const selectedRows = accountGrid.api.getSelectedRows();
-        console.log(`📋 Cuentas seleccionadas: ${selectedRows.length}`);
         
         return selectedRows.map(row => ({
             id: row.id,
@@ -57,14 +51,11 @@ $(document).ready(function() {
     // Esta función ya no se usa - reemplazada por executeCardAssignment
     // Se mantiene solo por compatibilidad en caso de uso manual en consola
     function assignCardToAccounts(cardNumber, accounts) {
-        console.log('⚠️ Función deprecada - usar executeCardAssignment en su lugar');
         return window.executeCardAssignment(cardNumber, accounts);
     }
     
     // Función para quitar tarjetas asignadas
     function removeAssignedCards(accounts) {
-        console.log(`🗑️ Quitando tarjetas de ${accounts.length} cuentas...`);
-        
         if (accounts.length === 0) {
             alert('Selecciona al menos una cuenta publicitaria en la tabla');
             return;
@@ -85,18 +76,14 @@ $(document).ready(function() {
                     localStorage.removeItem(assignmentKey);
                     
                     successCount++;
-                    console.log(`✅ Tarjeta removida de cuenta: ${account.account} (${account.adId})`);
                 } else {
-                    console.error(`❌ No se encontró la fila para la cuenta ${account.id}`);
                     errorCount++;
                 }
             } catch (error) {
-                console.error(`❌ Error removiendo tarjeta de cuenta ${account.id}:`, error);
                 errorCount++;
             }
         });
         
-        console.log(`📊 Resultado: ${successCount} éxitos, ${errorCount} errores`);
         alert(`✅ Tarjetas removidas exitosamente de ${successCount} cuentas`);
     }
     
@@ -130,15 +117,11 @@ $(document).ready(function() {
     
     // Función para cargar asignaciones existentes al inicializar
     function loadExistingAssignments() {
-        console.log('🔄 Cargando asignaciones existentes...');
-        
         if (typeof accountGrid === 'undefined' || !accountGrid.api) {
-            console.warn('⚠️ accountGrid no disponible aún');
             return;
         }
         
         const assignmentKeys = Object.keys(localStorage).filter(key => key.startsWith('assignment_'));
-        console.log(`📋 Asignaciones encontradas: ${assignmentKeys.length}`);
         
         assignmentKeys.forEach(key => {
             try {
@@ -170,21 +153,16 @@ $(document).ready(function() {
                         }];
                         
                         targetRowNode.setDataValue('payment', JSON.stringify(paymentData));
-                        console.log(`✅ Asignación restaurada: ${assignment.cardName} -> ${adId}`);
                     }
                 }
             } catch (error) {
-                console.error('❌ Error cargando asignación:', key, error);
+                // Error silencioso
             }
         });
     }
     
     // Función principal para ejecutar desde el botón "Iniciar"
     window.executeCardAssignment = async function(cardNumber, selectedRows) {
-        console.log(`🚀 Ejecutando asignación automática de tarjetas...`);
-        console.log(`💳 Tarjeta: ${cardNumber}`);
-        console.log(`📋 Cuentas: ${selectedRows.length}`);
-        
         try {
             // Convertir selectedRows al formato esperado
             const accounts = selectedRows.map(row => ({
@@ -196,11 +174,8 @@ $(document).ready(function() {
             // Obtener datos de la tarjeta
             const cardData = JSON.parse(localStorage.getItem(`card_${cardNumber}`));
             if (!cardData) {
-                console.error('❌ Tarjeta no encontrada:', cardNumber);
                 return false;
             }
-            
-            console.log('🎯 Datos de la tarjeta:', cardData);
             
             // Crear objeto de pago simulando el formato de Facebook
             const paymentData = [{
@@ -236,17 +211,14 @@ $(document).ready(function() {
                         }));
                         
                         successCount++;
-                        console.log(`✅ Tarjeta asignada a cuenta: ${account.account} (${account.adId})`);
                         
                         // Simular delay para visualización
                         await new Promise(resolve => setTimeout(resolve, 100));
                         
                     } else {
-                        console.error(`❌ No se encontró la fila para la cuenta ${account.id}`);
                         errorCount++;
                     }
                 } catch (error) {
-                    console.error(`❌ Error asignando tarjeta a cuenta ${account.id}:`, error);
                     errorCount++;
                 }
             }
@@ -254,8 +226,6 @@ $(document).ready(function() {
             // Incrementar contador de uso de la tarjeta
             cardData.count = (cardData.count || 0) + successCount;
             localStorage.setItem(`card_${cardNumber}`, JSON.stringify(cardData));
-            
-            console.log(`📊 Resultado final: ${successCount} éxitos, ${errorCount} errores`);
             
             // Recargar grid de tarjetas si está abierto
             if (typeof loadCards === 'function') {
@@ -265,7 +235,6 @@ $(document).ready(function() {
             return successCount > 0;
             
         } catch (error) {
-            console.error('❌ Error ejecutando asignación de tarjetas:', error);
             return false;
         }
     };
@@ -282,19 +251,15 @@ $(document).ready(function() {
     // Función para limpiar TODAS las asignaciones de tarjetas
     window.clearAllCardAssignments = function() {
         if (confirm('¿Estás seguro de quitar TODAS las asignaciones de tarjetas? Esta acción no se puede deshacer.')) {
-            console.log('🗑️ Limpiando todas las asignaciones de tarjetas...');
-            
             try {
                 // Obtener todas las asignaciones
                 const assignmentKeys = Object.keys(localStorage).filter(key => key.startsWith('assignment_'));
-                console.log(`📋 Encontradas ${assignmentKeys.length} asignaciones`);
                 
                 // Limpiar campo payment de todas las filas en el grid
                 if (typeof accountGrid !== 'undefined' && accountGrid.api) {
                     accountGrid.api.forEachNode(node => {
                         node.setDataValue('payment', '');
                     });
-                    console.log('✅ Grid limpiado');
                 }
                 
                 // Eliminar todas las asignaciones de localStorage
@@ -302,11 +267,9 @@ $(document).ready(function() {
                     localStorage.removeItem(key);
                 });
                 
-                console.log(`✅ ${assignmentKeys.length} asignaciones eliminadas`);
                 alert(`Todas las asignaciones de tarjetas han sido eliminadas (${assignmentKeys.length} total)`);
                 
             } catch (error) {
-                console.error('❌ Error limpiando asignaciones:', error);
                 alert('Error al limpiar asignaciones: ' + error.message);
             }
         }
@@ -315,7 +278,6 @@ $(document).ready(function() {
     // Cuando se abre la sección de asignación
     $('input[name="assignCards"]').on('change', function() {
         if ($(this).is(':checked')) {
-            console.log('📋 Sección de asignación de tarjetas activada');
             loadCardsForAssignment();
         }
     });
@@ -327,14 +289,12 @@ $(document).ready(function() {
     
     // Interceptar cuando se cargan datos en el accountGrid
     $(document).on('loadAdsSuccess', function() {
-        console.log('🔄 Datos de cuentas cargados, restaurando asignaciones...');
         setTimeout(() => {
             loadExistingAssignments();
         }, 1000);
     });
     
     $(document).on('loadSavedAds', function() {
-        console.log('🔄 Anuncios guardados cargados, restaurando asignaciones...');
         setTimeout(() => {
             loadExistingAssignments();
         }, 1000);
@@ -349,6 +309,4 @@ $(document).ready(function() {
         loadCardsForAssignment();
         loadExistingAssignments();
     }, 2000);
-    
-    console.log('✅ Sistema de asignación de tarjetas inicializado');
 }); 

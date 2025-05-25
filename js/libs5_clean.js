@@ -7,24 +7,18 @@
 // Función para obtener Business Managers con estado visual
 async function getBusinessManagers() {
     try {
-        console.log('🔍 Cargando Business Managers...');
-        
         if (!fetch2 || !fb) {
-            console.error('❌ fetch2 o fb no disponibles');
             return [];
         }
         
         const token = fb.accessToken || fb.token;
         if (!token) {
-            console.error('❌ No hay token de Facebook');
             return [];
         }
         
         const url = `https://graph.facebook.com/v14.0/me/businesses?fields=id,name,verification_status,permitted_tasks&limit=99999&access_token=${token}`;
         const response = await fetch2(url);
         const data = response.json;
-        
-        console.log('📊 Respuesta Business Managers:', data);
         
         if (data && data.data && data.data.length > 0) {
             const businessManagers = data.data.map(bm => {
@@ -48,14 +42,12 @@ async function getBusinessManagers() {
                     verification_status: bm.verification_status || 'unknown'
                 };
             });
-            console.log('✅ Business Managers encontrados:', businessManagers.length);
             return businessManagers;
         }
         
         return [];
         
     } catch (error) {
-        console.error("❌ Error obteniendo Business Managers:", error);
         return [];
     }
 }
@@ -63,8 +55,6 @@ async function getBusinessManagers() {
 // Función para obtener píxeles con formato mejorado
 async function getPixelsByBM() {
     try {
-        console.log('🔍 Buscando píxeles disponibles...');
-        
         const token = fb.accessToken || fb.token;
         if (!token) return [];
         
@@ -72,8 +62,6 @@ async function getPixelsByBM() {
         const url = `https://graph.facebook.com/v14.0/me/adaccounts?fields=id,name&limit=50&access_token=${token}`;
         const response = await fetch2(url);
         const data = response.json;
-        
-        console.log('🔧 Cuentas encontradas:', data);
         
         if (data && data.data && Array.isArray(data.data)) {
             for (const account of data.data) {
@@ -98,17 +86,15 @@ async function getPixelsByBM() {
                     await new Promise(resolve => setTimeout(resolve, 50));
                     
                 } catch (err) {
-                    console.error(`Error con cuenta ${account.id}:`, err);
+                    // Error silencioso
                 }
             }
         }
         
         const pixels = Array.from(allPixels.values());
-        console.log('✅ Píxeles encontrados:', pixels.length);
         return pixels;
         
     } catch (error) {
-        console.error("❌ Error obteniendo píxeles:", error);
         return [];
     }
 }
@@ -121,10 +107,8 @@ async function checkUserPermissions() {
         const response = await fetch2(url);
         const data = response.json;
         
-        console.log('👤 Usuario actual:', data);
         return data;
     } catch (error) {
-        console.error('❌ Error verificando permisos:', error);
         return null;
     }
 }
@@ -166,7 +150,6 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
         });
         
         const assignData = assignResponse.json;
-        console.log(`Respuesta asignación directa para ${formattedId}:`, assignData);
         
         if (assignResponse.ok && (assignData.success || assignData.id)) {
             if (progressCallback) {
@@ -187,7 +170,6 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
         });
         
         const shareData = shareResponse.json;
-        console.log(`Respuesta compartir píxel para ${formattedId}:`, shareData);
         
         if (shareResponse.ok && (shareData.success || shareData.id)) {
             if (progressCallback) {
@@ -216,7 +198,6 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
         return false;
         
     } catch (error) {
-        console.error("❌ Error conectando píxel:", error);
         if (progressCallback) {
             progressCallback(`❌ Error técnico: ${error.message}`);
         }
@@ -232,8 +213,6 @@ async function loadBusinessManagersManually() {
     const bmSelect = document.querySelector('select[name="businessManager"]');
     
     try {
-        console.log('🔄 Cargando Business Managers...');
-        
         if (loadBtn) loadBtn.disabled = true;
         if (statusDiv) statusDiv.style.display = 'block';
         if (statusText) statusText.textContent = 'Cargando...';
@@ -269,7 +248,6 @@ async function loadBusinessManagersManually() {
         }, 3000);
         
     } catch (error) {
-        console.error("❌ Error:", error);
         if (statusText) statusText.textContent = '❌ Error cargando';
     } finally {
         if (loadBtn) loadBtn.disabled = false;
@@ -318,7 +296,6 @@ async function loadPixelsManually() {
         }, 3000);
         
     } catch (error) {
-        console.error("❌ Error:", error);
         if (statusText) statusText.textContent = '❌ Error';
     } finally {
         if (loadBtn) loadBtn.disabled = false;
@@ -342,7 +319,6 @@ function isPixelFunctionReady() {
 // Función mejorada para ejecutar conexión con múltiples píxeles
 async function executePixelFunction() {
     if (!isPixelFunctionReady()) {
-        console.log('⚠️ Función de píxeles no está lista');
         return false;
     }
     
@@ -357,7 +333,6 @@ async function executePixelFunction() {
     const accountIds = selectedRows.map(row => row.adId || row.id);
     
     if (accountIds.length === 0) {
-        console.log('⚠️ No hay cuentas seleccionadas en la tabla');
         return false;
     }
     
@@ -365,7 +340,6 @@ async function executePixelFunction() {
     if (progressMessages) progressMessages.innerHTML = '';
     
     const progressCallback = (message) => {
-        console.log(`[PIXELS] ${message}`);
         if (progressMessages) {
             const div = document.createElement('div');
             div.className = 'alert alert-info py-1 px-2 mb-1 small';
@@ -456,8 +430,6 @@ function addPixelButton() {
         
         const btnHTML = '<button type="button" class="btn btn-sm btn-outline-success" id="loadPixelsButton" onclick="loadPixelsManually()"><i class="ri-refresh-line me-1"></i>Cargar Píxeles</button>';
         pixelLabel.innerHTML = pixelLabel.textContent + btnHTML;
-        
-        console.log('✅ Botón de cargar píxeles agregado');
     }, 200);
 }
 
@@ -476,6 +448,6 @@ window.addPixelButton = addPixelButton;
 document.addEventListener('DOMContentLoaded', addPixelButton);
 window.addEventListener('load', addPixelButton);
 
-console.log('📊 LIBS5 CLEAN v3 cargado exitosamente - CÓDIGO LIMPIO GARANTIZADO');
-console.log('🎨 Nuevas características: UI visual mejorada + selección múltiple de píxeles');
-console.log('🔧 Funciones disponibles: gestión completa con estado visual y multi-select'); 
+// LIBS5 CLEAN v3 cargado exitosamente - CÓDIGO LIMPIO GARANTIZADO
+// Nuevas características: UI visual mejorada + selección múltiple de píxeles  
+// Funciones disponibles: gestión completa con estado visual y multi-select 
