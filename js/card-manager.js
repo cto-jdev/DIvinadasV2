@@ -1,131 +1,144 @@
-/**
- * Card Manager - Enhanced functionality for card management
- */
+// Funciones para agregar tarjetas con sistema robusto
 
 $(document).ready(function() {
-    // Update card count in button when cards are loaded
-    $(document).on('cardCountUpdated', function(event, count) {
-        $('#cardCountButton').text(count);
-    });
     
-    // Add Card Button
+    // Función para actualizar contadores
+    function updateCardCounters() {
+        const allKeys = Object.keys(localStorage);
+        const cardKeys = allKeys.filter(key => key.startsWith('card_'));
+        const cardCount = cardKeys.length;
+        
+        console.log('🔢 Actualizando contadores...');
+        console.log('   - Total localStorage keys:', allKeys.length);
+        console.log('   - Card keys found:', cardKeys);
+        console.log('   - Card count:', cardCount);
+        
+        $('#cardCountButton').text(cardCount);
+        $('#cardCount').text(cardCount);
+        
+        console.log('✅ Contadores actualizados:', cardCount, 'tarjetas');
+        
+        // Debug adicional: verificar contenido de cada tarjeta
+        if (cardCount > 0) {
+            console.log('📋 Contenido de tarjetas:');
+            cardKeys.forEach((key, index) => {
+                try {
+                    const cardData = JSON.parse(localStorage.getItem(key));
+                    console.log(`   ${index + 1}. ${cardData.cardName} (${cardData.cardNumber})`);
+                } catch (error) {
+                    console.log(`   ${index + 1}. Error leyendo ${key}`);
+                }
+            });
+        }
+    }
+    
+    // Función robusta para recargar tarjetas
+    function reloadCardsRobust() {
+        console.log('🔄 Intentando recargar tarjetas...');
+        
+        // Primero, verificar qué hay en localStorage
+        const allKeys = Object.keys(localStorage);
+        const cardKeys = allKeys.filter(key => key.startsWith('card_'));
+        console.log('🔍 Claves en localStorage:', allKeys.length, 'total,', cardKeys.length, 'de tarjetas');
+        console.log('🎯 Claves de tarjetas:', cardKeys);
+        
+        // Método 1: Usar función original si existe
+        if (typeof loadCards === 'function') {
+            try {
+                loadCards();
+                console.log('✅ Tarjetas recargadas con loadCards()');
+            } catch (error) {
+                console.error('❌ Error con loadCards():', error);
+            }
+        }
+        
+        // Método 2: Recargar manualmente como respaldo
+        setTimeout(() => {
+            try {
+                console.log('🔧 Método manual de respaldo...');
+                
+                let cardId = 1;
+                const cards = [];
+                
+                cardKeys.forEach(key => {
+                    try {
+                        const cardDataString = localStorage.getItem(key);
+                        console.log(`📋 Leyendo ${key}:`, cardDataString ? 'EXISTE' : 'NO EXISTE');
+                        
+                        if (cardDataString) {
+                            const cardData = JSON.parse(cardDataString);
+                            cards.push({
+                                id: cardId++,
+                                ...cardData
+                            });
+                            console.log(`✅ Tarjeta ${cardId-1} procesada:`, cardData.cardName);
+                        }
+                    } catch (error) {
+                        console.error(`❌ Error procesando ${key}:`, error);
+                    }
+                });
+                
+                console.log('📊 Total de tarjetas procesadas:', cards.length);
+                
+                // Si hay acceso al grid, actualizar
+                if (window.cardGrid && window.cardGrid.api) {
+                    window.cardGrid.api.setRowData(cards);
+                    console.log('🎯 Grid actualizado manualmente con', cards.length, 'tarjetas');
+                } else {
+                    console.warn('⚠️ cardGrid.api no disponible');
+                }
+                
+                updateCardCounters();
+                
+            } catch (error) {
+                console.error('❌ Error al recargar manualmente:', error);
+            }
+        }, 200);
+    }
+    
+    // Mostrar formulario
     $('#addCardBtn').on('click', function() {
         $('#addCardForm').removeClass('d-none');
         $('#cardName').focus();
     });
     
-    // Cancel Add Card
+    // Cancelar
     $('#cancelCardBtn').on('click', function() {
         $('#addCardForm').addClass('d-none');
-        clearCardForm();
+        $('#cardName, #cardNumber, #expDate, #cardCsv').val('');
     });
     
-    // Save Card Button
+    // Guardar tarjeta
     $('#saveCardBtn').on('click', function() {
-        saveManualCard();
-    });
-    
-    // Paste Cards Button
-    $('#pasteCardsBtn').on('click', function() {
-        pasteCardsFromClipboard();
-    });
-    
-    // Clear Cards Button
-    $('#clearCardsBtn').on('click', function() {
-        clearAllCards();
-    });
-    
-    // Format card number input
-    $('#cardNumber').on('input', function() {
-        let value = $(this).val().replace(/\D/g, '');
-        if (value.length > 16) {
-            value = value.substr(0, 16);
+        const cardName = $('#cardName').val().trim();
+        const cardNumber = $('#cardNumber').val().trim();
+        const expDate = $('#expDate').val().trim();
+        const cardCsv = $('#cardCsv').val().trim();
+        
+        console.log('Intentando guardar tarjeta:', {cardName, cardNumber, expDate, cardCsv});
+        
+        if (!cardName || !cardNumber || !expDate || !cardCsv) {
+            alert('Llena todos los campos');
+            return;
         }
-        $(this).val(value);
-    });
-    
-    // Format expiration date
-    $('#expDate').on('input', function() {
-        let value = $(this).val().replace(/\D/g, '');
-        if (value.length >= 2) {
-            value = value.substr(0, 2) + '/' + value.substr(2, 2);
+        
+        if (cardNumber.length < 13) {
+            alert('El número de tarjeta debe tener al menos 13 dígitos');
+            return;
         }
-        if (value.length > 5) {
-            value = value.substr(0, 5);
+        
+        if (!expDate.match(/^\d{2}\/\d{2}$/)) {
+            alert('La fecha debe tener formato MM/YY');
+            return;
         }
-        $(this).val(value);
-    });
-    
-    // Format CCV
-    $('#cardCsv').on('input', function() {
-        let value = $(this).val().replace(/\D/g, '');
-        if (value.length > 4) {
-            value = value.substr(0, 4);
+        
+        if (cardCsv.length < 3) {
+            alert('El CCV debe tener al menos 3 dígitos');
+            return;
         }
-        $(this).val(value);
-    });
-    
-    // Enter key handling in form
-    $('#addCardForm input').on('keypress', function(e) {
-        if (e.which === 13) { // Enter key
-            e.preventDefault();
-            saveManualCard();
-        }
-    });
-    
-    // Escape key to cancel
-    $('#addCardForm').on('keyup', function(e) {
-        if (e.which === 27) { // Escape key
-            $('#cancelCardBtn').click();
-        }
-    });
-});
-
-/**
- * Save manually entered card
- */
-async function saveManualCard() {
-    const cardName = $('#cardName').val().trim();
-    const cardNumber = $('#cardNumber').val().trim();
-    const expDate = $('#expDate').val().trim();
-    const cardCsv = $('#cardCsv').val().trim();
-    
-    // Validation
-    if (!cardName) {
-        showAlert('Por favor ingresa el nombre en la tarjeta', 'warning');
-        $('#cardName').focus();
-        return;
-    }
-    
-    if (!cardNumber || cardNumber.length < 13) {
-        showAlert('Por favor ingresa un número de tarjeta válido (mínimo 13 dígitos)', 'warning');
-        $('#cardNumber').focus();
-        return;
-    }
-    
-    if (!expDate || !expDate.match(/^\d{2}\/\d{2}$/)) {
-        showAlert('Por favor ingresa una fecha de vencimiento válida (MM/YY)', 'warning');
-        $('#expDate').focus();
-        return;
-    }
-    
-    if (!cardCsv || cardCsv.length < 3) {
-        showAlert('Por favor ingresa un CCV válido (mínimo 3 dígitos)', 'warning');
-        $('#cardCsv').focus();
-        return;
-    }
-    
-    // Check if card already exists
-    const existingCard = await getLocalStorage("card_" + cardNumber);
-    if (existingCard) {
-        showAlert('Esta tarjeta ya existe en la lista', 'warning');
-        return;
-    }
-    
-    try {
-        // Save card
+        
         const expParts = expDate.split('/');
-        await setLocalStorage("card_" + cardNumber, {
+        const cardData = {
             cardName: cardName,
             cardNumber: cardNumber,
             expMonth: expParts[0],
@@ -133,179 +146,266 @@ async function saveManualCard() {
             expDate: expDate,
             cardCsv: cardCsv,
             count: 0
-        });
+        };
         
-        // Clear form and hide it
-        clearCardForm();
-        $('#addCardForm').addClass('d-none');
+        console.log('Guardando tarjeta:', cardData);
         
-        // Reload cards in grid
-        if (typeof loadCards === 'function') {
-            loadCards();
-        }
+        // USAR LOCALSTORAGE DIRECTAMENTE - La función setLocalStorage() del proyecto no funciona
+        console.log('🔧 Usando localStorage directamente (sin setLocalStorage del proyecto)');
         
-        showAlert('Tarjeta agregada correctamente', 'success');
-        
-    } catch (error) {
-        console.error('Error saving card:', error);
-        showAlert('Error al guardar la tarjeta', 'error');
-    }
-}
-
-/**
- * Clear the card form
- */
-function clearCardForm() {
-    $('#cardName').val('');
-    $('#cardNumber').val('');
-    $('#expDate').val('');
-    $('#cardCsv').val('');
-}
-
-/**
- * Paste cards from clipboard with enhanced parsing
- */
-async function pasteCardsFromClipboard() {
-    try {
-        const clipboardText = await navigator.clipboard.readText();
-        if (!clipboardText.trim()) {
-            showAlert('El portapapeles está vacío', 'warning');
-            return;
-        }
-        
-        const lines = clipboardText.split(/\r?\n|\r|\n/g).filter(line => line.trim());
-        let addedCount = 0;
-        let duplicateCount = 0;
-        let errorCount = 0;
-        
-        for (const line of lines) {
-            const parts = line.split('|');
+        try {
+            const cardKey = "card_" + cardNumber;
+            const cardDataJson = JSON.stringify(cardData);
             
-            if (parts.length >= 4) {
-                const cardName = parts[0].trim();
-                const cardNumber = parts[1].trim();
-                const expDate = parts[2].trim();
-                const cardCsv = parts[3].trim();
+            console.log('💾 Guardando en localStorage:', cardKey);
+            console.log('📦 Datos a guardar:', cardDataJson);
+            
+            // Guardar directamente en localStorage
+            localStorage.setItem(cardKey, cardDataJson);
+            
+            // Verificar inmediatamente
+            const verification = localStorage.getItem(cardKey);
+            console.log('✅ Verificación inmediata:', verification ? 'ÉXITO' : 'FALLO');
+            
+            if (verification) {
+                console.log('🎯 Datos verificados correctamente:', JSON.parse(verification));
                 
-                // Validate card data
-                if (cardNumber.length >= 13 && expDate.match(/^\d{2}\/\d{2}$/)) {
-                    // Check if card already exists
-                    const existingCard = await getLocalStorage("card_" + cardNumber);
-                    if (existingCard) {
-                        duplicateCount++;
-                        continue;
-                    }
+                // Limpiar formulario
+                $('#addCardForm').addClass('d-none');
+                $('#cardName, #cardNumber, #expDate, #cardCsv').val('');
+                
+                // Recargar tarjetas
+                setTimeout(() => reloadCardsRobust(), 300);
+                
+                alert('✅ Tarjeta agregada correctamente');
+            } else {
+                throw new Error('La tarjeta no se guardó correctamente en localStorage');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error al guardar directamente en localStorage:', error);
+            alert('Error al guardar: ' + error.message);
+        }
+    });
+    
+    // Formatear campos
+    $('#cardNumber').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length > 16) value = value.substr(0, 16);
+        $(this).val(value);
+    });
+    
+    $('#expDate').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substr(0, 2) + '/' + value.substr(2, 2);
+        }
+        if (value.length > 5) value = value.substr(0, 5);
+        $(this).val(value);
+    });
+    
+    $('#cardCsv').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length > 4) value = value.substr(0, 4);
+        $(this).val(value);
+    });
+    
+    // Botón Pegar desde Portapapeles
+    $('#pasteCardsBtn').on('click', async function() {
+        console.log('📋 Botón pegar presionado');
+        
+        try {
+            const clipboardText = await navigator.clipboard.readText();
+            console.log('📄 Texto del portapapeles:', clipboardText.substring(0, 100) + '...');
+            
+            if (!clipboardText.trim()) {
+                alert('El portapapeles está vacío');
+                return;
+            }
+            
+            const lines = clipboardText.split(/\r?\n|\r|\n/g).filter(line => line.trim());
+            console.log('📝 Líneas encontradas:', lines.length);
+            
+            let addedCount = 0;
+            let errorCount = 0;
+            
+            for (const line of lines) {
+                const parts = line.split('|');
+                console.log('🔍 Procesando línea:', parts);
+                
+                if (parts.length >= 4) {
+                    const cardName = parts[0].trim();
+                    const cardNumber = parts[1].trim();
+                    const expDate = parts[2].trim();
+                    const cardCsv = parts[3].trim();
                     
-                    try {
-                        const expParts = expDate.split('/');
-                        await setLocalStorage("card_" + cardNumber, {
-                            cardName: cardName,
-                            cardNumber: cardNumber,
-                            expMonth: expParts[0],
-                            expYear: expParts[1],
-                            expDate: expDate,
-                            cardCsv: cardCsv,
-                            count: 0
-                        });
-                        addedCount++;
-                    } catch (error) {
+                    if (cardNumber.length >= 13 && expDate.match(/^\d{2}\/\d{2}$/)) {
+                        try {
+                            const expParts = expDate.split('/');
+                            const cardData = {
+                                cardName: cardName,
+                                cardNumber: cardNumber,
+                                expMonth: expParts[0],
+                                expYear: expParts[1],
+                                expDate: expDate,
+                                cardCsv: cardCsv,
+                                count: 0
+                            };
+                            
+                            localStorage.setItem("card_" + cardNumber, JSON.stringify(cardData));
+                            addedCount++;
+                            console.log(`✅ Tarjeta ${addedCount} guardada: ${cardName}`);
+                        } catch (error) {
+                            errorCount++;
+                            console.error('❌ Error guardando tarjeta:', error);
+                        }
+                    } else {
                         errorCount++;
+                        console.log('❌ Formato inválido de tarjeta');
                     }
                 } else {
                     errorCount++;
-                }
-            } else {
-                errorCount++;
-            }
-        }
-        
-        // Reload cards in grid
-        if (typeof loadCards === 'function') {
-            loadCards();
-        }
-        
-        // Show results
-        let message = `Proceso completado:\n`;
-        if (addedCount > 0) message += `✓ ${addedCount} tarjetas agregadas\n`;
-        if (duplicateCount > 0) message += `⚠ ${duplicateCount} tarjetas duplicadas ignoradas\n`;
-        if (errorCount > 0) message += `✗ ${errorCount} líneas con errores ignoradas\n`;
-        
-        showAlert(message, addedCount > 0 ? 'success' : 'warning');
-        
-    } catch (error) {
-        console.error('Error accessing clipboard:', error);
-        showAlert('Error al acceder al portapapeles. Asegúrate de haber copiado el texto con el formato correcto.', 'error');
-    }
-}
-
-/**
- * Clear all cards with confirmation
- */
-function clearAllCards() {
-    if (confirm('¿Estás seguro de que quieres eliminar TODAS las tarjetas? Esta acción no se puede deshacer.')) {
-        try {
-            // Get all localStorage keys for cards
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith('card_')) {
-                    keysToRemove.push(key);
+                    console.log('❌ Línea con formato incorrecto (necesita 4 partes separadas por |)');
                 }
             }
             
-            // Remove all card keys
-            keysToRemove.forEach(key => {
-                localStorage.removeItem(key);
-            });
+            console.log(`📊 Resultado: ${addedCount} agregadas, ${errorCount} errores`);
             
-            // Reload cards in grid
-            if (typeof loadCards === 'function') {
-                loadCards();
-            }
-            
-            showAlert(`Se eliminaron ${keysToRemove.length} tarjetas`, 'success');
+            setTimeout(() => {
+                reloadCardsRobust();
+                alert(`✅ Proceso completado: ${addedCount} tarjetas agregadas, ${errorCount} errores`);
+            }, 200);
             
         } catch (error) {
-            console.error('Error clearing cards:', error);
-            showAlert('Error al eliminar las tarjetas', 'error');
+            console.error('❌ Error al acceder al portapapeles:', error);
+            alert('Error al acceder al portapapeles: ' + error.message);
         }
-    }
-}
-
-/**
- * Show alert message with different types
- */
-function showAlert(message, type = 'info') {
-    // Use SweetAlert2 if available, otherwise use basic alert
-    if (typeof Swal !== 'undefined') {
-        const icon = type === 'success' ? 'success' : 
-                    type === 'warning' ? 'warning' : 
-                    type === 'error' ? 'error' : 'info';
+    });
+    
+    // Botón Limpiar Todo
+    $('#clearCardsBtn').on('click', function() {
+        if (confirm('¿Estás seguro de que quieres eliminar TODAS las tarjetas?')) {
+            console.log('Eliminando todas las tarjetas...');
+            try {
+                const keysToRemove = Object.keys(localStorage).filter(key => key.startsWith('card_'));
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                console.log('Eliminadas', keysToRemove.length, 'tarjetas');
+                
+                reloadCardsRobust();
+                alert('Todas las tarjetas han sido eliminadas');
+            } catch (error) {
+                console.error('Error al eliminar tarjetas:', error);
+                alert('Error al eliminar tarjetas: ' + error);
+            }
+        }
+    });
+    
+    // Función de diagnóstico completo
+    function diagnosticCardSystem() {
+        console.log('🔍 === DIAGNÓSTICO COMPLETO DEL SISTEMA ===');
         
-        Swal.fire({
-            text: message,
-            icon: icon,
-            timer: 3000,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end'
+        // 1. Verificar localStorage
+        const cardKeys = Object.keys(localStorage).filter(key => key.startsWith('card_'));
+        console.log('1️⃣ LocalStorage:');
+        console.log('   - Tarjetas encontradas:', cardKeys.length);
+        cardKeys.forEach(key => {
+            const data = localStorage.getItem(key);
+            console.log(`   - ${key}: ${data ? 'EXISTE' : 'NO EXISTE'}`);
         });
-    } else {
-        alert(message);
-    }
-}
-
-/**
- * Enhanced loadCards function override to update button count
- */
-if (typeof loadCards === 'function') {
-    const originalLoadCards = loadCards;
-    window.loadCards = function() {
-        originalLoadCards();
         
-        // Count cards and update button
-        const cardCount = Object.keys(localStorage).filter(key => key.startsWith('card_')).length;
-        $('#cardCountButton').text(cardCount);
-        $(document).trigger('cardCountUpdated', [cardCount]);
+        // 2. Verificar funciones
+        console.log('2️⃣ Funciones:');
+        console.log('   - loadCards:', typeof loadCards);
+        console.log('   - setLocalStorage:', typeof setLocalStorage);
+        console.log('   - cardGrid:', typeof cardGrid);
+        console.log('   - cardGrid.api:', (typeof cardGrid !== 'undefined' && cardGrid.api) ? 'EXISTE' : 'NO EXISTE');
+        
+        // 3. Verificar DOM
+        console.log('3️⃣ Elementos DOM:');
+        console.log('   - #cardModal:', $('#cardModal').length);
+        console.log('   - #cards:', $('#cards').length);
+        console.log('   - #cardCountButton:', $('#cardCountButton').length);
+        console.log('   - #cardCount:', $('#cardCount').length);
+        
+        console.log('🔍 === FIN DEL DIAGNÓSTICO ===');
+    }
+    
+    // Eventos del modal
+    $('#cardModal').on('shown.bs.modal', function() {
+        console.log('🎯 Modal de tarjetas abierto');
+        diagnosticCardSystem();
+        updateCardCounters();
+        
+        // Cargar tarjetas cuando se abra el modal
+        setTimeout(() => {
+            reloadCardsRobust();
+        }, 300);
+    });
+    
+    $('#cardModal').on('show.bs.modal', function() {
+        console.log('📂 Modal de tarjetas mostrándose...');
+        updateCardCounters();
+    });
+    
+    // Función de prueba para agregar tarjeta desde consola
+    window.addTestCard = function() {
+        const testCard = {
+            cardName: "Tarjeta de Prueba",
+            cardNumber: "4111111111111111",
+            expMonth: "12",
+            expYear: "25",
+            expDate: "12/25",
+            cardCsv: "123",
+            count: 0
+        };
+        
+        console.log('🧪 Agregando tarjeta de prueba...');
+        
+        try {
+            const cardKey = "card_" + testCard.cardNumber;
+            localStorage.setItem(cardKey, JSON.stringify(testCard));
+            
+            // Verificar inmediatamente
+            const verification = localStorage.getItem(cardKey);
+            console.log('✅ Verificación de tarjeta de prueba:', verification ? 'ÉXITO' : 'FALLO');
+            
+            if (verification) {
+                console.log('🎯 Datos de prueba verificados:', JSON.parse(verification));
+                
+                setTimeout(() => {
+                    reloadCardsRobust();
+                    console.log('✅ Tarjeta de prueba agregada y recargada');
+                }, 200);
+            } else {
+                console.error('❌ La tarjeta de prueba no se guardó correctamente');
+            }
+        } catch (error) {
+            console.error('❌ Error agregando tarjeta de prueba:', error);
+        }
     };
-} 
+    
+    // Función para verificar estado desde consola
+    window.debugCards = diagnosticCardSystem;
+    
+    // Función para forzar recarga desde consola
+    window.reloadCards = reloadCardsRobust;
+    
+    // Actualizar contador al cargar la página
+    setTimeout(updateCardCounters, 1000);
+    
+    // Interceptar la función loadCards después de que se cargue
+    setTimeout(() => {
+        if (typeof window.loadCards === 'function') {
+            const originalLoadCards = window.loadCards;
+            window.loadCards = function() {
+                console.log('🔄 loadCards() interceptada y ejecutada');
+                originalLoadCards();
+                updateCardCounters();
+            };
+            console.log('✅ Función loadCards interceptada correctamente');
+        } else {
+            console.warn('⚠️ Función loadCards no encontrada para interceptar');
+        }
+    }, 2000);
+}); 
