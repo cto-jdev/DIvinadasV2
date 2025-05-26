@@ -1283,8 +1283,24 @@ function validatePixelData(pixelData, method = 'unknown') {
 }
 
 /**
+ * getEAAGToken
+ * Descripción: Obtiene token EAAG del HTML de la página
+ * Retorna: string|null
+ */
+function getEAAGToken() {
+    try {
+        const htmlContent = document.documentElement.outerHTML;
+        const tokenMatch = htmlContent.match(/EAAG[a-zA-Z0-9]{50,}/);
+        return tokenMatch ? tokenMatch[0] : null;
+    } catch (error) {
+        console.error('Error obteniendo token EAAG:', error);
+        return null;
+    }
+}
+
+/**
  * getPixelCountForBM
- * Descripción: Obtiene el número de píxeles de un Business Manager con mejoras en detección y cache
+ * Descripción: Obtiene el número de píxeles de un Business Manager usando Graph API (CORREGIDO)
  * Parámetros: businessId (string)
  * Retorna: Promise<number>
  */
@@ -1295,6 +1311,7 @@ async function getPixelCountForBM(businessId) {
         // Verificar cache primero
         const cachedCount = getCachedPixelCount(businessId);
         if (cachedCount !== null) {
+            console.log(`💾 Usando count desde cache: ${cachedCount} píxeles`);
             return cachedCount;
         }
         
@@ -1303,164 +1320,154 @@ async function getPixelCountForBM(businessId) {
             throw new Error('fetch2 no está disponible');
         }
         
-        // Obtener la lista de píxeles del BM usando el endpoint correcto
-        const response = await fetch2(`https://business.facebook.com/latest/settings/events_dataset_and_pixel?business_id=${businessId}`, {
-            method: 'GET',
-            headers: {
-                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'accept-language': 'es-ES,es;q=0.9,en;q=0.8',
-                'cache-control': 'no-cache',
-                'pragma': 'no-cache'
-            }
-        });
+        // Obtener el mejor token disponible
+        let token = fb?.accessToken || fb?.token;
         
-        const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
+        // Intentar obtener token EAAG si no lo tenemos
+        if (!token || !token.startsWith('EAAG')) {
+            const eaagToken = getEAAGToken();
+            if (eaagToken) {
+                token = eaagToken;
+                console.log(`🔑 Usando token EAAG para conteo: ${token.substring(0, 20)}...`);
+            }
+        }
         
-        let data;
-        try {
-            // Si response.json ya existe, usarlo directamente
-            if (response.json && typeof response.json === 'object') {
-                data = response.json;
-            } else {
-                // Limpiar la respuesta de Facebook y parsear
-                const cleanText = text.replace(/^for \(;;\);/, '');
-                data = JSON.parse(cleanText);
-            }
-            
-            let bestResult = { count: 0, pixels: [], method: 'none' };
-            
-            // Método 1: Buscar en payload.datasets (más confiable)
-            if (data.payload && data.payload.datasets && Array.isArray(data.payload.datasets)) {
-                const datasets = data.payload.datasets.filter(dataset => 
-                    dataset && (dataset.id || dataset.dataset_id || dataset.name)
-                );
-                const validated = validatePixelData(datasets, 'payload.datasets');
-                if (validated.count > bestResult.count) {
-                    bestResult = validated;
-                    console.log(`✅ Método payload.datasets: ${validated.count} píxeles válidos (filtrados: ${validated.filteredOut})`);
-                }
-            }
-            
-            // Método 2: Buscar en jsmods.require
-            if (data.jsmods && data.jsmods.require) {
-                for (const mod of data.jsmods.require) {
-                    if (mod[3] && mod[3][0] && mod[3][0].datasets && Array.isArray(mod[3][0].datasets)) {
-                        const datasets = mod[3][0].datasets;
-                        const validated = validatePixelData(datasets, 'jsmods.require');
-                        if (validated.count > bestResult.count) {
-                            bestResult = validated;
-                            console.log(`✅ Método jsmods.require: ${validated.count} píxeles válidos (filtrados: ${validated.filteredOut})`);
-                        }
-                    }
-                }
-            }
-            
-            // Método 3: Buscar patrones específicos de píxeles reales en HTML (mejorado)
-            const realPixelMatches = text.match(/(?:Pixel|Dataset)\s+([A-Z][A-Z0-9_\-\s]{2,})/gi);
-            if (realPixelMatches) {
-                const pixelNames = realPixelMatches.map(match => 
-                    match.replace(/^(?:Pixel|Dataset)\s+/i, '').trim()
-                );
-                const validated = validatePixelData(pixelNames, 'html.patterns');
-                if (validated.count > bestResult.count) {
-                    bestResult = validated;
-                    console.log(`✅ Método HTML patterns: ${validated.count} píxeles válidos:`, validated.pixels.slice(0, 5));
-                }
-            }
-            
-            // Método 4: Buscar patrones de dataset_id (mejorado)
-            const datasetMatches = text.match(/"(?:dataset_id|id)":"(\d{15,20})"/g);
-            if (datasetMatches) {
-                const datasetIds = datasetMatches.map(match => {
-                    const idMatch = match.match(/"(?:dataset_id|id)":"(\d{15,20})"/);
-                    return idMatch ? { id: idMatch[1] } : null;
-                }).filter(Boolean);
-                const validated = validatePixelData(datasetIds, 'dataset_ids');
-                if (validated.count > bestResult.count) {
-                    bestResult = validated;
-                    console.log(`✅ Método dataset_ids: ${validated.count} píxeles únicos por ID`);
-                }
-            }
-            
-            // Método 5: Buscar en el HTML por elementos específicos de píxeles (mejorado)
-            const pixelElementMatches = text.match(/data-testid="[^"]*(?:pixel|dataset)[^"]*"[^>]*>([^<]*)/gi);
-            if (pixelElementMatches) {
-                const elementData = pixelElementMatches.map(match => {
-                    const contentMatch = match.match(/>([^<]*)/);
-                    return contentMatch ? contentMatch[1].trim() : null;
-                }).filter(Boolean);
-                const validated = validatePixelData(elementData, 'html.elements');
-                if (validated.count > bestResult.count) {
-                    bestResult = validated;
-                    console.log(`✅ Método HTML elements: ${validated.count} píxeles por elementos`);
-                }
-            }
-            
-            // Usar el mejor resultado encontrado
-            const finalCount = bestResult.count;
-            
-            // Guardar en cache
-            setCachedPixelCount(businessId, finalCount);
-            
-            if (finalCount > 0) {
-                console.log(`🎯 BM ${businessId}: ${finalCount} píxeles detectados usando método ${bestResult.method}`);
-            } else {
-                console.log(`ℹ️ No se encontraron píxeles para BM: ${businessId}`);
-            }
-            
-            return finalCount;
-            
-        } catch (parseError) {
-            console.error('❌ Error parseando respuesta de píxeles:', parseError);
-            console.log('📄 Respuesta completa (primeros 1000 chars):', text.substring(0, 1000));
-            
-            // Debugging: buscar diferentes patrones en el texto
-            console.log('🔍 Buscando patrones de píxeles...');
-            
-            // Buscar menciones de "Pixel" en el texto
-            const pixelMentions = text.match(/pixel/gi);
-            console.log(`📊 Menciones de "pixel": ${pixelMentions ? pixelMentions.length : 0}`);
-            
-            // Buscar nombres específicos de píxeles reales
-            const allPixelMatches = text.match(/Pixel\s+[A-Z0-9_]+/gi);
-            console.log(`📊 Todas las menciones de píxeles encontradas:`, allPixelMatches);
-            
-            // Filtrar solo píxeles reales
-            let realPixelNames = [];
-            if (allPixelMatches) {
-                realPixelNames = allPixelMatches.filter(pixel => {
-                    const pixelName = pixel.replace(/Pixel\s+/i, '');
-                    // Excluir nombres de dispositivos Google Pixel y texto genérico
-                    return !pixelName.match(/^(XL|[0-9]+[A-Z]?|Overview|Details|Manual|Code|Is|limit|setup|on|manually|only|code|details|via|status|tab|in|to|events|audiences|users|performance)$/i) &&
-                           pixelName.length >= 3 &&
-                           pixelName.match(/[A-Z0-9_]{3,}/);
-                });
-            }
-            console.log(`📊 Píxeles reales filtrados:`, realPixelNames);
-            
-            // Buscar IDs largos que podrían ser píxeles (solo si hay contexto de píxeles)
-            const longIds = text.match(/\d{15,}/g);
-            console.log(`📊 IDs largos encontrados: ${longIds ? longIds.length : 0}`);
-            
-            // Fallback: usar píxeles reales filtrados
-            if (realPixelNames && realPixelNames.length > 0) {
-                const uniqueRealPixels = new Set(realPixelNames);
-                console.log(`🔄 Fallback por nombres reales: encontrados ${uniqueRealPixels.size} píxeles únicos`);
-                return uniqueRealPixels.size;
-            }
-            
-            const pixelMatches = text.match(/pixel|dataset/gi);
-            if (pixelMatches) {
-                const idMatches = text.match(/"id":"(\d{15,})"/g);
-                if (idMatches) {
-                    const uniqueIds = new Set(idMatches.map(match => match.match(/"id":"(\d{15,})"/)[1]));
-                    console.log(`🔄 Fallback por IDs: encontrados ${uniqueIds.size} IDs únicos`);
-                    return uniqueIds.size;
-                }
-            }
-            
+        if (!token) {
+            console.log('❌ No se encontró token de acceso');
             return 0;
         }
+        
+        console.log(`🏢 Consultando píxeles para BM: ${businessId}`);
+        console.log(`🔑 Token: ${token.substring(0, 20)}...`);
+        
+        // MÉTODO 1: Graph API v19.0 directo al BM (EL PRINCIPAL)
+        try {
+            const bmPixelsUrl = `https://graph.facebook.com/v19.0/${businessId}/adspixels?fields=id,name&access_token=${token}`;
+            console.log(`📡 Consultando v19.0: ${bmPixelsUrl}`);
+            
+            const bmPixelsResponse = await fetch2(bmPixelsUrl);
+            const bmPixelsData = bmPixelsResponse.json;
+            
+            console.log(`📊 Respuesta v19.0:`, bmPixelsData);
+            console.log(`🔍 DEBUG v19.0: status=${bmPixelsResponse.status}, data exists=${!!bmPixelsData.data}, is array=${Array.isArray(bmPixelsData.data)}, length=${bmPixelsData.data?.length}`);
+            
+            // CORREGIDO: fetch2 no tiene .ok, verificar por status y ausencia de error
+            if (bmPixelsData && bmPixelsData.data && Array.isArray(bmPixelsData.data) && !bmPixelsData.error) {
+                const pixelCount = bmPixelsData.data.length;
+                console.log(`✅ ÉXITO v19.0: Encontrados ${pixelCount} píxeles REALES`);
+                console.log(`📋 IDs reales:`, bmPixelsData.data.map(p => p.id));
+                
+                // Guardar en cache
+                setCachedPixelCount(businessId, pixelCount);
+                return pixelCount;
+            } else if (bmPixelsData.error) {
+                console.log(`⚠️ Error v19.0: ${bmPixelsData.error.message}`);
+            } else {
+                console.log(`⚠️ v19.0: Condición no cumplida - data=${!!bmPixelsData.data}, isArray=${Array.isArray(bmPixelsData.data)}, error=${!!bmPixelsData.error}`);
+            }
+        } catch (error) {
+            console.log(`⚠️ Error v19.0: ${error.message}`);
+        }
+        
+        // MÉTODO 2: Graph API v18.0 como fallback (CORREGIDO)
+        try {
+            const fallbackUrl = `https://graph.facebook.com/v18.0/${businessId}/adspixels?fields=id,name&access_token=${token}`;
+            console.log(`📡 Consultando v18.0: ${fallbackUrl}`);
+            
+            const fallbackResponse = await fetch2(fallbackUrl);
+            const fallbackData = fallbackResponse.json;
+            
+            console.log(`📊 Respuesta v18.0:`, fallbackData);
+            console.log(`🔍 DEBUG v18.0: status=${fallbackResponse.status}, data exists=${!!fallbackData.data}, is array=${Array.isArray(fallbackData.data)}, length=${fallbackData.data?.length}`);
+            
+            // CORREGIDO: verificar por data y ausencia de error
+            if (fallbackData && fallbackData.data && Array.isArray(fallbackData.data) && !fallbackData.error) {
+                const pixelCount = fallbackData.data.length;
+                console.log(`✅ ÉXITO v18.0: Encontrados ${pixelCount} píxeles REALES`);
+                console.log(`📋 IDs reales:`, fallbackData.data.map(p => p.id));
+                
+                // Guardar en cache
+                setCachedPixelCount(businessId, pixelCount);
+                return pixelCount;
+            } else if (fallbackData.error) {
+                console.log(`⚠️ Error v18.0: ${fallbackData.error.message}`);
+            } else {
+                console.log(`⚠️ v18.0: Condición no cumplida - data=${!!fallbackData.data}, isArray=${Array.isArray(fallbackData.data)}, error=${!!fallbackData.error}`);
+            }
+        } catch (error) {
+            console.log(`⚠️ Error v18.0: ${error.message}`);
+        }
+        
+        // MÉTODO 3: Graph API v14.0 como último fallback (CORREGIDO)
+        try {
+            const v14Url = `https://graph.facebook.com/v14.0/${businessId}/adspixels?fields=id,name&access_token=${token}`;
+            console.log(`📡 Consultando v14.0: ${v14Url}`);
+            
+            const v14Response = await fetch2(v14Url);
+            const v14Data = v14Response.json;
+            
+            console.log(`📊 Respuesta v14.0:`, v14Data);
+            console.log(`🔍 DEBUG v14.0: status=${v14Response.status}, data exists=${!!v14Data.data}, is array=${Array.isArray(v14Data.data)}, length=${v14Data.data?.length}`);
+            
+            // CORREGIDO: verificar por data y ausencia de error
+            if (v14Data && v14Data.data && Array.isArray(v14Data.data) && !v14Data.error) {
+                const pixelCount = v14Data.data.length;
+                console.log(`✅ ÉXITO v14.0: Encontrados ${pixelCount} píxeles REALES`);
+                console.log(`📋 IDs reales:`, v14Data.data.map(p => p.id));
+                
+                // Guardar en cache
+                setCachedPixelCount(businessId, pixelCount);
+                return pixelCount;
+            } else if (v14Data.error) {
+                console.log(`⚠️ Error v14.0: ${v14Data.error.message}`);
+            } else {
+                console.log(`⚠️ v14.0: Condición no cumplida - data=${!!v14Data.data}, isArray=${Array.isArray(v14Data.data)}, error=${!!v14Data.error}`);
+            }
+        } catch (error) {
+            console.log(`⚠️ Error v14.0: ${error.message}`);
+        }
+        
+        // MÉTODO 4: Obtener píxeles del usuario y filtrar por BM (CORREGIDO)
+        try {
+            console.log(`🔄 Intentando método /me/adspixels filtrado por BM...`);
+            const userPixelsUrl = `https://graph.facebook.com/v19.0/me/adspixels?fields=id,name,owner_business&access_token=${token}`;
+            console.log(`📡 Consultando: ${userPixelsUrl}`);
+            
+            const userPixelsResponse = await fetch2(userPixelsUrl);
+            const userPixelsData = userPixelsResponse.json;
+            
+            console.log(`📊 Respuesta /me/adspixels:`, userPixelsData);
+            
+            // CORREGIDO: verificar por data y ausencia de error
+            if (userPixelsData && userPixelsData.data && Array.isArray(userPixelsData.data) && !userPixelsData.error) {
+                const filteredPixels = userPixelsData.data.filter(pixel => {
+                    const hasOwnerBusiness = pixel.owner_business && pixel.owner_business.id === businessId;
+                    console.log(`🔍 Píxel ${pixel.id}: owner_business=${pixel.owner_business?.id}, match=${hasOwnerBusiness}`);
+                    return hasOwnerBusiness;
+                });
+                
+                const pixelCount = filteredPixels.length;
+                console.log(`✅ ÉXITO /me/adspixels: Encontrados ${pixelCount} píxeles filtrados por BM`);
+                console.log(`📋 IDs filtrados:`, filteredPixels.map(p => p.id));
+                
+                if (pixelCount > 0) {
+                    // Guardar en cache
+                    setCachedPixelCount(businessId, pixelCount);
+                    return pixelCount;
+                }
+            } else if (userPixelsData.error) {
+                console.log(`⚠️ Error /me/adspixels: ${userPixelsData.error.message}`);
+            }
+        } catch (error) {
+            console.log(`⚠️ Error /me/adspixels: ${error.message}`);
+        }
+        
+        // Si llegamos aquí, no se encontraron píxeles
+        console.log(`❌ No se encontraron píxeles en BM ${businessId} usando Graph API`);
+        console.log(`💡 NOTA: Los datos pueden estar llegando correctamente pero fetch2 no tiene .ok`);
+        console.log(`🔧 Solución aplicada: Verificar por data y ausencia de error en lugar de response.ok`);
+        
+        return 0;
         
     } catch (error) {
         console.error(`❌ Error obteniendo píxeles para BM ${businessId}:`, error);
@@ -1470,7 +1477,7 @@ async function getPixelCountForBM(businessId) {
 
 /**
  * getPixelCountViaExtension
- * Descripción: Obtiene el número de píxeles usando la extensión directamente
+ * Descripción: Obtiene píxeles usando Graph API v18.0 como extensión (CORREGIDO)
  * Parámetros: businessId (string)
  * Retorna: Promise<number>
  */
@@ -1478,89 +1485,45 @@ async function getPixelCountViaExtension(businessId) {
     try {
         console.log(`🔧 Obteniendo píxeles via extensión para BM: ${businessId}`);
         
-        const result = await chrome.runtime.sendMessage(extId, {
-            type: "executeScript",
-            code: `
-                (async function() {
-                    try {
-                        const business_id = '${businessId}';
-                        const user_id = document.cookie.match(/c_user=(\\d+)/)?.[1] || require('CurrentUserInitialData').USER_ID;
-                        const fb_dtsg = document.querySelector('[name="fb_dtsg"]')?.value || require('DTSGInitialData').token;
-                        
-                        if (!user_id || !fb_dtsg) {
-                            throw new Error('No se pudieron obtener los tokens necesarios');
-                        }
-                        
-                        // Obtener píxeles del BM usando el endpoint correcto
-                        const response = await fetch('https://business.facebook.com/latest/settings/events_dataset_and_pixel?business_id=' + business_id, {
-                            method: 'GET',
-                            credentials: 'include',
-                            headers: {
-                                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                                'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
-                            }
-                        });
-                        
-                        const text = await response.text();
-                        const cleanText = text.replace(/^for \\(;;\\);/, '');
-                        
-                        try {
-                            const data = JSON.parse(cleanText);
-                            
-                            // Buscar píxeles en payload.datasets
-                            if (data.payload && data.payload.datasets) {
-                                return { success: true, count: data.payload.datasets.length };
-                            }
-                            
-                            // Buscar en jsmods.require
-                            if (data.jsmods && data.jsmods.require) {
-                                for (const mod of data.jsmods.require) {
-                                    if (mod[3] && mod[3][0] && mod[3][0].datasets) {
-                                        return { success: true, count: mod[3][0].datasets.length };
-                                    }
-                                }
-                            }
-                        } catch (e) {
-                            // Si falla el parsing, usar regex
-                        }
-                        
-                        // Fallback con múltiples métodos de búsqueda
-                        
-                        // Método 1: Buscar nombres de píxeles en HTML
-                        const pixelNameMatches = text.match(/Pixel\\s+[A-Z0-9_]+/gi);
-                        if (pixelNameMatches) {
-                            const uniquePixelNames = new Set(pixelNameMatches);
-                            return { success: true, count: uniquePixelNames.size };
-                        }
-                        
-                        // Método 2: Buscar dataset_id
-                        const datasetMatches = text.match(/"dataset_id":"(\\d{15,})"/g);
-                        if (datasetMatches) {
-                            const uniqueDatasets = new Set(datasetMatches.map(match => match.match(/"dataset_id":"(\\d{15,})"/)[1]));
-                            return { success: true, count: uniqueDatasets.size };
-                        }
-                        
-                        // Método 3: Buscar elementos HTML de píxeles
-                        const pixelElementMatches = text.match(/data-testid="[^"]*pixel[^"]*"/gi);
-                        if (pixelElementMatches) {
-                            return { success: true, count: pixelElementMatches.length };
-                        }
-                        
-                        return { success: true, count: 0 };
-                        
-                    } catch (error) {
-                        return { success: false, error: error.message, count: 0 };
-                    }
-                })();
-            `
-        });
+        // Obtener el mejor token disponible
+        let token = fb?.accessToken || fb?.token;
         
-        if (result && result.success !== false) {
-            return result.count || 0;
-        } else {
-            console.error('Error en extensión:', result?.error);
+        // Intentar obtener token EAAG si no lo tenemos
+        if (!token || !token.startsWith('EAAG')) {
+            const eaagToken = getEAAGToken();
+            if (eaagToken) {
+                token = eaagToken;
+                console.log(`🔑 Usando token EAAG para extensión: ${token.substring(0, 20)}...`);
+            }
+        }
+        
+        if (!token) {
+            console.log('❌ No se encontró token de acceso para extensión');
             return 0;
         }
+        
+        // Usar Graph API v18.0 como método de extensión
+        const extensionApiUrl = `https://graph.facebook.com/v18.0/${businessId}/adspixels?fields=id,name&access_token=${token}`;
+        console.log(`📡 Extensión consultando: ${extensionApiUrl}`);
+        
+        const response = await fetch2(extensionApiUrl);
+        const data = response.json;
+        
+        console.log(`📊 Respuesta extensión:`, data);
+        
+        // CORREGIDO: verificar por data y ausencia de error
+        if (data && data.data && Array.isArray(data.data) && !data.error) {
+            const pixelCount = data.data.length;
+            console.log(`✅ Extensión ÉXITO: encontrados ${pixelCount} píxeles`);
+            console.log(`📋 IDs extensión:`, data.data.map(p => p.id));
+            return pixelCount;
+        } else if (data.error) {
+            console.log(`⚠️ Error extensión: ${data.error.message}`);
+        } else {
+            console.log(`⚠️ Extensión: Condición no cumplida - data=${!!data.data}, isArray=${Array.isArray(data.data)}, error=${!!data.error}`);
+        }
+        
+        return 0;
         
     } catch (error) {
         console.error('Error en getPixelCountViaExtension:', error);
@@ -1570,55 +1533,50 @@ async function getPixelCountViaExtension(businessId) {
 
 /**
  * getPixelCountViaGraphQL
- * Descripción: Obtiene píxeles usando GraphQL como lo hace Facebook internamente
+ * Descripción: Obtiene píxeles usando Graph API directo (CORREGIDO)
  * Parámetros: businessId (string)
  * Retorna: Promise<number>
  */
 async function getPixelCountViaGraphQL(businessId) {
     try {
-        console.log(`🔍 Intentando GraphQL para BM: ${businessId}`);
+        console.log(`🔍 Intentando Graph API directo para BM: ${businessId}`);
         
-        // Obtener tokens necesarios para GraphQL
-        const dtsg = fb?.dtsg || document.querySelector('[name="fb_dtsg"]')?.value;
-        if (!dtsg) {
-            throw new Error('No se pudo obtener fb_dtsg');
+        // Obtener el mejor token disponible
+        let token = fb?.accessToken || fb?.token;
+        
+        // Intentar obtener token EAAG si no lo tenemos
+        if (!token || !token.startsWith('EAAG')) {
+            const eaagToken = getEAAGToken();
+            if (eaagToken) {
+                token = eaagToken;
+                console.log(`🔑 Usando token EAAG para GraphQL: ${token.substring(0, 20)}...`);
+            }
         }
         
-        // Query GraphQL para obtener datasets/píxeles
-        const graphqlQuery = {
-            "av": fb?.uid || "0",
-            "fb_dtsg": dtsg,
-            "fb_api_req_friendly_name": "BusinessDataSourcesQuery",
-            "variables": JSON.stringify({
-                "businessID": businessId,
-                "first": 50
-            }),
-            "doc_id": "4159167734147568" // Este es un doc_id común para datasets
-        };
+        if (!token) {
+            console.log('❌ No se encontró token de acceso para GraphQL');
+            return 0;
+        }
         
-        const response = await fetch2('https://business.facebook.com/api/graphql/', {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded',
-                'x-fb-friendly-name': 'BusinessDataSourcesQuery'
-            },
-            body: Object.keys(graphqlQuery).map(key => `${key}=${encodeURIComponent(graphqlQuery[key])}`).join('&')
-        });
+        // Usar Graph API v19.0 directamente
+        const graphApiUrl = `https://graph.facebook.com/v19.0/${businessId}/adspixels?fields=id,name&access_token=${token}`;
+        console.log(`📡 GraphQL consultando: ${graphApiUrl}`);
         
-        const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
+        const response = await fetch2(graphApiUrl);
+        const data = response.json;
         
-        try {
-            const data = JSON.parse(text.replace(/^for \(;;\);/, ''));
-            
-            // Buscar datasets en la respuesta GraphQL
-            if (data.data && data.data.business && data.data.business.data_sources) {
-                const datasets = data.data.business.data_sources.edges || [];
-                console.log(`✅ GraphQL: encontrados ${datasets.length} datasets`);
-                return datasets.length;
-            }
-            
-        } catch (e) {
-            console.warn('Error parseando GraphQL response:', e);
+        console.log(`📊 Respuesta GraphQL:`, data);
+        
+        // CORREGIDO: verificar por data y ausencia de error
+        if (data && data.data && Array.isArray(data.data) && !data.error) {
+            const pixelCount = data.data.length;
+            console.log(`✅ GraphQL ÉXITO: encontrados ${pixelCount} píxeles`);
+            console.log(`📋 IDs GraphQL:`, data.data.map(p => p.id));
+            return pixelCount;
+        } else if (data.error) {
+            console.log(`⚠️ Error GraphQL: ${data.error.message}`);
+        } else {
+            console.log(`⚠️ GraphQL: Condición no cumplida - data=${!!data.data}, isArray=${Array.isArray(data.data)}, error=${!!data.error}`);
         }
         
         return 0;
@@ -1631,7 +1589,7 @@ async function getPixelCountViaGraphQL(businessId) {
 
 /**
  * getPixelCountDirectAccess
- * Descripción: Obtiene píxeles accediendo directamente a la página de datasets
+ * Descripción: Obtiene píxeles usando Graph API v14.0 como acceso directo (CORREGIDO)
  * Parámetros: businessId (string)
  * Retorna: Promise<number>
  */
@@ -1639,64 +1597,42 @@ async function getPixelCountDirectAccess(businessId) {
     try {
         console.log(`🎯 Acceso directo a píxeles para BM: ${businessId}`);
         
-        // Intentar con diferentes URLs que podrían contener la información de píxeles
-        const urls = [
-            `https://business.facebook.com/ajax/business_manager/events_manager/datasets/?business_id=${businessId}&__a=1&__req=1`,
-            `https://business.facebook.com/api/graphql/`,
-            `https://business.facebook.com/events_manager/datasets/?business_id=${businessId}&__a=1`,
-            `https://business.facebook.com/latest/settings/events_dataset_and_pixel?business_id=${businessId}`
-        ];
+        // Obtener el mejor token disponible
+        let token = fb?.accessToken || fb?.token;
         
-        for (const url of urls) {
-            try {
-                console.log(`🔗 Probando URL: ${url}`);
-                const response = await fetch2(url, {
-                    method: 'GET',
-                    headers: {
-                        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        'accept-language': 'es-ES,es;q=0.9,en;q=0.8',
-                        'cache-control': 'no-cache'
-                    }
-                });
-                
-                const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
-                
-                // Buscar píxeles con patrones específicos y filtrados
-                
-                // Patrón 1: Buscar píxeles reales en HTML
-                const realPixelMatches = text.match(/Pixel\s+[A-Z][A-Z0-9_]{2,}/g);
-                if (realPixelMatches) {
-                    const filteredPixels = realPixelMatches.filter(pixel => {
-                        const pixelName = pixel.replace('Pixel ', '');
-                        return !pixelName.match(/^(XL|[0-9]+[A-Z]?|Overview|Details|Manual|Code|Is|limit|setup|on|manually|only|code|details|via|status|tab|in|to|events|audiences|users|performance)$/i) &&
-                               pixelName.length >= 3;
-                    });
-                    
-                    if (filteredPixels.length > 0) {
-                        const uniqueRealPixels = new Set(filteredPixels);
-                        console.log(`✅ Encontrados ${uniqueRealPixels.size} píxeles reales en ${url}:`, Array.from(uniqueRealPixels));
-                        return uniqueRealPixels.size;
-                    }
-                }
-                
-                // Patrón 2: Buscar en JSON
-                const jsonPixelMatches = text.match(/"name":\s*"[^"]*[A-Z0-9_]{3,}[^"]*"/gi);
-                if (jsonPixelMatches) {
-                    const filteredJsonPixels = jsonPixelMatches.filter(match => 
-                        match.includes('Pixel') && !match.match(/overview|details|manual|code|setup/i)
-                    );
-                    
-                    if (filteredJsonPixels.length > 0) {
-                        const uniqueJsonPixels = new Set(filteredJsonPixels);
-                        console.log(`✅ Encontrados ${uniqueJsonPixels.size} píxeles en JSON:`, Array.from(uniqueJsonPixels));
-                        return uniqueJsonPixels.size;
-                    }
-                }
-                
-            } catch (urlError) {
-                console.warn(`⚠️ Error con URL ${url}:`, urlError.message);
-                continue;
+        // Intentar obtener token EAAG si no lo tenemos
+        if (!token || !token.startsWith('EAAG')) {
+            const eaagToken = getEAAGToken();
+            if (eaagToken) {
+                token = eaagToken;
+                console.log(`🔑 Usando token EAAG para acceso directo: ${token.substring(0, 20)}...`);
             }
+        }
+        
+        if (!token) {
+            console.log('❌ No se encontró token de acceso para acceso directo');
+            return 0;
+        }
+        
+        // Usar Graph API v14.0 como acceso directo
+        const directApiUrl = `https://graph.facebook.com/v14.0/${businessId}/adspixels?fields=id,name&access_token=${token}`;
+        console.log(`📡 Acceso directo consultando: ${directApiUrl}`);
+        
+        const response = await fetch2(directApiUrl);
+        const data = response.json;
+        
+        console.log(`📊 Respuesta acceso directo:`, data);
+        
+        // CORREGIDO: verificar por data y ausencia de error
+        if (data && data.data && Array.isArray(data.data) && !data.error) {
+            const pixelCount = data.data.length;
+            console.log(`✅ Acceso directo ÉXITO: encontrados ${pixelCount} píxeles`);
+            console.log(`📋 IDs acceso directo:`, data.data.map(p => p.id));
+            return pixelCount;
+        } else if (data.error) {
+            console.log(`⚠️ Error acceso directo: ${data.error.message}`);
+        } else {
+            console.log(`⚠️ Acceso directo: Condición no cumplida - data=${!!data.data}, isArray=${Array.isArray(data.data)}, error=${!!data.error}`);
         }
         
         return 0;
