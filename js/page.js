@@ -1,6 +1,32 @@
-// Ocultar mensajes de AG Grid Enterprise License
-console.error = function(){};
-console.warn = function(){};
+// Filtrar mensajes de licencia de AG Grid Enterprise
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.error = function(...args) {
+  const message = args.join(' ');
+  // Filtrar mensajes de licencia de AG Grid
+  if (message.includes('*') && 
+      (message.includes('License Key Not Found') || 
+       message.includes('AG Grid Enterprise') || 
+       message.includes('license') ||
+       message.includes('****'))) {
+    return; // No mostrar estos mensajes
+  }
+  originalError.apply(console, args);
+};
+
+console.warn = function(...args) {
+  const message = args.join(' ');
+  // Filtrar mensajes de licencia de AG Grid
+  if (message.includes('*') && 
+      (message.includes('License Key Not Found') || 
+       message.includes('AG Grid Enterprise') || 
+       message.includes('license') ||
+       message.includes('****'))) {
+    return; // No mostrar estos mensajes
+  }
+  originalWarn.apply(console, args);
+};
 
 const columnDefs = [{
     resizable: false,

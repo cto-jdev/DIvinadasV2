@@ -255,7 +255,7 @@ function getAllLocalStore() {
 function setLocalStorage(p42, p43) {
   return new Promise(async (p44, p45) => {
     try {
-      if (typeof extId === 'string' && extId) {
+      if (typeof extId === 'string' && extId && typeof chrome !== 'undefined' && chrome.runtime) {
         const vO14 = {
           type: "setLocalStorage",
           key: p42,
@@ -266,12 +266,17 @@ function setLocalStorage(p42, p43) {
           p44();
           return;
         } catch (e) {
+          console.warn('Error con extensión, usando localStorage nativo:', e);
           // Si falla, usa localStorage nativo
         }
       }
       // Fallback: localStorage nativo
-      localStorage.setItem(p42, JSON.stringify(p43));
-      p44();
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(p42, JSON.stringify(p43));
+        p44();
+      } else {
+        p45(new Error('localStorage no disponible'));
+      }
     } catch (e13) {
       p45(e13);
     }
@@ -306,7 +311,7 @@ function removeLocalStorage(p46) {
 function getLocalStorage(p49) {
   return new Promise(async (p50, p51) => {
     try {
-      if (typeof extId === 'string' && extId) {
+      if (typeof extId === 'string' && extId && typeof chrome !== 'undefined' && chrome.runtime) {
         const vO16 = {
           type: "getLocalStorage",
           name: p49
@@ -316,29 +321,33 @@ function getLocalStorage(p49) {
           p50(v20);
           return;
         } catch (e) {
+          console.warn('Error con extensión, usando localStorage nativo:', e);
           // Si falla, usa localStorage nativo
         }
       }
       // Fallback: localStorage nativo
-      const value = localStorage.getItem(p49);
-      p50(value ? JSON.parse(value) : null);
+      if (typeof localStorage !== 'undefined') {
+        const value = localStorage.getItem(p49);
+        p50(value ? JSON.parse(value) : null);
+      } else {
+        p50(null);
+      }
     } catch (e15) {
-      p51(e15);
+      console.warn('Error en getLocalStorage:', e15);
+      p50(null);
     }
   });
 }
 /**
  * clearLocalStorage
  * Descripción: Elimina todos los datos almacenados en localStorage a través de la extensión.
- * Parámetros: p52 (clave), p53 (clave)
  * Retorna: Promise<void>
  */
 function clearLocalStorage() {
   return new Promise(async (p52, p53) => {
     try {
       const vO17 = {
-        type: "clearLocalStorage",
-        name: name
+        type: "clearLocalStorage"
       };
       await chrome.runtime.sendMessage(extId, vO17);
       p52();
@@ -374,14 +383,27 @@ function convertCurrency(p56 = "") {
   $(".currency").each(function () {
     const v22 = $(this).attr("data-currency");
     const v23 = $(this).attr("data-value");
-    if (p56 === "USD") {
-      const vNumber = Number((v23 / rates[v22]).toFixed(2));
-      $(this).html(new Intl.NumberFormat("en-US").format(vNumber).replace("NaN", ""));
-    } else if (p56 === "VND") {
-      const vNumber2 = Number((v23 / rates[v22] * rates.VND).toFixed(0));
-      $(this).html(new Intl.NumberFormat("en-US").format(vNumber2).replace("NaN", ""));
-    } else {
-      $(this).html(new Intl.NumberFormat("en-US").format(v23).replace("NaN", ""));
+    
+    // Validar que existan los datos necesarios
+    if (!v22 || !v23 || typeof rates === 'undefined') {
+      $(this).html("0.00");
+      return;
+    }
+    
+    try {
+      if (p56 === "USD") {
+        const vNumber = Number((v23 / rates[v22]).toFixed(2));
+        $(this).html(new Intl.NumberFormat("en-US").format(isNaN(vNumber) ? 0 : vNumber));
+      } else if (p56 === "VND") {
+        const vNumber2 = Number((v23 / rates[v22] * rates.VND).toFixed(0));
+        $(this).html(new Intl.NumberFormat("en-US").format(isNaN(vNumber2) ? 0 : vNumber2));
+      } else {
+        const vNumber3 = Number(v23);
+        $(this).html(new Intl.NumberFormat("en-US").format(isNaN(vNumber3) ? 0 : vNumber3));
+      }
+    } catch (error) {
+      console.warn('Error en convertCurrency:', error);
+      $(this).html("0.00");
     }
   });
 }
@@ -723,6 +745,17 @@ async function startt() {
       });
       await createBm();
       v49.close();
+    } else if (v40 === "bm" && v39.bm?.createPixel?.value) {
+      // Función de crear píxeles
+      if (typeof handleCreatePixelProcess === 'function') {
+        await handleCreatePixelProcess();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'La función de crear píxeles no está disponible'
+        });
+      }
     } else if (v40 === "clone") {
       const v50 = Swal.fire({
         title: "Ejecutando...",

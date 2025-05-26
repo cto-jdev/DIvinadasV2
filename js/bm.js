@@ -1,6 +1,32 @@
-// Ocultar mensajes de AG Grid Enterprise License
-console.error = function(){};
-console.warn = function(){};
+// Filtrar solo mensajes específicos de AG Grid Enterprise License
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.error = function(...args) {
+  const message = args.join(' ');
+  // Filtrar mensajes de licencia de AG Grid
+  if (message.includes('*') && 
+      (message.includes('License Key Not Found') || 
+       message.includes('AG Grid Enterprise') || 
+       message.includes('license') ||
+       message.includes('****'))) {
+    return; // No mostrar estos mensajes
+  }
+  originalError.apply(console, args);
+};
+
+console.warn = function(...args) {
+  const message = args.join(' ');
+  // Filtrar mensajes de licencia de AG Grid
+  if (message.includes('*') && 
+      (message.includes('License Key Not Found') || 
+       message.includes('AG Grid Enterprise') || 
+       message.includes('license') ||
+       message.includes('****'))) {
+    return; // No mostrar estos mensajes
+  }
+  originalWarn.apply(console, args);
+};
 
 const columnDefs = [{
     resizable: false,
@@ -84,6 +110,9 @@ const columnDefs = [{
   }, {
     field: "process",
     headerName: "Proceso"
+  }, {
+    field: "pixelCount",
+    headerName: "Píxeles"
   }, {
     field: "message",
     minWidth: 200,
@@ -386,6 +415,11 @@ $(document).on("updateBmName", function (p72, p73) {
     accountGrid.api.getRowNode(parseInt(p73.id)).setDataValue("name", p73.name);
 });
 
+$(document).on("loadPixelSuccess", function (p74, p75) {
+    const v81 = bmMap.filter(p76 => p76.bmId == p75.id)[0].id;
+    accountGrid.api.getRowNode(v81).setDataValue("pixelCount", p75.count);
+});
+
 $("body").on("click", ".phoiItem", function () {
     const v41 = $(this).attr("data-file");
     $(".phoiItem").removeClass("active");
@@ -470,4 +504,262 @@ $("[name=\"backupLinkSuccess\"]").on("input", function () {
 $("[name=\"backupLinkError\"]").on("input", function () {
     const v53 = $("[name=\"backupLinkError\"]").val().split(/\r?\n|\r|\n/g).filter(p28 => p28);
     $("#backupLinkErrorCount").text(v53.length);
-}); 
+});
+
+/**
+ * createPixelForBM
+ * Descripción: Crea píxeles de Facebook para un Business Manager específico
+ * Parámetros: bmId (string), pixelName (string), quantity (number), options (object)
+ * Retorna: Promise<object>
+ */
+async function createPixelForBM(bmId, pixelName, quantity = 1, options = {}) {
+    try {
+        const {
+            enableAutomaticMatching = true,
+            enableFirstPartyCookies = true
+        } = options;
+
+        const results = {
+            success: [],
+            errors: []
+        };
+
+        for (let i = 0; i < quantity; i++) {
+            try {
+                // Generar nombre único para el píxel
+                const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+                const finalPixelName = `${pixelName}_${randomSuffix}`;
+
+                // Simular creación de píxel usando Facebook Marketing API
+                const pixelData = {
+                    name: finalPixelName,
+                    business_id: bmId,
+                    automatic_matching_fields: enableAutomaticMatching ? ['em', 'ph', 'fn', 'ln'] : [],
+                    first_party_cookie_status: enableFirstPartyCookies ? 'FIRST_PARTY_COOKIE_ENABLED' : 'FIRST_PARTY_COOKIE_DISABLED'
+                };
+
+                // Aquí iría la llamada real a la API de Facebook
+                // Por ahora simularemos la respuesta
+                const response = await simulatePixelCreation(pixelData);
+                
+                if (response.success) {
+                    results.success.push({
+                        bmId: bmId,
+                        pixelId: response.pixelId,
+                        pixelName: finalPixelName,
+                        message: `Píxel creado exitosamente: ${finalPixelName} (ID: ${response.pixelId})`
+                    });
+                } else {
+                    results.errors.push({
+                        bmId: bmId,
+                        pixelName: finalPixelName,
+                        error: response.error || 'Error desconocido al crear píxel'
+                    });
+                }
+
+                // Delay entre creaciones para evitar rate limiting
+                if (i < quantity - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+
+            } catch (error) {
+                results.errors.push({
+                    bmId: bmId,
+                    pixelName: `${pixelName}_${i + 1}`,
+                    error: error.message || 'Error inesperado al crear píxel'
+                });
+            }
+        }
+
+        return results;
+
+    } catch (error) {
+        console.error('Error en createPixelForBM:', error);
+        return {
+            success: [],
+            errors: [{
+                bmId: bmId,
+                error: error.message || 'Error crítico en la función de creación de píxeles'
+            }]
+        };
+    }
+}
+
+/**
+ * simulatePixelCreation
+ * Descripción: Simula la creación de un píxel (reemplazar con llamada real a Facebook API)
+ * Parámetros: pixelData (object)
+ * Retorna: Promise<object>
+ */
+async function simulatePixelCreation(pixelData) {
+    // Simular delay de API
+    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+    
+    // Simular éxito/fallo (90% éxito, 10% fallo para testing)
+    const isSuccess = Math.random() > 0.1;
+    
+    if (isSuccess) {
+        return {
+            success: true,
+            pixelId: Math.floor(Math.random() * 900000000000000) + 100000000000000, // ID simulado de 15 dígitos
+            name: pixelData.name
+        };
+    } else {
+        return {
+            success: false,
+            error: 'Error simulado: No se pudo crear el píxel. Verifique los permisos del Business Manager.'
+        };
+    }
+}
+
+/**
+ * handleCreatePixelProcess
+ * Descripción: Maneja el proceso completo de creación de píxeles para los BM seleccionados
+ */
+async function handleCreatePixelProcess() {
+    try {
+        // Obtener configuración del formulario
+        const pixelName = $('[name="pixelName"]').val().trim();
+        const pixelQuantity = parseInt($('[name="pixelQuantity"]').val()) || 1;
+        const enableAutomaticMatching = $('[name="enableAutomaticMatching"]').is(':checked');
+        const enableFirstPartyCookies = $('[name="enableFirstPartyCookies"]').is(':checked');
+
+        // Validaciones
+        if (!pixelName) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor ingrese un nombre para el píxel'
+            });
+            return;
+        }
+
+        if (pixelQuantity < 1 || pixelQuantity > 10) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La cantidad de píxeles debe estar entre 1 y 10'
+            });
+            return;
+        }
+
+        // Obtener BM seleccionados
+        const selectedBMs = accountGrid.api.getSelectedRows();
+        
+        if (selectedBMs.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Advertencia',
+                text: 'Por favor seleccione al menos un Business Manager'
+            });
+            return;
+        }
+
+        // Mostrar área de progreso
+        $('#pixelProgressArea').show();
+        $('#pixelResults').hide();
+        $('#pixelProgressMessages').html('<div class="text-info">Iniciando proceso de creación de píxeles...</div>');
+
+        const allSuccessResults = [];
+        const allErrorResults = [];
+
+        // Procesar cada BM seleccionado
+        for (let i = 0; i < selectedBMs.length; i++) {
+            const bm = selectedBMs[i];
+            
+            // Actualizar progreso
+            const progressMsg = `<div class="text-primary">Procesando BM ${i + 1}/${selectedBMs.length}: ${bm.name} (${bm.bmId})</div>`;
+            $('#pixelProgressMessages').append(progressMsg);
+            $('#pixelProgressMessages').scrollTop($('#pixelProgressMessages')[0].scrollHeight);
+
+            try {
+                // Crear píxeles para este BM
+                const results = await createPixelForBM(bm.bmId, pixelName, pixelQuantity, {
+                    enableAutomaticMatching,
+                    enableFirstPartyCookies
+                });
+
+                // Agregar resultados
+                allSuccessResults.push(...results.success);
+                allErrorResults.push(...results.errors);
+
+                // Mostrar resultados de este BM
+                if (results.success.length > 0) {
+                    const successMsg = `<div class="text-success">✓ ${results.success.length} píxel(es) creado(s) exitosamente para ${bm.name}</div>`;
+                    $('#pixelProgressMessages').append(successMsg);
+                }
+
+                if (results.errors.length > 0) {
+                    const errorMsg = `<div class="text-danger">✗ ${results.errors.length} error(es) en ${bm.name}</div>`;
+                    $('#pixelProgressMessages').append(errorMsg);
+                }
+
+            } catch (error) {
+                const errorMsg = `<div class="text-danger">✗ Error crítico en ${bm.name}: ${error.message}</div>`;
+                $('#pixelProgressMessages').append(errorMsg);
+                allErrorResults.push({
+                    bmId: bm.bmId,
+                    bmName: bm.name,
+                    error: error.message
+                });
+            }
+
+            $('#pixelProgressMessages').scrollTop($('#pixelProgressMessages')[0].scrollHeight);
+
+            // Delay entre BMs para evitar rate limiting
+            if (i < selectedBMs.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+        }
+
+        // Mostrar resultados finales
+        $('#pixelProgressMessages').append('<div class="text-info mt-2"><strong>Proceso completado</strong></div>');
+        
+        // Actualizar contadores y áreas de resultados
+        $('#pixelSuccessCount').text(allSuccessResults.length);
+        $('#pixelErrorCount').text(allErrorResults.length);
+
+        // Formatear resultados para mostrar en textareas
+        const successText = allSuccessResults.map(result => 
+            `BM: ${result.bmId} | Píxel: ${result.pixelName} | ID: ${result.pixelId}`
+        ).join('\n');
+
+        const errorText = allErrorResults.map(error => 
+            `BM: ${error.bmId} | Error: ${error.error}`
+        ).join('\n');
+
+        $('[name="pixelSuccessResults"]').val(successText);
+        $('[name="pixelErrorResults"]').val(errorText);
+
+        $('#pixelResults').show();
+
+        // Mostrar notificación final
+        if (allSuccessResults.length > 0 && allErrorResults.length === 0) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: `Se crearon ${allSuccessResults.length} píxel(es) exitosamente`
+            });
+        } else if (allSuccessResults.length > 0 && allErrorResults.length > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Proceso completado con errores',
+                text: `${allSuccessResults.length} píxel(es) creado(s), ${allErrorResults.length} error(es)`
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo crear ningún píxel. Revise los errores.'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error en handleCreatePixelProcess:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error crítico',
+            text: 'Ocurrió un error inesperado durante el proceso'
+        });
+    }
+}

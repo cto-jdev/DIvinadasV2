@@ -1,3 +1,33 @@
+// Filtrar mensajes de licencia de AG Grid Enterprise
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.error = function(...args) {
+  const message = args.join(' ');
+  // Filtrar mensajes de licencia de AG Grid
+  if (message.includes('*') && 
+      (message.includes('License Key Not Found') || 
+       message.includes('AG Grid Enterprise') || 
+       message.includes('license') ||
+       message.includes('****'))) {
+    return; // No mostrar estos mensajes
+  }
+  originalError.apply(console, args);
+};
+
+console.warn = function(...args) {
+  const message = args.join(' ');
+  // Filtrar mensajes de licencia de AG Grid
+  if (message.includes('*') && 
+      (message.includes('License Key Not Found') || 
+       message.includes('AG Grid Enterprise') || 
+       message.includes('license') ||
+       message.includes('****'))) {
+    return; // No mostrar estos mensajes
+  }
+  originalWarn.apply(console, args);
+};
+
 const columnDefs = [{
     resizable: false,
     headerCheckboxSelection: true,
@@ -374,8 +404,12 @@ const columnDefs = [{
     const v13 = document.querySelector("#accounts");
     try {
       const v14 = document.querySelector("#cards");
-      new agGrid.Grid(v14, cardGrid);
-    } catch {}
+      if (v14) {
+        new agGrid.Grid(v14, cardGrid);
+      }
+    } catch (error) {
+      console.warn('Error inicializando grilla de tarjetas:', error);
+    }
     new agGrid.Grid(v13, accountGrid);
     const v15 = JSON.parse(localStorage.getItem("stateAds")) || [];
     const v16 = {

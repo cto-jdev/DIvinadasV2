@@ -10,7 +10,8 @@ $(document).ready(async function () {
     const getUserId = () => {
         try {
             return window.fb?.uid || null;
-        } catch {
+        } catch (error) {
+            console.warn('Error obteniendo UID:', error);
             return null;
         }
     };
@@ -53,7 +54,8 @@ $(document).ready(async function () {
         if (typeof window.fb !== 'undefined' && window.fb && typeof window.fb.checkHiddenAdmin === 'function') {
           v14 = await window.fb.checkHiddenAdmin(p5.adId);
         }
-      } catch {
+      } catch (error) {
+        console.warn('Error verificando admin oculto:', error);
         v14 = [];
       }
       $("#t8").text(v14.length);
@@ -86,7 +88,9 @@ $(document).ready(async function () {
     const vSetInterval = setInterval(async () => {
       try {
         await vF5();
-      } catch {}
+      } catch (error) {
+        console.warn('Error en intervalo de verificación:', error);
+      }
     }, 5000);
     
     const vF5 = () => {
@@ -137,7 +141,7 @@ $(document).ready(async function () {
               }
             }
           } catch (e) {
-            // Error silencioso
+            console.warn('Error obteniendo información del usuario:', e);
           }
           
           // Si no funciona la API, usar datos básicos disponibles
@@ -196,7 +200,7 @@ $(document).ready(async function () {
         $('#userId').text(userInfo.id || 'No disponible').removeClass('d-none');
         
       } catch (e) {
-        // Error silencioso
+        console.warn('Error en displayUserProfile:', e);
       }
     };
     
@@ -344,7 +348,7 @@ $(document).ready(async function () {
         $("#adData").removeClass("d-none");
         
       } catch (e) {
-        // Error silencioso
+        console.warn('Error en displayAdsData:', e);
       }
     };
     
@@ -448,7 +452,7 @@ $(document).ready(async function () {
         }
         
       } catch (e) {
-        // Error silencioso
+        console.warn('Error en displayBmData:', e);
       }
     };
     
@@ -484,7 +488,7 @@ $(document).ready(async function () {
         $("#topPage").html(vLS5);
         
       } catch (e) {
-        // Error silencioso
+        console.warn('Error en displayPageData:', e);
       }
     };
     

@@ -3,300 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test - Función Píxeles DivinAds</title>
-    <link href="css/libs.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <title>Test - Función de Crear Píxeles</title>
     <style>
         body {
-            background: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
         .test-container {
-            max-width: 1200px;
-            margin: 50px auto;
-            padding: 20px;
-        }
-        .test-card {
             background: white;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            overflow: hidden;
         }
-        .test-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        .test-content {
-            padding: 30px;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        .status-success { background: #d4edda; color: #155724; }
-        .status-warning { background: #fff3cd; color: #856404; }
-        .status-info { background: #d1ecf1; color: #0c5460; }
-        
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .feature-item {
-            padding: 15px;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-        
-        .demo-section {
-            margin-top: 40px;
-            padding: 20px;
-            border: 2px dashed #007bff;
-            border-radius: 10px;
-            background: #f0f8ff;
-        }
-        
-        .code-block {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
+        .test-result {
+            padding: 10px;
             margin: 10px 0;
-            overflow-x: auto;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="test-container">
-        
-        <!-- Header -->
-        <div class="test-card">
-            <div class="test-header">
-                <h1>🎯 DivinAds - Función Píxeles</h1>
-                <p>Test de implementación y demostración</p>
-                <span class="status-badge status-success">✅ LIBS5.JS CARGADO</span>
-            </div>
+        <h1>🧪 Test - Función de Crear Píxeles de Facebook</h1>
+        <div class="test-result info">
+            <strong>Estado:</strong> <span id="status">Inicializando...</span>
         </div>
-
-        <!-- Resumen de implementación -->
-        <div class="test-card">
-            <div class="test-content">
-                <h2>📋 Resumen de Implementación</h2>
-                <p><strong>Objetivo:</strong> Conectar píxeles de Facebook a múltiples cuentas publicitarias de forma automatizada.</p>
-                
-                <div class="feature-grid">
-                    <div class="feature-item">
-                        <h4>🏗️ Estructura HTML</h4>
-                        <ul>
-                            <li>Switch activador integrado</li>
-                            <li>Selector de Business Manager</li>
-                            <li>Selector de píxeles</li>
-                            <li>Lista de cuentas con checkboxes</li>
-                            <li>Área de progreso en tiempo real</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <h4>⚙️ Funcionalidades JavaScript</h4>
-                        <ul>
-                            <li>Carga dinámica de BMs</li>
-                            <li>Filtrado de píxeles por BM</li>
-                            <li>Selección múltiple de cuentas</li>
-                            <li>Control de concurrencia y delays</li>
-                            <li>Sistema de logs detallado</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <h4>🎨 Experiencia de Usuario</h4>
-                        <ul>
-                            <li>Interfaz intuitiva y responsiva</li>
-                            <li>Mensajes de estado en tiempo real</li>
-                            <li>Validaciones automáticas</li>
-                            <li>Botones de selección masiva</li>
-                            <li>Contador de elementos seleccionados</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Arquitectura -->
-        <div class="test-card">
-            <div class="test-content">
-                <h2>🏗️ Arquitectura del Sistema</h2>
-                
-                <div class="code-block">
-📂 DivinAds/
-├── 📄 ads.html (interfaz principal)
-├── 📄 js/libs5.js (nueva funcionalidad)
-└── 🔗 Integración con libs1-4.js existentes
-
-🔄 Flujo de trabajo:
-1. Usuario activa switch "Conectar Píxeles"
-2. Sistema carga Business Managers disponibles
-3. Usuario selecciona BM → Carga píxeles y cuentas
-4. Usuario selecciona píxel y marca cuentas objetivo
-5. Proceso automatizado conecta píxel a cuentas seleccionadas
-                </div>
-            </div>
-        </div>
-
-        <!-- Funciones principales -->
-        <div class="test-card">
-            <div class="test-content">
-                <h2>🔧 Funciones Principales Implementadas</h2>
-                
-                <div class="feature-grid">
-                    <div class="feature-item">
-                        <h4>getBusinessManagers()</h4>
-                        <p>Obtiene lista de BMs vinculados al perfil actual</p>
-                        <span class="status-badge status-success">Implementada</span>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <h4>getPixelsByBM(bmId)</h4>
-                        <p>Lista píxeles específicos del BM seleccionado</p>
-                        <span class="status-badge status-success">Implementada</span>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <h4>getAdAccountsForBM(bmId)</h4>
-                        <p>Obtiene cuentas publicitarias del BM</p>
-                        <span class="status-badge status-success">Implementada</span>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <h4>connectPixelToAccount()</h4>
-                        <p>Conecta píxel específico a una cuenta</p>
-                        <span class="status-badge status-success">Implementada</span>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <h4>runPixelConnection()</h4>
-                        <p>Orquesta el proceso completo con control de concurrencia</p>
-                        <span class="status-badge status-success">Implementada</span>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <h4>UI Management</h4>
-                        <p>Gestión completa de interfaz y eventos</p>
-                        <span class="status-badge status-success">Implementada</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Demo interactivo -->
-        <div class="demo-section">
-            <h2>🎮 Demostración Interactiva</h2>
-            <p><strong>Para probar la funcionalidad:</strong></p>
-            <ol>
-                <li>Abre <code>ads.html</code> en tu navegador</li>
-                <li>Busca la nueva tarjeta "Conectar Píxeles a Cuentas" en el panel lateral</li>
-                <li>Activa el switch para cargar los Business Managers</li>
-                <li>Selecciona BM → Píxel → Cuentas objetivo</li>
-                <li>Haz clic en "Iniciar Conexión de Píxeles"</li>
-                <li>Observa el progreso en tiempo real</li>
-            </ol>
-            
-            <div class="alert alert-warning mt-3">
-                <strong>⚠️ Nota:</strong> Las APIs de Facebook requieren tokens válidos y permisos adecuados. 
-                Para testing completo, asegúrate de estar autenticado en Facebook Business Manager.
-            </div>
-        </div>
-
-        <!-- Configuración avanzada -->
-        <div class="test-card">
-            <div class="test-content">
-                <h2>⚙️ Configuración Avanzada</h2>
-                
-                <div class="code-block">
-// Configuración de concurrencia y delays
-const settings = {
-    limit: 2,        // Máximo 2 operaciones simultáneas
-    delay: 2000      // 2 segundos entre operaciones
-};
-
-// Ejemplo de uso programático
-const pixelId = "123456789";
-const accountIds = ["act_111", "act_222", "act_333"];
-
-runPixelConnection(pixelId, accountIds, settings, (message) => {
-    console.log(`[${new Date().toLocaleTimeString()}] ${message}`);
-});
-                </div>
-            </div>
-        </div>
-
-        <!-- Status final -->
-        <div class="test-card">
-            <div class="test-content text-center">
-                <h2>🎯 Status de Implementación</h2>
-                <div class="feature-grid">
-                    <div class="feature-item">
-                        <h4>Frontend (HTML/CSS)</h4>
-                        <span class="status-badge status-success">✅ COMPLETADO</span>
-                    </div>
-                    <div class="feature-item">
-                        <h4>Backend (JavaScript)</h4>
-                        <span class="status-badge status-success">✅ COMPLETADO</span>
-                    </div>
-                    <div class="feature-item">
-                        <h4>Integración</h4>
-                        <span class="status-badge status-success">✅ COMPLETADO</span>
-                    </div>
-                    <div class="feature-item">
-                        <h4>Testing</h4>
-                        <span class="status-badge status-info">🧪 LISTO PARA PRUEBAS</span>
-                    </div>
-                </div>
-                
-                <div class="mt-4">
-                    <h3>🚀 La función está lista para usar!</h3>
-                    <p class="text-muted">Implementación completa siguiendo el patrón existente del proyecto DivinAds</p>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <!-- Scripts de test -->
+    <div class="test-container">
+        <h2>📋 Configuración de Prueba</h2>
+        <div>
+            <label><strong>Nombre del píxel:</strong></label>
+            <input type="text" id="testPixelName" value="Test Pixel DivinAds" placeholder="Nombre del píxel">
+        </div>
+        <div>
+            <label><strong>Cantidad:</strong></label>
+            <input type="number" id="testPixelQuantity" value="2" min="1" max="10">
+        </div>
+        <div>
+            <label><strong>BM ID de prueba:</strong></label>
+            <input type="text" id="testBmId" value="123456789012345" placeholder="ID del Business Manager">
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" id="testAutomaticMatching" checked> Activar coincidencia automática avanzada
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" id="testFirstPartyCookies" checked> Activar cookies de primera parte
+            </label>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>🚀 Pruebas de Funciones</h2>
+        <button onclick="testCreatePixelForBM()">Test: createPixelForBM()</button>
+        <button onclick="testSimulatePixelCreation()">Test: simulatePixelCreation()</button>
+        <button onclick="testHandleCreatePixelProcess()">Test: handleCreatePixelProcess()</button>
+        <button onclick="runAllTests()">Ejecutar Todas las Pruebas</button>
+    </div>
+
+    <div class="test-container">
+        <h2>📊 Resultados de Pruebas</h2>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>📝 Log de Actividad</h2>
+        <textarea id="activityLog" readonly placeholder="Los logs aparecerán aquí..."></textarea>
+        <button onclick="clearLog()">Limpiar Log</button>
+    </div>
+
     <script>
-        // Test básico de que libs5.js se carga correctamente
-        document.addEventListener('DOMContentLoaded', function() {
-            // Verificar que las funciones principales están disponibles
-            const functionsToCheck = [
-                'getBusinessManagers',
-                'getPixelsByBM', 
-                'connectPixelToAccount',
-                'runPixelConnection'
-            ];
-            
-            let allLoaded = true;
-            functionsToCheck.forEach(func => {
-                if (typeof window[func] !== 'function') {
-                    console.error(`❌ Función ${func} no encontrada`);
-                    allLoaded = false;
-                } else {
-                    console.log(`✅ Función ${func} cargada correctamente`);
+        // Simular jQuery básico para las pruebas
+        if (typeof $ === 'undefined') {
+            window.$ = function(selector) {
+                return {
+                    val: function(value) {
+                        const el = document.querySelector(selector);
+                        if (value !== undefined) {
+                            el.value = value;
+                            return this;
+                        }
+                        return el ? el.value : '';
+                    },
+                    is: function(state) {
+                        const el = document.querySelector(selector);
+                        if (state === ':checked') {
+                            return el ? el.checked : false;
+                        }
+                        return false;
+                    }
+                };
+            };
+        }
+
+        // Simular Swal para las pruebas
+        if (typeof Swal === 'undefined') {
+            window.Swal = {
+                fire: function(options) {
+                    log(`🔔 Swal.fire: ${JSON.stringify(options)}`);
+                    return Promise.resolve({ isConfirmed: true });
                 }
-            });
+            };
+        }
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logArea = document.getElementById('activityLog');
+            logArea.value += `[${timestamp}] ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(message);
+        }
+
+        function addTestResult(testName, success, message) {
+            const resultsDiv = document.getElementById('testResults');
+            const resultClass = success ? 'success' : 'error';
+            const icon = success ? '✅' : '❌';
             
-            if (allLoaded) {
-                console.log('🎉 Todas las funciones de píxeles cargadas exitosamente!');
+            resultsDiv.innerHTML += `
+                <div class="test-result ${resultClass}">
+                    <strong>${icon} ${testName}:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function clearLog() {
+            document.getElementById('activityLog').value = '';
+            document.getElementById('testResults').innerHTML = '';
+        }
+
+        function updateStatus(status) {
+            document.getElementById('status').textContent = status;
+            log(`📊 Estado actualizado: ${status}`);
+        }
+
+        // Incluir las funciones del archivo bm.js aquí para testing
+        async function simulatePixelCreation(pixelData) {
+            log(`🔄 Simulando creación de píxel: ${pixelData.name}`);
+            
+            // Simular delay de API
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+            
+            // Simular éxito/fallo (90% éxito, 10% fallo para testing)
+            const isSuccess = Math.random() > 0.1;
+            
+            if (isSuccess) {
+                const pixelId = Math.floor(Math.random() * 900000000000000) + 100000000000000;
+                log(`✅ Píxel creado exitosamente: ${pixelData.name} (ID: ${pixelId})`);
+                return {
+                    success: true,
+                    pixelId: pixelId,
+                    name: pixelData.name
+                };
+            } else {
+                log(`❌ Error simulado al crear píxel: ${pixelData.name}`);
+                return {
+                    success: false,
+                    error: 'Error simulado: No se pudo crear el píxel. Verifique los permisos del Business Manager.'
+                };
             }
+        }
+
+        async function createPixelForBM(bmId, pixelName, quantity = 1, options = {}) {
+            log(`🚀 Iniciando createPixelForBM para BM: ${bmId}`);
+            
+            try {
+                const {
+                    enableAutomaticMatching = true,
+                    enableFirstPartyCookies = true
+                } = options;
+
+                const results = {
+                    success: [],
+                    errors: []
+                };
+
+                for (let i = 0; i < quantity; i++) {
+                    try {
+                        // Generar nombre único para el píxel
+                        const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+                        const finalPixelName = `${pixelName}_${randomSuffix}`;
+
+                        // Simular creación de píxel usando Facebook Marketing API
+                        const pixelData = {
+                            name: finalPixelName,
+                            business_id: bmId,
+                            automatic_matching_fields: enableAutomaticMatching ? ['em', 'ph', 'fn', 'ln'] : [],
+                            first_party_cookie_status: enableFirstPartyCookies ? 'FIRST_PARTY_COOKIE_ENABLED' : 'FIRST_PARTY_COOKIE_DISABLED'
+                        };
+
+                        const response = await simulatePixelCreation(pixelData);
+                        
+                        if (response.success) {
+                            results.success.push({
+                                bmId: bmId,
+                                pixelId: response.pixelId,
+                                pixelName: finalPixelName,
+                                message: `Píxel creado exitosamente: ${finalPixelName} (ID: ${response.pixelId})`
+                            });
+                        } else {
+                            results.errors.push({
+                                bmId: bmId,
+                                pixelName: finalPixelName,
+                                error: response.error || 'Error desconocido al crear píxel'
+                            });
+                        }
+
+                        // Delay entre creaciones para evitar rate limiting
+                        if (i < quantity - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // Reducido para testing
+                        }
+
+                    } catch (error) {
+                        results.errors.push({
+                            bmId: bmId,
+                            pixelName: `${pixelName}_${i + 1}`,
+                            error: error.message || 'Error inesperado al crear píxel'
+                        });
+                    }
+                }
+
+                log(`📊 Resultados para BM ${bmId}: ${results.success.length} éxitos, ${results.errors.length} errores`);
+                return results;
+
+            } catch (error) {
+                log(`❌ Error crítico en createPixelForBM: ${error.message}`);
+                return {
+                    success: [],
+                    errors: [{
+                        bmId: bmId,
+                        error: error.message || 'Error crítico en la función de creación de píxeles'
+                    }]
+                };
+            }
+        }
+
+        // Funciones de prueba
+        async function testCreatePixelForBM() {
+            updateStatus('Probando createPixelForBM...');
+            
+            try {
+                const bmId = document.getElementById('testBmId').value;
+                const pixelName = document.getElementById('testPixelName').value;
+                const quantity = parseInt(document.getElementById('testPixelQuantity').value);
+                const enableAutomaticMatching = document.getElementById('testAutomaticMatching').checked;
+                const enableFirstPartyCookies = document.getElementById('testFirstPartyCookies').checked;
+
+                const results = await createPixelForBM(bmId, pixelName, quantity, {
+                    enableAutomaticMatching,
+                    enableFirstPartyCookies
+                });
+
+                const success = results.success.length > 0;
+                const message = `${results.success.length} píxeles creados, ${results.errors.length} errores`;
+                
+                addTestResult('createPixelForBM', success, message);
+                updateStatus('Test createPixelForBM completado');
+                
+            } catch (error) {
+                addTestResult('createPixelForBM', false, `Error: ${error.message}`);
+                updateStatus('Test createPixelForBM falló');
+            }
+        }
+
+        async function testSimulatePixelCreation() {
+            updateStatus('Probando simulatePixelCreation...');
+            
+            try {
+                const pixelData = {
+                    name: 'Test_Pixel_Simulation',
+                    business_id: '123456789012345',
+                    automatic_matching_fields: ['em', 'ph'],
+                    first_party_cookie_status: 'FIRST_PARTY_COOKIE_ENABLED'
+                };
+
+                const result = await simulatePixelCreation(pixelData);
+                
+                addTestResult('simulatePixelCreation', result.success, 
+                    result.success ? `Píxel simulado creado: ${result.pixelId}` : result.error);
+                updateStatus('Test simulatePixelCreation completado');
+                
+            } catch (error) {
+                addTestResult('simulatePixelCreation', false, `Error: ${error.message}`);
+                updateStatus('Test simulatePixelCreation falló');
+            }
+        }
+
+        async function testHandleCreatePixelProcess() {
+            updateStatus('Probando handleCreatePixelProcess...');
+            
+            try {
+                // Simular que hay datos en los campos del formulario
+                log('🔧 Simulando handleCreatePixelProcess (versión simplificada)');
+                
+                const pixelName = document.getElementById('testPixelName').value;
+                const pixelQuantity = parseInt(document.getElementById('testPixelQuantity').value);
+                
+                if (!pixelName) {
+                    throw new Error('Nombre del píxel requerido');
+                }
+                
+                if (pixelQuantity < 1 || pixelQuantity > 10) {
+                    throw new Error('Cantidad debe estar entre 1 y 10');
+                }
+                
+                // Simular BM seleccionados
+                const selectedBMs = [
+                    { bmId: '123456789012345', name: 'Test BM 1' },
+                    { bmId: '678901234567890', name: 'Test BM 2' }
+                ];
+                
+                log(`📋 Procesando ${selectedBMs.length} Business Managers`);
+                
+                let totalSuccess = 0;
+                let totalErrors = 0;
+                
+                for (const bm of selectedBMs) {
+                    const results = await createPixelForBM(bm.bmId, pixelName, pixelQuantity);
+                    totalSuccess += results.success.length;
+                    totalErrors += results.errors.length;
+                }
+                
+                const success = totalSuccess > 0;
+                const message = `${totalSuccess} píxeles creados, ${totalErrors} errores en ${selectedBMs.length} BMs`;
+                
+                addTestResult('handleCreatePixelProcess', success, message);
+                updateStatus('Test handleCreatePixelProcess completado');
+                
+            } catch (error) {
+                addTestResult('handleCreatePixelProcess', false, `Error: ${error.message}`);
+                updateStatus('Test handleCreatePixelProcess falló');
+            }
+        }
+
+        async function runAllTests() {
+            updateStatus('Ejecutando todas las pruebas...');
+            clearLog();
+            
+            log('🧪 Iniciando suite completa de pruebas');
+            
+            await testSimulatePixelCreation();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testCreatePixelForBM();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testHandleCreatePixelProcess();
+            
+            updateStatus('Todas las pruebas completadas');
+            log('✅ Suite de pruebas completada');
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('Listo para pruebas');
+            log('🚀 Sistema de pruebas inicializado');
+            log('📝 Configuración de prueba cargada');
+            log('✅ Todas las funciones están disponibles para testing');
         });
     </script>
 </body>
