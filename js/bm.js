@@ -424,9 +424,49 @@ $(document).on("updateBmName", function (p72, p73) {
     accountGrid.api.getRowNode(parseInt(p73.id)).setDataValue("name", p73.name);
 });
 
-$(document).on("loadPixelSuccess", function (p74, p75) {
-    const v81 = bmMap.filter(p76 => p76.bmId == p75.id)[0].id;
-    accountGrid.api.getRowNode(v81).setDataValue("pixelCount", p75.count);
+$(document).on("loadPixelSuccess", function (event, data) {
+    try {
+        console.log(`📊 Píxeles cargados exitosamente para BM ${data.id}: ${data.count} (método: ${data.method || 'unknown'})`);
+        
+        // Actualizar grilla usando bmMap si está disponible
+        if (typeof bmMap !== 'undefined' && bmMap.length > 0) {
+            const bmMapEntry = bmMap.filter(bm => bm.bmId == data.id);
+            if (bmMapEntry.length > 0 && typeof accountGrid !== 'undefined' && accountGrid.api) {
+                const rowNode = accountGrid.api.getRowNode(bmMapEntry[0].id);
+                if (rowNode) {
+                    rowNode.setDataValue("pixelCount", data.count);
+                    console.log(`🔄 Grilla actualizada para BM ${data.id} usando bmMap`);
+                } else {
+                    console.warn(`⚠️ No se encontró rowNode para ID ${bmMapEntry[0].id}`);
+                }
+            }
+        } else {
+            // Fallback: buscar directamente en la grilla
+            if (typeof accountGrid !== 'undefined' && accountGrid.api) {
+                let targetRowNode = null;
+                accountGrid.api.forEachNode(node => {
+                    if (node.data && node.data.bmId === data.id) {
+                        targetRowNode = node;
+                    }
+                });
+                
+                if (targetRowNode) {
+                    targetRowNode.setDataValue("pixelCount", data.count);
+                    console.log(`🔄 Grilla actualizada para BM ${data.id} usando búsqueda directa`);
+                } else {
+                    console.warn(`⚠️ No se encontró rowNode para BM ${data.id}`);
+                }
+            }
+        }
+        
+        // Limpiar cache expirado automáticamente cada cierto tiempo
+        if (Math.random() < 0.1) { // 10% probabilidad de limpieza automática
+            cleanExpiredPixelCache();
+        }
+        
+    } catch (error) {
+        console.error('❌ Error en callback loadPixelSuccess:', error);
+    }
 });
 
 // Evento para actualizar mensajes de progreso en la columna del BM
@@ -538,6 +578,9 @@ $("#reloadPixelCounts").click(async function() {
     const button = $(this);
     const originalText = button.html();
     
+    // Limpiar cache antes de la recarga
+    clearPixelCache();
+    
     try {
         // Deshabilitar botón y mostrar loading
         button.prop('disabled', true);
@@ -550,7 +593,7 @@ $("#reloadPixelCounts").click(async function() {
                 allBMs.push({
                     bmId: node.data.bmId,
                     rowId: node.data.id,
-                    name: node.data.name
+                    name: node.data.name || `BM-${node.data.bmId.substring(0, 8)}`
                 });
             }
         });
@@ -565,10 +608,59 @@ $("#reloadPixelCounts").click(async function() {
             return;
         }
         
-        // Mostrar progreso
+        // Preguntar por modo de procesamiento
+        const modeResult = await Swal.fire({
+            title: '🚀 Modo de procesamiento',
+            html: `
+                <div style="text-align: left; margin: 20px 0;">
+                    <p><strong>Seleccione el modo de procesamiento:</strong></p>
+                    <div style="margin: 15px 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="processMode" value="parallel" checked>
+                            <span><strong>🏃‍♂️ Paralelo</strong> - Más rápido (recomendado)</span>
+                        </label>
+                        <small style="color: #666; margin-left: 24px;">Procesa múltiples BMs simultáneamente</small>
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="processMode" value="sequential">
+                            <span><strong>🚶‍♂️ Secuencial</strong> - Más seguro</span>
+                        </label>
+                        <small style="color: #666; margin-left: 24px;">Procesa un BM a la vez</small>
+                    </div>
+                </div>
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                    <small>📊 ${allBMs.length} Business Managers detectados</small>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Comenzar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                const selectedMode = document.querySelector('input[name="processMode"]:checked');
+                return selectedMode ? selectedMode.value : 'parallel';
+            }
+        });
+        
+        if (!modeResult.isConfirmed) {
+            return;
+        }
+        
+        const isParallel = modeResult.value === 'parallel';
+        console.log(`🚀 Iniciando recarga de píxeles para ${allBMs.length} BMs (modo: ${isParallel ? 'paralelo' : 'secuencial'})`);
+        
+        // Mostrar progreso mejorado
         const progressSwal = Swal.fire({
-            title: 'Cargando píxeles',
-            html: `Procesando 0/${allBMs.length} Business Managers...`,
+            title: '🔄 Cargando píxeles',
+            html: `
+                <div style="text-align: left;">
+                    <div>📋 Modo: ${isParallel ? 'Paralelo 🏃‍♂️' : 'Secuencial 🚶‍♂️'}</div>
+                    <div>📊 Progreso: 0/${allBMs.length}</div>
+                    <div>🎯 Píxeles encontrados: 0</div>
+                    <div>💾 Cache: ${pixelCache.size} entradas</div>
+                </div>
+            `,
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
@@ -577,54 +669,141 @@ $("#reloadPixelCounts").click(async function() {
         
         let processed = 0;
         let totalPixels = 0;
+        let errors = 0;
+        const startTime = Date.now();
         
-        // Procesar cada BM con delay para evitar sobrecarga
-        for (const bm of allBMs) {
-            try {
-                console.log(`🔄 Recargando píxeles para: ${bm.name} (${bm.bmId})`);
+        if (isParallel) {
+            // Procesamiento en paralelo con lotes de 5 BMs
+            const batchSize = 5;
+            const batches = [];
+            
+            for (let i = 0; i < allBMs.length; i += batchSize) {
+                batches.push(allBMs.slice(i, i + batchSize));
+            }
+            
+            for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+                const batch = batches[batchIndex];
                 
-                const pixelCount = await loadPixelCountForBM(bm.bmId, bm.rowId);
-                totalPixels += pixelCount;
-                processed++;
-                
-                // Actualizar progreso
                 progressSwal.update({
-                    html: `Procesando ${processed}/${allBMs.length} Business Managers...<br><small>Último: ${bm.name} → ${pixelCount} píxeles</small>`
+                    html: `
+                        <div style="text-align: left;">
+                            <div>📋 Modo: Paralelo 🏃‍♂️ (Lote ${batchIndex + 1}/${batches.length})</div>
+                            <div>📊 Progreso: ${processed}/${allBMs.length}</div>
+                            <div>🎯 Píxeles: ${totalPixels}</div>
+                            ${errors > 0 ? `<div style="color: #dc3545;">❌ Errores: ${errors}</div>` : ''}
+                            <div>💾 Cache: ${pixelCache.size} entradas</div>
+                            <div style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                                Procesando: ${batch.map(bm => bm.name.substring(0, 15)).join(', ')}
+                            </div>
+                        </div>
+                    `
                 });
                 
-                // Delay entre requests para evitar rate limiting
-                if (processed < allBMs.length) {
-                    await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+                // Procesar lote en paralelo
+                const batchPromises = batch.map(async (bm) => {
+                    try {
+                        const pixelCount = await loadPixelCountForBM(bm.bmId, bm.rowId);
+                        return { success: true, bm, pixelCount };
+                    } catch (error) {
+                        console.error(`Error procesando BM ${bm.bmId}:`, error);
+                        return { success: false, bm, error: error.message };
+                    }
+                });
+                
+                const batchResults = await Promise.allSettled(batchPromises);
+                
+                // Procesar resultados del lote
+                for (const result of batchResults) {
+                    if (result.status === 'fulfilled' && result.value.success) {
+                        totalPixels += result.value.pixelCount;
+                    } else {
+                        errors++;
+                    }
+                    processed++;
                 }
                 
-            } catch (error) {
-                console.error(`Error procesando BM ${bm.bmId}:`, error);
-                processed++;
+                // Delay entre lotes para evitar sobrecargar
+                if (batchIndex < batches.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
+            }
+        } else {
+            // Procesamiento secuencial mejorado
+            for (const bm of allBMs) {
+                try {
+                    progressSwal.update({
+                        html: `
+                            <div style="text-align: left;">
+                                <div>📋 Modo: Secuencial 🚶‍♂️</div>
+                                <div>📊 Progreso: ${processed}/${allBMs.length}</div>
+                                <div>🎯 Píxeles: ${totalPixels}</div>
+                                ${errors > 0 ? `<div style="color: #dc3545;">❌ Errores: ${errors}</div>` : ''}
+                                <div>💾 Cache: ${pixelCache.size} entradas</div>
+                                <div style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                                    Actual: ${bm.name}
+                                </div>
+                            </div>
+                        `
+                    });
+                    
+                    const pixelCount = await loadPixelCountForBM(bm.bmId, bm.rowId);
+                    totalPixels += pixelCount;
+                    processed++;
+                    
+                    // Delay adaptativo basado en el resultado
+                    const delay = pixelCount > 0 ? 1200 : 800; // Menos delay si no encontró píxeles
+                    if (processed < allBMs.length) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                    
+                } catch (error) {
+                    console.error(`Error procesando BM ${bm.bmId}:`, error);
+                    errors++;
+                    processed++;
+                }
             }
         }
         
         progressSwal.close();
         
-        // Mostrar resultado final
+        const endTime = Date.now();
+        const duration = Math.round((endTime - startTime) / 1000);
+        
+        // Mostrar resultado final mejorado
         Swal.fire({
-            icon: 'success',
-            title: '¡Píxeles actualizados!',
+            icon: errors === 0 ? 'success' : 'warning',
+            title: errors === 0 ? '🎉 ¡Píxeles actualizados!' : '⚠️ ¡Completado con errores!',
             html: `
-                <div class="text-start">
-                    <p><strong>Procesados:</strong> ${processed}/${allBMs.length} Business Managers</p>
-                    <p><strong>Total de píxeles encontrados:</strong> ${totalPixels}</p>
-                    <p class="text-muted small">Los números se han actualizado en la tabla</p>
+                <div style="text-align: left; max-width: 400px; margin: 0 auto;">
+                    <h6>📊 Estadísticas del proceso:</h6>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <div><strong>✅ Procesados:</strong> ${processed}/${allBMs.length}</div>
+                        <div><strong>🎯 Píxeles encontrados:</strong> ${totalPixels}</div>
+                        ${errors > 0 ? `<div style="color: #dc3545;"><strong>❌ Errores:</strong> ${errors}</div>` : ''}
+                        <div><strong>⏱️ Duración:</strong> ${duration}s</div>
+                        <div><strong>🏃‍♂️ Modo:</strong> ${isParallel ? 'Paralelo' : 'Secuencial'}</div>
+                        <div><strong>💾 Cache:</strong> ${pixelCache.size} entradas guardadas</div>
+                    </div>
+                    <div style="font-size: 0.85em; color: #666;">
+                        💡 <strong>Optimizaciones aplicadas:</strong><br>
+                        • Cache inteligente (TTL: 5 min)<br>
+                        • Validación mejorada de píxeles<br>
+                        • Retry automático con backoff<br>
+                        • Detección múltiple de patrones<br>
+                        ${isParallel ? '• Procesamiento en paralelo' : '• Procesamiento secuencial seguro'}
+                    </div>
                 </div>
             `,
-            confirmButtonText: 'Cerrar'
+            confirmButtonText: 'Cerrar',
+            width: '600px'
         });
         
     } catch (error) {
         console.error('Error recargando píxeles:', error);
         Swal.fire({
             icon: 'error',
-            title: 'Error',
-            text: 'Ocurrió un error al recargar los píxeles: ' + error.message,
+            title: 'Error crítico',
+            text: 'Ocurrió un error inesperado al recargar los píxeles: ' + error.message,
             confirmButtonText: 'Cerrar'
         });
     } finally {
@@ -900,15 +1079,224 @@ class FacebookPixelCreator {
     }
 }
 
+// Cache global para píxeles con TTL de 5 minutos
+const pixelCache = new Map();
+const PIXEL_CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+/**
+ * clearPixelCache
+ * Descripción: Limpia el cache de píxeles
+ */
+function clearPixelCache() {
+    pixelCache.clear();
+    console.log('🧹 Cache de píxeles limpiado');
+}
+
+/**
+ * getPixelCacheStats
+ * Descripción: Obtiene estadísticas del cache de píxeles
+ * Retorna: object
+ */
+function getPixelCacheStats() {
+    const now = Date.now();
+    let validEntries = 0;
+    let expiredEntries = 0;
+    let totalPixels = 0;
+    
+    for (const [bmId, data] of pixelCache.entries()) {
+        if ((now - data.timestamp) < PIXEL_CACHE_TTL) {
+            validEntries++;
+            totalPixels += data.count;
+        } else {
+            expiredEntries++;
+        }
+    }
+    
+    return {
+        total: pixelCache.size,
+        valid: validEntries,
+        expired: expiredEntries,
+        totalPixels: totalPixels,
+        ttlMinutes: Math.round(PIXEL_CACHE_TTL / 60000)
+    };
+}
+
+/**
+ * cleanExpiredPixelCache
+ * Descripción: Limpia las entradas expiradas del cache
+ */
+function cleanExpiredPixelCache() {
+    const now = Date.now();
+    let cleaned = 0;
+    
+    for (const [bmId, data] of pixelCache.entries()) {
+        if ((now - data.timestamp) >= PIXEL_CACHE_TTL) {
+            pixelCache.delete(bmId);
+            cleaned++;
+        }
+    }
+    
+    if (cleaned > 0) {
+        console.log(`🧹 Cache limpiado: ${cleaned} entradas expiradas eliminadas`);
+    }
+    
+    return cleaned;
+}
+
+// Task scheduler para limpieza automática del cache cada 10 minutos
+setInterval(() => {
+    const cleaned = cleanExpiredPixelCache();
+    if (cleaned > 0) {
+        console.log(`🔄 Limpieza automática del cache completada: ${cleaned} entradas eliminadas`);
+    }
+}, 10 * 60 * 1000); // 10 minutos
+
+// Funciones globales para debugging y utilidades (disponibles en window)
+window.DivinAdsPixelUtils = {
+    // Cache management
+    clearCache: clearPixelCache,
+    getCacheStats: getPixelCacheStats,
+    cleanExpired: cleanExpiredPixelCache,
+    
+    // Pixel counting
+    getPixelCount: getPixelCountForBM,
+    loadPixelCount: loadPixelCountForBM,
+    
+    // Debug functions
+    debugBM: function(bmId) {
+        console.log(`🔍 Debugging BM: ${bmId}`);
+        const cached = getCachedPixelCount(bmId);
+        console.log(`💾 Cache:`, cached !== null ? `${cached} píxeles` : 'No encontrado');
+        
+        return loadPixelCountForBM(bmId, null).then(count => {
+            console.log(`🎯 Resultado final: ${count} píxeles`);
+            return count;
+        });
+    },
+    
+    showCacheStats: function() {
+        const stats = getPixelCacheStats();
+        console.table(stats);
+        console.log(`📊 Cache Stats:`, stats);
+        return stats;
+    },
+    
+    testPixelDetection: function(bmId) {
+        console.log(`🧪 Probando todos los métodos de detección para BM: ${bmId}`);
+        
+        const methods = [
+            { name: 'Principal', fn: () => getPixelCountForBM(bmId) },
+            { name: 'GraphQL', fn: () => getPixelCountViaGraphQL(bmId) },
+            { name: 'Acceso Directo', fn: () => getPixelCountDirectAccess(bmId) },
+            { name: 'Extensión', fn: () => getPixelCountViaExtension(bmId) }
+        ];
+        
+        return Promise.all(
+            methods.map(async method => {
+                try {
+                    const result = await method.fn();
+                    console.log(`✅ ${method.name}: ${result} píxeles`);
+                    return { method: method.name, result, success: true };
+                } catch (error) {
+                    console.error(`❌ ${method.name}: ${error.message}`);
+                    return { method: method.name, error: error.message, success: false };
+                }
+            })
+        ).then(results => {
+            console.table(results);
+            return results;
+        });
+    }
+};
+
+// Log de inicialización
+console.log('🚀 DivinAds Pixel System Mejorado - Inicializado');
+console.log('💡 Funciones disponibles en window.DivinAdsPixelUtils:');
+console.log('   - clearCache(): Limpiar cache');
+console.log('   - getCacheStats(): Ver estadísticas del cache');
+console.log('   - debugBM(bmId): Debug de un BM específico');
+console.log('   - testPixelDetection(bmId): Probar todos los métodos');
+
+/**
+ * getCachedPixelCount
+ * Descripción: Obtiene el conteo de píxeles del cache si está disponible y válido
+ * Parámetros: businessId (string)
+ * Retorna: number|null
+ */
+function getCachedPixelCount(businessId) {
+    const cached = pixelCache.get(businessId);
+    if (cached && (Date.now() - cached.timestamp) < PIXEL_CACHE_TTL) {
+        console.log(`💾 Cache hit para BM ${businessId}: ${cached.count} píxeles`);
+        return cached.count;
+    }
+    return null;
+}
+
+/**
+ * setCachedPixelCount
+ * Descripción: Almacena el conteo de píxeles en cache
+ * Parámetros: businessId (string), count (number)
+ */
+function setCachedPixelCount(businessId, count) {
+    pixelCache.set(businessId, {
+        count: count,
+        timestamp: Date.now()
+    });
+}
+
+/**
+ * validatePixelData
+ * Descripción: Valida y filtra datos de píxeles para evitar duplicados y falsos positivos
+ * Parámetros: pixelData (array), method (string)
+ * Retorna: object
+ */
+function validatePixelData(pixelData, method = 'unknown') {
+    if (!Array.isArray(pixelData)) {
+        return { count: 0, pixels: [], method };
+    }
+    
+    // Filtros mejorados para píxeles reales
+    const validPixels = pixelData.filter(pixel => {
+        if (typeof pixel === 'string') {
+            // Para nombres de píxeles
+            return pixel.length >= 3 && 
+                   !pixel.match(/^(XL|[0-9]+[A-Z]?|Overview|Details|Manual|Code|Is|limit|setup|on|manually|only|code|details|via|status|tab|in|to|events|audiences|users|performance|create|new|add|install|configure|verify|test|debug|help|info|settings|privacy|terms|policy|facebook|meta|pixel|google|android|ios|windows|mac|linux|chrome|firefox|safari|edge|opera|browser|device|mobile|tablet|desktop|laptop|pc|app|web|site|page|domain|url|link|button|click|view|visit)$/i) &&
+                   pixel.match(/^[A-Z][A-Z0-9_\-\s]{2,}$/i);
+        } else if (typeof pixel === 'object' && pixel.id) {
+            // Para objetos con ID
+            return pixel.id.match(/^\d{15,}$/) && pixel.id.length >= 15 && pixel.id.length <= 20;
+        }
+        return false;
+    });
+    
+    // Deduplicar píxeles únicos
+    const uniquePixels = [...new Set(validPixels.map(p => 
+        typeof p === 'string' ? p.trim() : p.id
+    ))];
+    
+    return {
+        count: uniquePixels.length,
+        pixels: uniquePixels,
+        method: method,
+        filteredOut: pixelData.length - validPixels.length
+    };
+}
+
 /**
  * getPixelCountForBM
- * Descripción: Obtiene el número de píxeles de un Business Manager
+ * Descripción: Obtiene el número de píxeles de un Business Manager con mejoras en detección y cache
  * Parámetros: businessId (string)
  * Retorna: Promise<number>
  */
 async function getPixelCountForBM(businessId) {
     try {
         console.log(`📊 Obteniendo píxeles para BM: ${businessId}`);
+        
+        // Verificar cache primero
+        const cachedCount = getCachedPixelCount(businessId);
+        if (cachedCount !== null) {
+            return cachedCount;
+        }
         
         // Verificar que fetch2 esté disponible
         if (typeof fetch2 !== 'function') {
@@ -920,7 +1308,9 @@ async function getPixelCountForBM(businessId) {
             method: 'GET',
             headers: {
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
+                'accept-language': 'es-ES,es;q=0.9,en;q=0.8',
+                'cache-control': 'no-cache',
+                'pragma': 'no-cache'
             }
         });
         
@@ -937,76 +1327,88 @@ async function getPixelCountForBM(businessId) {
                 data = JSON.parse(cleanText);
             }
             
-            // Buscar píxeles en diferentes estructuras de respuesta
-            let pixelCount = 0;
+            let bestResult = { count: 0, pixels: [], method: 'none' };
             
-            // Método 1: Buscar en payload.datasets
-            if (data.payload && data.payload.datasets) {
-                pixelCount = data.payload.datasets.length;
-                console.log(`✅ Encontrados ${pixelCount} píxeles en payload.datasets`);
-                return pixelCount;
+            // Método 1: Buscar en payload.datasets (más confiable)
+            if (data.payload && data.payload.datasets && Array.isArray(data.payload.datasets)) {
+                const datasets = data.payload.datasets.filter(dataset => 
+                    dataset && (dataset.id || dataset.dataset_id || dataset.name)
+                );
+                const validated = validatePixelData(datasets, 'payload.datasets');
+                if (validated.count > bestResult.count) {
+                    bestResult = validated;
+                    console.log(`✅ Método payload.datasets: ${validated.count} píxeles válidos (filtrados: ${validated.filteredOut})`);
+                }
             }
             
             // Método 2: Buscar en jsmods.require
             if (data.jsmods && data.jsmods.require) {
                 for (const mod of data.jsmods.require) {
-                    if (mod[3] && mod[3][0] && mod[3][0].datasets) {
-                        pixelCount = mod[3][0].datasets.length;
-                        console.log(`✅ Encontrados ${pixelCount} píxeles en jsmods.require`);
-                        return pixelCount;
+                    if (mod[3] && mod[3][0] && mod[3][0].datasets && Array.isArray(mod[3][0].datasets)) {
+                        const datasets = mod[3][0].datasets;
+                        const validated = validatePixelData(datasets, 'jsmods.require');
+                        if (validated.count > bestResult.count) {
+                            bestResult = validated;
+                            console.log(`✅ Método jsmods.require: ${validated.count} píxeles válidos (filtrados: ${validated.filteredOut})`);
+                        }
                     }
                 }
             }
             
-            // Método 3: Buscar patrones específicos de píxeles reales en HTML
-            // Solo buscar píxeles que tengan el formato correcto (letras mayúsculas y números/guiones)
-            const realPixelMatches = text.match(/Pixel\s+[A-Z][A-Z0-9_]{2,}/g);
+            // Método 3: Buscar patrones específicos de píxeles reales en HTML (mejorado)
+            const realPixelMatches = text.match(/(?:Pixel|Dataset)\s+([A-Z][A-Z0-9_\-\s]{2,})/gi);
             if (realPixelMatches) {
-                // Filtrar para excluir nombres de dispositivos y texto genérico
-                const filteredPixels = realPixelMatches.filter(pixel => {
-                    const pixelName = pixel.replace('Pixel ', '');
-                    // Excluir nombres de dispositivos Google Pixel y texto genérico
-                    return !pixelName.match(/^(XL|[0-9]+[A-Z]?|Overview|Details|Manual|Code|Is)$/i) &&
-                           pixelName.length >= 3 &&
-                           pixelName.match(/[A-Z0-9_]{3,}/);
-                });
-                
-                if (filteredPixels.length > 0) {
-                    const uniqueRealPixels = new Set(filteredPixels);
-                    pixelCount = uniqueRealPixels.size;
-                    console.log(`✅ Encontrados ${pixelCount} píxeles reales:`, Array.from(uniqueRealPixels));
-                    return pixelCount;
+                const pixelNames = realPixelMatches.map(match => 
+                    match.replace(/^(?:Pixel|Dataset)\s+/i, '').trim()
+                );
+                const validated = validatePixelData(pixelNames, 'html.patterns');
+                if (validated.count > bestResult.count) {
+                    bestResult = validated;
+                    console.log(`✅ Método HTML patterns: ${validated.count} píxeles válidos:`, validated.pixels.slice(0, 5));
                 }
             }
             
-            // Método 4: Buscar patrones de dataset_id
-            const datasetMatches = text.match(/"dataset_id":"(\d{15,})"/g);
+            // Método 4: Buscar patrones de dataset_id (mejorado)
+            const datasetMatches = text.match(/"(?:dataset_id|id)":"(\d{15,20})"/g);
             if (datasetMatches) {
-                const uniqueDatasets = new Set(datasetMatches.map(match => match.match(/"dataset_id":"(\d{15,})"/)[1]));
-                pixelCount = uniqueDatasets.size;
-                console.log(`✅ Encontrados ${pixelCount} píxeles únicos por dataset_id`);
-                return pixelCount;
+                const datasetIds = datasetMatches.map(match => {
+                    const idMatch = match.match(/"(?:dataset_id|id)":"(\d{15,20})"/);
+                    return idMatch ? { id: idMatch[1] } : null;
+                }).filter(Boolean);
+                const validated = validatePixelData(datasetIds, 'dataset_ids');
+                if (validated.count > bestResult.count) {
+                    bestResult = validated;
+                    console.log(`✅ Método dataset_ids: ${validated.count} píxeles únicos por ID`);
+                }
             }
             
-            // Método 5: Buscar en el HTML por elementos específicos de píxeles
-            const pixelRowMatches = text.match(/data-testid="[^"]*pixel[^"]*"/gi);
-            if (pixelRowMatches) {
-                pixelCount = pixelRowMatches.length;
-                console.log(`✅ Encontrados ${pixelCount} píxeles por elementos HTML`);
-                return pixelCount;
+            // Método 5: Buscar en el HTML por elementos específicos de píxeles (mejorado)
+            const pixelElementMatches = text.match(/data-testid="[^"]*(?:pixel|dataset)[^"]*"[^>]*>([^<]*)/gi);
+            if (pixelElementMatches) {
+                const elementData = pixelElementMatches.map(match => {
+                    const contentMatch = match.match(/>([^<]*)/);
+                    return contentMatch ? contentMatch[1].trim() : null;
+                }).filter(Boolean);
+                const validated = validatePixelData(elementData, 'html.elements');
+                if (validated.count > bestResult.count) {
+                    bestResult = validated;
+                    console.log(`✅ Método HTML elements: ${validated.count} píxeles por elementos`);
+                }
             }
             
-            // Método 6: Buscar por "id" genérico en contexto de píxeles
-            const idMatches = text.match(/"id":"(\d{15,})"/g);
-            if (idMatches && (text.includes('pixel') || text.includes('dataset'))) {
-                const uniqueIds = new Set(idMatches.map(match => match.match(/"id":"(\d{15,})"/)[1]));
-                pixelCount = uniqueIds.size;
-                console.log(`✅ Encontrados ${pixelCount} IDs únicos en contexto de píxeles`);
-                return pixelCount;
+            // Usar el mejor resultado encontrado
+            const finalCount = bestResult.count;
+            
+            // Guardar en cache
+            setCachedPixelCount(businessId, finalCount);
+            
+            if (finalCount > 0) {
+                console.log(`🎯 BM ${businessId}: ${finalCount} píxeles detectados usando método ${bestResult.method}`);
+            } else {
+                console.log(`ℹ️ No se encontraron píxeles para BM: ${businessId}`);
             }
             
-            console.log(`ℹ️ No se encontraron píxeles para BM: ${businessId}`);
-            return 0;
+            return finalCount;
             
         } catch (parseError) {
             console.error('❌ Error parseando respuesta de píxeles:', parseError);
@@ -1306,78 +1708,156 @@ async function getPixelCountDirectAccess(businessId) {
 }
 
 /**
+ * retryWithBackoff
+ * Descripción: Ejecuta una función con retry automático y backoff exponencial
+ * Parámetros: fn (function), maxRetries (number), baseDelay (number)
+ * Retorna: Promise<any>
+ */
+async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const result = await fn();
+            if (result !== null && result !== undefined && result !== 0) {
+                return result;
+            }
+            // Si devuelve 0, continuar con el siguiente intento
+            lastError = new Error(`Intento ${attempt} devolvió 0 píxeles`);
+        } catch (error) {
+            lastError = error;
+            console.warn(`🔄 Intento ${attempt}/${maxRetries} falló:`, error.message);
+            
+            if (attempt < maxRetries) {
+                const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
+                console.log(`⏱️ Esperando ${Math.round(delay)}ms antes del próximo intento...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+    
+    throw lastError;
+}
+
+/**
  * loadPixelCountForBM
- * Descripción: Carga el número de píxeles para un BM específico
+ * Descripción: Carga el número de píxeles para un BM específico con retry automático y métodos mejorados
  * Parámetros: businessId (string), bmRowId (number)
  * Retorna: Promise<number>
  */
 async function loadPixelCountForBM(businessId, bmRowId) {
     try {
+        console.log(`🚀 Iniciando carga de píxeles para BM: ${businessId}`);
         let pixelCount = 0;
+        let successMethod = 'none';
         
-        // Intentar primero con fetch2
-        try {
-            pixelCount = await getPixelCountForBM(businessId);
-            if (pixelCount > 0) {
-                console.log(`✅ Método principal exitoso: ${pixelCount} píxeles`);
+        // Verificar cache primero
+        const cachedCount = getCachedPixelCount(businessId);
+        if (cachedCount !== null) {
+            console.log(`💾 Usando count desde cache: ${cachedCount} píxeles`);
+            pixelCount = cachedCount;
+            successMethod = 'cache';
+        } else {
+            // Definir métodos en orden de preferencia
+            const methods = [
+                {
+                    name: 'principal',
+                    fn: () => getPixelCountForBM(businessId),
+                    retries: 2
+                },
+                {
+                    name: 'graphql',
+                    fn: () => getPixelCountViaGraphQL(businessId),
+                    retries: 2
+                },
+                {
+                    name: 'acceso_directo',
+                    fn: () => getPixelCountDirectAccess(businessId),
+                    retries: 1
+                },
+                {
+                    name: 'extension',
+                    fn: () => getPixelCountViaExtension(businessId),
+                    retries: 1
+                }
+            ];
+            
+            // Probar cada método hasta encontrar píxeles
+            for (const method of methods) {
+                if (pixelCount > 0) break;
+                
+                try {
+                    console.log(`🔍 Probando método: ${method.name}`);
+                    const result = await retryWithBackoff(method.fn, method.retries, 1500);
+                    
+                    if (result && result > 0) {
+                        pixelCount = result;
+                        successMethod = method.name;
+                        console.log(`✅ Método ${method.name} exitoso: ${pixelCount} píxeles`);
+                        
+                        // Guardar en cache solo si encontramos píxeles
+                        setCachedPixelCount(businessId, pixelCount);
+                        break;
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ Método ${method.name} falló completamente:`, error.message);
+                    continue;
+                }
             }
-        } catch (error) {
-            console.log('🔄 Método principal falló, intentando alternativo...');
         }
         
-        // Si no encontró píxeles, intentar con GraphQL
-        if (pixelCount === 0) {
-            try {
-                pixelCount = await getPixelCountViaGraphQL(businessId);
-                if (pixelCount > 0) {
-                    console.log(`✅ GraphQL exitoso: ${pixelCount} píxeles`);
-                }
-            } catch (error) {
-                console.log('🔄 GraphQL falló, intentando acceso directo...');
-            }
-        }
-        
-        // Si aún no encontró píxeles, intentar con acceso directo
-        if (pixelCount === 0) {
-            try {
-                pixelCount = await getPixelCountDirectAccess(businessId);
-                if (pixelCount > 0) {
-                    console.log(`✅ Acceso directo exitoso: ${pixelCount} píxeles`);
-                }
-            } catch (error) {
-                console.log('🔄 Acceso directo falló, intentando extensión...');
-            }
-        }
-        
-        // Si aún no encontró píxeles, intentar con extensión
-        if (pixelCount === 0) {
-            try {
-                pixelCount = await getPixelCountViaExtension(businessId);
-                if (pixelCount > 0) {
-                    console.log(`✅ Método de extensión exitoso: ${pixelCount} píxeles`);
-                }
-            } catch (error) {
-                console.log('❌ Todos los métodos fallaron');
-            }
+        // Validar el resultado final
+        if (pixelCount < 0) {
+            pixelCount = 0;
         }
         
         // Actualizar la grilla con el número de píxeles
-        if (bmRowId !== null && bmRowId !== undefined) {
-            accountGrid.api.getRowNode(bmRowId).setDataValue("pixelCount", pixelCount);
+        if (bmRowId !== null && bmRowId !== undefined && typeof accountGrid !== 'undefined') {
+            try {
+                const rowNode = accountGrid.api.getRowNode(bmRowId);
+                if (rowNode) {
+                    rowNode.setDataValue("pixelCount", pixelCount);
+                    console.log(`📋 Grilla actualizada para BM ${businessId}: ${pixelCount} píxeles`);
+                }
+            } catch (gridError) {
+                console.warn(`⚠️ Error actualizando grilla:`, gridError.message);
+            }
         }
         
         // Disparar evento para notificar que se cargaron los píxeles
-        $(document).trigger("loadPixelSuccess", { id: businessId, count: pixelCount });
+        try {
+            $(document).trigger("loadPixelSuccess", { 
+                id: businessId, 
+                count: pixelCount, 
+                method: successMethod,
+                timestamp: Date.now()
+            });
+        } catch (eventError) {
+            console.warn(`⚠️ Error disparando evento:`, eventError.message);
+        }
         
-        console.log(`📊 BM ${businessId}: ${pixelCount} píxeles`);
+        // Log del resultado final
+        if (pixelCount > 0) {
+            console.log(`🎯 BM ${businessId}: ${pixelCount} píxeles detectados usando ${successMethod}`);
+        } else {
+            console.log(`ℹ️ BM ${businessId}: No se encontraron píxeles usando ningún método`);
+        }
+        
         return pixelCount;
         
     } catch (error) {
-        console.error(`❌ Error cargando píxeles para BM ${businessId}:`, error);
+        console.error(`❌ Error crítico cargando píxeles para BM ${businessId}:`, error);
         
-        // En caso de error, mostrar 0
-        if (bmRowId !== null && bmRowId !== undefined) {
-            accountGrid.api.getRowNode(bmRowId).setDataValue("pixelCount", 0);
+        // En caso de error, mostrar 0 y actualizar grilla
+        if (bmRowId !== null && bmRowId !== undefined && typeof accountGrid !== 'undefined') {
+            try {
+                const rowNode = accountGrid.api.getRowNode(bmRowId);
+                if (rowNode) {
+                    rowNode.setDataValue("pixelCount", 0);
+                }
+            } catch (gridError) {
+                console.warn(`⚠️ Error actualizando grilla en catch:`, gridError.message);
+            }
         }
         
         return 0;

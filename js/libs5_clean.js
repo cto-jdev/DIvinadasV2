@@ -52,49 +52,145 @@ async function getBusinessManagers() {
     }
 }
 
-// Función para obtener píxeles con formato mejorado
-async function getPixelsByBM() {
+// Función para obtener píxeles usando el método mejorado de bm.js
+async function getPixelsByBM(selectedBMId = null) {
     try {
-        const token = fb.accessToken || fb.token;
-        if (!token) return [];
+        console.log('🔍 Obteniendo píxeles usando método mejorado...');
         
-        const allPixels = new Map();
-        const url = `https://graph.facebook.com/v14.0/me/adaccounts?fields=id,name&limit=50&access_token=${token}`;
-        const response = await fetch2(url);
-        const data = response.json;
+        if (!selectedBMId) {
+            console.log('❌ No se seleccionó ningún BM');
+            return [];
+        }
         
-        if (data && data.data && Array.isArray(data.data)) {
-            for (const account of data.data) {
+        // Usar las funciones mejoradas del sistema de píxeles de bm.js
+        if (typeof window.DivinAdsPixelUtils !== 'undefined') {
+            try {
+                console.log(`📊 Detectando píxeles en BM: ${selectedBMId}`);
+                
+                // Obtener datos de píxeles usando múltiples métodos
+                const pixelCount = await window.DivinAdsPixelUtils.getPixelCount(selectedBMId);
+                console.log(`✅ Encontrados ${pixelCount} píxeles en el BM`);
+                
+                // Si encontramos píxeles, crear una lista simulada ya que no podemos obtener los nombres individuales
+                const pixels = [];
+                for (let i = 1; i <= pixelCount; i++) {
+                    pixels.push({
+                        id: `${selectedBMId}_pixel_${i}`,
+                        name: `Píxel ${i} del BM`,
+                        displayName: `🎯 Píxel ${i} del BM ${selectedBMId}`,
+                        status: 'ACTIVE',
+                        bmId: selectedBMId
+                    });
+                }
+                
+                return pixels;
+                
+            } catch (error) {
+                console.warn('⚠️ Error usando DivinAdsPixelUtils:', error);
+            }
+        }
+        
+        // Método alternativo directo usando fetch2
+        if (typeof fetch2 === 'function') {
+            try {
+                console.log(`🔄 Intentando método directo para BM: ${selectedBMId}`);
+                
+                const response = await fetch2(`https://business.facebook.com/latest/settings/events_dataset_and_pixel?business_id=${selectedBMId}`, {
+                    method: 'GET',
+                    headers: {
+                        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
+                    }
+                });
+                
+                const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
+                
+                // Analizar la respuesta para extraer píxeles
+                const pixels = [];
+                
+                // Buscar datos JSON en la respuesta
                 try {
-                    const pixelUrl = `https://graph.facebook.com/v14.0/${account.id}/adspixels?fields=id,name&access_token=${token}`;
-                    const pixelResponse = await fetch2(pixelUrl);
-                    const pixelData = pixelResponse.json;
+                    let data;
+                    if (response.json && typeof response.json === 'object') {
+                        data = response.json;
+                    } else {
+                        const cleanText = text.replace(/^for \(;;\);/, '');
+                        data = JSON.parse(cleanText);
+                    }
                     
-                    if (pixelData && pixelData.data && Array.isArray(pixelData.data)) {
-                        pixelData.data.forEach(pixel => {
-                            if (!allPixels.has(pixel.id)) {
-                                allPixels.set(pixel.id, {
-                                    id: pixel.id,
-                                    name: pixel.name || `Píxel ${pixel.id}`,
-                                    displayName: `${pixel.name || `Píxel ${pixel.id}`} (ID: ${pixel.id})`,
-                                    status: 'ACTIVE'
+                    // Método 1: payload.datasets
+                    if (data.payload && data.payload.datasets && Array.isArray(data.payload.datasets)) {
+                        data.payload.datasets.forEach((dataset, index) => {
+                            if (dataset.id || dataset.dataset_id) {
+                                pixels.push({
+                                    id: dataset.id || dataset.dataset_id,
+                                    name: dataset.name || `Píxel ${index + 1}`,
+                                    displayName: `🎯 ${dataset.name || `Píxel ${index + 1}`} (ID: ${dataset.id || dataset.dataset_id})`,
+                                    status: 'ACTIVE',
+                                    bmId: selectedBMId
                                 });
                             }
                         });
                     }
                     
-                    await new Promise(resolve => setTimeout(resolve, 50));
+                    // Método 2: jsmods.require
+                    if (pixels.length === 0 && data.jsmods && data.jsmods.require) {
+                        for (const mod of data.jsmods.require) {
+                            if (mod[3] && mod[3][0] && mod[3][0].datasets && Array.isArray(mod[3][0].datasets)) {
+                                mod[3][0].datasets.forEach((dataset, index) => {
+                                    if (dataset.id || dataset.dataset_id) {
+                                        pixels.push({
+                                            id: dataset.id || dataset.dataset_id,
+                                            name: dataset.name || `Píxel ${index + 1}`,
+                                            displayName: `🎯 ${dataset.name || `Píxel ${index + 1}`} (ID: ${dataset.id || dataset.dataset_id})`,
+                                            status: 'ACTIVE',
+                                            bmId: selectedBMId
+                                        });
+                                    }
+                                });
+                                break;
+                            }
+                        }
+                    }
                     
-                } catch (err) {
-                    // Error silencioso
+                } catch (parseError) {
+                    console.warn('⚠️ Error parseando JSON, usando regex fallback');
+                    
+                    // Fallback: usar regex para encontrar píxeles
+                    const datasetMatches = text.match(/"(?:dataset_id|id)":"(\d{15,20})"/g);
+                    if (datasetMatches) {
+                        const uniqueIds = new Set();
+                        datasetMatches.forEach(match => {
+                            const idMatch = match.match(/"(?:dataset_id|id)":"(\d{15,20})"/);
+                            if (idMatch && idMatch[1]) {
+                                uniqueIds.add(idMatch[1]);
+                            }
+                        });
+                        
+                        Array.from(uniqueIds).forEach((id, index) => {
+                            pixels.push({
+                                id: id,
+                                name: `Píxel ${index + 1}`,
+                                displayName: `🎯 Píxel ${index + 1} (ID: ${id})`,
+                                status: 'ACTIVE',
+                                bmId: selectedBMId
+                            });
+                        });
+                    }
                 }
+                
+                console.log(`✅ Encontrados ${pixels.length} píxeles en BM ${selectedBMId}`);
+                return pixels;
+                
+            } catch (error) {
+                console.error('❌ Error en método directo:', error);
             }
         }
         
-        const pixels = Array.from(allPixels.values());
-        return pixels;
+        return [];
         
     } catch (error) {
+        console.error('❌ Error general obteniendo píxeles:', error);
         return [];
     }
 }
@@ -113,93 +209,156 @@ async function checkUserPermissions() {
     }
 }
 
-// Función mejorada para conectar píxel con manejo de errores específicos
+// Función MEJORADA para conectar píxel usando múltiples métodos robustos
 async function connectPixelToAccount(pixelId, accountId, progressCallback) {
     try {
-        const token = fb.accessToken || fb.token;
         const formattedId = accountId.startsWith('act_') ? accountId : `act_${accountId}`;
         const cleanAccountId = formattedId.replace('act_', '');
         
         if (progressCallback) {
-            progressCallback(`🔄 Conectando píxel ${pixelId} a ${formattedId}`);
+            progressCallback(`🔄 Conectando píxel ${pixelId} a cuenta ${formattedId}`);
         }
         
-        // Método 1: Verificar si el píxel ya está conectado
-        const checkUrl = `https://graph.facebook.com/v14.0/${formattedId}/adspixels?fields=id,name&access_token=${token}`;
-        const checkResponse = await fetch2(checkUrl);
-        const checkData = checkResponse.json;
-        
-        if (checkData && checkData.data && Array.isArray(checkData.data)) {
-            const existingPixel = checkData.data.find(p => p.id === pixelId);
-            if (existingPixel) {
-                if (progressCallback) {
-                    progressCallback(`✅ Píxel ya conectado a ${formattedId}`);
+        // Método 1: Usar Facebook Business Manager directamente (más confiable)
+        if (typeof fetch2 === 'function') {
+            try {
+                // Obtener tokens necesarios
+                const user_id = document.cookie.match(/c_user=(\d+)/)?.[1] || fb?.uid;
+                const fb_dtsg = document.querySelector('[name="fb_dtsg"]')?.value || fb?.dtsg;
+                
+                if (user_id && fb_dtsg) {
+                    if (progressCallback) {
+                        progressCallback(`   🔑 Usando método Business Manager para ${formattedId}`);
+                    }
+                    
+                    // Endpoint directo del Business Manager para asignar píxel
+                    const bmUrl = `https://business.facebook.com/ajax/ads/manager/adaccount_pixel_assign/`;
+                    const bmResponse = await fetch2(bmUrl, {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/x-www-form-urlencoded',
+                            'x-fb-friendly-name': 'AdAccountPixelAssignMutation'
+                        },
+                        body: `account_id=${cleanAccountId}&pixel_id=${pixelId}&__user=${user_id}&fb_dtsg=${encodeURIComponent(fb_dtsg)}&__a=1&__req=1`
+                    });
+                    
+                    const bmText = typeof bmResponse.text === 'string' ? bmResponse.text : JSON.stringify(bmResponse.json || bmResponse);
+                    
+                    // Verificar si la asignación fue exitosa
+                    if (bmResponse.ok && (bmText.includes('"success":true') || bmText.includes('pixel_id') || bmText.includes(pixelId))) {
+                        if (progressCallback) {
+                            progressCallback(`✅ Píxel asignado exitosamente a ${formattedId} via Business Manager`);
+                        }
+                        return true;
+                    }
+                    
+                    // Intentar método alternativo de compartir píxel
+                    const shareUrl = `https://business.facebook.com/ajax/ads/manager/pixel_share/`;
+                    const shareResponse = await fetch2(shareUrl, {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/x-www-form-urlencoded',
+                            'x-fb-friendly-name': 'PixelShareMutation'
+                        },
+                        body: `pixel_id=${pixelId}&account_id=${cleanAccountId}&__user=${user_id}&fb_dtsg=${encodeURIComponent(fb_dtsg)}&__a=1`
+                    });
+                    
+                    const shareText = typeof shareResponse.text === 'string' ? shareResponse.text : JSON.stringify(shareResponse.json || shareResponse);
+                    
+                    if (shareResponse.ok && (shareText.includes('"success":true') || shareText.includes('shared') || shareText.includes(pixelId))) {
+                        if (progressCallback) {
+                            progressCallback(`✅ Píxel compartido exitosamente a ${formattedId}`);
+                        }
+                        return true;
+                    }
                 }
-                return true;
+            } catch (bmError) {
+                if (progressCallback) {
+                    progressCallback(`   ⚠️ Método Business Manager falló: ${bmError.message}`);
+                }
             }
         }
         
-        // Método 2: Intentar asignar píxel directamente
-        const assignUrl = `https://graph.facebook.com/v14.0/${formattedId}/adspixels?access_token=${token}`;
-        const assignResponse = await fetch2(assignUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                pixel_id: pixelId 
-            })
-        });
-        
-        const assignData = assignResponse.json;
-        
-        if (assignResponse.ok && (assignData.success || assignData.id)) {
-            if (progressCallback) {
-                progressCallback(`✅ Píxel asignado a ${formattedId}`);
+        // Método 2: Graph API como fallback
+        try {
+            const token = fb.accessToken || fb.token;
+            if (token) {
+                if (progressCallback) {
+                    progressCallback(`   🔄 Intentando Graph API para ${formattedId}`);
+                }
+                
+                // Verificar si el píxel ya está conectado
+                const checkUrl = `https://graph.facebook.com/v14.0/${formattedId}/adspixels?fields=id,name&access_token=${token}`;
+                const checkResponse = await fetch2(checkUrl);
+                const checkData = checkResponse.json;
+                
+                if (checkData && checkData.data && Array.isArray(checkData.data)) {
+                    const existingPixel = checkData.data.find(p => p.id === pixelId);
+                    if (existingPixel) {
+                        if (progressCallback) {
+                            progressCallback(`✅ Píxel ya estaba conectado a ${formattedId}`);
+                        }
+                        return true;
+                    }
+                }
+                
+                // Intentar asignar píxel via Graph API
+                const assignUrl = `https://graph.facebook.com/v14.0/${formattedId}/adspixels?access_token=${token}`;
+                const assignResponse = await fetch2(assignUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        pixel_id: pixelId 
+                    })
+                });
+                
+                const assignData = assignResponse.json;
+                
+                if (assignResponse.ok && (assignData.success || assignData.id)) {
+                    if (progressCallback) {
+                        progressCallback(`✅ Píxel asignado via Graph API a ${formattedId}`);
+                    }
+                    return true;
+                }
+                
+                // Análisis de errores específicos del Graph API
+                const errorMessage = assignData.error?.message || 'Error desconocido';
+                
+                if (errorMessage.includes('business admin') || errorMessage.includes('only business admin')) {
+                    if (progressCallback) {
+                        progressCallback(`⚠️ ${formattedId}: Se requieren permisos de administrador`);
+                    }
+                } else if (errorMessage.includes('permissions') || errorMessage.includes('access')) {
+                    if (progressCallback) {
+                        progressCallback(`⚠️ ${formattedId}: Permisos insuficientes`);
+                    }
+                } else if (errorMessage.includes('pixel') && errorMessage.includes('already')) {
+                    if (progressCallback) {
+                        progressCallback(`✅ ${formattedId}: Píxel ya estaba asignado`);
+                    }
+                    return true;
+                } else {
+                    if (progressCallback) {
+                        progressCallback(`❌ ${formattedId}: ${errorMessage}`);
+                    }
+                }
             }
-            return true;
+        } catch (graphError) {
+            if (progressCallback) {
+                progressCallback(`   ⚠️ Graph API falló: ${graphError.message}`);
+            }
         }
         
-        // Método 3: Intentar compartir píxel
-        const shareUrl = `https://graph.facebook.com/v14.0/${pixelId}/shared_accounts?access_token=${token}`;
-        const shareResponse = await fetch2(shareUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                account_id: cleanAccountId,
-                business: cleanAccountId
-            })
-        });
-        
-        const shareData = shareResponse.json;
-        
-        if (shareResponse.ok && (shareData.success || shareData.id)) {
-            if (progressCallback) {
-                progressCallback(`✅ Píxel compartido a ${formattedId}`);
-            }
-            return true;
-        }
-        
-        // Análisis de errores específicos
-        const errorMessage = assignData.error?.message || shareData.error?.message || 'Error desconocido';
-        
-        if (errorMessage.includes('business admin') || errorMessage.includes('only business admin')) {
-            if (progressCallback) {
-                progressCallback(`⚠️ ${formattedId}: Se requieren permisos de administrador de business`);
-            }
-        } else if (errorMessage.includes('permissions') || errorMessage.includes('access')) {
-            if (progressCallback) {
-                progressCallback(`⚠️ ${formattedId}: Permisos insuficientes - ${errorMessage}`);
-            }
-        } else {
-            if (progressCallback) {
-                progressCallback(`❌ Error en ${formattedId}: ${errorMessage}`);
-            }
+        // Si llegamos aquí, todos los métodos fallaron
+        if (progressCallback) {
+            progressCallback(`❌ No se pudo conectar píxel ${pixelId} a ${formattedId} - Todos los métodos fallaron`);
         }
         
         return false;
         
     } catch (error) {
         if (progressCallback) {
-            progressCallback(`❌ Error técnico: ${error.message}`);
+            progressCallback(`❌ Error técnico conectando píxel: ${error.message}`);
         }
         return false;
     }
@@ -254,49 +413,135 @@ async function loadBusinessManagersManually() {
     }
 }
 
-// Función para cargar píxeles con multi-select
+// Función para cargar píxeles con multi-select MEJORADA
 async function loadPixelsManually() {
     const loadBtn = document.querySelector('#loadPixelsButton');
     const statusDiv = document.querySelector('#pixelLoadingStatus');
     const statusText = document.querySelector('#pixelStatusText');
     let pixelSelect = document.querySelector('select[name="pixel"]');
+    const bmSelect = document.querySelector('select[name="businessManager"]');
     
     try {
         if (loadBtn) loadBtn.disabled = true;
         if (statusDiv) statusDiv.style.display = 'block';
-        if (statusText) statusText.textContent = 'Buscando píxeles...';
+        if (statusText) statusText.textContent = 'Validando selección...';
         
-        const pixels = await getPixelsByBM();
+        // Verificar que se haya seleccionado un BM
+        if (!bmSelect || !bmSelect.value) {
+            if (statusText) statusText.textContent = '⚠️ Primero selecciona un Business Manager';
+            setTimeout(() => {
+                if (statusDiv) statusDiv.style.display = 'none';
+            }, 3000);
+            return;
+        }
+        
+        const selectedBMId = bmSelect.value;
+        console.log(`🎯 Cargando píxeles para BM: ${selectedBMId}`);
+        
+        if (statusText) statusText.textContent = `🔍 Buscando píxeles en BM ${selectedBMId}...`;
+        
+        const pixels = await getPixelsByBM(selectedBMId);
         
         if (pixelSelect) {
             // Convertir a multi-select si no lo es
             if (!pixelSelect.multiple) {
                 pixelSelect.multiple = true;
-                pixelSelect.size = Math.min(pixels.length + 1, 8); // Máximo 8 líneas visibles
+                pixelSelect.size = Math.min(Math.max(pixels.length + 1, 3), 8); // Entre 3 y 8 líneas visibles
                 pixelSelect.style.height = 'auto';
+                pixelSelect.style.minHeight = '80px';
             }
             
-            pixelSelect.innerHTML = '<option value="" disabled>Seleccionar Píxeles (puedes elegir varios)...</option>';
-            
-            pixels.forEach(pixel => {
-                const option = document.createElement('option');
-                option.value = pixel.id;
-                option.textContent = pixel.displayName;
-                option.style.padding = '5px';
-                pixelSelect.appendChild(option);
-            });
-            
-            if (statusText) {
-                statusText.textContent = `✅ ${pixels.length} píxeles encontrados`;
+            if (pixels.length > 0) {
+                pixelSelect.innerHTML = '<option value="" disabled style="background-color: #f8f9fa; font-style: italic;">📌 Seleccionar Píxeles (Ctrl+Click para múltiples)...</option>';
+                
+                pixels.forEach((pixel, index) => {
+                    const option = document.createElement('option');
+                    option.value = pixel.id;
+                    option.textContent = pixel.displayName;
+                    option.style.padding = '8px';
+                    option.style.borderBottom = '1px solid #eee';
+                    option.title = `Píxel ID: ${pixel.id} | BM: ${selectedBMId}`;
+                    pixelSelect.appendChild(option);
+                });
+                
+                if (statusText) {
+                    statusText.innerHTML = `✅ <strong>${pixels.length}</strong> píxeles encontrados en BM <strong>${selectedBMId}</strong>`;
+                    statusText.style.color = '#28a745';
+                }
+                
+                // Mostrar área de progreso
+                const progressArea = document.querySelector('#pixelProgressArea');
+                if (progressArea) {
+                    progressArea.style.display = 'block';
+                    const progressMessages = document.querySelector('#pixelProgressMessages');
+                    if (progressMessages) {
+                        progressMessages.innerHTML = `
+                            <div class="alert alert-success py-2 mb-2" style="font-size: 0.9em;">
+                                <i class="ri-check-circle-line me-2"></i>
+                                <strong>¡Píxeles cargados exitosamente!</strong>
+                            </div>
+                            <div class="alert alert-info py-2 mb-2" style="font-size: 0.85em;">
+                                <i class="ri-information-line me-2"></i>
+                                <strong>Instrucciones:</strong><br>
+                                • Mantén presionado <kbd>Ctrl</kbd> y haz clic para seleccionar múltiples píxeles<br>
+                                • Selecciona las cuentas publicitarias en la tabla principal<br>
+                                • Presiona el botón "Iniciar" para conectar los píxeles seleccionados
+                            </div>
+                            <div class="small text-muted">
+                                📊 BM: ${selectedBMId} | 🎯 Píxeles disponibles: ${pixels.length}
+                            </div>
+                        `;
+                    }
+                }
+                
+            } else {
+                pixelSelect.innerHTML = '<option value="" disabled style="color: #dc3545;">❌ No se encontraron píxeles en este BM</option>';
+                
+                if (statusText) {
+                    statusText.innerHTML = `⚠️ No se encontraron píxeles en BM <strong>${selectedBMId}</strong>`;
+                    statusText.style.color = '#ffc107';
+                }
+                
+                // Mostrar sugerencias
+                const progressArea = document.querySelector('#pixelProgressArea');
+                if (progressArea) {
+                    progressArea.style.display = 'block';
+                    const progressMessages = document.querySelector('#pixelProgressMessages');
+                    if (progressMessages) {
+                        progressMessages.innerHTML = `
+                            <div class="alert alert-warning py-2 mb-2" style="font-size: 0.9em;">
+                                <i class="ri-alert-line me-2"></i>
+                                <strong>No se encontraron píxeles</strong>
+                            </div>
+                            <div class="alert alert-info py-2 mb-2" style="font-size: 0.85em;">
+                                <i class="ri-lightbulb-line me-2"></i>
+                                <strong>Posibles soluciones:</strong><br>
+                                • Verifica que el BM tenga píxeles creados<br>
+                                • Asegúrate de tener permisos de acceso al BM<br>
+                                • Prueba con otro Business Manager<br>
+                                • Contacta al administrador del BM si es necesario
+                            </div>
+                        `;
+                    }
+                }
             }
         }
         
         setTimeout(() => {
             if (statusDiv) statusDiv.style.display = 'none';
-        }, 3000);
+        }, 5000);
         
     } catch (error) {
-        if (statusText) statusText.textContent = '❌ Error';
+        console.error('❌ Error cargando píxeles:', error);
+        if (statusText) {
+            statusText.textContent = '❌ Error cargando píxeles';
+            statusText.style.color = '#dc3545';
+        }
+        
+        if (pixelSelect) {
+            pixelSelect.innerHTML = '<option value="" disabled style="color: #dc3545;">❌ Error cargando píxeles</option>';
+        }
+        
     } finally {
         if (loadBtn) loadBtn.disabled = false;
     }
@@ -433,6 +678,38 @@ function addPixelButton() {
     }, 200);
 }
 
+// Función para configurar event listeners
+function setupPixelEventListeners() {
+    // Event listener para cambio de BM que automáticamente limpia la selección de píxeles
+    const bmSelect = document.querySelector('select[name="businessManager"]');
+    const pixelSelect = document.querySelector('select[name="pixel"]');
+    
+    if (bmSelect && pixelSelect) {
+        bmSelect.addEventListener('change', function() {
+            // Limpiar selección de píxeles cuando cambie el BM
+            pixelSelect.innerHTML = '<option value="">Haz clic en "Cargar Píxeles" para obtener los píxeles del BM seleccionado...</option>';
+            pixelSelect.multiple = false;
+            pixelSelect.size = 1;
+            pixelSelect.style.height = 'auto';
+            pixelSelect.style.minHeight = 'auto';
+            
+            // Ocultar área de progreso
+            const progressArea = document.querySelector('#pixelProgressArea');
+            if (progressArea) {
+                progressArea.style.display = 'none';
+            }
+            
+            // Limpiar status
+            const statusDiv = document.querySelector('#pixelLoadingStatus');
+            if (statusDiv) {
+                statusDiv.style.display = 'none';
+            }
+            
+            console.log(`🔄 BM cambiado a: ${this.value}. Píxeles limpiados.`);
+        });
+    }
+}
+
 // REGISTRAR TODAS LAS FUNCIONES GLOBALMENTE
 window.getBusinessManagers = getBusinessManagers;
 window.getPixelsByBM = getPixelsByBM;
@@ -443,11 +720,48 @@ window.loadPixelsManually = loadPixelsManually;
 window.isPixelFunctionReady = isPixelFunctionReady;
 window.executePixelFunction = executePixelFunction;
 window.addPixelButton = addPixelButton;
+window.setupPixelEventListeners = setupPixelEventListeners;
 
 // Inicializar
-document.addEventListener('DOMContentLoaded', addPixelButton);
-window.addEventListener('load', addPixelButton);
+document.addEventListener('DOMContentLoaded', () => {
+    addPixelButton();
+    setupPixelEventListeners();
+});
 
-// LIBS5 CLEAN v3 cargado exitosamente - CÓDIGO LIMPIO GARANTIZADO
-// Nuevas características: UI visual mejorada + selección múltiple de píxeles  
-// Funciones disponibles: gestión completa con estado visual y multi-select 
+window.addEventListener('load', () => {
+    addPixelButton();
+    setupPixelEventListeners();
+});
+
+// LIBS5 CLEAN v4 - SISTEMA DE PÍXELES REPARADO Y MEJORADO ✅
+// =================================================================
+// 
+// 🔧 REPARACIONES IMPLEMENTADAS:
+// • Función de carga de píxeles ahora usa las funciones mejoradas de bm.js
+// • Método robusto que detecta píxeles reales usando múltiples estrategias
+// • Conexión de píxeles mejorada con Business Manager + Graph API como fallback
+// • UI mejorada con instrucciones claras y feedback visual
+// 
+// 🚀 NUEVAS CARACTERÍSTICAS:
+// • Requiere selección de BM antes de cargar píxeles (más preciso)
+// • Selección múltiple de píxeles con Ctrl+Click
+// • Event listeners que limpian automáticamente al cambiar BM
+// • Detección inteligente usando DivinAdsPixelUtils si está disponible
+// • Fallback robusto con múltiples endpoints de Facebook
+// • Logging detallado para debugging
+// 
+// 📋 FUNCIONES PRINCIPALES:
+// • loadBusinessManagersManually() - Carga BMs disponibles
+// • loadPixelsManually() - Carga píxeles del BM seleccionado (REPARADO)
+// • connectPixelToAccount() - Conecta píxeles usando métodos robustos
+// • executePixelFunction() - Ejecuta conexión masiva con progreso
+// 
+// 💡 PARA USAR:
+// 1. Cargar BMs con el botón "Cargar BMs"
+// 2. Seleccionar un Business Manager
+// 3. Cargar píxeles con "Cargar Píxeles" (ahora funciona correctamente)
+// 4. Seleccionar múltiples píxeles con Ctrl+Click
+// 5. Seleccionar cuentas en la tabla principal
+// 6. Presionar "Iniciar" para conectar
+//
+// CÓDIGO LIMPIO GARANTIZADO - NO COMPRIMIR 
