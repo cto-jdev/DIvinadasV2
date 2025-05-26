@@ -896,6 +896,22 @@
                                 </div>
                             </div>
 
+                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
+                                <div class="p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="fw-medium d-flex align-items-center">
+                                            <i class="ri-refresh-line fs-5 me-2"></i><span class="fw-bold">Recargar Número de Píxeles</span>
+                                        </label>
+                                        <button type="button" id="reloadPixelCounts" class="btn btn-outline-primary btn-sm">
+                                            <i class="ri-refresh-line me-1"></i>Recargar
+                                        </button>
+                                    </div>
+                                    <div class="form-text mt-2">
+                                        Actualiza el número de píxeles para todos los Business Managers visibles en la tabla
+                                    </div>
+                                </div>
+                            </div>
+
 						</div>
 					</div>
 
@@ -998,6 +1014,16 @@
         </div>
 
         
+        <style>
+            .spinner-border-sm {
+                width: 1rem;
+                height: 1rem;
+                animation: spinner-border 0.75s linear infinite;
+            }
+            @keyframes spinner-border {
+                to { transform: rotate(360deg); }
+            }
+        </style>
         <script src="js/sweetalert2.all.min.js"></script>
         <script src="js/ag-grid-enterprise.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>

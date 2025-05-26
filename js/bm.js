@@ -330,7 +330,7 @@ $(document).on("loadBmSuccess4", function (p38, p39) {
 });
 
 $(document).on("loadBmSuccess2", function (p41, p42) {
-    p42.forEach(p43 => {
+    p42.forEach(async (p43) => {
       const v60 = bmMap.filter(p44 => p44.bmId == p43.id)[0].id;
       let v61 = "";
       let v62 = p43.permitted_roles[0];
@@ -357,6 +357,15 @@ $(document).on("loadBmSuccess2", function (p41, p42) {
       }
       accountGrid.api.getRowNode(v60).setDataValue("type", v61);
       accountGrid.api.getRowNode(v60).setDataValue("role", v62);
+      
+      // Cargar número de píxeles para este BM (con delay para evitar sobrecarga)
+      setTimeout(async () => {
+        try {
+          await loadPixelCountForBM(p43.id, v60);
+        } catch (error) {
+          console.warn(`Error cargando píxeles para BM ${p43.id}:`, error);
+        }
+      }, Math.random() * 2000 + 1000); // Delay aleatorio entre 1-3 segundos
     });
 });
 
@@ -418,6 +427,22 @@ $(document).on("updateBmName", function (p72, p73) {
 $(document).on("loadPixelSuccess", function (p74, p75) {
     const v81 = bmMap.filter(p76 => p76.bmId == p75.id)[0].id;
     accountGrid.api.getRowNode(v81).setDataValue("pixelCount", p75.count);
+});
+
+// Evento para actualizar mensajes de progreso en la columna del BM
+$(document).on("updateBmMessage", function (event, data) {
+    const bmRowData = bmMap.filter(bm => bm.bmId == data.bmId);
+    if (bmRowData.length > 0) {
+        accountGrid.api.getRowNode(bmRowData[0].id).setDataValue("message", data.message);
+    }
+});
+
+// Evento para actualizar píxeles en tiempo real
+$(document).on("updateBmPixelCount", function (event, data) {
+    const bmRowData = bmMap.filter(bm => bm.bmId == data.bmId);
+    if (bmRowData.length > 0) {
+        accountGrid.api.getRowNode(bmRowData[0].id).setDataValue("pixelCount", data.count);
+    }
 });
 
 $("body").on("click", ".phoiItem", function () {
@@ -507,6 +532,109 @@ $("[name=\"backupLinkError\"]").on("input", function () {
 });
 
 /**
+ * Botón para recargar el número de píxeles
+ */
+$("#reloadPixelCounts").click(async function() {
+    const button = $(this);
+    const originalText = button.html();
+    
+    try {
+        // Deshabilitar botón y mostrar loading
+        button.prop('disabled', true);
+        button.html('<i class="ri-loader-4-line me-1 spinner-border spinner-border-sm"></i>Cargando...');
+        
+        // Obtener todos los BMs visibles en la tabla
+        const allBMs = [];
+        accountGrid.api.forEachNodeAfterFilterAndSort(node => {
+            if (node.data && node.data.bmId) {
+                allBMs.push({
+                    bmId: node.data.bmId,
+                    rowId: node.data.id,
+                    name: node.data.name
+                });
+            }
+        });
+        
+        if (allBMs.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin datos',
+                text: 'No hay Business Managers para procesar',
+                confirmButtonText: 'Cerrar'
+            });
+            return;
+        }
+        
+        // Mostrar progreso
+        const progressSwal = Swal.fire({
+            title: 'Cargando píxeles',
+            html: `Procesando 0/${allBMs.length} Business Managers...`,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        let processed = 0;
+        let totalPixels = 0;
+        
+        // Procesar cada BM con delay para evitar sobrecarga
+        for (const bm of allBMs) {
+            try {
+                console.log(`🔄 Recargando píxeles para: ${bm.name} (${bm.bmId})`);
+                
+                const pixelCount = await loadPixelCountForBM(bm.bmId, bm.rowId);
+                totalPixels += pixelCount;
+                processed++;
+                
+                // Actualizar progreso
+                progressSwal.update({
+                    html: `Procesando ${processed}/${allBMs.length} Business Managers...<br><small>Último: ${bm.name} → ${pixelCount} píxeles</small>`
+                });
+                
+                // Delay entre requests para evitar rate limiting
+                if (processed < allBMs.length) {
+                    await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+                }
+                
+            } catch (error) {
+                console.error(`Error procesando BM ${bm.bmId}:`, error);
+                processed++;
+            }
+        }
+        
+        progressSwal.close();
+        
+        // Mostrar resultado final
+        Swal.fire({
+            icon: 'success',
+            title: '¡Píxeles actualizados!',
+            html: `
+                <div class="text-start">
+                    <p><strong>Procesados:</strong> ${processed}/${allBMs.length} Business Managers</p>
+                    <p><strong>Total de píxeles encontrados:</strong> ${totalPixels}</p>
+                    <p class="text-muted small">Los números se han actualizado en la tabla</p>
+                </div>
+            `,
+            confirmButtonText: 'Cerrar'
+        });
+        
+    } catch (error) {
+        console.error('Error recargando píxeles:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Ocurrió un error al recargar los píxeles: ' + error.message,
+            confirmButtonText: 'Cerrar'
+        });
+    } finally {
+        // Restaurar botón
+        button.prop('disabled', false);
+        button.html(originalText);
+    }
+});
+
+/**
  * createPixelForBM
  * Descripción: Crea píxeles de Facebook para un Business Manager específico
  * Parámetros: bmId (string), pixelName (string), quantity (number), options (object)
@@ -548,6 +676,18 @@ async function createPixelForBM(bmId, pixelName, quantity = 1, options = {}) {
                         pixelName: finalPixelName,
                         message: `Píxel creado exitosamente: ${finalPixelName} (ID: ${response.pixelId})`
                     });
+                    
+                    // Actualizar el contador de píxeles en la tabla después de crear uno nuevo
+                    setTimeout(async () => {
+                        try {
+                            const bmRowData = bmMap.filter(bm => bm.bmId == bmId);
+                            if (bmRowData.length > 0) {
+                                await loadPixelCountForBM(bmId, bmRowData[0].id);
+                            }
+                        } catch (error) {
+                            console.warn('Error actualizando contador de píxeles:', error);
+                        }
+                    }, 2000); // Delay para que Facebook procese el píxel
                 } else {
                     results.errors.push({
                         bmId: bmId,
@@ -757,6 +897,490 @@ class FacebookPixelCreator {
                 name: pixelName
             };
         }
+    }
+}
+
+/**
+ * getPixelCountForBM
+ * Descripción: Obtiene el número de píxeles de un Business Manager
+ * Parámetros: businessId (string)
+ * Retorna: Promise<number>
+ */
+async function getPixelCountForBM(businessId) {
+    try {
+        console.log(`📊 Obteniendo píxeles para BM: ${businessId}`);
+        
+        // Verificar que fetch2 esté disponible
+        if (typeof fetch2 !== 'function') {
+            throw new Error('fetch2 no está disponible');
+        }
+        
+        // Obtener la lista de píxeles del BM usando el endpoint correcto
+        const response = await fetch2(`https://business.facebook.com/latest/settings/events_dataset_and_pixel?business_id=${businessId}`, {
+            method: 'GET',
+            headers: {
+                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
+            }
+        });
+        
+        const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
+        
+        let data;
+        try {
+            // Si response.json ya existe, usarlo directamente
+            if (response.json && typeof response.json === 'object') {
+                data = response.json;
+            } else {
+                // Limpiar la respuesta de Facebook y parsear
+                const cleanText = text.replace(/^for \(;;\);/, '');
+                data = JSON.parse(cleanText);
+            }
+            
+            // Buscar píxeles en diferentes estructuras de respuesta
+            let pixelCount = 0;
+            
+            // Método 1: Buscar en payload.datasets
+            if (data.payload && data.payload.datasets) {
+                pixelCount = data.payload.datasets.length;
+                console.log(`✅ Encontrados ${pixelCount} píxeles en payload.datasets`);
+                return pixelCount;
+            }
+            
+            // Método 2: Buscar en jsmods.require
+            if (data.jsmods && data.jsmods.require) {
+                for (const mod of data.jsmods.require) {
+                    if (mod[3] && mod[3][0] && mod[3][0].datasets) {
+                        pixelCount = mod[3][0].datasets.length;
+                        console.log(`✅ Encontrados ${pixelCount} píxeles en jsmods.require`);
+                        return pixelCount;
+                    }
+                }
+            }
+            
+            // Método 3: Buscar patrones específicos de píxeles reales en HTML
+            // Solo buscar píxeles que tengan el formato correcto (letras mayúsculas y números/guiones)
+            const realPixelMatches = text.match(/Pixel\s+[A-Z][A-Z0-9_]{2,}/g);
+            if (realPixelMatches) {
+                // Filtrar para excluir nombres de dispositivos y texto genérico
+                const filteredPixels = realPixelMatches.filter(pixel => {
+                    const pixelName = pixel.replace('Pixel ', '');
+                    // Excluir nombres de dispositivos Google Pixel y texto genérico
+                    return !pixelName.match(/^(XL|[0-9]+[A-Z]?|Overview|Details|Manual|Code|Is)$/i) &&
+                           pixelName.length >= 3 &&
+                           pixelName.match(/[A-Z0-9_]{3,}/);
+                });
+                
+                if (filteredPixels.length > 0) {
+                    const uniqueRealPixels = new Set(filteredPixels);
+                    pixelCount = uniqueRealPixels.size;
+                    console.log(`✅ Encontrados ${pixelCount} píxeles reales:`, Array.from(uniqueRealPixels));
+                    return pixelCount;
+                }
+            }
+            
+            // Método 4: Buscar patrones de dataset_id
+            const datasetMatches = text.match(/"dataset_id":"(\d{15,})"/g);
+            if (datasetMatches) {
+                const uniqueDatasets = new Set(datasetMatches.map(match => match.match(/"dataset_id":"(\d{15,})"/)[1]));
+                pixelCount = uniqueDatasets.size;
+                console.log(`✅ Encontrados ${pixelCount} píxeles únicos por dataset_id`);
+                return pixelCount;
+            }
+            
+            // Método 5: Buscar en el HTML por elementos específicos de píxeles
+            const pixelRowMatches = text.match(/data-testid="[^"]*pixel[^"]*"/gi);
+            if (pixelRowMatches) {
+                pixelCount = pixelRowMatches.length;
+                console.log(`✅ Encontrados ${pixelCount} píxeles por elementos HTML`);
+                return pixelCount;
+            }
+            
+            // Método 6: Buscar por "id" genérico en contexto de píxeles
+            const idMatches = text.match(/"id":"(\d{15,})"/g);
+            if (idMatches && (text.includes('pixel') || text.includes('dataset'))) {
+                const uniqueIds = new Set(idMatches.map(match => match.match(/"id":"(\d{15,})"/)[1]));
+                pixelCount = uniqueIds.size;
+                console.log(`✅ Encontrados ${pixelCount} IDs únicos en contexto de píxeles`);
+                return pixelCount;
+            }
+            
+            console.log(`ℹ️ No se encontraron píxeles para BM: ${businessId}`);
+            return 0;
+            
+        } catch (parseError) {
+            console.error('❌ Error parseando respuesta de píxeles:', parseError);
+            console.log('📄 Respuesta completa (primeros 1000 chars):', text.substring(0, 1000));
+            
+            // Debugging: buscar diferentes patrones en el texto
+            console.log('🔍 Buscando patrones de píxeles...');
+            
+            // Buscar menciones de "Pixel" en el texto
+            const pixelMentions = text.match(/pixel/gi);
+            console.log(`📊 Menciones de "pixel": ${pixelMentions ? pixelMentions.length : 0}`);
+            
+            // Buscar nombres específicos de píxeles reales
+            const allPixelMatches = text.match(/Pixel\s+[A-Z0-9_]+/gi);
+            console.log(`📊 Todas las menciones de píxeles encontradas:`, allPixelMatches);
+            
+            // Filtrar solo píxeles reales
+            let realPixelNames = [];
+            if (allPixelMatches) {
+                realPixelNames = allPixelMatches.filter(pixel => {
+                    const pixelName = pixel.replace(/Pixel\s+/i, '');
+                    // Excluir nombres de dispositivos Google Pixel y texto genérico
+                    return !pixelName.match(/^(XL|[0-9]+[A-Z]?|Overview|Details|Manual|Code|Is|limit|setup|on|manually|only|code|details|via|status|tab|in|to|events|audiences|users|performance)$/i) &&
+                           pixelName.length >= 3 &&
+                           pixelName.match(/[A-Z0-9_]{3,}/);
+                });
+            }
+            console.log(`📊 Píxeles reales filtrados:`, realPixelNames);
+            
+            // Buscar IDs largos que podrían ser píxeles (solo si hay contexto de píxeles)
+            const longIds = text.match(/\d{15,}/g);
+            console.log(`📊 IDs largos encontrados: ${longIds ? longIds.length : 0}`);
+            
+            // Fallback: usar píxeles reales filtrados
+            if (realPixelNames && realPixelNames.length > 0) {
+                const uniqueRealPixels = new Set(realPixelNames);
+                console.log(`🔄 Fallback por nombres reales: encontrados ${uniqueRealPixels.size} píxeles únicos`);
+                return uniqueRealPixels.size;
+            }
+            
+            const pixelMatches = text.match(/pixel|dataset/gi);
+            if (pixelMatches) {
+                const idMatches = text.match(/"id":"(\d{15,})"/g);
+                if (idMatches) {
+                    const uniqueIds = new Set(idMatches.map(match => match.match(/"id":"(\d{15,})"/)[1]));
+                    console.log(`🔄 Fallback por IDs: encontrados ${uniqueIds.size} IDs únicos`);
+                    return uniqueIds.size;
+                }
+            }
+            
+            return 0;
+        }
+        
+    } catch (error) {
+        console.error(`❌ Error obteniendo píxeles para BM ${businessId}:`, error);
+        return 0;
+    }
+}
+
+/**
+ * getPixelCountViaExtension
+ * Descripción: Obtiene el número de píxeles usando la extensión directamente
+ * Parámetros: businessId (string)
+ * Retorna: Promise<number>
+ */
+async function getPixelCountViaExtension(businessId) {
+    try {
+        console.log(`🔧 Obteniendo píxeles via extensión para BM: ${businessId}`);
+        
+        const result = await chrome.runtime.sendMessage(extId, {
+            type: "executeScript",
+            code: `
+                (async function() {
+                    try {
+                        const business_id = '${businessId}';
+                        const user_id = document.cookie.match(/c_user=(\\d+)/)?.[1] || require('CurrentUserInitialData').USER_ID;
+                        const fb_dtsg = document.querySelector('[name="fb_dtsg"]')?.value || require('DTSGInitialData').token;
+                        
+                        if (!user_id || !fb_dtsg) {
+                            throw new Error('No se pudieron obtener los tokens necesarios');
+                        }
+                        
+                        // Obtener píxeles del BM usando el endpoint correcto
+                        const response = await fetch('https://business.facebook.com/latest/settings/events_dataset_and_pixel?business_id=' + business_id, {
+                            method: 'GET',
+                            credentials: 'include',
+                            headers: {
+                                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
+                            }
+                        });
+                        
+                        const text = await response.text();
+                        const cleanText = text.replace(/^for \\(;;\\);/, '');
+                        
+                        try {
+                            const data = JSON.parse(cleanText);
+                            
+                            // Buscar píxeles en payload.datasets
+                            if (data.payload && data.payload.datasets) {
+                                return { success: true, count: data.payload.datasets.length };
+                            }
+                            
+                            // Buscar en jsmods.require
+                            if (data.jsmods && data.jsmods.require) {
+                                for (const mod of data.jsmods.require) {
+                                    if (mod[3] && mod[3][0] && mod[3][0].datasets) {
+                                        return { success: true, count: mod[3][0].datasets.length };
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            // Si falla el parsing, usar regex
+                        }
+                        
+                        // Fallback con múltiples métodos de búsqueda
+                        
+                        // Método 1: Buscar nombres de píxeles en HTML
+                        const pixelNameMatches = text.match(/Pixel\\s+[A-Z0-9_]+/gi);
+                        if (pixelNameMatches) {
+                            const uniquePixelNames = new Set(pixelNameMatches);
+                            return { success: true, count: uniquePixelNames.size };
+                        }
+                        
+                        // Método 2: Buscar dataset_id
+                        const datasetMatches = text.match(/"dataset_id":"(\\d{15,})"/g);
+                        if (datasetMatches) {
+                            const uniqueDatasets = new Set(datasetMatches.map(match => match.match(/"dataset_id":"(\\d{15,})"/)[1]));
+                            return { success: true, count: uniqueDatasets.size };
+                        }
+                        
+                        // Método 3: Buscar elementos HTML de píxeles
+                        const pixelElementMatches = text.match(/data-testid="[^"]*pixel[^"]*"/gi);
+                        if (pixelElementMatches) {
+                            return { success: true, count: pixelElementMatches.length };
+                        }
+                        
+                        return { success: true, count: 0 };
+                        
+                    } catch (error) {
+                        return { success: false, error: error.message, count: 0 };
+                    }
+                })();
+            `
+        });
+        
+        if (result && result.success !== false) {
+            return result.count || 0;
+        } else {
+            console.error('Error en extensión:', result?.error);
+            return 0;
+        }
+        
+    } catch (error) {
+        console.error('Error en getPixelCountViaExtension:', error);
+        return 0;
+    }
+}
+
+/**
+ * getPixelCountViaGraphQL
+ * Descripción: Obtiene píxeles usando GraphQL como lo hace Facebook internamente
+ * Parámetros: businessId (string)
+ * Retorna: Promise<number>
+ */
+async function getPixelCountViaGraphQL(businessId) {
+    try {
+        console.log(`🔍 Intentando GraphQL para BM: ${businessId}`);
+        
+        // Obtener tokens necesarios para GraphQL
+        const dtsg = fb?.dtsg || document.querySelector('[name="fb_dtsg"]')?.value;
+        if (!dtsg) {
+            throw new Error('No se pudo obtener fb_dtsg');
+        }
+        
+        // Query GraphQL para obtener datasets/píxeles
+        const graphqlQuery = {
+            "av": fb?.uid || "0",
+            "fb_dtsg": dtsg,
+            "fb_api_req_friendly_name": "BusinessDataSourcesQuery",
+            "variables": JSON.stringify({
+                "businessID": businessId,
+                "first": 50
+            }),
+            "doc_id": "4159167734147568" // Este es un doc_id común para datasets
+        };
+        
+        const response = await fetch2('https://business.facebook.com/api/graphql/', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                'x-fb-friendly-name': 'BusinessDataSourcesQuery'
+            },
+            body: Object.keys(graphqlQuery).map(key => `${key}=${encodeURIComponent(graphqlQuery[key])}`).join('&')
+        });
+        
+        const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
+        
+        try {
+            const data = JSON.parse(text.replace(/^for \(;;\);/, ''));
+            
+            // Buscar datasets en la respuesta GraphQL
+            if (data.data && data.data.business && data.data.business.data_sources) {
+                const datasets = data.data.business.data_sources.edges || [];
+                console.log(`✅ GraphQL: encontrados ${datasets.length} datasets`);
+                return datasets.length;
+            }
+            
+        } catch (e) {
+            console.warn('Error parseando GraphQL response:', e);
+        }
+        
+        return 0;
+        
+    } catch (error) {
+        console.error('❌ Error en GraphQL:', error);
+        return 0;
+    }
+}
+
+/**
+ * getPixelCountDirectAccess
+ * Descripción: Obtiene píxeles accediendo directamente a la página de datasets
+ * Parámetros: businessId (string)
+ * Retorna: Promise<number>
+ */
+async function getPixelCountDirectAccess(businessId) {
+    try {
+        console.log(`🎯 Acceso directo a píxeles para BM: ${businessId}`);
+        
+        // Intentar con diferentes URLs que podrían contener la información de píxeles
+        const urls = [
+            `https://business.facebook.com/ajax/business_manager/events_manager/datasets/?business_id=${businessId}&__a=1&__req=1`,
+            `https://business.facebook.com/api/graphql/`,
+            `https://business.facebook.com/events_manager/datasets/?business_id=${businessId}&__a=1`,
+            `https://business.facebook.com/latest/settings/events_dataset_and_pixel?business_id=${businessId}`
+        ];
+        
+        for (const url of urls) {
+            try {
+                console.log(`🔗 Probando URL: ${url}`);
+                const response = await fetch2(url, {
+                    method: 'GET',
+                    headers: {
+                        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'accept-language': 'es-ES,es;q=0.9,en;q=0.8',
+                        'cache-control': 'no-cache'
+                    }
+                });
+                
+                const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
+                
+                // Buscar píxeles con patrones específicos y filtrados
+                
+                // Patrón 1: Buscar píxeles reales en HTML
+                const realPixelMatches = text.match(/Pixel\s+[A-Z][A-Z0-9_]{2,}/g);
+                if (realPixelMatches) {
+                    const filteredPixels = realPixelMatches.filter(pixel => {
+                        const pixelName = pixel.replace('Pixel ', '');
+                        return !pixelName.match(/^(XL|[0-9]+[A-Z]?|Overview|Details|Manual|Code|Is|limit|setup|on|manually|only|code|details|via|status|tab|in|to|events|audiences|users|performance)$/i) &&
+                               pixelName.length >= 3;
+                    });
+                    
+                    if (filteredPixels.length > 0) {
+                        const uniqueRealPixels = new Set(filteredPixels);
+                        console.log(`✅ Encontrados ${uniqueRealPixels.size} píxeles reales en ${url}:`, Array.from(uniqueRealPixels));
+                        return uniqueRealPixels.size;
+                    }
+                }
+                
+                // Patrón 2: Buscar en JSON
+                const jsonPixelMatches = text.match(/"name":\s*"[^"]*[A-Z0-9_]{3,}[^"]*"/gi);
+                if (jsonPixelMatches) {
+                    const filteredJsonPixels = jsonPixelMatches.filter(match => 
+                        match.includes('Pixel') && !match.match(/overview|details|manual|code|setup/i)
+                    );
+                    
+                    if (filteredJsonPixels.length > 0) {
+                        const uniqueJsonPixels = new Set(filteredJsonPixels);
+                        console.log(`✅ Encontrados ${uniqueJsonPixels.size} píxeles en JSON:`, Array.from(uniqueJsonPixels));
+                        return uniqueJsonPixels.size;
+                    }
+                }
+                
+            } catch (urlError) {
+                console.warn(`⚠️ Error con URL ${url}:`, urlError.message);
+                continue;
+            }
+        }
+        
+        return 0;
+        
+    } catch (error) {
+        console.error('❌ Error en acceso directo:', error);
+        return 0;
+    }
+}
+
+/**
+ * loadPixelCountForBM
+ * Descripción: Carga el número de píxeles para un BM específico
+ * Parámetros: businessId (string), bmRowId (number)
+ * Retorna: Promise<number>
+ */
+async function loadPixelCountForBM(businessId, bmRowId) {
+    try {
+        let pixelCount = 0;
+        
+        // Intentar primero con fetch2
+        try {
+            pixelCount = await getPixelCountForBM(businessId);
+            if (pixelCount > 0) {
+                console.log(`✅ Método principal exitoso: ${pixelCount} píxeles`);
+            }
+        } catch (error) {
+            console.log('🔄 Método principal falló, intentando alternativo...');
+        }
+        
+        // Si no encontró píxeles, intentar con GraphQL
+        if (pixelCount === 0) {
+            try {
+                pixelCount = await getPixelCountViaGraphQL(businessId);
+                if (pixelCount > 0) {
+                    console.log(`✅ GraphQL exitoso: ${pixelCount} píxeles`);
+                }
+            } catch (error) {
+                console.log('🔄 GraphQL falló, intentando acceso directo...');
+            }
+        }
+        
+        // Si aún no encontró píxeles, intentar con acceso directo
+        if (pixelCount === 0) {
+            try {
+                pixelCount = await getPixelCountDirectAccess(businessId);
+                if (pixelCount > 0) {
+                    console.log(`✅ Acceso directo exitoso: ${pixelCount} píxeles`);
+                }
+            } catch (error) {
+                console.log('🔄 Acceso directo falló, intentando extensión...');
+            }
+        }
+        
+        // Si aún no encontró píxeles, intentar con extensión
+        if (pixelCount === 0) {
+            try {
+                pixelCount = await getPixelCountViaExtension(businessId);
+                if (pixelCount > 0) {
+                    console.log(`✅ Método de extensión exitoso: ${pixelCount} píxeles`);
+                }
+            } catch (error) {
+                console.log('❌ Todos los métodos fallaron');
+            }
+        }
+        
+        // Actualizar la grilla con el número de píxeles
+        if (bmRowId !== null && bmRowId !== undefined) {
+            accountGrid.api.getRowNode(bmRowId).setDataValue("pixelCount", pixelCount);
+        }
+        
+        // Disparar evento para notificar que se cargaron los píxeles
+        $(document).trigger("loadPixelSuccess", { id: businessId, count: pixelCount });
+        
+        console.log(`📊 BM ${businessId}: ${pixelCount} píxeles`);
+        return pixelCount;
+        
+    } catch (error) {
+        console.error(`❌ Error cargando píxeles para BM ${businessId}:`, error);
+        
+        // En caso de error, mostrar 0
+        if (bmRowId !== null && bmRowId !== undefined) {
+            accountGrid.api.getRowNode(bmRowId).setDataValue("pixelCount", 0);
+        }
+        
+        return 0;
     }
 }
 
