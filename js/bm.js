@@ -538,9 +538,8 @@ async function createPixelForBM(bmId, pixelName, quantity = 1, options = {}) {
                     first_party_cookie_status: enableFirstPartyCookies ? 'FIRST_PARTY_COOKIE_ENABLED' : 'FIRST_PARTY_COOKIE_DISABLED'
                 };
 
-                // Aquí iría la llamada real a la API de Facebook
-                // Por ahora simularemos la respuesta
-                const response = await simulatePixelCreation(pixelData);
+                // Llamada real a la API de Facebook
+                const response = await createRealPixel(pixelData);
                 
                 if (response.success) {
                     results.success.push({
@@ -557,9 +556,9 @@ async function createPixelForBM(bmId, pixelName, quantity = 1, options = {}) {
                     });
                 }
 
-                // Delay entre creaciones para evitar rate limiting
+                // Delay entre creaciones para evitar rate limiting (más realista)
                 if (i < quantity - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await new Promise(resolve => setTimeout(resolve, 2500 + Math.random() * 1000));
                 }
 
             } catch (error) {
@@ -586,29 +585,288 @@ async function createPixelForBM(bmId, pixelName, quantity = 1, options = {}) {
 }
 
 /**
- * simulatePixelCreation
- * Descripción: Simula la creación de un píxel (reemplazar con llamada real a Facebook API)
+ * FacebookPixelCreator
+ * Descripción: Clase para crear píxeles reales de Facebook usando la API nativa
+ */
+class FacebookPixelCreator {
+    constructor(businessId) {
+        this.business_id = businessId;
+        this.user_id = this.getUserId();
+        this.fb_dtsg = this.getFbDtsg();
+        this.lsd = this.getLsd();
+        this.access_token = this.getAccessToken();
+
+        if (!this.business_id) throw new Error('No se pudo obtener el ID del negocio');
+        if (!this.user_id) throw new Error('No se pudo obtener el ID de usuario');
+        if (!this.fb_dtsg) throw new Error('No se pudo obtener el token DTSG');
+    }
+
+    getUserId() {
+        try {
+            return document.cookie.match(/c_user=(\d+)/)?.[1] || 
+                   (typeof require !== 'undefined' ? require('CurrentUserInitialData')?.USER_ID : null) ||
+                   fb?.uid;
+        } catch (e) {
+            return fb?.uid || null;
+        }
+    }
+
+    getFbDtsg() {
+        try {
+            return document.querySelector('[name="fb_dtsg"]')?.value ||
+                   (typeof require !== 'undefined' ? require('DTSGInitialData')?.token : null) ||
+                   document.querySelector('input[name="fb_dtsg"]')?.value ||
+                   fb?.dtsg;
+        } catch (e) {
+            return fb?.dtsg || null;
+        }
+    }
+
+    getLsd() {
+        try {
+            return document.querySelector('[name="lsd"]')?.value ||
+                   (typeof require !== 'undefined' ? require('LSD')?.token : null) ||
+                   `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        } catch (e) {
+            return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        }
+    }
+
+    getAccessToken() {
+        try {
+            return (typeof require !== 'undefined' ? require('WebApiApplication')?.getAccessToken() : null) ||
+                   document.querySelector('input[name="accessToken"]')?.value;
+        } catch (e) {
+            console.warn('No se pudo obtener access token:', e);
+            return null;
+        }
+    }
+
+    async createPixel(pixelName) {
+        try {
+            console.log(`🚀 Creando píxel real: ${pixelName} para BM: ${this.business_id}`);
+            
+            // Verificar que fetch2 esté disponible
+            if (typeof fetch2 !== 'function') {
+                throw new Error('fetch2 no está disponible. Asegúrate de que la extensión esté cargada.');
+            }
+            
+            // Primero aceptamos los términos si es necesario (usando fetch2 para evitar CORS)
+            try {
+                await fetch2(`https://business.facebook.com/pixels/accept_tos/?business_id=${this.business_id}&__a=1`, {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `__user=${this.user_id}&fb_dtsg=${encodeURIComponent(this.fb_dtsg)}`
+                });
+            } catch (e) {
+                console.warn('Error aceptando términos (puede ser normal):', e);
+            }
+
+            // Crear el píxel usando el endpoint directo (usando fetch2 para evitar CORS)
+            const response = await fetch2('https://business.facebook.com/events_manager/dataset/create/', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded'
+                },
+                body: `business_id=${this.business_id}&is_crm=false&name=${encodeURIComponent(pixelName)}&__user=${this.user_id}&fb_dtsg=${encodeURIComponent(this.fb_dtsg)}&__a=1`
+            });
+
+            // fetch2 devuelve un objeto con propiedades text y json
+            const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
+            console.log('📊 Respuesta de Facebook:', text.substring(0, 200) + '...');
+
+            let data;
+            try {
+                // Si response.json ya existe, usarlo directamente
+                if (response.json && typeof response.json === 'object') {
+                    data = response.json;
+                } else {
+                    // Limpiar la respuesta de Facebook y parsear
+                    const cleanText = text.replace(/^for \(;;\);/, '');
+                    data = JSON.parse(cleanText);
+                }
+                
+                // Nuevo formato de respuesta
+                if (data.payload?.id) {
+                    console.log(`✅ Píxel creado exitosamente: ${pixelName} (ID: ${data.payload.id})`);
+                    return {
+                        success: true,
+                        pixelId: data.payload.id,
+                        name: pixelName,
+                        data: data
+                    };
+                }
+                
+                // Formato anterior por compatibilidad
+                if (data.jsmods?.require) {
+                    const pixelData = data.jsmods.require.find(r => r[0] === 'PixelConfirmationDialog.react');
+                    if (pixelData) {
+                        const pixelId = pixelData[3][0]?.pixel_id;
+                        if (pixelId) {
+                            console.log(`✅ Píxel creado exitosamente: ${pixelName} (ID: ${pixelId})`);
+                            return {
+                                success: true,
+                                pixelId: pixelId,
+                                name: pixelName,
+                                data: data
+                            };
+                        }
+                    }
+                }
+
+                // Buscar cualquier ID en la respuesta
+                const idMatch = text.match(/"id":"(\d{15,})"/);
+                if (idMatch) {
+                    const pixelId = idMatch[1];
+                    console.log(`✅ Píxel creado (ID encontrado por regex): ${pixelName} (ID: ${pixelId})`);
+                    return {
+                        success: true,
+                        pixelId: pixelId,
+                        name: pixelName,
+                        data: data
+                    };
+                }
+
+                // Si hay error específico
+                if (data.error) {
+                    throw new Error(data.errorDescription || data.error.message || 'Error desconocido de Facebook');
+                }
+
+                throw new Error('No se pudo obtener el ID del píxel de la respuesta');
+                
+            } catch (parseError) {
+                console.error('❌ Error parseando respuesta:', parseError);
+                console.log('📄 Respuesta completa:', text);
+                console.log('📄 Respuesta objeto:', response);
+                
+                // Intentar extraer información útil del error
+                if (response && !response.ok) {
+                    throw new Error(`Error HTTP ${response.status}: ${response.statusText || 'Error de Facebook'}`);
+                }
+                
+                throw new Error(`Error procesando respuesta de Facebook: ${parseError.message}`);
+            }
+            
+        } catch (error) {
+            console.error(`❌ Error creando píxel ${pixelName}:`, error);
+            return {
+                success: false,
+                error: error.message,
+                name: pixelName
+            };
+        }
+    }
+}
+
+/**
+ * createPixelViaExtension
+ * Descripción: Crea un píxel usando la extensión de Chrome directamente
  * Parámetros: pixelData (object)
  * Retorna: Promise<object>
  */
-async function simulatePixelCreation(pixelData) {
-    // Simular delay de API
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-    
-    // Simular éxito/fallo (90% éxito, 10% fallo para testing)
-    const isSuccess = Math.random() > 0.1;
-    
-    if (isSuccess) {
-        return {
-            success: true,
-            pixelId: Math.floor(Math.random() * 900000000000000) + 100000000000000, // ID simulado de 15 dígitos
-            name: pixelData.name
-        };
-    } else {
+async function createPixelViaExtension(pixelData) {
+    try {
+        console.log(`🔧 Intentando crear píxel via extensión: ${pixelData.name}`);
+        
+        // Usar la extensión para ejecutar código en la página de Facebook
+        const result = await chrome.runtime.sendMessage(extId, {
+            type: "executeScript",
+            code: `
+                (async function() {
+                    try {
+                        // Obtener tokens de la página actual
+                        const business_id = '${pixelData.business_id}';
+                        const pixelName = '${pixelData.name}';
+                        const user_id = document.cookie.match(/c_user=(\\d+)/)?.[1] || require('CurrentUserInitialData').USER_ID;
+                        const fb_dtsg = document.querySelector('[name="fb_dtsg"]')?.value || require('DTSGInitialData').token;
+                        
+                        if (!user_id || !fb_dtsg) {
+                            throw new Error('No se pudieron obtener los tokens necesarios');
+                        }
+                        
+                        // Crear el píxel
+                        const response = await fetch('https://business.facebook.com/events_manager/dataset/create/', {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: {
+                                'content-type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'business_id=' + business_id + '&is_crm=false&name=' + encodeURIComponent(pixelName) + '&__user=' + user_id + '&fb_dtsg=' + encodeURIComponent(fb_dtsg) + '&__a=1'
+                        });
+                        
+                        const text = await response.text();
+                        const cleanText = text.replace(/^for \\(;;\\);/, '');
+                        const data = JSON.parse(cleanText);
+                        
+                        if (data.payload?.id) {
+                            return { success: true, pixelId: data.payload.id, name: pixelName };
+                        }
+                        
+                        const idMatch = text.match(/"id":"(\\d{15,})"/);
+                        if (idMatch) {
+                            return { success: true, pixelId: idMatch[1], name: pixelName };
+                        }
+                        
+                        throw new Error('No se pudo obtener el ID del píxel');
+                        
+                    } catch (error) {
+                        return { success: false, error: error.message };
+                    }
+                })();
+            `
+        });
+        
+        return result;
+        
+    } catch (error) {
+        console.error('Error en createPixelViaExtension:', error);
         return {
             success: false,
-            error: 'Error simulado: No se pudo crear el píxel. Verifique los permisos del Business Manager.'
+            error: error.message || 'Error crítico en extensión'
         };
+    }
+}
+
+/**
+ * createRealPixel
+ * Descripción: Crea un píxel real de Facebook usando la API nativa
+ * Parámetros: pixelData (object)
+ * Retorna: Promise<object>
+ */
+async function createRealPixel(pixelData) {
+    try {
+        // Intentar primero con la clase FacebookPixelCreator
+        const creator = new FacebookPixelCreator(pixelData.business_id);
+        const result = await creator.createPixel(pixelData.name);
+        
+        if (result.success) {
+            return {
+                success: true,
+                pixelId: result.pixelId,
+                name: result.name
+            };
+        } else {
+            return {
+                success: false,
+                error: result.error || 'Error desconocido al crear píxel'
+            };
+        }
+    } catch (error) {
+        console.error('Error en createRealPixel:', error);
+        console.log('🔄 Intentando método alternativo via extensión...');
+        
+        // Si falla, intentar con el método alternativo
+        try {
+            return await createPixelViaExtension(pixelData);
+        } catch (fallbackError) {
+            console.error('Error en método alternativo:', fallbackError);
+            return {
+                success: false,
+                error: `Error principal: ${error.message}. Error alternativo: ${fallbackError.message}`
+            };
+        }
     }
 }
 
@@ -630,6 +888,17 @@ async function handleCreatePixelProcess() {
                 icon: 'error',
                 title: 'Error',
                 text: 'Por favor ingrese un nombre para el píxel'
+            });
+            return;
+        }
+
+        // Verificar que estemos en el contexto correcto
+        if (typeof fetch2 !== 'function' && typeof chrome === 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Extensión requerida',
+                html: 'Para crear píxeles reales necesitas:<br>1. Tener la extensión DivinAds instalada<br>2. Estar en una pestaña de Facebook Business Manager<br>3. Haber iniciado sesión en Facebook',
+                confirmButtonText: 'Entendido'
             });
             return;
         }
@@ -658,7 +927,12 @@ async function handleCreatePixelProcess() {
         // Mostrar área de progreso
         $('#pixelProgressArea').show();
         $('#pixelResults').hide();
-        $('#pixelProgressMessages').html('<div class="text-info">Iniciando proceso de creación de píxeles...</div>');
+        $('#pixelProgressMessages').html(`
+            <div class="text-info">🚀 Iniciando proceso de creación de píxeles REALES de Facebook...</div>
+            <div class="text-muted" style="font-size: 0.9em; margin-top: 5px;">
+                ℹ️ Los píxeles se crearán usando la API oficial de Facebook Business Manager
+            </div>
+        `);
 
         const allSuccessResults = [];
         const allErrorResults = [];
@@ -668,7 +942,7 @@ async function handleCreatePixelProcess() {
             const bm = selectedBMs[i];
             
             // Actualizar progreso
-            const progressMsg = `<div class="text-primary">Procesando BM ${i + 1}/${selectedBMs.length}: ${bm.name} (${bm.bmId})</div>`;
+            const progressMsg = `<div class="text-primary">📋 Procesando BM ${i + 1}/${selectedBMs.length}: ${bm.name} (${bm.bmId})</div>`;
             $('#pixelProgressMessages').append(progressMsg);
             $('#pixelProgressMessages').scrollTop($('#pixelProgressMessages')[0].scrollHeight);
 
@@ -685,13 +959,25 @@ async function handleCreatePixelProcess() {
 
                 // Mostrar resultados de este BM
                 if (results.success.length > 0) {
-                    const successMsg = `<div class="text-success">✓ ${results.success.length} píxel(es) creado(s) exitosamente para ${bm.name}</div>`;
+                    const successMsg = `<div class="text-success">✅ ${results.success.length} píxel(es) REAL(es) creado(s) exitosamente para ${bm.name}</div>`;
                     $('#pixelProgressMessages').append(successMsg);
+                    
+                    // Mostrar IDs de píxeles creados
+                    results.success.forEach(pixel => {
+                        const pixelMsg = `<div class="text-success" style="margin-left: 20px; font-size: 0.9em;">🎯 ${pixel.pixelName} → ID: ${pixel.pixelId}</div>`;
+                        $('#pixelProgressMessages').append(pixelMsg);
+                    });
                 }
 
                 if (results.errors.length > 0) {
-                    const errorMsg = `<div class="text-danger">✗ ${results.errors.length} error(es) en ${bm.name}</div>`;
+                    const errorMsg = `<div class="text-danger">❌ ${results.errors.length} error(es) en ${bm.name}</div>`;
                     $('#pixelProgressMessages').append(errorMsg);
+                    
+                    // Mostrar detalles de errores
+                    results.errors.forEach(error => {
+                        const errorDetailMsg = `<div class="text-danger" style="margin-left: 20px; font-size: 0.9em;">⚠️ ${error.pixelName || error.bmId}: ${error.error}</div>`;
+                        $('#pixelProgressMessages').append(errorDetailMsg);
+                    });
                 }
 
             } catch (error) {
@@ -706,14 +992,14 @@ async function handleCreatePixelProcess() {
 
             $('#pixelProgressMessages').scrollTop($('#pixelProgressMessages')[0].scrollHeight);
 
-            // Delay entre BMs para evitar rate limiting
+            // Delay entre BMs para evitar rate limiting (más conservador)
             if (i < selectedBMs.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 4000 + Math.random() * 2000));
             }
         }
 
         // Mostrar resultados finales
-        $('#pixelProgressMessages').append('<div class="text-info mt-2"><strong>Proceso completado</strong></div>');
+        $('#pixelProgressMessages').append('<div class="text-info mt-2"><strong>🏁 Proceso de creación de píxeles REALES completado</strong></div>');
         
         // Actualizar contadores y áreas de resultados
         $('#pixelSuccessCount').text(allSuccessResults.length);
