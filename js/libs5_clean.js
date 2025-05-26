@@ -52,184 +52,251 @@ async function getBusinessManagers() {
     }
 }
 
-// Función para obtener píxeles SOLO usando Graph API (CORREGIDA PARA fetch2)
+// Función para obtener píxeles - VERSIÓN RESTAURADA SIMPLE Y FUNCIONAL
 async function getPixelsByBM(selectedBMId = null) {
     try {
-        console.log('🔍 Obteniendo píxeles usando SOLO Graph API...');
-        
         if (!selectedBMId) {
-            console.log('❌ No se seleccionó ningún BM');
             return [];
         }
+        
+        if (!fetch2 || !fb) {
+            return [];
+        }
+        
+        const token = fb.accessToken || fb.token;
+        if (!token) {
+            return [];
+        }
+        
+        console.log(`🔍 Obteniendo píxeles para BM: ${selectedBMId}`);
         
         // Obtener el mejor token disponible
-        let token = fb?.accessToken || fb?.token;
-        
-        // Intentar obtener token EAAG si no lo tenemos
-        if (!token || !token.startsWith('EAAG')) {
-            const eaagToken = getEAAGToken();
-            if (eaagToken) {
-                token = eaagToken;
-                console.log(`🔑 Usando token EAAG para cargar píxeles: ${token.substring(0, 20)}...`);
-            }
+        let bestToken = token;
+        const eaagToken = getEAAGToken();
+        if (eaagToken && eaagToken.length > 50) {
+            bestToken = eaagToken;
+            console.log(`🔑 Usando token EAAG`);
         }
         
-        if (!token) {
-            console.log('❌ No se encontró token de acceso');
-            return [];
-        }
-        
-        console.log(`🏢 Consultando píxeles para BM: ${selectedBMId}`);
-        console.log(`🔑 Token: ${token.substring(0, 20)}...`);
-        
-        // MÉTODO 1: Graph API v19.0 directo al BM (CORREGIDO PARA fetch2)
+        // Método 1: Tu endpoint exacto que funciona
         try {
-            const bmPixelsUrl = `https://graph.facebook.com/v19.0/${selectedBMId}/adspixels?fields=id,name&access_token=${token}`;
-            console.log(`📡 Consultando v19.0: ${bmPixelsUrl}`);
+            const url = `https://graph.facebook.com/v19.0/${selectedBMId}/adspixels?name=MiPixelNuevo&access_token=${bestToken}`;
+            console.log(`📡 Método 1 - Tu endpoint exacto`);
+            console.log(`🔗 URL: ${url.substring(0, 120)}...`);
             
-            const bmPixelsResponse = await fetch2(bmPixelsUrl);
-            const bmPixelsData = bmPixelsResponse.json;
+            const response = await fetch2(url);
+            const data = response.json;
             
-            console.log(`📊 Respuesta v19.0:`, bmPixelsData);
-            console.log(`🔍 DEBUG v19.0: status=${bmPixelsResponse.status}, data exists=${!!bmPixelsData.data}, is array=${Array.isArray(bmPixelsData.data)}, length=${bmPixelsData.data?.length}`);
+            console.log(`📊 Método 1 - Status: ${response.status}, OK: ${response.ok}`);
+            console.log(`📊 Método 1 - Data completa:`, JSON.stringify(data, null, 2));
+            console.log(`📊 Método 1 - Tiene data.data: ${!!data.data}`);
+            console.log(`📊 Método 1 - Es array: ${Array.isArray(data.data)}`);
+            console.log(`📊 Método 1 - Longitud: ${data.data?.length || 0}`);
             
-            // CORREGIDO: fetch2 no tiene .ok, verificar por status y ausencia de error
-            if (bmPixelsData && bmPixelsData.data && Array.isArray(bmPixelsData.data) && !bmPixelsData.error) {
-                const graphPixels = bmPixelsData.data.map((pixel, index) => ({
-                    id: pixel.id,
-                    name: pixel.name || `Píxel ${index + 1}`,
-                    displayName: `🎯 ${pixel.name || `Píxel ${index + 1}`} (ID: ${pixel.id})`,
-                    status: 'ACTIVE',
-                    bmId: selectedBMId
-                }));
-                
-                console.log(`✅ ÉXITO v19.0: Encontrados ${graphPixels.length} píxeles REALES`);
-                console.log(`📋 IDs reales:`, graphPixels.map(p => p.id));
-                return graphPixels;
-            } else if (bmPixelsData.error) {
-                console.log(`⚠️ Error v19.0: ${bmPixelsData.error.message}`);
-            } else {
-                console.log(`⚠️ v19.0: Condición no cumplida - data=${!!bmPixelsData.data}, isArray=${Array.isArray(bmPixelsData.data)}, error=${!!bmPixelsData.error}`);
-            }
-        } catch (error) {
-            console.log(`⚠️ Error v19.0: ${error.message}`);
-        }
-        
-        // MÉTODO 2: Graph API v18.0 como fallback (CORREGIDO)
-        try {
-            const fallbackUrl = `https://graph.facebook.com/v18.0/${selectedBMId}/adspixels?fields=id,name&access_token=${token}`;
-            console.log(`📡 Consultando v18.0: ${fallbackUrl}`);
-            
-            const fallbackResponse = await fetch2(fallbackUrl);
-            const fallbackData = fallbackResponse.json;
-            
-            console.log(`📊 Respuesta v18.0:`, fallbackData);
-            console.log(`🔍 DEBUG v18.0: status=${fallbackResponse.status}, data exists=${!!fallbackData.data}, is array=${Array.isArray(fallbackData.data)}, length=${fallbackData.data?.length}`);
-            
-            // CORREGIDO: verificar por data y ausencia de error
-            if (fallbackData && fallbackData.data && Array.isArray(fallbackData.data) && !fallbackData.error) {
-                const fallbackPixels = fallbackData.data.map((pixel, index) => ({
-                    id: pixel.id,
-                    name: pixel.name || `Píxel ${index + 1}`,
-                    displayName: `🎯 ${pixel.name || `Píxel ${index + 1}`} (ID: ${pixel.id})`,
-                    status: 'ACTIVE',
-                    bmId: selectedBMId
-                }));
-                
-                console.log(`✅ ÉXITO v18.0: Encontrados ${fallbackPixels.length} píxeles REALES`);
-                console.log(`📋 IDs reales:`, fallbackPixels.map(p => p.id));
-                return fallbackPixels;
-            } else if (fallbackData.error) {
-                console.log(`⚠️ Error v18.0: ${fallbackData.error.message}`);
-            } else {
-                console.log(`⚠️ v18.0: Condición no cumplida - data=${!!fallbackData.data}, isArray=${Array.isArray(fallbackData.data)}, error=${!!fallbackData.error}`);
-            }
-        } catch (error) {
-            console.log(`⚠️ Error v18.0: ${error.message}`);
-        }
-        
-        // MÉTODO 3: Graph API v14.0 como último fallback (CORREGIDO)
-        try {
-            const v14Url = `https://graph.facebook.com/v14.0/${selectedBMId}/adspixels?fields=id,name&access_token=${token}`;
-            console.log(`📡 Consultando v14.0: ${v14Url}`);
-            
-            const v14Response = await fetch2(v14Url);
-            const v14Data = v14Response.json;
-            
-            console.log(`📊 Respuesta v14.0:`, v14Data);
-            console.log(`🔍 DEBUG v14.0: status=${v14Response.status}, data exists=${!!v14Data.data}, is array=${Array.isArray(v14Data.data)}, length=${v14Data.data?.length}`);
-            
-            // CORREGIDO: verificar por data y ausencia de error
-            if (v14Data && v14Data.data && Array.isArray(v14Data.data) && !v14Data.error) {
-                const v14Pixels = v14Data.data.map((pixel, index) => ({
-                    id: pixel.id,
-                    name: pixel.name || `Píxel ${index + 1}`,
-                    displayName: `🎯 ${pixel.name || `Píxel ${index + 1}`} (ID: ${pixel.id})`,
-                    status: 'ACTIVE',
-                    bmId: selectedBMId
-                }));
-                
-                console.log(`✅ ÉXITO v14.0: Encontrados ${v14Pixels.length} píxeles REALES`);
-                console.log(`📋 IDs reales:`, v14Pixels.map(p => p.id));
-                return v14Pixels;
-            } else if (v14Data.error) {
-                console.log(`⚠️ Error v14.0: ${v14Data.error.message}`);
-            } else {
-                console.log(`⚠️ v14.0: Condición no cumplida - data=${!!v14Data.data}, isArray=${Array.isArray(v14Data.data)}, error=${!!v14Data.error}`);
-            }
-        } catch (error) {
-            console.log(`⚠️ Error v14.0: ${error.message}`);
-        }
-        
-        // MÉTODO 4: Obtener píxeles del usuario y filtrar por BM (CORREGIDO)
-        try {
-            console.log(`🔄 Intentando método /me/adspixels filtrado por BM...`);
-            const userPixelsUrl = `https://graph.facebook.com/v19.0/me/adspixels?fields=id,name,owner_business&access_token=${token}`;
-            console.log(`📡 Consultando: ${userPixelsUrl}`);
-            
-            const userPixelsResponse = await fetch2(userPixelsUrl);
-            const userPixelsData = userPixelsResponse.json;
-            
-            console.log(`📊 Respuesta /me/adspixels:`, userPixelsData);
-            
-            // CORREGIDO: verificar por data y ausencia de error
-            if (userPixelsData && userPixelsData.data && Array.isArray(userPixelsData.data) && !userPixelsData.error) {
-                const filteredPixels = userPixelsData.data
-                    .filter(pixel => {
-                        const hasOwnerBusiness = pixel.owner_business && pixel.owner_business.id === selectedBMId;
-                        console.log(`🔍 Píxel ${pixel.id}: owner_business=${pixel.owner_business?.id}, match=${hasOwnerBusiness}`);
-                        return hasOwnerBusiness;
-                    })
-                    .map((pixel, index) => ({
+            // fetch2 no devuelve response.ok, verificar directamente los datos
+            if (data && data.data && Array.isArray(data.data)) {
+                if (data.data.length > 0) {
+                    const pixels = data.data.map((pixel, index) => ({
                         id: pixel.id,
                         name: pixel.name || `Píxel ${index + 1}`,
                         displayName: `🎯 ${pixel.name || `Píxel ${index + 1}`} (ID: ${pixel.id})`,
                         status: 'ACTIVE',
                         bmId: selectedBMId
                     }));
-                
-                console.log(`✅ ÉXITO /me/adspixels: Encontrados ${filteredPixels.length} píxeles filtrados por BM`);
-                console.log(`📋 IDs filtrados:`, filteredPixels.map(p => p.id));
-                
-                if (filteredPixels.length > 0) {
-                    return filteredPixels;
+                    
+                    console.log(`✅ Método 1 exitoso: ${pixels.length} píxeles`);
+                    return pixels;
+                } else {
+                    console.log(`⚠️ Método 1: Array vacío - BM sin píxeles`);
                 }
-            } else if (userPixelsData.error) {
-                console.log(`⚠️ Error /me/adspixels: ${userPixelsData.error.message}`);
+            } else if (data && data.error) {
+                console.log(`❌ Método 1 error:`, data.error);
+            } else {
+                console.log(`❌ Método 1: Respuesta inválida`);
             }
-        } catch (error) {
-            console.log(`⚠️ Error /me/adspixels: ${error.message}`);
+        } catch (e) {
+            console.log(`⚠️ Método 1 falló: ${e.message}`);
         }
         
-        // Si llegamos aquí, no se encontraron píxeles
-        console.log(`❌ No se encontraron píxeles en BM ${selectedBMId} usando Graph API`);
-        console.log(`💡 NOTA: Los datos están llegando correctamente (Array(13)) pero fetch2 no tiene .ok`);
-        console.log(`🔧 Solución aplicada: Verificar por data y ausencia de error en lugar de response.ok`);
+        // Método 2: Graph API estándar
+        try {
+            const url = `https://graph.facebook.com/v19.0/${selectedBMId}/adspixels?fields=id,name&access_token=${bestToken}`;
+            console.log(`📡 Método 2 - Graph API estándar`);
+            
+            const response = await fetch2(url);
+            const data = response.json;
+            
+            console.log(`📊 Método 2 - Status: ${response.status}, OK: ${response.ok}`);
+            console.log(`📊 Método 2 - Data:`, JSON.stringify(data, null, 2));
+            
+            // fetch2 no devuelve response.ok, verificar directamente los datos
+            if (data && data.data && Array.isArray(data.data)) {
+                if (data.data.length > 0) {
+                    const pixels = data.data.map((pixel, index) => ({
+                        id: pixel.id,
+                        name: pixel.name || `Píxel ${index + 1}`,
+                        displayName: `🎯 ${pixel.name || `Píxel ${index + 1}`} (ID: ${pixel.id})`,
+                        status: 'ACTIVE',
+                        bmId: selectedBMId
+                    }));
+                    
+                    console.log(`✅ Método 2 exitoso: ${pixels.length} píxeles`);
+                    return pixels;
+                } else {
+                    console.log(`⚠️ Método 2: Array vacío - BM sin píxeles`);
+                }
+            } else if (data && data.error) {
+                console.log(`❌ Método 2 error:`, data.error);
+            }
+        } catch (e) {
+            console.log(`⚠️ Método 2 falló: ${e.message}`);
+        }
         
+        // Método 3: Todos los píxeles del usuario
+        try {
+            const url = `https://graph.facebook.com/v19.0/me/adspixels?fields=id,name,owner_business&access_token=${bestToken}`;
+            console.log(`📡 Método 3 - Todos los píxeles del usuario`);
+            
+            const response = await fetch2(url);
+            const data = response.json;
+            
+            console.log(`📊 Método 3 - Status: ${response.status}, OK: ${response.ok}`);
+            console.log(`📊 Método 3 - Data:`, JSON.stringify(data, null, 2));
+            
+            // fetch2 no devuelve response.ok, verificar directamente los datos
+            if (data && data.data && Array.isArray(data.data)) {
+                console.log(`📊 Total píxeles del usuario: ${data.data.length}`);
+                
+                if (data.data.length > 0) {
+                    // Mostrar todos los píxeles disponibles
+                    console.log(`📋 TODOS los píxeles disponibles:`);
+                    data.data.forEach((pixel, index) => {
+                        console.log(`  ${index + 1}. ${pixel.name || 'Sin nombre'} (${pixel.id}) - BM: ${pixel.owner_business?.id || 'Sin BM'}`);
+                    });
+                    
+                    // Filtrar por BM específico
+                    const bmPixels = data.data.filter(pixel => 
+                        pixel.owner_business && pixel.owner_business.id === selectedBMId
+                    );
+                    
+                    if (bmPixels.length > 0) {
+                        const pixels = bmPixels.map((pixel, index) => ({
+                            id: pixel.id,
+                            name: pixel.name || `Píxel ${index + 1}`,
+                            displayName: `🎯 ${pixel.name || `Píxel ${index + 1}`} (ID: ${pixel.id})`,
+                            status: 'ACTIVE',
+                            bmId: selectedBMId
+                        }));
+                        
+                        console.log(`✅ Método 3 exitoso: ${pixels.length} píxeles filtrados para BM ${selectedBMId}`);
+                        return pixels;
+                    } else {
+                        console.log(`⚠️ Método 3: No hay píxeles específicos para BM ${selectedBMId}`);
+                        
+                        // Retornar todos los píxeles disponibles
+                        const allPixels = data.data.map((pixel, index) => ({
+                            id: pixel.id,
+                            name: pixel.name || `Píxel ${index + 1}`,
+                            displayName: `🎯 ${pixel.name || `Píxel ${index + 1}`} (ID: ${pixel.id}) - BM: ${pixel.owner_business?.id || 'Sin BM'}`,
+                            status: 'ACTIVE',
+                            bmId: pixel.owner_business?.id || selectedBMId
+                        }));
+                        
+                        console.log(`✅ Método 3 alternativo: Retornando ${allPixels.length} píxeles totales`);
+                        return allPixels;
+                    }
+                } else {
+                    console.log(`⚠️ Método 3: Usuario sin píxeles`);
+                }
+            } else if (data && data.error) {
+                console.log(`❌ Método 3 error:`, data.error);
+            }
+        } catch (e) {
+            console.log(`⚠️ Método 3 falló: ${e.message}`);
+        }
+        
+        // Método 4: Detección HTML
+        try {
+            console.log(`📡 Método 4 - Detección HTML`);
+            
+            const response = await fetch2(`https://business.facebook.com/latest/settings/events_dataset_and_pixel?business_id=${selectedBMId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
+                }
+            });
+            
+            const text = typeof response.text === 'string' ? response.text : JSON.stringify(response.json || response);
+            
+            if (text && text.length > 1000) {
+                const pixelPatterns = [
+                    /"dataset_id":"(\d{15,20})"/g,
+                    /"id":"(\d{15,20})"/g,
+                    /"pixel_id":"(\d{15,20})"/g,
+                    /pixel[_\s]*id["\s]*[:=]["\s]*(\d{15,20})/gi
+                ];
+                
+                const foundPixels = new Set();
+                
+                pixelPatterns.forEach(pattern => {
+                    let match;
+                    while ((match = pattern.exec(text)) !== null) {
+                        const pixelId = match[1];
+                        if (pixelId && pixelId.length >= 15) {
+                            foundPixels.add(pixelId);
+                        }
+                    }
+                });
+                
+                if (foundPixels.size > 0) {
+                    const pixels = Array.from(foundPixels).map((pixelId, index) => ({
+                        id: pixelId,
+                        name: `Píxel ${index + 1}`,
+                        displayName: `🎯 Píxel ${index + 1} (ID: ${pixelId})`,
+                        status: 'ACTIVE',
+                        bmId: selectedBMId
+                    }));
+                    
+                    console.log(`✅ Método 4 exitoso: ${pixels.length} píxeles desde HTML`);
+                    console.log(`📋 IDs encontrados:`, Array.from(foundPixels));
+                    return pixels;
+                }
+            }
+        } catch (e) {
+            console.log(`⚠️ Método 4 falló: ${e.message}`);
+        }
+        
+        // Si llegamos aquí, verificar si el BM existe
+        try {
+            console.log(`🔍 Verificando si el BM ${selectedBMId} existe...`);
+            const bmUrl = `https://graph.facebook.com/v19.0/${selectedBMId}?fields=id,name,verification_status&access_token=${bestToken}`;
+            const bmResponse = await fetch2(bmUrl);
+            const bmData = bmResponse.json;
+            
+            console.log(`📊 Verificación BM - Status: ${bmResponse.status}, OK: ${bmResponse.ok}`);
+            console.log(`📊 Verificación BM - Data:`, JSON.stringify(bmData, null, 2));
+            
+            // fetch2 no devuelve response.ok, verificar directamente los datos
+            if (bmData && bmData.id) {
+                console.log(`✅ BM existe: ${bmData.name || bmData.id}`);
+                console.log(`📊 Status BM: ${bmData.verification_status || 'Desconocido'}`);
+                console.log(`⚠️ El BM existe pero no tiene píxeles o no tienes permisos para verlos`);
+            } else {
+                console.log(`❌ BM no existe o sin acceso`);
+                if (bmData && bmData.error) {
+                    console.log(`❌ Error específico:`, bmData.error);
+                }
+            }
+        } catch (e) {
+            console.log(`❌ Error verificando BM: ${e.message}`);
+        }
+        
+        console.log(`❌ No se encontraron píxeles en BM ${selectedBMId} con ningún método`);
         return [];
         
     } catch (error) {
-        console.error('❌ Error general obteniendo píxeles:', error);
+        console.error('❌ Error obteniendo píxeles:', error);
         return [];
     }
 }
@@ -1405,6 +1472,92 @@ async function generatePermissionsReport() {
     }
 }
 
+// Función NUEVA para probar detección de píxeles paso a paso
+async function testPixelDetection(bmId = null) {
+    try {
+        console.log('\n🔍 PRUEBA COMPLETA DE DETECCIÓN DE PÍXELES');
+        console.log('='.repeat(60));
+        
+        // Obtener BM ID si no se proporciona
+        if (!bmId) {
+            const bmSelect = document.querySelector('select[name="businessManager"]');
+            bmId = bmSelect ? bmSelect.value : null;
+            if (!bmId) {
+                console.log('❌ No se especificó BM ID. Selecciona un BM en la interfaz o usa: testPixelDetection("BM_ID")');
+                return;
+            }
+        }
+        
+        console.log(`🏢 Probando BM: ${bmId}`);
+        
+        // Verificar tokens disponibles
+        console.log('\n🔑 VERIFICANDO TOKENS:');
+        const fbToken = fb?.accessToken || fb?.token;
+        const eaagToken = getEAAGToken();
+        
+        console.log(`📊 Token FB: ${fbToken ? fbToken.substring(0, 20) + '...' : 'NO DISPONIBLE'}`);
+        console.log(`📊 Token EAAG: ${eaagToken ? eaagToken.substring(0, 20) + '...' : 'NO ENCONTRADO'}`);
+        
+        // Probar función principal
+        console.log('\n🧪 PROBANDO FUNCIÓN PRINCIPAL:');
+        const pixels = await getPixelsByBM(bmId);
+        console.log(`📊 Resultado: ${pixels.length} píxeles encontrados`);
+        
+        if (pixels.length > 0) {
+            console.log('✅ ÉXITO - Píxeles encontrados:');
+            pixels.forEach((pixel, index) => {
+                console.log(`   ${index + 1}. ${pixel.name} (ID: ${pixel.id})`);
+            });
+        } else {
+            console.log('❌ NO SE ENCONTRARON PÍXELES');
+            
+            // Diagnóstico adicional
+            console.log('\n🔍 DIAGNÓSTICO ADICIONAL:');
+            
+            // Verificar acceso al BM
+            const token = eaagToken || fbToken;
+            if (token) {
+                try {
+                    const bmUrl = `https://graph.facebook.com/v19.0/${bmId}?fields=id,name,verification_status&access_token=${token}`;
+                    const bmResponse = await fetch2(bmUrl);
+                    const bmData = bmResponse.json;
+                    
+                    console.log(`📊 Acceso al BM: ${bmResponse.ok ? '✅ SÍ' : '❌ NO'}`);
+                    if (bmResponse.ok) {
+                        console.log(`📊 Nombre BM: ${bmData.name || 'Sin nombre'}`);
+                        console.log(`📊 Status: ${bmData.verification_status || 'Desconocido'}`);
+                    } else {
+                        console.log(`📊 Error BM:`, bmData);
+                    }
+                } catch (e) {
+                    console.log(`❌ Error verificando BM: ${e.message}`);
+                }
+                
+                // Probar endpoint directo de píxeles
+                try {
+                    console.log('\n🎯 PROBANDO ENDPOINT DIRECTO:');
+                    const directUrl = `https://graph.facebook.com/v19.0/${bmId}/adspixels?fields=id,name,owner_business&access_token=${token}`;
+                    const directResponse = await fetch2(directUrl);
+                    const directData = directResponse.json;
+                    
+                    console.log(`📊 Respuesta directa:`, directData);
+                    
+                    if (directData && directData.data) {
+                        console.log(`📊 Píxeles en respuesta directa: ${directData.data.length}`);
+                    }
+                } catch (e) {
+                    console.log(`❌ Error endpoint directo: ${e.message}`);
+                }
+            }
+        }
+        
+        console.log('\n💡 Para ejecutar: testPixelDetection("BM_ID")');
+        
+    } catch (error) {
+        console.error('❌ Error en prueba:', error);
+    }
+}
+
 // Función NUEVA para probar el endpoint exacto que me mostraste
 async function testGraphAPIPixels(bmId, token = null) {
     try {
@@ -1621,6 +1774,102 @@ async function testWithYourToken(bmId = "554559557747087") {
     }
 }
 
+// Función NUEVA para probar con BM que tiene píxeles
+async function testWithWorkingBM() {
+    try {
+        console.log('\n🧪 PROBANDO CON BM QUE SÍ TIENE PÍXELES');
+        console.log('='.repeat(60));
+        
+        // Probar con el BM que sabemos que tiene píxeles
+        const workingBM = "2330406580664254";
+        console.log(`🏢 Probando BM que funciona: ${workingBM}`);
+        
+        const result = await getPixelsByBM(workingBM);
+        console.log(`📊 Resultado final: ${result.length} píxeles encontrados`);
+        
+        if (result.length > 0) {
+            console.log(`✅ ÉXITO - Píxeles encontrados:`);
+            result.forEach((pixel, index) => {
+                console.log(`   ${index + 1}. ${pixel.name} (${pixel.id})`);
+            });
+        } else {
+            console.log(`❌ No se encontraron píxeles`);
+        }
+        
+        return result;
+        
+    } catch (error) {
+        console.error('❌ Error en prueba:', error);
+        return null;
+    }
+}
+
+// Función NUEVA para probar con tu endpoint exacto
+async function testYourExactEndpoint(bmId = "2330406580664254") {
+    try {
+        console.log('\n🧪 PROBANDO TU ENDPOINT EXACTO');
+        console.log('='.repeat(50));
+        
+        // Obtener el mejor token disponible
+        let token = fb?.accessToken || fb?.token;
+        const eaagToken = getEAAGToken();
+        if (eaagToken) {
+            token = eaagToken;
+            console.log(`🔑 Usando token EAAG: ${token.substring(0, 20)}...`);
+        }
+        
+        if (!token) {
+            console.log('❌ No se encontró token de acceso');
+            return;
+        }
+        
+        console.log(`🏢 Probando BM: ${bmId}`);
+        
+        // Usar exactamente tu URL que funciona
+        const url = `https://graph.facebook.com/v19.0/${bmId}/adspixels?name=MiPixelNuevo&access_token=${token}`;
+        console.log(`📡 URL exacta: ${url}`);
+        
+        const response = await fetch2(url);
+        const data = response.json;
+        
+        console.log(`📊 Status: ${response.status}`);
+        console.log(`📊 OK: ${response.ok}`);
+        console.log(`📊 Respuesta completa:`, data);
+        
+        if (response.ok && data && data.data && Array.isArray(data.data)) {
+            console.log(`✅ ÉXITO: Encontrados ${data.data.length} píxeles`);
+            
+            if (data.data.length > 0) {
+                console.log(`📋 Píxeles encontrados:`);
+                data.data.forEach((pixel, index) => {
+                    console.log(`  ${index + 1}. ID: ${pixel.id} | Nombre: ${pixel.name || 'Sin nombre'}`);
+                });
+                
+                // Probar si la función principal funciona ahora
+                console.log('\n🔄 Probando función principal con este BM...');
+                const mainResult = await getPixelsByBM(bmId);
+                console.log(`📊 Resultado función principal: ${mainResult.length} píxeles`);
+                
+                return data.data;
+            } else {
+                console.log(`⚠️ Respuesta exitosa pero array vacío`);
+            }
+        } else if (data && data.error) {
+            console.error(`❌ Error Graph API:`, data.error);
+            console.log(`💡 Mensaje: ${data.error.message}`);
+            console.log(`💡 Código: ${data.error.code}`);
+        } else {
+            console.log('⚠️ Respuesta inesperada');
+        }
+        
+        return null;
+        
+    } catch (error) {
+        console.error('❌ Error en prueba:', error);
+        return null;
+    }
+}
+
 // Función para probar múltiples versiones de Graph API
 async function testMultipleGraphAPIVersions(bmId, token = null) {
     try {
@@ -1705,7 +1954,10 @@ window.requestElevatedPermissions = requestElevatedPermissions;
 window.debugPixelDetection = debugPixelDetection;
 window.debugBusinessManagers = debugBusinessManagers;
 window.generatePermissionsReport = generatePermissionsReport;
+window.testPixelDetection = testPixelDetection;
 window.testGraphAPIPixels = testGraphAPIPixels;
+window.testWithWorkingBM = testWithWorkingBM;
+window.testYourExactEndpoint = testYourExactEndpoint;
 window.debugCurrentIssue = debugCurrentIssue;
 window.testWithYourToken = testWithYourToken;
 window.testMultipleGraphAPIVersions = testMultipleGraphAPIVersions;
