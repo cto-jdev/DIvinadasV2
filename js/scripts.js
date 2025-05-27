@@ -1537,6 +1537,16 @@ async function loadSetting() {
     const v122 = vO61.ads?.linkShareBm?.value.split(/\r?\n|\r|\n/g).filter(p134 => p134) || 0;
     $("#linkShareBmCount").text(v122.length);
   }
+  // Inicializar la visibilidad de elementos data-parent para todos los selects
+  $(".form-select").each(function() {
+    const selectedValue = $(this).find(":selected").val();
+    const selectName = $(this).attr("name");
+    if (selectedValue && selectName) {
+      $("[data-parent=\"" + selectName + "\"]").addClass("d-none");
+      $("[data-parent=\"" + selectName + "\"][data-value=\"" + selectedValue + "\"]").removeClass("d-none");
+    }
+  });
+
   $("body").addClass("setting-loaded");
   $("#loadingScreen").addClass("d-none");
   $(".select2").select2();

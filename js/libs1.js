@@ -491,37 +491,61 @@ function delayTime(p5) {
     backUpBm(p52, p53, p54, p55) {
       return new Promise(async (p56, p57) => {
         try {
+          // Validaciones de entrada
+          if (!p52 || !p53 || !p54) {
+            throw new Error("Parámetros requeridos faltantes: BM ID, email o rol");
+          }
+          
+          if (!this.accessToken) {
+            throw new Error("Access token no disponible");
+          }
+          
           let vLS3 = "";
+          // Actualizado: Usar roles enum correctos según la API v19.0
           if (p54 === "admin") {
-            vLS3 = "[\"DEFAULT\",\"MANAGE\",\"DEVELOPER\",\"EMPLOYEE\",\"ASSET_MANAGE\",\"ASSET_VIEW\",\"PEOPLE_MANAGE\",\"PEOPLE_VIEW\",\"PARTNERS_VIEW\",\"PARTNERS_MANAGE\",\"PROFILE_MANAGE\"]";
+            vLS3 = "ADMIN";
+          } else if (p54 === "other") {
+            vLS3 = "EMPLOYEE";
+          } else {
+            vLS3 = "EMPLOYEE"; // Default fallback
           }
-          if (p54 === "other") {
-            vLS3 = "[\"DEFAULT\",\"EMPLOYEE\"]";
-          }
-          p55("Enviando nueva invitación al email: " + p53);
-          const v68 = await fetch2("https://z-p3-graph.facebook.com/v3.0/" + p52 + "/business_users?access_token=" + this.accessToken + "&__cppo=1", {
+          
+          p55("Validando access token y enviando invitación al email: " + p53);
+          
+          // Actualizado: Usar API v19.0 y endpoint correcto
+          const v68 = await fetch2("https://graph.facebook.com/v19.0/" + p52 + "/business_users?access_token=" + this.accessToken, {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "__activeScenarioIDs=[]&__activeScenarios=[]&__interactionsMetadata=[]&brandId=" + p52 + "&email=" + encodeURIComponent(p53) + "&method=post&pretty=0&roles=" + vLS3 + "&suppress_http_code=1"
+            body: "email=" + encodeURIComponent(p53) + "&role=" + vLS3 + "&pretty=0&suppress_http_code=1"
           });
           const v69 = v68.json;
-          if (v69.id) {
+          
+          if (v69 && v69.id) {
+            p55("Invitación enviada exitosamente. ID: " + v69.id);
             p56(v69.id);
+          } else if (v69 && v69.error) {
+            p55("Error en la invitación: " + (v69.error.message || "Error desconocido"));
+            console.error("Error de API:", v69.error);
+            p57(v69.error);
           } else {
-            p56();
+            p55("Error: Respuesta inesperada de la API");
+            console.error("Respuesta inesperada:", v69);
+            p57(new Error("Respuesta inesperada de la API"));
           }
         } catch (e13) {
-          console.log(e13);
-          p57();
+          const errorMsg = "Error al enviar invitación: " + (e13.message || e13);
+          p55(errorMsg);
+          console.error("Error en backUpBm:", e13);
+          p57(e13);
         }
       });
     }
     renameBm(p58, p59) {
       return new Promise(async (p60, p61) => {
         try {
-          const v70 = await fetch2("https://z-p3-graph.facebook.com/v17.0/" + p58 + "?access_token=" + this.accessToken + "&__cppo=1", {
+          const v70 = await fetch2("https://graph.facebook.com/v19.0/" + p58 + "?access_token=" + this.accessToken, {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
@@ -907,7 +931,7 @@ function delayTime(p5) {
       return new Promise(async (p122, p123) => {
         try {
           const v117 = await this.getMainBmAccounts(p118);
-          const v118 = await fetch2("https://z-p3-graph.facebook.com/v17.0/" + p118 + "/adaccount?access_token=" + this.accessToken + "&__cppo=1", {
+          const v118 = await fetch2("https://graph.facebook.com/v19.0/" + p118 + "/adaccount?access_token=" + this.accessToken, {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },

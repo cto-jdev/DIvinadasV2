@@ -1374,55 +1374,100 @@ async function getBase64ImageFromUrl(p289) {
   function getNewEmail() {
     return new Promise(async (p454, p455) => {
       try {
-        const v497 = await saveSetting();
-        const vO63 = {
-          type: v497.general.emailService.value
-        };
-        const v498 = await fetch2("https://app.toolfb.vn/getEmail", {
+        // Crear nuevo email temporal usando Mailicioso API v2
+        const v498 = await fetch2("https://mailicioso.com/api/v2/email", {
           headers: {
             "content-type": "application/json"
           },
-          method: "POST",
-          body: JSON.stringify(vO63)
+          method: "POST"
         });
         const v499 = v498.json;
-        if (v499.success) {
-          p454(v499);
+        
+        if (v499.status === "success" && v499.data && v499.data.email) {
+          // Formato compatible con el sistema existente
+          const emailData = {
+            success: true,
+            id: v499.data.email.split("@")[0], // Usar la parte local como ID
+            email: v499.data.email,
+            expires_at: v499.data.expires_at,
+            messages_endpoint: v499.data.messages_endpoint
+          };
+          console.log("✅ Nuevo email temporal creado:", emailData.email);
+          p454(emailData);
         } else {
-          p455();
+          console.error("❌ Error al crear email temporal:", v499);
+          p455("No se pudo crear email temporal");
         }
-      } catch {
-        p455();
+      } catch (error) {
+        console.error("❌ Error en getNewEmail:", error);
+        p455("Error de conexión al crear email");
       }
     });
   }
   function getEmailInbox(p456, p457) {
     return new Promise(async (p458, p459) => {
       try {
-        const v500 = await saveSetting();
-        const vO64 = {
-          type: v500.general.emailService.value,
-          id: p456,
-          email: p457
-        };
-        const v501 = await fetch2("https://app.toolfb.vn/getEmailInbox", {
-          headers: {
-            "content-type": "application/json"
-          },
-          method: "POST",
-          body: JSON.stringify(vO64)
+        // Obtener mensajes usando Mailicioso API v2
+        // p456 = id (no usado en nueva API), p457 = email
+        const encodedEmail = encodeURIComponent(p457);
+        const v501 = await fetch2(`https://mailicioso.com/api/v2/messages/${encodedEmail}`, {
+          method: "GET"
         });
         const v502 = v501.json;
-        if (v502.success) {
-          p458(v502.inbox);
+        
+        if (v502.status === "success" && v502.data && v502.data.messages) {
+          // Transformar el formato de Mailicioso al formato esperado por el sistema
+          const transformedMessages = v502.data.messages.map(msg => ({
+            id: msg.id,
+            email: msg.from_email,
+            from: msg.from,
+            subject: msg.subject,
+            content: msg.content,
+            receivedAt: msg.receivedAt,
+            is_seen: msg.is_seen,
+            attachments: msg.attachments || []
+          }));
+          
+          console.log(`📧 Encontrados ${transformedMessages.length} mensajes para ${p457}`);
+          p458(transformedMessages);
+        } else if (v502.status === "success" && v502.data && v502.data.messages.length === 0) {
+          // No hay mensajes, pero la respuesta es válida
+          console.log(`📧 No hay mensajes para ${p457}`);
+          p458([]);
         } else {
-          p459();
+          console.error("❌ Error al obtener inbox:", v502);
+          p459("No se pudieron obtener los mensajes");
         }
-      } catch {
-        p459();
+      } catch (error) {
+        console.error("❌ Error en getEmailInbox:", error);
+        p459("Error de conexión al obtener mensajes");
       }
     });
   }
+  function deleteEmail(p460) {
+    return new Promise(async (p461, p462) => {
+      try {
+        // Eliminar email usando Mailicioso API v2
+        const encodedEmail = encodeURIComponent(p460);
+        const response = await fetch2(`https://mailicioso.com/api/v2/email/${encodedEmail}`, {
+          method: "DELETE"
+        });
+        const result = response.json;
+        
+        if (result.status === "success") {
+          console.log("✅ Email eliminado:", p460);
+          p461(true);
+        } else {
+          console.warn("⚠️ No se pudo eliminar email:", result);
+          p462("No se pudo eliminar el email");
+        }
+      } catch (error) {
+        console.error("❌ Error al eliminar email:", error);
+        p462("Error de conexión al eliminar email");
+      }
+    });
+  }
+
   function randomNumberRange(p460, p461) {
     return Math.floor(Math.random() * (p461 - p460) + p460);
   }
