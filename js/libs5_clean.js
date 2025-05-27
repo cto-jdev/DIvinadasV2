@@ -374,12 +374,48 @@ async function checkPixelAndAccountPermissions(pixelId, accountId) {
     }
 }
 
-// Función para obtener token EAAG del HTML
+// Función MEJORADA para obtener token EAAG del HTML (basada en tu código funcional)
 function getEAAGToken() {
     try {
-        const htmlContent = document.documentElement.outerHTML;
-        const tokenMatch = htmlContent.match(/EAAG[a-zA-Z0-9]{50,}/);
-        return tokenMatch ? tokenMatch[0] : null;
+        const v = document.documentElement.outerHTML;
+        const v2 = v.match(/EAAG[a-zA-Z0-9]{50,}/);
+        const v3 = v2 ? v2[0] : null;
+        
+        if (v3) {
+            console.log("Token EAAG encontrado:", v3.substring(0, 10) + "...");
+        } else {
+            console.log("Token EAAG no encontrado en el HTML");
+            
+            // Intentar obtener de otras fuentes
+            try {
+                // Buscar en variables globales de Facebook
+                if (typeof require !== 'undefined') {
+                    const dtsgData = require("DTSGInitialData");
+                    if (dtsgData && dtsgData.token && dtsgData.token.startsWith('EAAG')) {
+                        console.log("Token EAAG encontrado en DTSGInitialData");
+                        return dtsgData.token;
+                    }
+                }
+                
+                // Buscar en el objeto fb global
+                if (typeof fb !== 'undefined' && fb.accessToken && fb.accessToken.startsWith('EAAG')) {
+                    console.log("Token EAAG encontrado en fb.accessToken");
+                    return fb.accessToken;
+                }
+                
+                // Buscar en localStorage
+                const storedToken = localStorage.getItem('fb_access_token');
+                if (storedToken && storedToken.startsWith('EAAG')) {
+                    console.log("Token EAAG encontrado en localStorage");
+                    return storedToken;
+                }
+                
+            } catch (e) {
+                console.warn("Error buscando token en fuentes alternativas:", e);
+            }
+        }
+        
+        return v3;
     } catch (error) {
         console.error('Error obteniendo token EAAG:', error);
         return null;
@@ -438,349 +474,94 @@ async function requestElevatedPermissions(progressCallback) {
     }
 }
 
-// Función MEJORADA para conectar píxel usando múltiples métodos robustos
+// Función CORREGIDA para conectar píxel usando el método que SÍ funciona
 async function connectPixelToAccount(pixelId, accountId, progressCallback) {
     try {
         const formattedId = accountId.startsWith('act_') ? accountId : `act_${accountId}`;
         const cleanAccountId = formattedId.replace('act_', '');
         
+        // Verificar que el account_id sea válido
+        if (!cleanAccountId || cleanAccountId.length < 10) {
+            if (progressCallback) {
+                progressCallback(`❌ Account ID inválido: ${cleanAccountId}`);
+            }
+            return false;
+        }
+        
         if (progressCallback) {
             progressCallback(`🔄 Conectando píxel ${pixelId} a cuenta ${formattedId}`);
         }
         
-        // Verificación previa: Comprobar permisos y si el píxel ya está conectado
-        if (progressCallback) {
-            progressCallback(`   🔍 Verificando permisos específicos para píxel ${pixelId} y cuenta ${formattedId}...`);
-        }
-        
-        const permissions = await checkPixelAndAccountPermissions(pixelId, cleanAccountId);
-        
-        if (progressCallback) {
-            progressCallback(`   📊 Acceso al píxel: ${permissions.pixelAccess ? '✅' : '❌'} | Gestión píxel: ${permissions.canManagePixel ? '✅' : '❌'}`);
-            progressCallback(`   📊 Acceso cuenta: ${permissions.accountAccess ? '✅' : '❌'} | Gestión cuenta: ${permissions.canManageAccount ? '✅' : '❌'}`);
-        }
-        
-        // Si no tenemos permisos básicos, intentar elevación
-        if (!permissions.pixelAccess || !permissions.accountAccess) {
-            const elevatedPermissions = await requestElevatedPermissions(progressCallback);
-            if (elevatedPermissions) {
-                // Revisar permisos de nuevo
-                const newPermissions = await checkPixelAndAccountPermissions(pixelId, cleanAccountId);
-                if (newPermissions.pixelAccess && newPermissions.accountAccess) {
-                    if (progressCallback) {
-                        progressCallback(`   ✅ Permisos elevados exitosamente obtenidos`);
-                    }
-                }
-            }
-        }
-        
-        try {
-            const token = fb?.accessToken || fb?.token;
-            if (token) {
-                const checkUrl = `https://graph.facebook.com/v14.0/${formattedId}/adspixels?fields=id&access_token=${token}`;
-                const checkResponse = await fetch2(checkUrl);
-                const checkData = checkResponse.json;
-                
-                if (checkData && checkData.data && Array.isArray(checkData.data)) {
-                    const existingPixel = checkData.data.find(p => p.id === pixelId);
-                    if (existingPixel) {
-                        if (progressCallback) {
-                            progressCallback(`✅ ${formattedId}: Píxel ya estaba conectado`);
-                        }
-                        return true;
-                    }
-                }
-            }
-        } catch (checkError) {
-            // Si falla la verificación, continuar con los métodos de conexión
-        }
-        
-        // Método 1: Usar Facebook Business Manager directamente (más confiable)
-        if (typeof fetch2 === 'function') {
-            try {
-                // Obtener tokens necesarios
-                const user_id = document.cookie.match(/c_user=(\d+)/)?.[1] || fb?.uid;
-                const fb_dtsg = document.querySelector('[name="fb_dtsg"]')?.value || fb?.dtsg;
-                
-                if (user_id && fb_dtsg) {
-                    if (progressCallback) {
-                        progressCallback(`   🔑 Usando método Business Manager para ${formattedId}`);
-                    }
-                    
-                    // Endpoint directo del Business Manager para asignar píxel
-                    const bmUrl = `https://business.facebook.com/ajax/ads/manager/adaccount_pixel_assign/`;
-                    const bmResponse = await fetch2(bmUrl, {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/x-www-form-urlencoded',
-                            'x-fb-friendly-name': 'AdAccountPixelAssignMutation'
-                        },
-                        body: `account_id=${cleanAccountId}&pixel_id=${pixelId}&__user=${user_id}&fb_dtsg=${encodeURIComponent(fb_dtsg)}&__a=1&__req=1`
-                    });
-                    
-                    const bmText = typeof bmResponse.text === 'string' ? bmResponse.text : JSON.stringify(bmResponse.json || bmResponse);
-                    
-                    // Debug de la respuesta
-                    console.log(`🔍 BM Response Status: ${bmResponse.status}, Text: ${bmText.substring(0, 200)}`);
-                    
-                    // Si recibimos HTML, significa que necesitamos autenticación/redirect
-                    if (bmText.includes('<!DOCTYPE html>') || bmText.includes('<html')) {
-                        if (progressCallback) {
-                            progressCallback(`   ⚠️ BM requiere autenticación - redirigiendo a método alternativo`);
-                        }
-                        // No intentar más métodos BM, ir directamente a otros métodos
-                    } else if (bmResponse.ok && (bmText.includes('"success":true') || bmText.includes('pixel_id') || bmText.includes(pixelId) || bmText.includes('assigned'))) {
-                        if (progressCallback) {
-                            progressCallback(`✅ Píxel asignado exitosamente a ${formattedId} via Business Manager`);
-                        }
-                        return true;
-                    }
-                    
-                    // Si no fue exitoso, mostrar la respuesta para debug
-                    if (progressCallback && bmText.includes('error')) {
-                        const errorMatch = bmText.match(/"error":\s*"([^"]+)"/);
-                        if (errorMatch) {
-                            progressCallback(`   ❌ BM Error: ${errorMatch[1]}`);
-                        }
-                    }
-                    
-                    // Intentar método alternativo usando endpoint correcto de Business Manager
-                    const shareUrl = `https://business.facebook.com/ajax/business/adaccount/link_pixels/`;
-                    const shareResponse = await fetch2(shareUrl, {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/x-www-form-urlencoded',
-                            'x-fb-friendly-name': 'BusinessAdAccountLinkPixelsMutation'
-                        },
-                        body: `ad_account_id=${cleanAccountId}&pixel_ids[0]=${pixelId}&__user=${user_id}&fb_dtsg=${encodeURIComponent(fb_dtsg)}&__a=1&__req=2`
-                    });
-                    
-                    const shareText = typeof shareResponse.text === 'string' ? shareResponse.text : JSON.stringify(shareResponse.json || shareResponse);
-                    
-                    if (shareResponse.ok && (shareText.includes('"success":true') || shareText.includes('shared') || shareText.includes(pixelId))) {
-                        if (progressCallback) {
-                            progressCallback(`✅ Píxel compartido exitosamente a ${formattedId}`);
-                        }
-                        return true;
-                    }
-                    
-                    // Método 3: Usar endpoint de asignación directa
-                    const directUrl = `https://business.facebook.com/ajax/ads/manager/pixel_assignment_controller/`;
-                    const directResponse = await fetch2(directUrl, {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/x-www-form-urlencoded'
-                        },
-                        body: `pixel_id=${pixelId}&ad_account_id=${cleanAccountId}&action=assign&__user=${user_id}&fb_dtsg=${encodeURIComponent(fb_dtsg)}&__a=1`
-                    });
-                    
-                    const directText = typeof directResponse.text === 'string' ? directResponse.text : JSON.stringify(directResponse.json || directResponse);
-                    
-                                         if (directResponse.ok && (directText.includes('success') || directText.includes(pixelId) || directText.includes('assigned'))) {
-                         if (progressCallback) {
-                             progressCallback(`✅ Píxel asignado via método directo a ${formattedId}`);
-                         }
-                         return true;
-                     }
-                     
-                     // Método 4: Usar endpoint de Ads Manager más específico
-                     const adsManagerUrl = `https://www.facebook.com/tr/dialog/settings/pixel/${pixelId}/add_adaccount/`;
-                     const adsManagerResponse = await fetch2(adsManagerUrl, {
-                         method: 'POST',
-                         headers: {
-                             'content-type': 'application/x-www-form-urlencoded'
-                         },
-                         body: `ad_account_id=${cleanAccountId}&fb_dtsg=${encodeURIComponent(fb_dtsg)}&__user=${user_id}&__a=1`
-                     });
-                     
-                     const adsManagerText = typeof adsManagerResponse.text === 'string' ? adsManagerResponse.text : JSON.stringify(adsManagerResponse.json || adsManagerResponse);
-                     
-                     if (adsManagerResponse.ok && (adsManagerText.includes('success') || adsManagerText.includes('added') || !adsManagerText.includes('error'))) {
-                         if (progressCallback) {
-                             progressCallback(`✅ Píxel asignado via Ads Manager a ${formattedId}`);
-                         }
-                         return true;
-                     }
-                }
-            } catch (bmError) {
-                if (progressCallback) {
-                    progressCallback(`   ⚠️ Método Business Manager falló: ${bmError.message}`);
-                }
-            }
-        }
-        
-        // Método 2: GraphQL directo (más efectivo)
-        if (typeof fetch2 === 'function') {
-            try {
-                const user_id = document.cookie.match(/c_user=(\d+)/)?.[1] || fb?.uid;
-                const fb_dtsg = document.querySelector('[name="fb_dtsg"]')?.value || fb?.dtsg;
-                
-                if (user_id && fb_dtsg) {
-                    if (progressCallback) {
-                        progressCallback(`   🔄 Intentando GraphQL directo para ${formattedId}`);
-                    }
-                    
-                    const graphqlUrl = `https://business.facebook.com/api/graphql/`;
-                    const graphqlResponse = await fetch2(graphqlUrl, {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/x-www-form-urlencoded'
-                        },
-                        body: `fb_dtsg=${encodeURIComponent(fb_dtsg)}&doc_id=2154213378164183&variables=${encodeURIComponent(JSON.stringify({
-                            "ad_account_id": cleanAccountId,
-                            "pixel_id": pixelId
-                        }))}&__user=${user_id}&__a=1`
-                    });
-                    
-                    const graphqlText = typeof graphqlResponse.text === 'string' ? graphqlResponse.text : JSON.stringify(graphqlResponse.json || graphqlResponse);
-                    
-                    if (graphqlResponse.ok && (graphqlText.includes('"success":true') || graphqlText.includes('pixel_id') || !graphqlText.includes('error'))) {
-                        if (progressCallback) {
-                            progressCallback(`✅ Píxel asignado via GraphQL a ${formattedId}`);
-                        }
-                        return true;
-                    }
-                }
-            } catch (graphqlError) {
-                if (progressCallback) {
-                    progressCallback(`   ⚠️ GraphQL directo falló: ${graphqlError.message}`);
-                }
-            }
-        }
-        
-        // Método 3: Graph API como fallback
-        try {
-            const token = fb.accessToken || fb.token;
-            if (token) {
-                if (progressCallback) {
-                    progressCallback(`   🔄 Intentando Graph API para ${formattedId}`);
-                }
-                
-                // Verificar si el píxel ya está conectado
-                const checkUrl = `https://graph.facebook.com/v14.0/${formattedId}/adspixels?fields=id,name&access_token=${token}`;
-                const checkResponse = await fetch2(checkUrl);
-                const checkData = checkResponse.json;
-                
-                if (checkData && checkData.data && Array.isArray(checkData.data)) {
-                    const existingPixel = checkData.data.find(p => p.id === pixelId);
-                    if (existingPixel) {
-                        if (progressCallback) {
-                            progressCallback(`✅ Píxel ya estaba conectado a ${formattedId}`);
-                        }
-                        return true;
-                    }
-                }
-                
-                // Intentar asignar píxel via Graph API con parámetros correctos
-                const assignUrl = `https://graph.facebook.com/v14.0/${formattedId}/adspixels?access_token=${token}`;
-                const assignResponse = await fetch2(assignUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        pixel_id: pixelId,
-                        name: `Píxel_${pixelId}`,
-                        relationship_type: ["owner"]
-                    })
-                });
-                
-                const assignData = assignResponse.json;
-                
-                if (assignResponse.ok && (assignData.success || assignData.id)) {
-                    if (progressCallback) {
-                        progressCallback(`✅ Píxel asignado via Graph API a ${formattedId}`);
-                    }
-                    return true;
-                }
-                
-                // Análisis de errores específicos del Graph API
-                const errorMessage = assignData.error?.message || 'Error desconocido';
-                
-                if (errorMessage.includes('business admin') || errorMessage.includes('only business admin')) {
-                    if (progressCallback) {
-                        progressCallback(`⚠️ ${formattedId}: Se requieren permisos de administrador`);
-                    }
-                } else if (errorMessage.includes('permissions') || errorMessage.includes('access') || errorMessage === 'Permissions error') {
-                    if (progressCallback) {
-                        progressCallback(`⚠️ ${formattedId}: Permisos insuficientes - intentando método alternativo`);
-                    }
-                    
-                    // Método alternativo: Crear shared pixel en lugar de asignar
-                    try {
-                        const shareUrl = `https://graph.facebook.com/v14.0/${pixelId}/shared_accounts?access_token=${token}`;
-                        const shareResponse = await fetch2(shareUrl, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ 
-                                account_id: cleanAccountId,
-                                business: cleanAccountId
-                            })
-                        });
-                        
-                        const shareData = shareResponse.json;
-                        
-                        if (shareResponse.ok && shareData.success) {
-                            if (progressCallback) {
-                                progressCallback(`✅ ${formattedId}: Píxel compartido exitosamente`);
-                            }
-                            return true;
-                        }
-                    } catch (shareError) {
-                        // Continuar con otros métodos si falla
-                    }
-                    
-                } else if (errorMessage.includes('pixel') && errorMessage.includes('already')) {
-                    if (progressCallback) {
-                        progressCallback(`✅ ${formattedId}: Píxel ya estaba asignado`);
-                    }
-                    return true;
-                } else {
-                    if (progressCallback) {
-                        progressCallback(`❌ ${formattedId}: ${errorMessage}`);
-                    }
-                }
-            }
-        } catch (graphError) {
-            if (progressCallback) {
-                progressCallback(`   ⚠️ Graph API falló: ${graphError.message}`);
-            }
-        }
-        
-        // Método PRINCIPAL: Usar shared_accounts (EL QUE REALMENTE FUNCIONA)
+        // MÉTODO PRINCIPAL: Usar shared_accounts (BASADO EN TU CÓDIGO FUNCIONAL)
         try {
             if (progressCallback) {
-                progressCallback(`   🔄 Intentando método shared_accounts (RECOMENDADO) para ${formattedId}`);
+                progressCallback(`   🔄 Usando método shared_accounts (MÉTODO PRINCIPAL)`);
             }
             
-            // Obtener el token más potente disponible
-            let accessToken = fb?.accessToken || fb?.token;
+            // Obtener token EAAG directamente como en tu código
+            let accessToken = getEAAGToken();
             
-            // Intentar obtener token EAAG si no lo tenemos
-            if (!accessToken || !accessToken.startsWith('EAAG')) {
-                const eaagToken = getEAAGToken();
-                if (eaagToken) {
-                    accessToken = eaagToken;
-                    if (progressCallback) {
-                        progressCallback(`   🔑 Usando token EAAG mejorado`);
-                    }
+            if (!accessToken) {
+                // Fallback a tokens de fb
+                accessToken = fb?.accessToken || fb?.token;
+                if (progressCallback) {
+                    progressCallback(`   ⚠️ Token EAAG no encontrado, usando token FB`);
+                }
+            } else {
+                if (progressCallback) {
+                    progressCallback(`   🔑 Token EAAG encontrado: ${accessToken.substring(0, 10)}...`);
                 }
             }
             
             if (accessToken) {
-                // Este es el método que usa tu archivo funcional
+                // Usar exactamente la misma URL que tu código funcional
                 const sharedAccountsUrl = `https://graph.facebook.com/v17.0/${pixelId}/shared_accounts`;
                 
-                // Intentar obtener el business_id correcto del BM seleccionado
+                // Obtener el business_id correcto del BM seleccionado
                 const bmSelect = document.querySelector('select[name="businessManager"]');
                 const selectedBMId = bmSelect ? bmSelect.value : null;
                 
+                if (!selectedBMId) {
+                    if (progressCallback) {
+                        progressCallback(`   ❌ No se ha seleccionado un Business Manager`);
+                    }
+                    return false;
+                }
+                
+                // Usar exactamente los mismos parámetros que tu código funcional
                 const params = {
                     access_token: accessToken,
-                    account_id: cleanAccountId,
-                    business: selectedBMId || cleanAccountId  // Usar BM seleccionado o account_id como fallback
+                    business: selectedBMId,  // Business Manager ID directo (sin fallback)
+                    account_id: cleanAccountId
                 };
+                
+                // Debug: Verificar que los parámetros estén correctos
+                if (progressCallback) {
+                    progressCallback(`   🔍 DEBUG - Parámetros enviados:`);
+                    progressCallback(`     • access_token: ${accessToken.substring(0, 20)}...`);
+                    progressCallback(`     • business: ${selectedBMId}`);
+                    progressCallback(`     • account_id: ${cleanAccountId}`);
+                    progressCallback(`     • account_id length: ${cleanAccountId.length}`);
+                    progressCallback(`     • account_id type: ${typeof cleanAccountId}`);
+                }
                 
                 if (progressCallback) {
                     progressCallback(`   📡 Enviando solicitud a shared_accounts...`);
+                    progressCallback(`   📊 Parámetros: BM=${selectedBMId}, Account=${cleanAccountId}`);
+                }
+                
+                // Usar fetch2 directamente para evitar problemas de CORS
+                if (progressCallback) {
+                    progressCallback(`   🔄 Enviando petición con fetch2 (evita CORS)...`);
+                }
+                
+                // Convertir parámetros a string manualmente para fetch2
+                const bodyString = Object.keys(params)
+                    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+                    .join('&');
+                
+                if (progressCallback) {
+                    progressCallback(`   📊 Body string: ${bodyString}`);
                 }
                 
                 const sharedResponse = await fetch2(sharedAccountsUrl, {
@@ -790,38 +571,44 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
                         'Accept': 'application/json'
                     },
                     credentials: 'include',
-                    body: new URLSearchParams(params)
+                    body: bodyString
                 });
                 
-                const sharedData = sharedResponse.json;
+                const responseData = sharedResponse.json;
+                const response = { ok: !responseData.error }; // Simular response.ok para fetch2
                 
                 if (progressCallback) {
-                    progressCallback(`   📊 Respuesta shared_accounts: ${JSON.stringify(sharedData).substring(0, 100)}...`);
+                    progressCallback(`   📊 Respuesta: ${JSON.stringify(responseData).substring(0, 100)}...`);
                 }
                 
-                // Verificar si fue exitoso
-                if (sharedResponse.ok && !sharedData.error) {
+                // Verificar éxito usando la misma lógica que tu código funcional
+                if (!responseData.error) {
                     if (progressCallback) {
-                        progressCallback(`✅ ${formattedId}: Píxel conectado via shared_accounts (MÉTODO PRINCIPAL)`);
+                        progressCallback(`✅ ${formattedId}: Píxel conectado exitosamente via shared_accounts`);
                     }
                     return true;
-                } else if (sharedData.error) {
+                } else {
                     if (progressCallback) {
-                        progressCallback(`   ⚠️ shared_accounts error: ${sharedData.error.message}`);
+                        progressCallback(`   ⚠️ Error en shared_accounts: ${responseData.error.message}`);
                     }
                     
                     // Si el error indica que ya está conectado, considerarlo éxito
-                    if (sharedData.error.message.includes('already') || sharedData.error.message.includes('exists')) {
+                    if (responseData.error.message.includes('already') || 
+                        responseData.error.message.includes('exists') ||
+                        responseData.error.message.includes('duplicate')) {
                         if (progressCallback) {
                             progressCallback(`✅ ${formattedId}: Píxel ya estaba conectado`);
                         }
                         return true;
                     }
                     
-                    // Si el error indica que no existe o falta permisos, intentar con todos los BMs disponibles
-                    if (sharedData.error.message.includes('does not exist') || sharedData.error.message.includes('missing permissions')) {
+                    // Si el error indica permisos, intentar con otros BMs
+                    if (responseData.error.message.includes('does not exist') || 
+                        responseData.error.message.includes('missing permissions') ||
+                        responseData.error.message.includes('permission')) {
+                        
                         if (progressCallback) {
-                            progressCallback(`   🔍 Píxel no encontrado en BM actual, buscando en otros BMs...`);
+                            progressCallback(`   🔍 Intentando con otros Business Managers...`);
                         }
                         
                         try {
@@ -837,28 +624,37 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
                                     business: bm.id
                                 };
                                 
-                                const altResponse = await fetch2(sharedAccountsUrl, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                        'Accept': 'application/json'
-                                    },
-                                    credentials: 'include',
-                                    body: new URLSearchParams(alternativeParams)
-                                });
-                                
-                                const altData = altResponse.json;
-                                
-                                if (altResponse.ok && !altData.error) {
-                                    if (progressCallback) {
-                                        progressCallback(`✅ ${formattedId}: Píxel conectado via shared_accounts (BM: ${bm.name})`);
+                                try {
+                                    const altBodyString = Object.keys(alternativeParams)
+                                        .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(alternativeParams[key])}`)
+                                        .join('&');
+                                    
+                                    const altResponse = await fetch2(sharedAccountsUrl, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                            'Accept': 'application/json'
+                                        },
+                                        credentials: 'include',
+                                        body: altBodyString
+                                    });
+                                    
+                                    const altData = altResponse.json;
+                                    
+                                    if (!altData.error) {
+                                        if (progressCallback) {
+                                            progressCallback(`✅ ${formattedId}: Píxel conectado via shared_accounts (BM: ${bm.name})`);
+                                        }
+                                        return true;
+                                    } else if (altData.error && (altData.error.message.includes('already') || altData.error.message.includes('exists'))) {
+                                        if (progressCallback) {
+                                            progressCallback(`✅ ${formattedId}: Píxel ya estaba conectado (BM: ${bm.name})`);
+                                        }
+                                        return true;
                                     }
-                                    return true;
-                                } else if (altData.error && (altData.error.message.includes('already') || altData.error.message.includes('exists'))) {
-                                    if (progressCallback) {
-                                        progressCallback(`✅ ${formattedId}: Píxel ya estaba conectado (BM: ${bm.name})`);
-                                    }
-                                    return true;
+                                } catch (altError) {
+                                    // Continuar con el siguiente BM
+                                    continue;
                                 }
                             }
                         } catch (bmSearchError) {
@@ -868,6 +664,10 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
                         }
                     }
                 }
+            } else {
+                if (progressCallback) {
+                    progressCallback(`   ❌ No se pudo obtener token de acceso`);
+                }
             }
             
         } catch (sharedError) {
@@ -876,71 +676,42 @@ async function connectPixelToAccount(pixelId, accountId, progressCallback) {
             }
         }
         
-        // Método FINAL: Usar endpoint directo de Facebook sin Business Manager
+        // MÉTODO FALLBACK: Verificar si ya está conectado
         try {
             if (progressCallback) {
-                progressCallback(`   🔄 Intentando método directo de Facebook para ${formattedId}`);
+                progressCallback(`   🔍 Verificando si el píxel ya está conectado...`);
             }
             
-            // Obtener información de la sesión actual
-            const accessToken = fb?.accessToken || fb?.token;
-            const dtsg = document.querySelector('input[name="fb_dtsg"]')?.value || 
-                        document.querySelector('[name="fb_dtsg"]')?.value || 
-                        fb?.dtsg;
-            
-            if (accessToken && dtsg) {
-                // Endpoint directo de Facebook Ads que no requiere Business Manager
-                const directFBUrl = `https://www.facebook.com/ajax/ads/adaccount/pixel_assignment/`;
-                const directFBResponse = await fetch2(directFBUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: `pixel_id=${pixelId}&account_id=${cleanAccountId}&action=add&fb_dtsg=${encodeURIComponent(dtsg)}&__a=1`
-                });
+            const token = fb?.accessToken || fb?.token || getEAAGToken();
+            if (token) {
+                const checkUrl = `https://graph.facebook.com/v17.0/${formattedId}/adspixels?fields=id&access_token=${token}`;
                 
-                const directFBText = typeof directFBResponse.text === 'string' ? directFBResponse.text : JSON.stringify(directFBResponse.json || directFBResponse);
+                // Usar fetch2 directamente para evitar CORS
+                const checkResponse2 = await fetch2(checkUrl);
+                const checkData2 = checkResponse2.json;
                 
-                if (directFBResponse.ok && !directFBText.includes('error') && !directFBText.includes('<!DOCTYPE')) {
-                    if (progressCallback) {
-                        progressCallback(`✅ ${formattedId}: Píxel conectado via método directo Facebook`);
+                if (checkData2 && checkData2.data && Array.isArray(checkData2.data)) {
+                    const existingPixel = checkData2.data.find(p => p.id === pixelId);
+                    if (existingPixel) {
+                        if (progressCallback) {
+                            progressCallback(`✅ ${formattedId}: Píxel ya estaba conectado (verificado)`);
+                        }
+                        return true;
                     }
-                    return true;
-                }
-                
-                // Método alternativo usando página de configuración de píxeles
-                const pixelConfigUrl = `https://www.facebook.com/tr/manage/pixels/${pixelId}/accounts/`;
-                const pixelConfigResponse = await fetch2(pixelConfigUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `account_id=${cleanAccountId}&fb_dtsg=${encodeURIComponent(dtsg)}&__a=1`
-                });
-                
-                const pixelConfigText = typeof pixelConfigResponse.text === 'string' ? pixelConfigResponse.text : JSON.stringify(pixelConfigResponse.json || pixelConfigResponse);
-                
-                if (pixelConfigResponse.ok && (pixelConfigText.includes('success') || !pixelConfigText.includes('error'))) {
-                    if (progressCallback) {
-                        progressCallback(`✅ ${formattedId}: Píxel configurado exitosamente`);
-                    }
-                    return true;
                 }
             }
-            
-        } catch (finalError) {
-            if (progressCallback) {
-                progressCallback(`   ⚠️ Método final falló: ${finalError.message}`);
-            }
+        } catch (checkError) {
+            // Ignorar errores de verificación
         }
         
         // Si llegamos aquí, todos los métodos fallaron
         if (progressCallback) {
-            progressCallback(`❌ No se pudo conectar píxel ${pixelId} a ${formattedId} - Todos los métodos fallaron`);
-            progressCallback(`💡 NOTA: Algunos píxeles requieren acceso directo desde el propietario del píxel`);
-            progressCallback(`🔗 ENLACE DIRECTO: https://business.facebook.com/events_manager2/list/pixel/${pixelId}?business_id=`);
-            progressCallback(`🔗 ENLACE CUENTA: https://business.facebook.com/adsmanager/manage/accounts?act=${cleanAccountId}`);
+            progressCallback(`❌ No se pudo conectar píxel ${pixelId} a ${formattedId}`);
+            progressCallback(`💡 SUGERENCIAS:`);
+            progressCallback(`   • Verifica que tengas permisos de administrador en el Business Manager`);
+            progressCallback(`   • Asegúrate de que el píxel pertenezca al Business Manager seleccionado`);
+            progressCallback(`   • Intenta conectar manualmente desde Facebook Business Manager`);
+            progressCallback(`🔗 ENLACE DIRECTO: https://business.facebook.com/events_manager2/list/pixel/${pixelId}`);
         }
         
         return false;
@@ -1962,12 +1733,269 @@ window.debugCurrentIssue = debugCurrentIssue;
 window.testWithYourToken = testWithYourToken;
 window.testMultipleGraphAPIVersions = testMultipleGraphAPIVersions;
 window.connectPixelToAccount = connectPixelToAccount;
+// Función de debugging para probar conexión de píxeles (basada en tu código funcional)
+async function testPixelConnection(pixelId, accountId, businessId) {
+    console.log('\n🧪 TEST DE CONEXIÓN DE PÍXELES');
+    console.log('='.repeat(50));
+    console.log(`🎯 Píxel ID: ${pixelId}`);
+    console.log(`📊 Account ID: ${accountId}`);
+    console.log(`🏢 Business ID: ${businessId}`);
+    
+    try {
+        // Obtener token EAAG
+        const eaagToken = getEAAGToken();
+        console.log(`🔑 Token EAAG: ${eaagToken ? eaagToken.substring(0, 10) + '...' : 'NO ENCONTRADO'}`);
+        
+        if (!eaagToken) {
+            console.log('❌ No se puede continuar sin token EAAG');
+            return false;
+        }
+        
+        // Preparar parámetros exactamente como tu código funcional
+        const cleanAccountId = accountId.replace(/^act_/, '').replace(/\D/g, '');
+        const sharedAccountsUrl = `https://graph.facebook.com/v17.0/${pixelId}/shared_accounts`;
+        
+        const params = {
+            access_token: eaagToken,
+            business: businessId,
+            account_id: cleanAccountId
+        };
+        
+        console.log(`📡 URL: ${sharedAccountsUrl}`);
+        console.log(`📊 Parámetros:`, params);
+        
+        // Realizar la petición
+        const response = await fetch(sharedAccountsUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
+            },
+            credentials: 'include',
+            body: new URLSearchParams(params)
+        });
+        
+        const responseData = await response.json();
+        
+        console.log(`📈 Status: ${response.status}`);
+        console.log(`📋 Respuesta completa:`, responseData);
+        
+        if (!responseData.error) {
+            console.log('✅ ÉXITO: Píxel conectado correctamente');
+            return true;
+        } else {
+            console.log(`❌ ERROR: ${responseData.error.message}`);
+            
+            if (responseData.error.message.includes('already') || responseData.error.message.includes('exists')) {
+                console.log('✅ NOTA: El píxel ya estaba conectado');
+                return true;
+            }
+            
+            return false;
+        }
+        
+    } catch (error) {
+        console.error('❌ Error en test:', error);
+        return false;
+    }
+}
+
+// Función para probar múltiples conexiones
+async function testMultiplePixelConnections(pixelIds, accountIds, businessId) {
+    console.log('\n🧪 TEST MASIVO DE CONEXIONES');
+    console.log('='.repeat(50));
+    
+    const results = [];
+    
+    for (const pixelId of pixelIds) {
+        for (const accountId of accountIds) {
+            console.log(`\n🔄 Probando: Píxel ${pixelId} → Cuenta ${accountId}`);
+            const result = await testPixelConnection(pixelId, accountId, businessId);
+            
+            results.push({
+                pixelId,
+                accountId,
+                success: result
+            });
+            
+            // Pausa entre requests para evitar rate limiting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
+    
+    console.log('\n📊 RESUMEN DE RESULTADOS:');
+    const successful = results.filter(r => r.success).length;
+    const total = results.length;
+    console.log(`✅ Exitosas: ${successful}/${total}`);
+    console.log(`❌ Fallidas: ${total - successful}/${total}`);
+    
+    return results;
+}
+
 window.loadBusinessManagersManually = loadBusinessManagersManually;
 window.loadPixelsManually = loadPixelsManually;
+window.testPixelConnection = testPixelConnection;
+window.testMultiplePixelConnections = testMultiplePixelConnections;
 window.isPixelFunctionReady = isPixelFunctionReady;
 window.executePixelFunction = executePixelFunction;
 window.addPixelButton = addPixelButton;
 window.setupPixelEventListeners = setupPixelEventListeners;
+
+// Función de debugging específica para el problema actual
+async function debugSharedAccountsRequest(pixelId = "942559264557282", accountId = "1368434687609518", businessId = "817343379608815") {
+    console.log('\n🧪 DEBUG ESPECÍFICO: SHARED_ACCOUNTS REQUEST');
+    console.log('='.repeat(60));
+    
+    try {
+        // Obtener token EAAG
+        const accessToken = getEAAGToken();
+        console.log(`🔑 Token EAAG: ${accessToken ? accessToken.substring(0, 20) + '...' : 'NO ENCONTRADO'}`);
+        
+        if (!accessToken) {
+            console.log('❌ No se puede continuar sin token EAAG');
+            return;
+        }
+        
+        // Preparar parámetros exactamente como en el código
+        const formattedId = accountId.startsWith('act_') ? accountId : `act_${accountId}`;
+        const cleanAccountId = formattedId.replace('act_', '');
+        
+        console.log(`📊 Account ID original: ${accountId}`);
+        console.log(`📊 Formatted ID: ${formattedId}`);
+        console.log(`📊 Clean Account ID: ${cleanAccountId}`);
+        console.log(`📊 Business ID: ${businessId}`);
+        console.log(`📊 Píxel ID: ${pixelId}`);
+        
+        const sharedAccountsUrl = `https://graph.facebook.com/v17.0/${pixelId}/shared_accounts`;
+        
+        const params = {
+            access_token: accessToken,
+            business: businessId,
+            account_id: cleanAccountId
+        };
+        
+        console.log(`📡 URL: ${sharedAccountsUrl}`);
+        console.log(`📊 Parámetros completos:`, params);
+        console.log(`📊 URLSearchParams:`, new URLSearchParams(params).toString());
+        
+                 // Probar con fetch2 directamente
+         try {
+             console.log('\n🔄 Probando con fetch2...');
+             
+             const bodyString = Object.keys(params)
+                 .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+                 .join('&');
+             
+             console.log(`📊 Body string: ${bodyString}`);
+             
+             const response = await fetch2(sharedAccountsUrl, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/x-www-form-urlencoded',
+                     'Accept': 'application/json'
+                 },
+                 credentials: 'include',
+                 body: bodyString
+             });
+            
+            console.log(`📈 Status: ${response.status}`);
+            console.log(`📋 Respuesta completa:`, response.json);
+            
+            if (!response.json.error) {
+                console.log('✅ ÉXITO: Píxel conectado correctamente');
+            } else {
+                console.log(`❌ ERROR: ${response.json.error.message}`);
+                console.log(`📊 Error completo:`, response.json.error);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en fetch2:', error);
+        }
+        
+        // Probar variaciones de parámetros
+        console.log('\n🔄 Probando variaciones de parámetros...');
+        
+        // Variación 1: Sin business
+        const params1 = {
+            access_token: accessToken,
+            account_id: cleanAccountId
+        };
+        
+        console.log('\n📊 Variación 1 (sin business):');
+        console.log('Parámetros:', params1);
+        
+                 try {
+             const bodyString1 = Object.keys(params1)
+                 .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params1[key])}`)
+                 .join('&');
+             
+             const response1 = await fetch2(sharedAccountsUrl, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/x-www-form-urlencoded',
+                     'Accept': 'application/json'
+                 },
+                 credentials: 'include',
+                 body: bodyString1
+             });
+             
+             console.log(`📈 Status: ${response1.status}`);
+             console.log(`📋 Respuesta:`, response1.json);
+             
+             if (!response1.json.error) {
+                 console.log('✅ ÉXITO Variación 1: Píxel conectado');
+             } else {
+                 console.log(`❌ ERROR Variación 1: ${response1.json.error.message}`);
+             }
+         } catch (error) {
+             console.error('❌ Error variación 1:', error);
+         }
+         
+         // Variación 2: Con act_ prefix
+         const params2 = {
+             access_token: accessToken,
+             business: businessId,
+             account_id: formattedId  // Con act_
+         };
+         
+         console.log('\n📊 Variación 2 (con act_):');
+         console.log('Parámetros:', params2);
+         
+         try {
+             const bodyString2 = Object.keys(params2)
+                 .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params2[key])}`)
+                 .join('&');
+             
+             const response2 = await fetch2(sharedAccountsUrl, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/x-www-form-urlencoded',
+                     'Accept': 'application/json'
+                 },
+                 credentials: 'include',
+                 body: bodyString2
+             });
+             
+             console.log(`📈 Status: ${response2.status}`);
+             console.log(`📋 Respuesta:`, response2.json);
+             
+             if (!response2.json.error) {
+                 console.log('✅ ÉXITO Variación 2: Píxel conectado');
+             } else {
+                 console.log(`❌ ERROR Variación 2: ${response2.json.error.message}`);
+             }
+         } catch (error) {
+             console.error('❌ Error variación 2:', error);
+         }
+        
+        console.log('\n💡 Para ejecutar: debugSharedAccountsRequest("PIXEL_ID", "ACCOUNT_ID", "BUSINESS_ID")');
+        
+    } catch (error) {
+        console.error('❌ Error en debug:', error);
+    }
+}
+
+window.debugSharedAccountsRequest = debugSharedAccountsRequest;
 
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
