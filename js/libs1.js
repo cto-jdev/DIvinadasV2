@@ -1035,7 +1035,7 @@ function delayTime(p5) {
             vA7 = v131.json;
             vA7.data = vA7.data.filter(p144 => !p144.owner_business);
           } catch {
-            const v132 = await fetch2("https://adsmanager-graph.facebook.com/v16.0/me/adaccounts?limit=99999&fields=name,profile_picture,account_id,account_status,owner_business,created_time,currency,adtrust_dsl,timezone_name,timezone_offset_hours_utc,disable_reason,adspaymentcycle{threshold_amount},owner,insights.date_preset(maximum){spend},userpermissions.user(" + this.uid + "){role}&summary=1&access_token=" + this.accessToken + "&suppress_http_code=1&locale=en_US");
+            const v132 = await fetch2("https://adsmanager-graph.facebook.com/v16.0/me/adaccounts?limit=99999&fields=name,profile_picture,account_id,account_status,owner_business,created_time,currency,adtrust_dsl,timezone_name,timezone_offset_hours_utc,disable_reason,adspaymentcycle{threshold_amount},owner,insights.date_preset(maximum){spend},userpermissions.user(" + this.uid + "){role},adspixels{id,name}&summary=1&access_token=" + this.accessToken + "&suppress_http_code=1&locale=en_US");
             vA7 = v132.json;
             const v133 = Math.ceil(vA7.data.length / 50);
             for (let vLN1 = 1; vLN1 <= v133; vLN1++) {
@@ -1045,7 +1045,7 @@ function delayTime(p5) {
               v135.forEach(p145 => {
                 vA8.push({
                   id: p145.account_id,
-                  relative_url: "/act_" + p145.account_id + "?fields=is_prepay_account,next_bill_date,balance,users{id,is_active,name,permissions,role,roles}",
+                  relative_url: "/act_" + p145.account_id + "?fields=is_prepay_account,next_bill_date,balance,users{id,is_active,name,permissions,role,roles},adspixels{id,name}",
                   method: "GET"
                 });
               });
@@ -1106,7 +1106,7 @@ function delayTime(p5) {
             const vF6 = (p150, p151) => {
               return new Promise(async (p152, p153) => {
                 try {
-                  const v148 = await fetch2("https://graph.facebook.com/v14.0/" + p150 + "/" + p151 + "?access_token=" + this.accessToken + "&pretty=1&fields=name%2Cprofile_picture%2Caccount_id%2Caccount_status%2Cis_prepay_account%2Cowner_business%2Ccreated_time%2Cnext_bill_date%2Ccurrency%2Cadtrust_dsl%2Ctimezone_name%2Ctimezone_offset_hours_utc%2Cdisable_reason%2Cadspaymentcycle%7Bthreshold_amount%7D%2Cbalance%2Cowner%2Cusers%7Bid%2Cis_active%2Cname%2Cpermissions%2Crole%2Croles%7D%2Cinsights.date_preset%28maximum%29%7Bspend%7D%2Cuserpermissions.user%28100029138032182%29%7Brole%7D&limit=50");
+                  const v148 = await fetch2("https://graph.facebook.com/v14.0/" + p150 + "/" + p151 + "?access_token=" + this.accessToken + "&pretty=1&fields=name%2Cprofile_picture%2Caccount_id%2Caccount_status%2Cis_prepay_account%2Cowner_business%2Ccreated_time%2Cnext_bill_date%2Ccurrency%2Cadtrust_dsl%2Ctimezone_name%2Ctimezone_offset_hours_utc%2Cdisable_reason%2Cadspaymentcycle%7Bthreshold_amount%7D%2Cbalance%2Cowner%2Cusers%7Bid%2Cis_active%2Cname%2Cpermissions%2Crole%2Croles%7D%2Cinsights.date_preset%28maximum%29%7Bspend%7D%2Cuserpermissions.user%28100029138032182%29%7Brole%7D%2Cadspixels%7Bid%2Cname%7D&limit=50");
                   const v149 = v148.json;
                   v149.data.forEach(p154 => {
                     if (!v147.includes(p154.account_id)) {
@@ -1455,10 +1455,70 @@ function delayTime(p5) {
               }
             });
             await Promise.all(vA12);
+            
+            // Cargar píxeles para cuentas que no los tengan
+            await this.loadMissingPixels();
           }
           p181();
         } catch {}
       });
+    }
+    
+    // Función para cargar píxeles faltantes
+    async loadMissingPixels() {
+      try {
+        console.log('🔄 Verificando píxeles faltantes...');
+        
+        // Obtener todas las cuentas de la tabla
+        const accounts = [];
+        if (typeof accountGrid !== 'undefined' && accountGrid.api) {
+          accountGrid.api.forEachNode(function(node) {
+            accounts.push(node.data);
+          });
+        }
+        
+        // Filtrar cuentas sin píxeles
+        const accountsWithoutPixels = accounts.filter(account => 
+          !account.pixel || !Array.isArray(account.pixel) || account.pixel.length === 0
+        );
+        
+        if (accountsWithoutPixels.length > 0) {
+          console.log(`📊 Encontradas ${accountsWithoutPixels.length} cuentas sin píxeles, cargando...`);
+          
+          const pixelPromises = accountsWithoutPixels.map(async (account) => {
+            try {
+              const formattedId = account.adId.startsWith('act_') ? account.adId : `act_${account.adId}`;
+              const response = await fetch2(`https://graph.facebook.com/v17.0/${formattedId}/adspixels?fields=id,name&access_token=${this.accessToken}`);
+              
+              if (response && response.json && response.json.data) {
+                const pixels = response.json.data.map(pixel => ({
+                  id: pixel.id,
+                  name: pixel.name
+                }));
+                
+                if (pixels.length > 0) {
+                  // Actualizar la tabla
+                  $(document).trigger("updatePixels", {
+                    accountId: account.adId,
+                    pixels: pixels
+                  });
+                  
+                  console.log(`✅ Cargados ${pixels.length} píxeles para cuenta ${account.adId}`);
+                }
+              }
+            } catch (error) {
+              console.log(`⚠️ Error cargando píxeles para cuenta ${account.adId}:`, error.message);
+            }
+          });
+          
+          await Promise.all(pixelPromises);
+          console.log('✅ Carga de píxeles faltantes completada');
+        } else {
+          console.log('✅ Todas las cuentas ya tienen píxeles cargados');
+        }
+      } catch (error) {
+        console.error('❌ Error en loadMissingPixels:', error);
+      }
     }
     // Métodos añadidos desde libs2.js
     loadBm() {

@@ -908,3 +908,87 @@ div:where(.swal2-container) button:where(.swal2-styled) {
     min-width: 250px;
   }
 }
+
+/* Estilos para el menú contextual de píxeles */
+.context-menu-pixels {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 9999;
+  animation: fadeInScale 0.15s ease-out;
+}
+
+.context-menu-pixels .context-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 2px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  font-size: 0.9em;
+}
+
+.context-menu-pixels .context-menu-item:hover {
+  background-color: #f8f9fa;
+}
+
+.context-menu-pixels .context-menu-item i {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+/* Estilos para la columna de píxeles */
+.accountPixels {
+  line-height: initial;
+}
+
+.accountPixels .pixelItem {
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.accountPixels .pixelItem:last-child {
+  border-bottom: none;
+}
+
+.accountPixels .more {
+  font-weight: 600;
+  font-size: 0.85em;
+  color: #0d6efd;
+  cursor: pointer;
+}
+
+.accountPixels .more:hover {
+  text-decoration: underline;
+}
+
+/* Estilos para el hover en elementos de píxeles */
+.hover-bg-light:hover {
+  background-color: #f8f9fa !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Estilos para el tema oscuro */
+[data-bs-theme="dark"] .context-menu-pixels {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #e2e8f0;
+}
+
+[data-bs-theme="dark"] .context-menu-pixels .context-menu-item:hover {
+  background-color: #4a5568;
+}
+
+[data-bs-theme="dark"] .accountPixels .pixelItem {
+  border-bottom-color: #4a5568;
+}

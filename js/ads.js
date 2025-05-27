@@ -219,6 +219,57 @@ const columnDefs = [{
   }, {
     field: "timezone",
     headerName: "Zona horaria"
+  }, {
+    field: "pixel",
+    headerName: "Píxeles",
+    minWidth: 200,
+    cellRenderer: p => {
+      let v = "";
+      if (p.data.pixel && Array.isArray(p.data.pixel) && p.data.pixel.length > 0) {
+        v = "<div class=\"accountPixels\" style=\"line-height: initial;\">";
+        
+        // Mostrar el primer píxel
+        const firstPixel = p.data.pixel[0];
+        v += `
+          <div class="d-flex align-items-center">
+            <i class="ri-radar-line me-2 text-primary"></i>
+            <div>
+              <strong>${firstPixel.name || 'Sin nombre'}</strong>
+              <small class="d-block text-muted">${firstPixel.id}</small>
+            </div>
+          </div>
+        `;
+        
+        // Si hay más píxeles, mostrar contador
+        if (p.data.pixel.length > 1) {
+          v += `
+            <strong class="more text-primary d-block" style="margin-top: 2px">
+              ${p.data.pixel.length - 1} Píxeles más...
+            </strong>
+            <div class="subMenu d-none">
+          `;
+          
+          p.data.pixel.forEach(pixel => {
+            v += `
+              <div class="pixelItem d-flex align-items-center mb-2">
+                <i class="ri-radar-line me-2 text-primary"></i>
+                <div>
+                  <span class="d-block"><strong>${pixel.name || 'Sin nombre'}</strong></span>
+                  <small class="text-muted">${pixel.id}</small>
+                </div>
+              </div>
+            `;
+          });
+          
+          v += "</div>";
+        }
+        
+        v += "</div>";
+      } else {
+        v = "<span class=\"text-muted\"><i class=\"ri-radar-line me-1\"></i>Sin píxeles</span>";
+      }
+      return v;
+    }
   }];
   const accountGrid = {
     rowHeight: 50,
@@ -424,7 +475,7 @@ const columnDefs = [{
       $("#count").text(v19.length);
       accountGrid.api.setRowData(v19);
     } else {
-            $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {        if ($(this).find(".more").length > 0 && $(".moreCard").length === 0) {          const v20 = $(this).find(".more").offset();          const v21 = parseInt($(this).find(".more").attr("offset")) || 2;          const v22 = $(this).find(".subMenu").html();                    // Mejorar el posicionamiento para evitar superposición          let topPosition = v20.top + v21;          let leftPosition = v20.left - 10;                    // Obtener dimensiones de la ventana          const windowHeight = $(window).height();          const windowWidth = $(window).width();          const cardEstimatedHeight = 200; // Altura estimada de la tarjeta          const cardEstimatedWidth = 350; // Ancho estimado de la tarjeta                    // Ajustar posición vertical si se sale de la pantalla por abajo          if (topPosition + cardEstimatedHeight > windowHeight) {            topPosition = v20.top - cardEstimatedHeight - 10;          }                    // Ajustar posición horizontal si se sale de la pantalla por la derecha          if (leftPosition + cardEstimatedWidth > windowWidth) {            leftPosition = windowWidth - cardEstimatedWidth - 20;          }                    // Asegurar que no se salga por la izquierda          if (leftPosition < 10) {            leftPosition = 10;          }                    // Asegurar que no se salga por arriba          if (topPosition < 10) {            topPosition = 10;          }                    $("body").append("\n                    <div class=\"moreCard shadow rounded p-3\" style=\"top: " + topPosition + "px; left: " + leftPosition + "px\">" + v22 + "</div>\n                ");        }      });      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"]", function () {        $(".moreCard").remove();      });
+            $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"], div[col-id=\"pixel\"]", function () {        if ($(this).find(".more").length > 0 && $(".moreCard").length === 0) {          const v20 = $(this).find(".more").offset();          const v21 = parseInt($(this).find(".more").attr("offset")) || 2;          const v22 = $(this).find(".subMenu").html();                    // Mejorar el posicionamiento para evitar superposición          let topPosition = v20.top + v21;          let leftPosition = v20.left - 10;                    // Obtener dimensiones de la ventana          const windowHeight = $(window).height();          const windowWidth = $(window).width();          const cardEstimatedHeight = 200; // Altura estimada de la tarjeta          const cardEstimatedWidth = 350; // Ancho estimado de la tarjeta                    // Ajustar posición vertical si se sale de la pantalla por abajo          if (topPosition + cardEstimatedHeight > windowHeight) {            topPosition = v20.top - cardEstimatedHeight - 10;          }                    // Ajustar posición horizontal si se sale de la pantalla por la derecha          if (leftPosition + cardEstimatedWidth > windowWidth) {            leftPosition = windowWidth - cardEstimatedWidth - 20;          }                    // Asegurar que no se salga por la izquierda          if (leftPosition < 10) {            leftPosition = 10;          }                    // Asegurar que no se salga por arriba          if (topPosition < 10) {            topPosition = 10;          }                    $("body").append("\n                    <div class=\"moreCard shadow rounded p-3\" style=\"top: " + topPosition + "px; left: " + leftPosition + "px\">" + v22 + "</div>\n                ");        }      });      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"], div[col-id=\"pixel\"]", function () {        $(".moreCard").remove();      });
       setInterval(async () => {
         if ($("body").hasClass("setting-loaded")) {
           saveSetting();
@@ -526,6 +577,202 @@ const columnDefs = [{
       accountGrid.api.getRowNode(parseInt(p34.id)).setDataValue("country", p34.country);
     }
   });
+
+  /**
+   * Evento updatePixels
+   * Descripción: Actualiza los píxeles asociados a una cuenta en la grilla.
+   */
+  $(document).on("updatePixels", function (p35, p36) {
+    if (p36.pixels && p36.accountId) {
+      // Buscar la fila por adId
+      let targetRowNode = null;
+      accountGrid.api.forEachNode(function(node) {
+        if (node.data.adId === p36.accountId) {
+          targetRowNode = node;
+        }
+      });
+      
+      if (targetRowNode) {
+        targetRowNode.setDataValue("pixel", p36.pixels);
+      }
+    }
+  });
+
+  /**
+   * Función para conectar píxeles desde la tabla
+   * Descripción: Abre el modal de conectar píxeles con la cuenta seleccionada
+   */
+  function connectPixelsFromTable(accountId) {
+    // Activar el switch de conectar píxeles
+    const connectPixelsSwitch = document.querySelector('input[name="connectPixels"]');
+    if (connectPixelsSwitch && !connectPixelsSwitch.checked) {
+      connectPixelsSwitch.click();
+    }
+    
+    // Seleccionar la cuenta en la tabla
+    accountGrid.api.forEachNode(function(node) {
+      if (node.data.adId === accountId) {
+        node.setSelected(true);
+      } else {
+        node.setSelected(false);
+      }
+    });
+    
+    // Mostrar mensaje informativo
+    console.log(`🎯 Cuenta ${accountId} seleccionada para conectar píxeles`);
+    
+    // Scroll hacia la sección de conectar píxeles
+    const connectPixelsSection = document.getElementById('connectPixelsSetting');
+    if (connectPixelsSection) {
+      connectPixelsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * Menú contextual para píxeles
+   * Descripción: Maneja el clic derecho en la columna de píxeles
+   */
+  $(document).on("contextmenu", "div[col-id=\"pixel\"]", function (e) {
+    e.preventDefault();
+    
+    const rowData = accountGrid.api.getDisplayedRowAtIndex($(this).parent().attr('row-index'));
+    if (!rowData) return;
+    
+    const accountId = rowData.data.adId;
+    const accountName = rowData.data.account;
+    
+    // Crear menú contextual
+    const contextMenu = `
+      <div class="context-menu-pixels shadow rounded" style="position: fixed; top: ${e.pageY}px; left: ${e.pageX}px; z-index: 9999; background: white; border: 1px solid #ddd; min-width: 200px;">
+        <div class="p-2">
+          <div class="fw-bold mb-2 text-primary">
+            <i class="ri-radar-line me-1"></i>Gestión de Píxeles
+          </div>
+          <div class="small text-muted mb-2">${accountName} (${accountId})</div>
+          <hr class="my-2">
+          <div class="context-menu-item p-2 hover-bg-light cursor-pointer" onclick="connectPixelsFromTable('${accountId}')">
+            <i class="ri-link me-2 text-success"></i>Conectar Píxeles
+          </div>
+          <div class="context-menu-item p-2 hover-bg-light cursor-pointer" onclick="refreshAccountPixels('${accountId}')">
+            <i class="ri-refresh-line me-2 text-info"></i>Actualizar Píxeles
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Remover menús existentes
+    $('.context-menu-pixels').remove();
+    
+    // Agregar nuevo menú
+    $('body').append(contextMenu);
+    
+    // Remover menú al hacer clic fuera
+    $(document).one('click', function() {
+      $('.context-menu-pixels').remove();
+    });
+  });
+
+  /**
+   * Función para actualizar píxeles de una cuenta específica
+   */
+  async function refreshAccountPixels(accountId) {
+    try {
+      console.log(`🔄 Actualizando píxeles para cuenta ${accountId}...`);
+      
+      // Aquí puedes llamar a la función que obtiene los píxeles de la cuenta
+      // Por ejemplo, usando la API de Facebook
+      const pixels = await getAccountPixels(accountId);
+      
+      // Actualizar la tabla
+      $(document).trigger("updatePixels", {
+        accountId: accountId,
+        pixels: pixels
+      });
+      
+      console.log(`✅ Píxeles actualizados para cuenta ${accountId}`);
+    } catch (error) {
+      console.error(`❌ Error actualizando píxeles para cuenta ${accountId}:`, error);
+    }
+  }
+
+  /**
+   * Función auxiliar para obtener píxeles de una cuenta
+   */
+  async function getAccountPixels(accountId) {
+    try {
+      const formattedId = accountId.startsWith('act_') ? accountId : `act_${accountId}`;
+      const token = fb.accessToken || getEAAGToken();
+      
+      if (!token) {
+        throw new Error('No se encontró token de acceso');
+      }
+      
+      const response = await fetch2(`https://graph.facebook.com/v17.0/${formattedId}/adspixels?fields=id,name&access_token=${token}`);
+      
+      if (response && response.json && response.json.data) {
+        return response.json.data.map(pixel => ({
+          id: pixel.id,
+          name: pixel.name
+        }));
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error obteniendo píxeles:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Función para cargar píxeles de todas las cuentas
+   */
+  async function loadAllAccountPixels() {
+    try {
+      console.log('🔄 Cargando píxeles de todas las cuentas...');
+      
+      const accounts = [];
+      accountGrid.api.forEachNode(function(node) {
+        accounts.push(node.data);
+      });
+      
+      let loadedCount = 0;
+      const promises = accounts.map(async (account) => {
+        try {
+          const pixels = await getAccountPixels(account.adId);
+          if (pixels.length > 0) {
+            $(document).trigger("updatePixels", {
+              accountId: account.adId,
+              pixels: pixels
+            });
+            loadedCount++;
+          }
+        } catch (error) {
+          console.log(`⚠️ Error cargando píxeles para ${account.adId}:`, error.message);
+        }
+      });
+      
+      await Promise.all(promises);
+      console.log(`✅ Píxeles cargados para ${loadedCount} cuentas`);
+      
+      // Mostrar notificación
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Píxeles Cargados',
+          text: `Se cargaron píxeles para ${loadedCount} cuentas`,
+          timer: 3000,
+          showConfirmButton: false
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error cargando píxeles:', error);
+    }
+  }
+
+  // Hacer las funciones globales para que puedan ser llamadas desde el HTML
+  window.connectPixelsFromTable = connectPixelsFromTable;
+  window.refreshAccountPixels = refreshAccountPixels;
+  window.loadAllAccountPixels = loadAllAccountPixels;
   /**
    * pasteCard
    * Descripción: Lee tarjetas desde el portapapeles, las guarda en localStorage y recarga la grilla de tarjetas.
