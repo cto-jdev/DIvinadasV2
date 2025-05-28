@@ -146,24 +146,128 @@ function emptyCookie(p21 = "facebook.com") {
 }
 /**
  * uploadImage
- * Descripción: Sube una imagen a través del background de la extensión.
- * Parámetros: p24, p25, p26, p27, p28 (datos de la imagen y contexto)
+ * Descripción: Sube una imagen generada localmente (sin extensión).
+ * Parámetros: p24 (datos usuario), p25 (plantilla), p26 (bmId), p27 (uid), p28 (dtsg)
  * Retorna: Promise<any>
  */
 function uploadImage(p24, p25, p26, p27, p28) {
   return new Promise(async (p29, p30) => {
     try {
-      const vO9 = {
-        type: "uploadImage",
-        textData: p24,
-        data: p25,
-        bmId: p26,
-        uid: p27,
-        dtsg: p28
-      };
-      const v17 = await chrome.runtime.sendMessage(extId, vO9);
-      p29(v17);
+      console.log('🎨 Generando imagen para apelación BM...');
+      console.log('📋 Datos del usuario:', p24);
+      console.log('🖼️ Plantilla:', p25?.name || 'Sin nombre');
+      
+      // Verificar que tenemos los datos necesarios
+      if (!p24 || !p25) {
+        throw new Error('Datos de usuario o plantilla no válidos');
+      }
+      
+      // Crear canvas para generar la imagen
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Configurar tamaño del canvas (tamaño estándar para documentos)
+      canvas.width = 800;
+      canvas.height = 600;
+      
+      // Fondo blanco
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Si tenemos imagen base64 de la plantilla, usarla
+      if (p25.src && p25.src.startsWith('data:image/')) {
+        try {
+          const img = new Image();
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = p25.src;
+          });
+          
+          // Dibujar la imagen de fondo
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        } catch (imgError) {
+          console.warn('No se pudo cargar imagen de plantilla, usando fondo simple');
+        }
+      }
+      
+      // Agregar texto del usuario sobre la imagen
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      
+      // Nombre completo
+      if (p24.fullName) {
+        ctx.fillText(p24.fullName, canvas.width / 2, 150);
+      }
+      
+      // Información adicional
+      ctx.font = '18px Arial';
+      let yPos = 200;
+      
+      if (p24.firstName) {
+        ctx.fillText(`Nombre: ${p24.firstName}`, canvas.width / 2, yPos);
+        yPos += 30;
+      }
+      
+      if (p24.lastName) {
+        ctx.fillText(`Apellido: ${p24.lastName}`, canvas.width / 2, yPos);
+        yPos += 30;
+      }
+      
+      if (p24.birthday) {
+        ctx.fillText(`Fecha de nacimiento: ${p24.birthday}`, canvas.width / 2, yPos);
+        yPos += 30;
+      }
+      
+      // Agregar marca de agua DivinAds
+      ctx.font = '12px Arial';
+      ctx.fillStyle = '#cccccc';
+      ctx.fillText('Generado por DivinAds', canvas.width - 100, canvas.height - 20);
+      
+      // Convertir canvas a blob
+      const blob = await new Promise(resolve => {
+        canvas.toBlob(resolve, 'image/png', 0.9);
+      });
+      
+      if (!blob) {
+        throw new Error('No se pudo generar la imagen');
+      }
+      
+      console.log('✅ Imagen generada exitosamente, tamaño:', blob.size, 'bytes');
+      
+      // Subir directamente a Facebook
+      console.log('📤 Subiendo imagen a Facebook...');
+      
+      const uploadUrl = `https://rupload.facebook.com/checkpoint_1501092823525282_media_upload/a06d268a-bad7-49d7-b553-24d6f07c64ba?__usid=6-Tsc6xzrdp0tcu%3APsc78vt5c5znb%3A0-Asc78484bm17t-RV%3D6%3AF%3D&session_id=1f53971e4d475672&__aaid=0&__bid=${p26}&__user=${p27}&__a=1&__req=15&__hs=19832.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012908546&__s=j9683f%3Abgcl6p%3Avjr471&__hsi=7359625851859447619&__dyn=7xeXxa4EaolJ28S2q3m8G2abBAjxu59o9EeEb8nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2SaAxq4U5i48swj8qyoyazoO4o2oCyE9UixWq3i2q5E884a2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOXwAxm3G4UUhwXxW9wgo9oO1Wxu0zoO12ypUuyUd88EeAUpK19xmu2C2l0FggzE8U98doJ1Kfxa2y5E6a6TxC48G2q4p8y26U8U-UbE4S4oSq4VEhG7o4O1fwwxefzobElxm4E5yeDyUnwUzpErw-z8c8-5aDwQwKG13y85i4oKqbDyoOFEa9EHyU8U3xhU24wMwrU6CiVo88ak22eCK2q362u1dxW6U98a85Ou3u1Dxeu1owtU&__csr=&fb_dtsg=${p28}&jazoest=25676&lsd=6qUyi5kQucC-XaTIr34bGR&__spin_r=1012908546&__spin_b=trunk&__spin_t=1713546424&__jssesw=1&_callFlowletID=3740&_triggerFlowletID=2359`;
+      
+      const uploadResponse = await fetch2(uploadUrl, {
+        headers: {
+          'accept': '*/*',
+          'accept-language': 'vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5',
+          'offset': '0',
+          'priority': 'u=1, i',
+          'x-entity-length': blob.size.toString(),
+          'x-entity-name': 'phoi.png',
+          'x-entity-type': 'image/png',
+          'content-type': 'application/x-www-form-urlencoded'
+        },
+        method: 'POST',
+        body: blob
+      });
+      
+      const result = uploadResponse.json;
+      
+      if (result && result.h) {
+        console.log('✅ Imagen subida exitosamente, handle:', result.h);
+        p29(result);
+      } else {
+        console.error('❌ Error en respuesta de Facebook:', uploadResponse.text);
+        throw new Error('Facebook no devolvió un handle válido');
+      }
+      
     } catch (e8) {
+      console.error('❌ Error en uploadImage:', e8);
       p30(e8);
     }
   });
