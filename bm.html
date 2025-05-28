@@ -1036,5 +1036,152 @@
         <script src="js/libs4.js"></script>
         <script src="js/bm.js?v=cleaned"></script>
         <script src="js/scripts.js"></script>
+        
+        <!-- Script para crear plantilla de prueba si no existe -->
+        <script>
+        $(document).ready(async function() {
+            console.log('🎨 Verificando plantillas disponibles...');
+            
+            // Verificar plantillas usando la misma lógica que loadPhoi()
+            let hasTemplates = false;
+            
+            try {
+                // Intentar cargar desde la extensión primero
+                const phoiData = await getAllLocalStore();
+                const extensionTemplates = Object.keys(phoiData).filter(key => key.includes('phoi_'));
+                
+                if (extensionTemplates.length > 0) {
+                    hasTemplates = true;
+                    console.log('✅ Plantillas encontradas en extensión:', extensionTemplates.length);
+                } else {
+                    console.log('⚠️ No se encontraron plantillas en extensión');
+                }
+            } catch (error) {
+                console.warn('❌ Error accediendo a extensión:', error);
+            }
+            
+            // Verificar localStorage nativo si no hay plantillas de la extensión
+            if (!hasTemplates) {
+                const nativeTemplates = Object.keys(localStorage).filter(key => key.includes('phoi_'));
+                if (nativeTemplates.length > 0) {
+                    hasTemplates = true;
+                    console.log('✅ Plantillas encontradas en localStorage nativo:', nativeTemplates.length);
+                }
+            }
+            
+            // Si no hay plantillas, crear una de prueba
+            if (!hasTemplates) {
+                console.log('🎨 Creando plantilla de prueba automáticamente...');
+                
+                const testTemplate = {
+                    name: 'Plantilla de Prueba DivinAds',
+                    src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmOGY5ZmEiIHN0cm9rZT0iI2RlZTJlNiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjIwIiB5PSIyMCIgd2lkdGg9IjM2MCIgaGVpZ2h0PSI1MCIgZmlsbD0iIzBkNmVmZCIgcng9IjUiLz4KPHR5ZXQgeD0iMjAwIiB5PSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiPkRPQ1VNRU5UTyBERSBJREVOVElEQUQ8L3RleHQ+CjxyZWN0IHg9IjMwIiB5PSI5MCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNlOWVjZWYiIHN0cm9rZT0iI2FkYjViZCIgc3Ryb2tlLXdpZHRoPSIxIiByeD0iNSIvPgo8dGV4dCB4PSI4MCIgeT0iMTU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM2Yzc1N2QiPkZPVE88L3RleHQ+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM0OTUwNTciPlBsYW50aWxsYSBkZSBQcnVlYmE8L3RleHQ+Cjwvc3ZnPg==',
+                    data: [
+                        {
+                            type: 'firstName',
+                            top: 100,
+                            left: 160,
+                            size: 14,
+                            color: '#000000',
+                            family: 'Arial',
+                            style: '700',
+                            width: 200,
+                            height: 20
+                        },
+                        {
+                            type: 'lastName',
+                            top: 125,
+                            left: 160,
+                            size: 14,
+                            color: '#000000',
+                            family: 'Arial',
+                            style: '700',
+                            width: 200,
+                            height: 20
+                        },
+                        {
+                            type: 'birthday',
+                            top: 155,
+                            left: 160,
+                            size: 12,
+                            color: '#495057',
+                            family: 'Arial',
+                            style: 'normal',
+                            width: 150,
+                            height: 18
+                        },
+                        {
+                            type: 'image',
+                            top: 95,
+                            left: 35,
+                            width: 90,
+                            height: 110
+                        }
+                    ]
+                };
+                
+                try {
+                    // Usar setLocalStorage para consistencia
+                    const templateKey = 'phoi_' + Date.now();
+                    await setLocalStorage(templateKey, testTemplate);
+                    console.log('✅ Plantilla de prueba creada exitosamente:', templateKey);
+                    console.log('📋 Ahora puedes usar el selector de plantillas en "Apelar BM"');
+                } catch (error) {
+                    console.error('❌ Error creando plantilla de prueba:', error);
+                    // Fallback a localStorage nativo
+                    localStorage.setItem('phoi_' + Date.now(), JSON.stringify(testTemplate));
+                    console.log('✅ Plantilla de prueba creada en localStorage nativo');
+                }
+            } else {
+                console.log('📋 Plantillas existentes encontradas, no es necesario crear plantilla de prueba');
+            }
+            
+            // Agregar utilidades de depuración al objeto window
+            window.DivinAdsTemplateUtils = {
+                async showTemplateStatus() {
+                    console.log('=== ESTADO DE PLANTILLAS ===');
+                    
+                    // Verificar extensión
+                    try {
+                        const phoiData = await getAllLocalStore();
+                        const extensionTemplates = Object.keys(phoiData).filter(key => key.includes('phoi_'));
+                        console.log('🔌 Extensión:', extensionTemplates.length, 'plantillas');
+                        extensionTemplates.forEach(key => {
+                            console.log('  -', key, ':', phoiData[key].name);
+                        });
+                    } catch (error) {
+                        console.log('🔌 Extensión: Error -', error.message);
+                    }
+                    
+                    // Verificar localStorage nativo
+                    const nativeTemplates = Object.keys(localStorage).filter(key => key.includes('phoi_'));
+                    console.log('📱 localStorage:', nativeTemplates.length, 'plantillas');
+                    nativeTemplates.forEach(key => {
+                        try {
+                            const data = JSON.parse(localStorage[key]);
+                            console.log('  -', key, ':', data.name);
+                        } catch (e) {
+                            console.log('  -', key, ': Error parseando');
+                        }
+                    });
+                },
+                
+                async testTemplateLoad() {
+                    console.log('🧪 Probando carga de plantillas...');
+                    await loadPhoi();
+                    console.log('✅ Prueba de carga completada');
+                },
+                
+                openDebugPage() {
+                    window.open('debug_templates.html', '_blank');
+                }
+            };
+            
+            console.log('🛠️ Utilidades de depuración disponibles en window.DivinAdsTemplateUtils');
+            console.log('   - showTemplateStatus(): Mostrar estado de plantillas');
+            console.log('   - testTemplateLoad(): Probar carga de plantillas');
+            console.log('   - openDebugPage(): Abrir página de depuración');
+        });
+        </script>
     </body>
 </html>

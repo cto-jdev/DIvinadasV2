@@ -264,8 +264,38 @@ function deletePhone() {
 }
 
 $("#saveSetting, .saveSetting, .btn-primary").on("click", async function() {
-  const manualToken = $("#accessToken").val();
-  await setLocalStorage('manualAccessToken', manualToken);
-  await setLocalStorage('accessToken', manualToken);
-  // ... aquí sigue el resto del guardado normal ...
+  try {
+    // Guardar access token manual
+    const manualToken = $("#accessToken").val();
+    await setLocalStorage('manualAccessToken', manualToken);
+    await setLocalStorage('accessToken', manualToken);
+    
+    // Guardar cookie
+    const cookie = $("#cookie").val();
+    if (cookie) {
+      await setCookie(cookie);
+    }
+    
+    // Guardar toda la configuración usando saveSetting()
+    const config = await saveSetting();
+    console.log('✅ Configuración guardada:', config);
+    
+    // Mostrar mensaje de éxito
+    Swal.fire({
+      icon: 'success',
+      title: '✅ Configuración Guardada',
+      text: 'La configuración se ha guardado correctamente.',
+      timer: 2000,
+      showConfirmButton: false
+    });
+    
+  } catch (error) {
+    console.error('❌ Error al guardar configuración:', error);
+    Swal.fire({
+      icon: 'error',
+      title: '❌ Error al Guardar',
+      text: 'Hubo un error al guardar la configuración: ' + error.message,
+      confirmButtonText: 'OK'
+    });
+  }
 });

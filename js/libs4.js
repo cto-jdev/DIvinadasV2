@@ -508,7 +508,7 @@ function runBm(p469, p470, p471) {
                 }
                 if (v538.includes("UFACContactPointChallengeSetContactPointState")) {
                   let v549 = false;
-                  const v550 = p487.general.getPhoneNumber.value || 6;
+                  const v550 = (p487.general && p487.general.getPhoneNumber && p487.general.getPhoneNumber.value) ? p487.general.getPhoneNumber.value : 6;
                   for (let vLN052 = 0; vLN052 < v550; vLN052++) {
                     let v551 = false;
                     let v552 = false;
@@ -522,7 +522,23 @@ function runBm(p469, p470, p471) {
                           p488("Obteniendo número de teléfono");
                         }
                         try {
-                          v551 = await getPhone(p487.general.phoneService.value, p487.general.phoneServiceKey.value);
+                          // Validar que existan los servicios de teléfono
+                          if (!p487.general || !p487.general.phoneService || !p487.general.phoneServiceKey) {
+                            throw new Error("Servicio de teléfono no configurado");
+                          }
+                          
+                          const phoneService = p487.general.phoneService.value;
+                          const phoneServiceKey = p487.general.phoneServiceKey.value;
+                          
+                          if (!phoneService || phoneService === "none") {
+                            throw new Error("Servicio de teléfono no seleccionado");
+                          }
+                          
+                          if (!phoneServiceKey) {
+                            throw new Error("API Key del servicio de teléfono no configurada");
+                          }
+                          
+                          v551 = await getPhone(phoneService, phoneServiceKey);
                           p488("Añadiendo número de teléfono");
                           const v554 = await fetch2("https://www.facebook.com/api/graphql/", {
                             headers: {
@@ -549,7 +565,27 @@ function runBm(p469, p470, p471) {
                       if (v538.includes("UFACContactPointChallengeSubmitCodeState")) {
                         p488("Esperando código de activación");
                         try {
-                          const v555 = await getPhoneCode(p487.general.phoneService.value, p487.general.phoneServiceKey.value, v551.id);
+                          // Validar que existan los servicios de teléfono para obtener código
+                          if (!p487.general || !p487.general.phoneService || !p487.general.phoneServiceKey) {
+                            throw new Error("Servicio de teléfono no configurado para obtener código");
+                          }
+                          
+                          const phoneService = p487.general.phoneService.value;
+                          const phoneServiceKey = p487.general.phoneServiceKey.value;
+                          
+                          if (!phoneService || phoneService === "none") {
+                            throw new Error("Servicio de teléfono no seleccionado para obtener código");
+                          }
+                          
+                          if (!phoneServiceKey) {
+                            throw new Error("API Key del servicio de teléfono no configurada para obtener código");
+                          }
+                          
+                          if (!v551 || !v551.id) {
+                            throw new Error("ID de número de teléfono no válido");
+                          }
+                          
+                          const v555 = await getPhoneCode(phoneService, phoneServiceKey, v551.id);
                           p488("Ingresando código de activación");
                           const v556 = await fetch2("https://www.facebook.com/api/graphql/", {
                             headers: {

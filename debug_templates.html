@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Plantillas</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="js/jquery.js"></script>
+    <script src="js/scripts.js"></script>
+</head>
+<body>
+    <h1>Depuración de Plantillas</h1>
+    <div id="results"></div>
+    
+    <script>
+    $(document).ready(async function() {
+        console.log('=== DEPURACIÓN DE PLANTILLAS ===');
+        
+        let html = '<div class="container mt-3">';
+        
+        // Verificar localStorage nativo
+        const nativeTemplates = Object.keys(localStorage).filter(key => key.includes('phoi_'));
+        console.log('Plantillas en localStorage nativo:', nativeTemplates.length);
+        
+        html += '<div class="card mb-3">';
+        html += '<div class="card-header"><h4>📱 localStorage Nativo: ' + nativeTemplates.length + ' plantillas</h4></div>';
+        html += '<div class="card-body">';
+        
+        if (nativeTemplates.length === 0) {
+            html += '<p class="text-muted">No hay plantillas en localStorage nativo</p>';
+        } else {
+            nativeTemplates.forEach(key => {
+                try {
+                    const data = JSON.parse(localStorage[key]);
+                    html += '<div class="border p-2 mb-2 rounded">';
+                    html += '<strong>' + key + '</strong><br>';
+                    html += '<small>Nombre: ' + data.name + '</small><br>';
+                    html += '<small>Elementos: ' + (data.data ? data.data.length : 0) + '</small>';
+                    html += '</div>';
+                    console.log('Plantilla nativa:', key, 'Nombre:', data.name);
+                } catch(e) {
+                    html += '<div class="border p-2 mb-2 rounded bg-danger text-white">';
+                    html += '<strong>' + key + '</strong>: Error al parsear';
+                    html += '</div>';
+                    console.error('Error parseando plantilla:', key, e);
+                }
+            });
+        }
+        html += '</div></div>';
+        
+        // Verificar usando getLocalStorage (extensión)
+        try {
+            const allData = await getAllLocalStore();
+            const extensionTemplates = Object.keys(allData).filter(key => key.includes('phoi_'));
+            
+            html += '<div class="card mb-3">';
+            html += '<div class="card-header"><h4>🔌 Extensión: ' + extensionTemplates.length + ' plantillas</h4></div>';
+            html += '<div class="card-body">';
+            
+            console.log('Plantillas en extensión:', extensionTemplates.length);
+            
+            if (extensionTemplates.length === 0) {
+                html += '<p class="text-muted">No hay plantillas en la extensión</p>';
+            } else {
+                extensionTemplates.forEach(key => {
+                    const data = allData[key];
+                    html += '<div class="border p-2 mb-2 rounded">';
+                    html += '<strong>' + key + '</strong><br>';
+                    html += '<small>Nombre: ' + (data.name || 'Sin nombre') + '</small><br>';
+                    html += '<small>Elementos: ' + (data.data ? data.data.length : 0) + '</small>';
+                    html += '</div>';
+                    console.log('Plantilla extensión:', key, 'Nombre:', data.name);
+                });
+            }
+            html += '</div></div>';
+        } catch(e) {
+            html += '<div class="card mb-3">';
+            html += '<div class="card-header bg-danger text-white"><h4>❌ Error accediendo a extensión</h4></div>';
+            html += '<div class="card-body">';
+            html += '<p>' + e.message + '</p>';
+            html += '</div></div>';
+            console.error('Error accediendo a extensión:', e);
+        }
+        
+        // Botones de prueba
+        html += '<div class="card">';
+        html += '<div class="card-header"><h4>🧪 Pruebas</h4></div>';
+        html += '<div class="card-body">';
+        html += '<button class="btn btn-primary me-2" onclick="createTestTemplate()">Crear plantilla de prueba</button>';
+        html += '<button class="btn btn-secondary me-2" onclick="clearAllTemplates()">Limpiar todas las plantillas</button>';
+        html += '<button class="btn btn-info" onclick="location.reload()">Recargar</button>';
+        html += '</div></div>';
+        
+        html += '</div>';
+        
+        $('#results').html(html);
+    });
+    
+    // Función para crear plantilla de prueba
+    window.createTestTemplate = async function() {
+        const testTemplate = {
+            name: 'Plantilla de Prueba ' + new Date().toLocaleTimeString(),
+            src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmOGY5ZmEiIHN0cm9rZT0iI2RlZTJlNiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjIwIiB5PSIyMCIgd2lkdGg9IjM2MCIgaGVpZ2h0PSI1MCIgZmlsbD0iIzBkNmVmZCIgcng9IjUiLz4KPHR5ZXQgeD0iMjAwIiB5PSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiPkRPQ1VNRU5UTyBERSBJREVOVElEQUQ8L3RleHQ+CjxyZWN0IHg9IjMwIiB5PSI5MCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNlOWVjZWYiIHN0cm9rZT0iI2FkYjViZCIgc3Ryb2tlLXdpZHRoPSIxIiByeD0iNSIvPgo8dGV4dCB4PSI4MCIgeT0iMTU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM2Yzc1N2QiPkZPVE88L3RleHQ+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM0OTUwNTciPlBsYW50aWxsYSBkZSBQcnVlYmE8L3RleHQ+Cjwvc3ZnPg==',
+            data: [
+                {
+                    type: 'firstName',
+                    top: 100,
+                    left: 160,
+                    size: 14,
+                    color: '#000000',
+                    family: 'Arial',
+                    style: '700',
+                    width: 200,
+                    height: 20
+                }
+            ]
+        };
+        
+        try {
+            const key = 'phoi_' + Date.now();
+            await setLocalStorage(key, testTemplate);
+            console.log('✅ Plantilla de prueba creada:', key);
+            alert('Plantilla de prueba creada exitosamente');
+            location.reload();
+        } catch (error) {
+            console.error('❌ Error creando plantilla de prueba:', error);
+            alert('Error creando plantilla de prueba: ' + error.message);
+        }
+    };
+    
+    // Función para limpiar todas las plantillas
+    window.clearAllTemplates = async function() {
+        if (confirm('¿Estás seguro de que quieres eliminar todas las plantillas?')) {
+            try {
+                const keys = Object.keys(localStorage).filter(key => key.includes('phoi_'));
+                for (const key of keys) {
+                    localStorage.removeItem(key);
+                }
+                console.log('🗑️ Plantillas eliminadas de localStorage nativo');
+                alert('Todas las plantillas han sido eliminadas');
+                location.reload();
+            } catch (error) {
+                console.error('❌ Error eliminando plantillas:', error);
+                alert('Error eliminando plantillas: ' + error.message);
+            }
+        }
+    };
+    </script>
+</body>
+</html> 

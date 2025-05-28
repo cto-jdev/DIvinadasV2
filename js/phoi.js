@@ -170,41 +170,86 @@ function drop(e) {
  * Retorna: void
  */
 async function getPhoi() {
-
-    const phoiData = await getAllLocalStore()
-
-    const phoi = Object.keys(phoiData).filter(item => item.includes('phoi_')).map(item => {
-        return {
-            id: item,
-            ...phoiData[item]
+    console.log('🎨 Cargando plantillas en phoi.html...');
+    
+    let templates = [];
+    
+    try {
+        // Intentar cargar desde la extensión primero
+        const phoiData = await getAllLocalStore();
+        const extensionTemplates = Object.keys(phoiData).filter(key => key.includes('phoi_')).map(key => {
+            return {
+                id: key,
+                ...phoiData[key]
+            };
+        });
+        
+        if (extensionTemplates.length > 0) {
+            templates = extensionTemplates;
+            console.log('✅ Plantillas cargadas desde extensión:', templates.length);
+        } else {
+            console.log('⚠️ No se encontraron plantillas en extensión, intentando localStorage nativo...');
         }
-    })
+    } catch (error) {
+        console.warn('❌ Error cargando desde extensión:', error);
+    }
+    
+    // Fallback: cargar desde localStorage nativo si no hay plantillas de la extensión
+    if (templates.length === 0) {
+        try {
+            const nativeTemplates = Object.keys(localStorage).filter(key => key.includes("phoi_")).map(key => {
+                return {
+                    id: key,
+                    ...JSON.parse(localStorage[key])
+                };
+            });
+            templates = nativeTemplates;
+            console.log('✅ Plantillas cargadas desde localStorage nativo:', templates.length);
+        } catch (error) {
+            console.error('❌ Error cargando desde localStorage nativo:', error);
+        }
+    }
 
-    $('#phoiList').html('')
+    $('#phoiList').html('');
 
-    let html = '<div class="row">'
+    if (templates.length === 0) {
+        $('#phoiList').html(`
+            <div class="text-center p-4">
+                <i class="ri-image-line fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No hay plantillas disponibles</h5>
+                <p class="text-muted mb-3">Crea tu primera plantilla usando el editor</p>
+                <button class="btn btn-primary" onclick="$('#newImage').click()">
+                    <i class="ri-add-line me-1"></i>Crear nueva plantilla
+                </button>
+            </div>
+        `);
+        console.log('📝 Mostrando mensaje de no plantillas disponibles');
+        return;
+    }
 
-    phoi.forEach((phoi, i) => {
+    let html = '<div class="row">';
 
+    templates.forEach((template, i) => {
         html += `
             <div class="col-3 mb-3">
-                <a class="phoiItem text-decoration-none text-black d-block p-3 border rounded" data-file="${phoi.id}" href="?id=${phoi.id}">
+                <a class="phoiItem text-decoration-none text-black d-block p-3 border rounded" data-file="${template.id}" href="?id=${template.id}">
                     <i class="ri-checkbox-circle-fill fs-4 text-success"></i>
                     <div class="ratio ratio-4x3">
-                        <img class="object-fit-contain w-100 h-100" src="${phoi.src}">
+                        <img class="object-fit-contain w-100 h-100" src="${template.src}" alt="${template.name}">
                     </div>
                     <div class="d-flex">
-                        <span class="fw-medium">${phoi.name}</span>
+                        <span class="fw-medium">${template.name}</span>
                     </div>
                 </a>
             </div>
-        `
-    })
+        `;
+    });
 
-    html += '</div>'
+    html += '</div>';
  
-    $('#phoiList').html(html)
-
+    $('#phoiList').html(html);
+    
+    console.log('🎨 Plantillas mostradas en phoi.html:', templates.length);
 }
 
 getPhoi()
@@ -417,20 +462,37 @@ $(document).on('click', '#save', async function() {
 
                 if (value.length) {
                     
-                    data.name = value 
-
-                    if (file) {
-                        await setLocalStorage(file, data)
-                    } else {
-                        await setLocalStorage('phoi_'+new Date().getTime(), data)
+                    data.name = value;
+                    
+                    try {
+                        const templateKey = file || 'phoi_' + new Date().getTime();
+                        console.log('💾 Guardando plantilla:', templateKey, 'Nombre:', value);
+                        
+                        await setLocalStorage(templateKey, data);
+                        
+                        // Verificar que se guardó correctamente
+                        const saved = await getLocalStorage(templateKey);
+                        if (saved && saved.name === value) {
+                            console.log('✅ Plantilla guardada exitosamente:', templateKey);
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: 'Plantilla guardada correctamente',
+                                confirmButtonColor: '#0d6efd'
+                            }).then(() => {
+                                // Recargar la lista de plantillas
+                                getPhoi();
+                            });
+                        } else {
+                            console.error('❌ Error verificando plantilla guardada');
+                            return 'Error al verificar que la plantilla se guardó correctamente';
+                        }
+                        
+                    } catch (error) {
+                        console.error('❌ Error guardando plantilla:', error);
+                        return 'Error al guardar la plantilla: ' + error.message;
                     }
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: 'Plantilla guardada',
-                        confirmButtonColor: '#0d6efd'
-                    })
 
                 } else {
                     return 'El nombre no puede estar vacío'

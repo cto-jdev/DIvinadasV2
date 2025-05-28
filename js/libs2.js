@@ -1402,3 +1402,9 @@ async function getBase64ImageFromUrl(p289) {
     v364.readAsDataURL(v363);
   });
 }
+
+// Asignar función getLinkkhangBm al objeto fb cuando esté disponible
+if (typeof window !== 'undefined' && window.fb && typeof getLinkkhangBm !== 'undefined') {
+    window.fb.getLinkkhangBm = getLinkkhangBm;
+    console.log('✅ Función getLinkkhangBm asignada al objeto fb');
+}

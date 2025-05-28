@@ -26,8 +26,8 @@
         <!-- <div id="loadingScreen" class="d-flex align-items-center justify-content-center">
             <div class="spinner-border text-secondary" role="status"></div>
         </div> -->
-        <div id="app" data="setting">
-            <div class="p-0" data-tool="general">
+                    <div id="app" data="setting">
+                <div class="p-0" data-tool="general">
                 <ul class="nav nav-pills px-3 pt-3" role="tablist">
                     <li class="nav-item" role="presentation">
                       <button class="nav-link fw-medium active" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab"><i class="ri-equalizer-line me-2"></i>Configuración General</button>
@@ -253,7 +253,21 @@
                                     <option value="fviainboxes">fviainboxes.com</option>
                                 </select>
                             </div>
-                            
+                            <div class="col-6">
+                                <label class="fw-bold mb-2">Intentos obtener número</label>
+                                <input type="number" name="getPhoneNumber" class="form-control" value="6" min="1" max="20">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="fw-bold mb-2">Intentos obtener código</label>
+                                <input type="number" name="getCodeNumber" class="form-control" value="10" min="1" max="50">
+                            </div>
+                            <div class="col-6">
+                                <label class="fw-bold mb-2">Delay entre intentos (segundos)</label>
+                                <input type="number" name="delay" class="form-control" value="1" min="1" max="10">
+                            </div>
                         </div>
 
                         
@@ -269,10 +283,14 @@
                             <label class="fw-bold mb-2">Access Token</label>
                             <input type="text" class="form-control" id="accessToken">
                         </div>
+                        
+                        <div class="mt-4 text-center">
+                            <button type="button" class="btn btn-primary btn-lg" id="saveSetting">
+                                <i class="ri-save-line me-2"></i>Guardar Configuración
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
 

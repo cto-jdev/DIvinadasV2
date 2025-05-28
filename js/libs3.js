@@ -378,17 +378,82 @@ async function getBase64ImageFromUrl(p289) {
   function resolveCaptchaImage(p306, p307) {
     return new Promise(async (p308, p309) => {
       try {
+        // Validar que p306 tenga la estructura correcta
+        if (!p306 || !p306.general || !p306.general.captchaServiceKey || !p306.general.captchaService) {
+          // Mostrar modal de configuración si no está configurado
+          Swal.fire({
+            icon: 'warning',
+            title: '⚙️ Configuración de Captcha Requerida',
+            html: `
+              <div class="text-start">
+                <p><strong>El servicio de captcha no está configurado.</strong></p>
+                <p>Para usar la función de apelación BM, necesitas:</p>
+                <ol>
+                  <li>Ir a <a href="setting.html" target="_blank" class="text-primary">Configuración</a></li>
+                  <li>Seleccionar un servicio de captcha</li>
+                  <li>Introducir tu API Key</li>
+                </ol>
+                <div class="alert alert-info mt-3">
+                  <strong>Servicios disponibles:</strong><br>
+                  • omocaptcha.com<br>
+                  • anticaptcha<br>
+                  • 2captcha
+                </div>
+              </div>
+            `,
+            confirmButtonText: 'Ir a Configuración',
+            cancelButtonText: 'Cancelar',
+            showCancelButton: true,
+            confirmButtonColor: '#0d6efd',
+            cancelButtonColor: '#6c757d'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.open('setting.html', '_blank');
+            }
+          });
+          
+          throw new Error("Configuración de captcha no válida. Por favor, configura el servicio de captcha en la configuración general.");
+        }
+        
         const v391 = p306.general.captchaServiceKey.value;
-        if (p306.general.captchaService.value === "omocaptcha.com") {
+        const captchaService = p306.general.captchaService.value;
+        
+        // Validar que los valores no estén vacíos
+        if (!v391) {
+          Swal.fire({
+            icon: 'error',
+            title: 'API Key Requerida',
+            text: 'Por favor, introduce tu API Key del servicio de captcha en la configuración.',
+            confirmButtonText: 'Ir a Configuración'
+          }).then(() => {
+            window.open('setting.html', '_blank');
+          });
+          throw new Error("API Key del servicio de captcha no configurada.");
+        }
+        
+        if (!captchaService) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Servicio de Captcha Requerido',
+            text: 'Por favor, selecciona un servicio de captcha en la configuración.',
+            confirmButtonText: 'Ir a Configuración'
+          }).then(() => {
+            window.open('setting.html', '_blank');
+          });
+          throw new Error("Servicio de captcha no seleccionado.");
+        }
+        
+        if (captchaService === "omocaptcha.com") {
           p308(await resolveCaptchaOmoImage(v391, p307));
-        }
-        if (p306.general.captchaService.value === "anticaptcha") {
+        } else if (captchaService === "anticaptcha") {
           p308(await resolveCaptchaAntiCaptchaImage(v391, p307));
-        }
-        if (p306.general.captchaService.value === "2captcha") {
+        } else if (captchaService === "2captcha") {
           p308(await resolveCaptcha2CaptchaImage(v391, p307));
+        } else {
+          throw new Error("Servicio de captcha no soportado: " + captchaService);
         }
       } catch (e64) {
+        console.error("Error en resolveCaptchaImage:", e64);
         p309(e64);
       }
     });

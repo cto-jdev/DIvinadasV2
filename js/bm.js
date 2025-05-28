@@ -521,29 +521,95 @@ $("#deletePhoi").click(function () {
 });
 
 $("#phoiModal").on("show.bs.modal", async function (p19) {
-    loadPhoi();
+    await loadPhoi();
 });
 
-function loadPhoi() {
-    const v46 = Object.keys(localStorage).filter(p20 => p20.includes("phoi_")).map(p21 => {
-      return {
-        id: p21,
-        ...JSON.parse(localStorage[p21])
-      };
-    });
+async function loadPhoi() {
+    console.log('🎨 Cargando plantillas...');
+    
+    let templates = [];
+    
+    try {
+        // Intentar cargar desde la extensión primero
+        const phoiData = await getAllLocalStore();
+        const extensionTemplates = Object.keys(phoiData).filter(key => key.includes('phoi_')).map(key => {
+            return {
+                id: key,
+                ...phoiData[key]
+            };
+        });
+        
+        if (extensionTemplates.length > 0) {
+            templates = extensionTemplates;
+            console.log('✅ Plantillas cargadas desde extensión:', templates.length);
+        } else {
+            console.log('⚠️ No se encontraron plantillas en extensión, intentando localStorage nativo...');
+        }
+    } catch (error) {
+        console.warn('❌ Error cargando desde extensión:', error);
+    }
+    
+    // Fallback: cargar desde localStorage nativo si no hay plantillas de la extensión
+    if (templates.length === 0) {
+        try {
+            const nativeTemplates = Object.keys(localStorage).filter(key => key.includes("phoi_")).map(key => {
+                return {
+                    id: key,
+                    ...JSON.parse(localStorage[key])
+                };
+            });
+            templates = nativeTemplates;
+            console.log('✅ Plantillas cargadas desde localStorage nativo:', templates.length);
+        } catch (error) {
+            console.error('❌ Error cargando desde localStorage nativo:', error);
+        }
+    }
+    
     const v47 = $("[name=\"phoiId\"]").val();
     if (v47) {
-      $("#phoiControl").removeClass("d-none").addClass("d-flex");
+        $("#phoiControl").removeClass("d-none").addClass("d-flex");
     } else {
-      $("#phoiControl").addClass("d-none");
+        $("#phoiControl").addClass("d-none");
     }
+    
     $("#phoiList").html("");
+    
+    if (templates.length === 0) {
+        $("#phoiList").html(`
+            <div class="text-center p-4">
+                <i class="ri-image-line fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No hay plantillas disponibles</h5>
+                <p class="text-muted mb-3">Crea tu primera plantilla para comenzar</p>
+                <a href="phoi.html" target="_blank" class="btn btn-primary">
+                    <i class="ri-add-line me-1"></i>Crear plantilla
+                </a>
+            </div>
+        `);
+        console.log('📝 Mostrando mensaje de no plantillas disponibles');
+        return;
+    }
+    
     let v48 = "<div class=\"row\">";
-    v46.forEach((p22, p23) => {
-      v48 += "\n            <div class=\"col-3 mb-3\">\n                <div class=\"phoiItem " + (p22.id === v47 ? "active" : "") + " d-block p-3 border rounded\" data-file=\"" + p22.id + "\">\n                    <i class=\"ri-checkbox-circle-fill fs-4 text-success\"></i>\n                    <div class=\"ratio ratio-4x3\">\n                        <img class=\"object-fit-contain w-100 h-100\" src=\"" + p22.src + "\">\n                    </div>\n                    <div class=\"d-flex\">\n                        <span class=\"fw-medium\">" + p22.name + "</span>\n                    </div>\n                </div>\n            </div>\n        ";
+    templates.forEach((template, index) => {
+        const isActive = template.id === v47 ? "active" : "";
+        v48 += `
+            <div class="col-3 mb-3">
+                <div class="phoiItem ${isActive} d-block p-3 border rounded" data-file="${template.id}">
+                    <i class="ri-checkbox-circle-fill fs-4 text-success"></i>
+                    <div class="ratio ratio-4x3">
+                        <img class="object-fit-contain w-100 h-100" src="${template.src}" alt="${template.name}">
+                    </div>
+                    <div class="d-flex">
+                        <span class="fw-medium">${template.name}</span>
+                    </div>
+                </div>
+            </div>
+        `;
     });
     v48 += "</div>";
     $("#phoiList").html(v48);
+    
+    console.log('🎨 Plantillas mostradas en modal:', templates.length);
 }
 
 $("[name=\"backUpEmail\"]").on("input", function () {
