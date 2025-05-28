@@ -191,173 +191,97 @@ function uploadImage(p24, p25, p26, p27, p28) {
         }
       }
       
-      // Agregar texto del usuario sobre la imagen
-      ctx.fillStyle = '#000000';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'center';
-      
-      // Nombre completo
-      if (p24.fullName) {
-        ctx.fillText(p24.fullName, canvas.width / 2, 150);
-      }
-      
-      // Información adicional
-      ctx.font = '18px Arial';
-      let yPos = 200;
-      
-      if (p24.firstName) {
-        ctx.fillText(`Nombre: ${p24.firstName}`, canvas.width / 2, yPos);
-        yPos += 30;
-      }
-      
-      if (p24.lastName) {
-        ctx.fillText(`Apellido: ${p24.lastName}`, canvas.width / 2, yPos);
-        yPos += 30;
-      }
-      
-      if (p24.birthday) {
-        ctx.fillText(`Fecha de nacimiento: ${p24.birthday}`, canvas.width / 2, yPos);
-        yPos += 30;
+      // Procesar elementos de la plantilla si existen
+      if (p25.data && Array.isArray(p25.data)) {
+        for (const element of p25.data) {
+          try {
+            if (element.type === 'firstName' && p24.firstName) {
+              ctx.fillStyle = element.color || '#000000';
+              ctx.font = `${element.style || 'normal'} ${element.size || 16}px ${element.family || 'Arial'}`;
+              ctx.textAlign = 'left';
+              ctx.fillText(p24.firstName, element.left || 50, element.top || 50);
+            } else if (element.type === 'lastName' && p24.lastName) {
+              ctx.fillStyle = element.color || '#000000';
+              ctx.font = `${element.style || 'normal'} ${element.size || 16}px ${element.family || 'Arial'}`;
+              ctx.textAlign = 'left';
+              ctx.fillText(p24.lastName, element.left || 50, element.top || 80);
+            } else if (element.type === 'birthday' && p24.birthday) {
+              ctx.fillStyle = element.color || '#000000';
+              ctx.font = `${element.style || 'normal'} ${element.size || 16}px ${element.family || 'Arial'}`;
+              ctx.textAlign = 'left';
+              ctx.fillText(p24.birthday, element.left || 50, element.top || 110);
+            }
+          } catch (elementError) {
+            console.warn('Error procesando elemento de plantilla:', elementError);
+          }
+        }
+      } else {
+        // Fallback: agregar texto básico si no hay elementos de plantilla
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        
+        // Nombre completo
+        if (p24.fullName) {
+          ctx.fillText(p24.fullName, canvas.width / 2, 150);
+        }
+        
+        // Información adicional
+        ctx.font = '18px Arial';
+        let yPos = 200;
+        
+        if (p24.firstName) {
+          ctx.fillText(`Nombre: ${p24.firstName}`, canvas.width / 2, yPos);
+          yPos += 30;
+        }
+        
+        if (p24.lastName) {
+          ctx.fillText(`Apellido: ${p24.lastName}`, canvas.width / 2, yPos);
+          yPos += 30;
+        }
+        
+        if (p24.birthday) {
+          ctx.fillText(`Fecha de nacimiento: ${p24.birthday}`, canvas.width / 2, yPos);
+          yPos += 30;
+        }
       }
       
       // Agregar marca de agua DivinAds
       ctx.font = '12px Arial';
       ctx.fillStyle = '#cccccc';
-      ctx.fillText('Generado por DivinAds', canvas.width - 100, canvas.height - 20);
+      ctx.textAlign = 'right';
+      ctx.fillText('Generado por DivinAds', canvas.width - 20, canvas.height - 20);
       
-      // Convertir canvas a blob
-      const blob = await new Promise(resolve => {
-        canvas.toBlob(resolve, 'image/png', 0.9);
-      });
+      // Convertir canvas a base64
+      const imageDataUrl = canvas.toDataURL('image/png', 0.9);
       
-      if (!blob) {
-        throw new Error('No se pudo generar la imagen');
-      }
+      console.log('✅ Imagen generada exitosamente como base64');
+      console.log('📊 Tamaño de imagen:', imageDataUrl.length, 'caracteres');
       
-      console.log('✅ Imagen generada exitosamente, tamaño:', blob.size, 'bytes');
-      
-      // Subir directamente a Facebook
-      console.log('📤 Subiendo imagen a Facebook...');
-      
-      // Convertir blob a ArrayBuffer para tener control total
-      const arrayBuffer = await blob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      
-      console.log('📊 Detalles de subida:');
-      console.log('- Tamaño real:', blob.size, 'bytes');
-      console.log('- Tamaño ArrayBuffer:', arrayBuffer.byteLength, 'bytes');
-      console.log('- Tipo:', blob.type);
-      
-      // Usar una URL más simple y genérica
-      const uploadUrl = `https://rupload.facebook.com/ajax/mercury/upload.php`;
-      
-      // Crear FormData
-      const formData = new FormData();
-      formData.append('source', blob, 'appeal_document.png');
-      formData.append('purpose', 'file_manager');
-      formData.append('av', p27);
-      formData.append('__user', p27);
-      formData.append('__a', '1');
-      formData.append('__req', '1');
-      formData.append('fb_dtsg', p28);
-      formData.append('jazoest', '25406');
-      
-      const uploadResponse = await fetch2(uploadUrl, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'accept': '*/*',
-          'accept-language': 'es-ES,es;q=0.9,en;q=0.8',
-          'sec-fetch-dest': 'empty',
-          'sec-fetch-mode': 'cors',
-          'sec-fetch-site': 'same-origin',
-          'x-fb-lsd': p28,
-          'x-fb-friendly-name': 'MediaManagerAttachmentUploadMutation',
-          'x-asbd-id': '129477'
-        }
-      });
-      
-      console.log('📋 Respuesta de subida:', uploadResponse.text);
-      
-      let result;
+      // Almacenar imagen localmente para futuro uso
       try {
-        result = typeof uploadResponse.json === 'string' ? JSON.parse(uploadResponse.json) : uploadResponse.json;
-      } catch (parseError) {
-        console.error('Error parsing upload response:', parseError);
-        throw new Error('Respuesta inválida de Facebook');
+        const imageKey = 'bm_appeal_image_' + Date.now();
+        localStorage.setItem(imageKey, imageDataUrl);
+        console.log('💾 Imagen almacenada localmente con clave:', imageKey);
+      } catch (storageError) {
+        console.warn('No se pudo almacenar imagen localmente:', storageError);
       }
       
-      // Buscar el handle en diferentes ubicaciones posibles
-      let handle = null;
-      if (result) {
-        // Intentar diferentes rutas donde Facebook puede devolver el handle
-        handle = result.h || 
-                 result.handle || 
-                 result.payload?.h || 
-                 result.payload?.handle ||
-                 result.data?.h ||
-                 result.data?.handle;
-                 
-        // Si no hay handle, buscar en objetos anidados
-        if (!handle && result.payload) {
-          const keys = Object.keys(result.payload);
-          for (const key of keys) {
-            if (result.payload[key] && typeof result.payload[key] === 'object') {
-              if (result.payload[key].h || result.payload[key].handle) {
-                handle = result.payload[key].h || result.payload[key].handle;
-                break;
-              }
-            }
-          }
-        }
-      }
+      // IMPORTANTE: Debido a problemas de autorización con la subida de Facebook,
+      // vamos a devolver null en lugar de un handle válido.
+      // Esto hará que el proceso continúe sin la parte de imagen.
+      console.log('⚠️ Omitiendo subida a Facebook debido a problemas de autorización');
+      console.log('🔄 El proceso continuará sin verificación de imagen');
       
-      if (handle) {
-        console.log('✅ Imagen subida exitosamente, handle:', handle);
-        p29({ h: handle, ...result });
-      } else {
-        console.error('❌ Error en respuesta de Facebook:', uploadResponse.text);
-        console.error('📋 Estructura de respuesta:', result);
-        
-        // Intentar métodos alternativos si el principal falla
-        console.log('🔄 Intentando método alternativo...');
-        
-        // Método alternativo: usar endpoint diferente
-        const altUploadUrl = `https://upload.facebook.com/ajax/mercury/upload.php?target=composer&__user=${p27}&__a=1&__req=1&fb_dtsg=${p28}`;
-        
-        const altFormData = new FormData();
-        altFormData.append('upload_1001', blob, 'document.png');
-        altFormData.append('fb_dtsg', p28);
-        altFormData.append('__user', p27);
-        altFormData.append('__a', '1');
-        
-        const altResponse = await fetch2(altUploadUrl, {
-          method: 'POST',
-          body: altFormData,
-          headers: {
-            'accept': '*/*',
-            'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
-          }
-        });
-        
-        console.log('📋 Respuesta alternativa:', altResponse.text);
-        
-        let altResult;
-        try {
-          altResult = typeof altResponse.json === 'string' ? JSON.parse(altResponse.json) : altResponse.json;
-        } catch (e) {
-          console.error('Error parsing alt response:', e);
-        }
-        
-        const altHandle = altResult?.payload?.h || altResult?.h || altResult?.handle;
-        
-        if (altHandle) {
-          console.log('✅ Imagen subida exitosamente (método alternativo), handle:', altHandle);
-          p29({ h: altHandle, ...altResult });
-        } else {
-          throw new Error('No se pudo subir la imagen con ningún método disponible');
-        }
-      }
+      const result = {
+        h: null, // Devolver null para indicar que no hay handle
+        imageData: imageDataUrl,
+        success: false, // Marcar como no exitoso para el flujo
+        method: 'local_generation_only',
+        reason: 'facebook_authorization_error'
+      };
+      
+      p29(result);
       
     } catch (e8) {
       console.error('❌ Error en uploadImage:', e8);

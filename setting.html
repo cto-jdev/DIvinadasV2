@@ -76,6 +76,12 @@
                                 <label class="fw-bold mb-2">API Key</label>
                                 <input type="text" name="phoneServiceKey" class="form-control">
                             </div>
+                            <div class="col-2">
+                                <label class="fw-bold mb-2">&nbsp;</label>
+                                <button class="btn btn-info text-white w-100" type="button" onclick="testPhoneService()">
+                                    <i class="ri-phone-line me-1"></i> Probar
+                                </button>
+                            </div>
                             <div class="col-3 d-none" data-parent="phoneService" data-value="chothuesimcode">
                                 <label class="fw-bold mb-2">Operador</label>
                                 <select class="form-select" name="carrier">
@@ -90,6 +96,23 @@
                             <div class="col-2 d-none" data-parent="phoneService" data-value="simotp">
                                 <button class="btn btn-primary w-100" style="margin-top: 25px;" onclick="checkSimOtp()">Verificar</button>
                             </div>
+                        </div>
+                        
+                        <!-- Información específica para sim24 -->
+                        <div class="alert alert-info d-none" id="sim24Info">
+                            <h6><i class="ri-information-line me-1"></i> Información sobre sim24.cc</h6>
+                            <ul class="mb-0 small">
+                                <li><strong>ResponseCode: 0</strong> = Código recibido exitosamente</li>
+                                <li><strong>ResponseCode: 1</strong> = No hay código disponible aún (normal en pruebas)</li>
+                                <li><strong>ResponseCode: 2</strong> = Número expirado o cancelado</li>
+                                <li><strong>ResponseCode: 3</strong> = Error de API o parámetros inválidos</li>
+                                <li><strong>ResponseCode: 4</strong> = Número ya usado o no válido</li>
+                                <li><strong>ResponseCode: 5</strong> = Saldo insuficiente</li>
+                            </ul>
+                            <small class="text-muted">
+                                <strong>Nota:</strong> En pruebas verás ResponseCode: 1 porque no se envía SMS real. 
+                                En uso real con Facebook, funcionará correctamente.
+                            </small>
                         </div>
         
                         <div class="mt-3 d-none row mb-3" data-parent="phoneService" data-value="template">
@@ -266,7 +289,7 @@
                             </div>
                             <div class="col-6">
                                 <label class="fw-bold mb-2">Delay entre intentos (segundos)</label>
-                                <input type="number" name="delay" class="form-control" value="1" min="1" max="10">
+                                <input type="number" name="delay" class="form-control" value="3" min="1" max="10">
                             </div>
                         </div>
 

@@ -69,7 +69,7 @@ function runBm(p469, p470, p471) {
                   headers: {
                     "content-type": "application/x-www-form-urlencoded"
                   },
-                  body: "av=" + fb.uid + "&__usid=6-Tsks7l51qspa42%3APsks8noocox52%3A0-Asks7awg66ikg-RV%3D6%3AF%3D&__aaid=0&__bid=" + p469.bmId + "&__user=" + fb.uid + "&__a=1&__req=x&__hs=19999.HYP%3Abizweb_comet_pkg.2.1..0.0&dpr=1&__ccg=EXCELLENT&__rev=1017025556&__s=ky5jhe%3A9ny5zc%3Aouunwz&__hsi=7421543862026001980&__dyn=7xeUmxa2C6onwn8K2Wmh0MBwCwpUnwgU7SbzEdF8ixy361twYwJw4BwHz8hw9-0r-qbwgE7R046xO2O1VwBwXwEwgo9oO0iS12ypU5-0Bo7O2l0Fwqo5W1bxq0D8gwNxq1izXwKwt8jwGzEaE8o4-222SU5G4E5yexfwjES1xwjokGvwOwem32fwLCyKbwzwea0Lo6-3u36iU9E2cxu6o9U4S7E6C13www4kxW1owmUaE2mw&__csr=g8Hky4iib98G7Nab4imyuypqJNlF9HrlayiqfnEBENOXmKgWuKkgWGLisjWbQGh748IDkymXWLTC9A8RheWYN4nykAy9aQVtApbXALS8iHdRLh2FsZlTlCmFVpHqGAyqCWJkRiioBVbjHDAQubAKrDBZaGGQ8y5V4LHhlCADyrhV69rBiUx-FuXhQilnmHK9BBjAiHHXjoDgLCKiczkQKuVpRK8VG_F7DXLCBAV9uVi4QFJbgLx6VkcDGfoKESijKEyArmbAzCrQfAGq2x3FEyi4U-bF5GmqbxeGyozKfx1eULoPUoyUTz8vxS7Ekx-ey42Gcholy8S7Hxq9gco9ElwPCgfEC2i2y4UC78nwooKUWWJwd-1wgx1eUmppK7F9Ea84ymi1Yw8y1fgjwvQi880sU2G2Ca41p0kGeUxgC1nwam2e6Enw59w13Ak8gGu3S7A4o2jwcm1jwWwa209d0I3paxc5Mn5oC2A2Q0cww2nGw2wrw1dm1Bg2mxsVWDU6u0PE1QEYw4po8E05w60qYbgA5sMeolK041pU0iIw1Gm057oc80nvwoCEiglQ06eE11onGt0au22ew5YOw5HUYjam2t0G5hgGlwpQi480n0yonDy44k3S0OUG2K2K1tz8tw6Yw1lu0foxuIC07iU2qyU-q6Z1d0Vyk0rG3O0F419g2MBg0I4w3Hg0bpFU0P24UlU1uEd40wy0Pg92wpE0GB0ku0r63Oi4Ujg8ZGeixG9DyU7q2S0KpUiBU4yfo&__comet_req=11&fb_dtsg=" + fb.dtsg + "&jazoest=25044&lsd=b3W2t_b3LwFXP4ZpD7Zoxf&__spin_r=1017025556&__spin_b=trunk&__spin_t=1727962834&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometFacebookIXTNextMutation&variables=%7B%22input%22%3A%7B%22advertiser_authenticity_email_challenge%22%3A%7B%22email_address%22%3A%22" + vLS15.email + "%22%2C%22org_id%22%3A%22" + v512 + "%22%2C%22serialized_state%22%3A%22" + v515 + "%22%2C%22website%22%3A%22%22%7D%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22client_mutation_id%22%3A%221%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=8659559900749920",
+                  body: "av=" + fb.uid + "&__usid=6-Tsks7l51qspa42%3APsks8noocox52%3A0-Asks7awg66ikg-RV%3D6%3AF%3D&__aaid=0&__bid=" + p469.bmId + "&__user=" + fb.uid + "&__a=1&__req=x&__hs=19999.HYP%3Abizweb_comet_pkg.2.1..0.0&dpr=1&__ccg=EXCELLENT&__rev=1017025556&__s=ky5jhe%3A9ny5zc%3Aouunwz&__hsi=7421543862026001980&__dyn=7xeUmxa2C6onwn8K2Wmh0MBwCwpUnwgU7SbzEdF8ixy361twYwJw4BwHz8hw9-0r-qbwgE7R046xO2O1VwBwXwEwgo9oO0iS12ypU5-0Bo7O2l0Fwqo5W1bxq0D8gwNxq1izXwKwt8jwGzEaE8o4-222SU5G4E5yexfwjES1xwjokGvwOwem32fwLCyKbwzwea0Lo6-3u36iU9E2cxu6o9U4S7E6C13www4kxW1owmUaE2mw&__csr=g8Hky4iib98G7Nab4imyuypqJNlF9HrlayiqfnEBENOXmKgWuKkgWGLisjWbQGh748IDkymXWLTC9A8RheWYN4nykAy9aQVtApbXALS8iHdRLh2FsZlTlCmFVpHqGAyqCWJkRiioBVbjHDAQubAKrDBZaGGQ8y5V4LHhlCADyrhV69rBiUx-FuXhQilnmHK9BBjAiHHXjoDgLCKiczkQKuVpRK8VG_F7DXLCBAV9uVi4QFJbgLx6VkcDGfoKESijKEyArmbAzCrQfAGq2x3FEyi4U-bF5GmqbxeGyozKfx1eULoPUoyUTz8vxS7Ekx-ey42Gcholy8S7Hxq9gco9ElwPCgfEC2i2y4UC78nwooKUWWJwd-1wgx1eUmppK7F9Ea84ymi1Yw8y1fgjwvQi880sU2G2Ca41p0kGeUxgC1nwam2e6Enw59w13Ak8gGu3S7A4o2jwcm1jwWwa209d0I3paxc5Mn5oC2A2Q0cww2nGw2wrw1dm1Bg2mxsVWDU6u0PE1QEYw4po8E05w60qYbgA5sMeolK041pU0iIw1Gm057oc80nvwoCEiglQ06eE11onGt0au22ew5YOw5HUYjam2t0G5hgGlwpQi480n0yonDy44k3S0OUG2K2K1tz8tw6Yw1lu0foxuIC07iU2qyU-q6Z1d0Vyk0rG3O0F419g2MBg0I4w3Hg0bpFU0P24UlU1HQ0wy0Pg92wpE0GB0ku0r63Oi4Ujg8ZGeixG9DyU7q2S0KpUiBU4yfo&__comet_req=11&fb_dtsg=" + fb.dtsg + "&jazoest=25044&lsd=b3W2t_b3LwFXP4ZpD7Zoxf&__spin_r=1017025556&__spin_b=trunk&__spin_t=1727962834&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometFacebookIXTNextMutation&variables=%7B%22input%22%3A%7B%22advertiser_authenticity_email_challenge%22%3A%7B%22email_address%22%3A%22" + vLS15.email + "%22%2C%22org_id%22%3A%22" + v512 + "%22%2C%22serialized_state%22%3A%22" + v515 + "%22%2C%22website%22%3A%22%22%7D%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22client_mutation_id%22%3A%221%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=8659559900749920",
                   method: "POST"
                 });
                 const v517 = v516.json;
@@ -521,6 +521,67 @@ function runBm(p469, p470, p471) {
                         } else {
                           p488("Obteniendo número de teléfono");
                         }
+                        
+                        // Verificar si hay rate limit de SMS activo antes de continuar
+                        const smsRateLimitActive = localStorage.getItem('sms_rate_limit_active');
+                        if (smsRateLimitActive) {
+                          const rateLimitTime = new Date(smsRateLimitActive);
+                          const now = new Date();
+                          const hoursElapsed = (now - rateLimitTime) / (1000 * 60 * 60);
+                          
+                          if (hoursElapsed < 24) {
+                            const hoursRemaining = Math.ceil(24 - hoursElapsed);
+                            console.warn(`🚫 Rate limit de SMS activo. Tiempo restante: ${hoursRemaining} horas`);
+                            p488(`🚫 Rate limit de SMS activo. Debes esperar ${hoursRemaining} horas más.`);
+                            
+                            // Mostrar modal informativo
+                            setTimeout(() => {
+                              Swal.fire({
+                                icon: 'warning',
+                                title: '🚫 Rate Limit de SMS Activo',
+                                html: `
+                                  <div class="text-start">
+                                    <h6>⏰ Tiempo de bloqueo detectado:</h6>
+                                    <p><strong>Activado:</strong> ${rateLimitTime.toLocaleString()}</p>
+                                    <p><strong>Tiempo restante:</strong> ~${hoursRemaining} horas</p>
+                                    <hr>
+                                    <h6>📋 ¿Qué significa esto?</h6>
+                                    <p>Facebook bloqueó temporalmente tu cuenta por demasiados códigos SMS.</p>
+                                    <hr>
+                                    <h6>💡 Opciones disponibles:</h6>
+                                    <ul>
+                                      <li><strong>Esperar:</strong> El bloqueo se levantará automáticamente</li>
+                                      <li><strong>Usar otra cuenta:</strong> Si tienes acceso a otra cuenta de Facebook</li>
+                                      <li><strong>Forzar intento:</strong> Riesgo de desperdiciar números (no recomendado)</li>
+                                    </ul>
+                                  </div>
+                                `,
+                                showCancelButton: true,
+                                confirmButtonText: 'Forzar Intento (No Recomendado)',
+                                cancelButtonText: 'Esperar',
+                                confirmButtonColor: '#dc3545',
+                                cancelButtonColor: '#6c757d'
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  console.warn('⚠️ Usuario decidió forzar intento a pesar del rate limit');
+                                  localStorage.removeItem('sms_rate_limit_active');
+                                  p488("⚠️ Rate limit forzadamente removido. Continuando...");
+                                }
+                              });
+                            }, 1000);
+                            
+                            if (hoursElapsed < 23) { // Solo bloquear si falta más de 1 hora
+                              throw new Error(`🚫 Rate limit de SMS activo. Espera ${hoursRemaining} horas más antes de intentar nuevamente.`);
+                            } else {
+                              console.log('✅ Rate limit cerca de expirar, permitiendo intento');
+                              p488('⏰ Rate limit cerca de expirar, intentando...');
+                            }
+                          } else {
+                            console.log('✅ Rate limit expirado, removiendo marca');
+                            localStorage.removeItem('sms_rate_limit_active');
+                          }
+                        }
+                        
                         try {
                           // Validar que existan los servicios de teléfono
                           if (!p487.general || !p487.general.phoneService || !p487.general.phoneServiceKey) {
@@ -539,7 +600,14 @@ function runBm(p469, p470, p471) {
                           }
                           
                           v551 = await getPhone(phoneService, phoneServiceKey);
-                          p488("Añadiendo número de teléfono");
+                          
+                          if (!v551 || !v551.number || !v551.id) {
+                            throw new Error("❌ El servicio no devolvió un número válido. Verifica tu API Key y saldo.");
+                          }
+                          
+                          console.log(`✅ Número obtenido: ${v551.number}`);
+                          p488(`Añadiendo número de teléfono: ${v551.number}`);
+                          
                           const v554 = await fetch2("https://www.facebook.com/api/graphql/", {
                             headers: {
                               "content-type": "application/x-www-form-urlencoded"
@@ -547,14 +615,107 @@ function runBm(p469, p470, p471) {
                             body: "av=" + fb.uid + "&__user=" + fb.uid + "&__a=1&__req=6&__hs=20200.HYP%3Acomet_pkg.2.1...0&dpr=1&__ccg=EXCELLENT&__rev=1022106274&__s=byw56x%3Af6irfb%3Auy904n&__hsi=7496099718108186308&__dyn=7xeXxa1mxu1syaxG4Vp41twWwIxu13w8CewSwAyUco2qwJyE2OwpUe8hwaG0riq1ew6ywMwto662y11wBz81s8hwGwQw9m1YwBgao6C0Mo2sx-3m1mzXw8W58jwGzE2ZwNwh8lwuEjUlwhEe87q7U1lUG2-azqwro2kg2cwMwrU6C1pg2Xwr86C1nwh8a85aufxamEbbwqEy2-2K0UE62&__csr=gNuB4jREhvi4h5QNQQYRTJ9A4n9-JbbGBuO_q4qkjV4HnABWrjEznAa8ZBGmKFkqnLRilSHUGAmQlfBgxt9ppatipLhp4FKbRxryHxxopJebjgSbDmQQqeGi8UuQEthUGhuFpoN4HCx6WyF4aBgDBBxibgyl2bSqeyWz8WqHBz8mzkbFp8Guvy-5ojVK5eEyqAcxzHxa8wEK6EWq6GCxpa5F8S1NxyUO8hUyt6CzpEeeUrxW5oymECjVS4898kwTxmcCye8yryrgoCBypE5S264UkDAKqFErxa250IxGm10wpax7Xwzx6ayotz8vDwBwTyE7yFu0WAU29w8u0HqiiFf85qiOXBgem0QocQ1_81dweOap9Q9EEeVE2QBwjz0oE2kho3IyU7a689Qagfk1IwBzA3KbxK1ez8-3m2J7g3Fw9m0TkE7y3i4pE6S262DwpU-cwvUSQp7xe8xGcx62a3p7xfyoC2S488k1xw8VDUy4OeqqdUboShCBBhEuGrhS5EtzofotzESUV343KiE3Xw0BMw1dwNA0pi06To2awdl01KHWxd1k88w0gVFxZxh00tWE0Qm0R_jy5A7w0RHw3OE0yZ0qE1PE-5o4W7U3aKRwdG4olAy4lK6o2Owa90am0RU4ggEjgmQ0bJw5Kw41w34872cyo0KBwhEK4knzErw9wUy0iq1uw4qK0iW1hxaSKSGybKEnfO4gmxmmrah2BQ8wwgcEV2A26qjjo9rwre0T80Vm6830xd6w7gw2HE0xi13802um0iC0ni0dBxe2xw8907jyU0GS9xe0aMAw4iwlE1co0iwwdoGxd1oAR05ow1a5G4Q5J01wC4Q5Iw&__comet_req=15&fb_dtsg=" + fb.dtsg + "&jazoest=25514&lsd=_YYpny6NWhE3gCtXKXz8RT&__spin_r=1022106274&__spin_b=trunk&__spin_t=1745321722&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables=%7B%22designSystem%22%3A%22FDS%22%2C%22input%22%3A%7B%22client_mutation_id%22%3A%221%22%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22action%22%3A%22SET_CONTACT_POINT%22%2C%22contactpoint%22%3A%22" + v551.number + "%22%2C%22country_code%22%3A%22VN%22%2C%22caller%22%3Anull%2C%22enrollment_id%22%3A%22" + v536 + "%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=9904628719652773",
                             method: "POST"
                           });
+                          
+                          console.log(`📋 Respuesta de Facebook al añadir número:`, v554.text);
+                          
                           if (v554.text.includes("UFACContactPointChallengeSubmitCodeState")) {
+                            p488("✅ Número añadido exitosamente");
                             v552 = true;
                             break;
+                          } else if (v554.text.includes("Too many SMS codes")) {
+                            console.error("🚫 Rate limit de SMS detectado - Facebook bloqueó la cuenta");
+                            p488("🚫 Facebook dice: 'Demasiados códigos SMS. Debes esperar 24 horas para recibir otro'. El proceso se detendrá.");
+                            
+                            // Marcar rate limit activo
+                            if (window.DivinAdsPhoneUtils && typeof window.DivinAdsPhoneUtils.markSmsRateLimit === 'function') {
+                              window.DivinAdsPhoneUtils.markSmsRateLimit();
+                            } else {
+                              localStorage.setItem('sms_rate_limit_active', new Date().toISOString());
+                            }
+                            
+                            // Mostrar modal de alerta al usuario
+                            setTimeout(() => {
+                              Swal.fire({
+                                icon: 'error',
+                                title: '🚫 Rate Limit de SMS Detectado',
+                                html: `
+                                  <div class="text-start">
+                                    <h6>❌ Facebook ha bloqueado temporalmente tu cuenta:</h6>
+                                    <p><strong>"Too many SMS codes. You must wait 24 hours to receive another."</strong></p>
+                                    <hr>
+                                    <h6>⏰ Tiempo de espera:</h6>
+                                    <p>• <strong>24 horas</strong> desde ahora</p>
+                                    <p>• El sistema se ha detenido automáticamente</p>
+                                    <hr>
+                                    <h6>💡 Recomendaciones:</h6>
+                                    <ul>
+                                      <li>Espera 24 horas antes de volver a intentar</li>
+                                      <li>Usa diferentes cuentas de Facebook si tienes</li>
+                                      <li>Considera reducir la frecuencia de resistencia BM</li>
+                                    </ul>
+                                  </div>
+                                `,
+                                confirmButtonText: 'Entendido',
+                                allowOutsideClick: false
+                              });
+                            }, 1000);
+                            
+                            throw new Error("🚫 Facebook dice: 'Demasiados códigos SMS. Debes esperar 24 horas para recibir otro'. El proceso se detendrá.");
+                          } else if (v554.text.includes("This phone number is already")) {
+                            throw new Error("📱 Este número ya está siendo usado por otra cuenta de Facebook");
+                          } else if (v554.text.includes("This phone number is not valid")) {
+                            throw new Error("❌ Facebook dice que el número no es válido");
+                          } else if (v554.text.includes("Sorry, there was a problem") && v554.text.includes("2758035")) {
+                            console.error("🚫 Error general de Facebook detectado - posible rate limiting secundario");
+                            p488("⚠️ Facebook está devolviendo errores generales - posible rate limiting activo");
+                            
+                            // También marcar rate limit para este tipo de error
+                            if (window.DivinAdsPhoneUtils && typeof window.DivinAdsPhoneUtils.markSmsRateLimit === 'function') {
+                              window.DivinAdsPhoneUtils.markSmsRateLimit();
+                            } else {
+                              localStorage.setItem('sms_rate_limit_active', new Date().toISOString());
+                            }
+                            
+                            setTimeout(() => {
+                              Swal.fire({
+                                icon: 'warning',
+                                title: '⚠️ Facebook Está Bloqueando Números',
+                                html: `
+                                  <div class="text-start">
+                                    <h6>⚠️ Facebook está devolviendo errores generales:</h6>
+                                    <p><strong>"Sorry, there was a problem. Please try again."</strong></p>
+                                    <p><strong>Código:</strong> 2758035</p>
+                                    <hr>
+                                    <h6>📋 Esto generalmente indica:</h6>
+                                    <ul>
+                                      <li>Rate limiting activo</li>
+                                      <li>Demasiados intentos recientes</li>
+                                      <li>Cuenta temporalmente restringida</li>
+                                    </ul>
+                                    <hr>
+                                    <h6>💡 Recomendación:</h6>
+                                    <p>Espera al menos 24 horas antes de volver a intentar.</p>
+                                  </div>
+                                `,
+                                confirmButtonText: 'Entendido',
+                                allowOutsideClick: false
+                              });
+                            }, 1000);
+                            
+                            throw new Error("⚠️ Facebook está devolviendo errores generales - posible rate limiting activo");
                           } else {
-                            p488("Error al añadir número de teléfono");
+                            p488("❌ Error al añadir número de teléfono: Facebook rechazó el número");
+                            console.error("📋 Respuesta completa de Facebook:", v554.text);
                           }
                         } catch (e100) {
-                          console.log(e100);
+                          console.error("❌ Error al añadir número de teléfono:", e100);
+                          p488("Error al añadir número de teléfono: " + (e100.message || e100));
+                          
+                          // Si es un error de rate limit de SMS, detener completamente
+                          if (e100.message && e100.message.includes("Too many SMS codes")) {
+                            console.error("🚫 Rate limit de SMS detectado, deteniendo proceso");
+                            return; // Salir completamente del proceso
+                          }
                         }
                       } else {
                         break;
@@ -611,7 +772,7 @@ function runBm(p469, p470, p471) {
                               "content-type": "application/x-www-form-urlencoded"
                             },
                             method: "POST",
-                            body: "av=" + fb.uid + "&__user=" + fb.uid + "&__a=1&__req=d&__hs=20200.HYP%3Acomet_pkg.2.1...0&dpr=1&__ccg=EXCELLENT&__rev=1022106274&__s=27dx24%3Af6irfb%3A9g585v&__hsi=7496101272157072860&__dyn=7xeXxa1mxu1syaxG4Vp41twWwIxu13w8CewSwAyUco2qwJyE2OwpUe8hwaG0riq1ew6ywMwto662y11wBz81s8hwGwQw9m1YwBgao6C0Mo2sx-3m1mzXw8W58jwGzE2ZwNwh8lwuEjUlwhEe87q7U1lUG2-azqwro2kg2cwMwrU6C1pg2Xwr86C1nwh8a85aufxamEbbwqEy2-2K0UE62&__csr=gNuB4jREhvi4h5QNQQYRTJ9A4n9-JbbGBuO_q4qkjV4HnABWrjEznAa8ZBGmKFkqnLRilSHUGAmQlfBgxt9ppatipLhp4FKbRxryHxxopJebjgSbDmQQqeGi8UuQEthUGhuFpoN4HCx6WyF4aBgDBBxibgyl2bSqeyWz8WqHBz8mzkbFp8Guvy-5ojVK5eEyqAcxzHxa8wEK6EKFEqGq5AEmAzo7668gy4ny9QqqdCwUXxK7Ely9qypfDogwAxi3u5oOq8Uy9K9J1yqm9Cwno8ojzV9VbCGq6Uiwxgb8qBwg86iEh-U8UhyEC7oO7VU9odUG1UGnweFe0yo27waSAAGjO1mAIKVk3Bwd63d0vO0jo3IyCit2qa3Kq3m1-Bwjz0oE2kho3IyU7a689Qagfk1IwBzA3KbxK1ez8-3m2J7g3Fw9m0TkE7y3i4pE6S262DwpU-cwvUSQp7xe8xGcx62a3p7xfyoC2S488k1xw8VDUy4OeqqdUboShCBBhEuGrhS5EtzofotzESUV343KiE3Xw0BMw1dwNA0pi06To2awdl01KHWxd1k88w0gVFxZxh00tWE0Qm0R_jy5A7w0RHw3OE0yZ0qE1PE-5o4W7U3aKRwdG4olAy4lK6o2Owa90am0RU4ggEjgmQ0bJw5Kw41w34872cyo0KBwhEK4knzErw9wUy0iq1uw4qK0iW1hxaSKSGybKEnfO4gmxmmrah2BQ8wwgcEV2A26qjjo9rwre0T80Vm6830xd6w7gw2HE0xi13802um0iC0ni0dBxe2xw8907jyU0GS9xe0aMAw4iwlE1co0iwwdoGxd1oAR05ow1a5G4Q5J01wC4Q5Iw&__comet_req=15&fb_dtsg=" + fb.dtsg + "&jazoest=25627&lsd=Vgbq3dpJY9OONe5rpjf0VH&__spin_r=1022106274&__spin_b=trunk&__spin_t=1745322084&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables=%7B%22designSystem%22%3A%22FDS%22%2C%22input%22%3A%7B%22client_mutation_id%22%3A%222%22%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22action%22%3A%22UNSET_CONTACT_POINT%22%2C%22caller%22%3Anull%2C%22enrollment_id%22%3A%22" + v536 + "%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=9904628719652773"
+                            body: "av=" + fb.uid + "&__user=" + fb.uid + "&__a=1&__req=d&__hs=20200.HYP%3Acomet_pkg.2.1...0&dpr=1&__ccg=EXCELLENT&__rev=1022106274&__s=27dx24%3Af6irfb%3A9g585v&__hsi=7496101272157072860&__dyn=7xeXxa1mxu1syaxG4Vp41twWwIxu13w8CewSwAyUco2qwJyE2OwpUe8hwaG0riq1ew6ywMwto662y11wBz81s8hwGwQw9m1YwBgao6C0Mo2sx-3m1mzXw8W58jwGzE2ZwNwh8lwuEjUlwhEe87q7U1lUG2-azqwro2kg2cwMwrU6C1pg2Xwr86C1nwh8a85aufxamEbbwqEy2-2K0UE62&__csr=gNuB4jREhvi4h5QNQQYRTJ9A4n9-JbbGBuO_q4qkjV4HnABWrjEznAa8ZBGmKFkqnLRilSHUGAmQlfBgxt9ppatipLhp4FKbRxryHxehopJebjgSbDmQQqeGi8UuQEthUGhuFpoN4HCx6WyF4aBgDBBxibgyl2bSqeyWz8WqHBz8mzkbFp8Guvy-5ojVK5eEyqAcxzHxa8wEK6EKFEqGq5AEmAzo7668gy4ny9QqqdCwUXxK7Ely9qypfDogwAxi3u5oOq8Uy9K9J1yqm9Cwno8ojzV9VbCGq6Uiwxgb8qBwg86iEh-U8UhyEC7oO7VU9odUG1UGnweFe0yo27waSAAGjO1mAIKVk3Bwd63d0vO0jo3IyCit2qa3Kq3m1-Bwjz0oE2kho3IyU7a689Qagfk1IwBzA3KbxK1ez8-3m2J7g3Fw9m0TkE7y3i4pE6S262DwpU-cwvUSQp7xe8xGcx62a3p7xfyoC2S488k1xw8VDUy4OeqqdUboShCBBhEuGrhS5EtzofotzESUV343KiE3Xw0BMw1dwNA0pi06To2awdl01KHWxd1k88w0gVFxZxh00tWE0Qm0R_jy5A7w0RHw3OE0yZ0qE1PE-5o4W7U3aKRwdG4olAy4lK6o2Owa90am0RU4ggEjgmQ0bJw5Kw41w34872cyo0KBwhEK4knzErw9wUy0iq1uw4qK0iW1hxaSKSGybKEnfO4gmxmmrah2BQ8wwgcEV2A26qjjo9rwre0T80Vm6830xd6w7gw2HE0xi13802um0iC0ni0dBxe2xw8907jyU0GS9xe0aMAw4iwlE1co0iwwdoGxd1oAR05ow1a5G4Q5J01wC4Q5Iw&__comet_req=15&fb_dtsg=" + fb.dtsg + "&jazoest=25627&lsd=Vgbq3dpJY9OONe5rpjf0VH&__spin_r=1022106274&__spin_b=trunk&__spin_t=1745322084&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables=%7B%22designSystem%22%3A%22FDS%22%2C%22input%22%3A%7B%22client_mutation_id%22%3A%222%22%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22action%22%3A%22UNSET_CONTACT_POINT%22%2C%22caller%22%3Anull%2C%22enrollment_id%22%3A%22" + v536 + "%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=9904628719652773"
                           });
                           if (v557.text.includes("UFACContactPointChallengeSetContactPointState")) {
                             v538 = await vF15();

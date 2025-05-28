@@ -878,89 +878,132 @@ async function getBase64ImageFromUrl(p289) {
   }
   function getPhone(p347, p348, p349 = "facebook") {
     return new Promise(async (p350, p351) => {
-      let vLS11 = "";
-      for (let vLN032 = 0; vLN032 < 99; vLN032++) {
-        try {
-          if (p347 === "chothuesimcode") {
-            vLS11 = await getPhoneChoThueSimCode(p348, p349);
-          }
-          if (p347 === "viotp") {
-            vLS11 = await getPhoneViOtp(p348, p349);
-          }
-          if (p347 === "xotp") {
-            vLS11 = await getPhoneXotp(p348, p349);
-          }
-          if (p347 === "otponline") {
-            vLS11 = await getPhoneOtpOnline(p348, p349);
-          }
-          if (p347 === "sim24") {
-            vLS11 = await getPhoneSim24(p348, p349);
-          }
-          if (p347 === "233io9") {
-            vLS11 = await getPhone233(p348, p349);
-          }
-          if (p347 === "simotp") {
-            vLS11 = await getPhoneSimOtp(p348, p349);
-          }
-          if (p347 === "codesim") {
-            vLS11 = await getPhoneCodeSim(p348, p349);
-          }
-          if (p347 === "template") {
-            code = await getPhoneTemplate(id);
-          }
-          break;
-        } catch (e73) {
-          console.log(e73);
+      try {
+        console.log(`🔍 [getPhone] Iniciando obtención de número`);
+        console.log(`📋 Servicio: ${p347}, API Key: ${p348 ? p348.substring(0, 10) + '...' : 'No definida'}, App: ${p349}`);
+        
+        // Validar parámetros
+        if (!p347 || p347 === "none") {
+          throw new Error("Servicio de teléfono no seleccionado");
         }
-      }
-      if (vLS11) {
-        p350(vLS11);
-      } else {
-        p351();
+        
+        if (!p348) {
+          throw new Error("API Key no proporcionada");
+        }
+        
+        let result = null;
+        
+        try {
+          console.log(`🚀 Llamando al servicio ${p347}...`);
+          
+          if (p347 === "chothuesimcode") {
+            result = await getPhoneChoThueSimCode(p348, p349);
+          } else if (p347 === "viotp") {
+            result = await getPhoneViOtp(p348, p349);
+          } else if (p347 === "xotp") {
+            result = await getPhoneXotp(p348, p349);
+          } else if (p347 === "otponline") {
+            result = await getPhoneOtpOnline(p348, p349);
+          } else if (p347 === "sim24") {
+            result = await getPhoneSim24(p348, p349);
+          } else if (p347 === "233io9") {
+            result = await getPhone233(p348, p349);
+          } else if (p347 === "simotp") {
+            result = await getPhoneSimOtp(p348, p349);
+          } else if (p347 === "codesim") {
+            result = await getPhoneCodeSim(p348, p349);
+          } else if (p347 === "template") {
+            result = await getPhoneTemplate();
+          } else {
+            throw new Error(`Servicio no soportado: ${p347}`);
+          }
+          
+          if (result && result.number && result.id) {
+            console.log(`✅ [getPhone] Número obtenido exitosamente`);
+            console.log(`📞 Número: ${result.number}, ID: ${result.id}`);
+            p350(result);
+          } else {
+            throw new Error("Respuesta inválida del servicio (sin número o ID)");
+          }
+          
+        } catch (serviceError) {
+          console.error(`❌ [getPhone] Error del servicio ${p347}:`, serviceError);
+          throw serviceError;
+        }
+        
+      } catch (error) {
+        console.error(`❌ [getPhone] Error general:`, error);
+        p351(error);
       }
     });
   }
   function getPhoneCode(p352, p353, p354) {
     return new Promise(async (p355, p356) => {
       try {
+        console.log(`🔍 [getPhoneCode] Iniciando obtención de código`);
+        console.log(`📋 Servicio: ${p352}, API Key: ${p353 ? p353.substring(0, 10) + '...' : 'No definida'}, ID: ${p354}`);
+        
+        // Validar parámetros
+        if (!p352 || p352 === "none") {
+          throw new Error("Servicio de teléfono no seleccionado");
+        }
+        
+        if (!p353) {
+          throw new Error("API Key no proporcionada");
+        }
+        
+        if (!p354) {
+          throw new Error("ID de número no válido");
+        }
+        
         const v436 = await saveSetting();
-        const v437 = (await v436.general.getCodeNumber?.value) || 10;
-        const vLN50 = 50;
-        let vLS12 = "";
-        if (p352 === "chothuesimcode") {
-          vLS12 = await getPhoneCodeChoThueSimCode(p353, p354, v437, vLN50);
+        const v437 = (v436.general && v436.general.getCodeNumber && v436.general.getCodeNumber.value) || 10;
+        const vLN50 = 10; // Reducido de 50 a 10 segundos para ser más eficiente
+        
+        console.log(`⏱️ Configuración: ${v437} intentos, ${vLN50}s de espera entre intentos`);
+        
+        let result = null;
+        
+        try {
+          console.log(`🚀 Obteniendo código del servicio ${p352}...`);
+          
+          if (p352 === "chothuesimcode") {
+            result = await getPhoneCodeChoThueSimCode(p353, p354, v437, vLN50);
+          } else if (p352 === "viotp") {
+            result = await getPhoneCodeViOtp(p353, p354, v437, vLN50);
+          } else if (p352 === "xotp") {
+            result = await getPhoneCodeXotp(p353, p354, v437, vLN50);
+          } else if (p352 === "otponline") {
+            result = await getPhoneCodeOnlineOtp(p353, p354, v437, vLN50);
+          } else if (p352 === "sim24") {
+            result = await getPhoneCodeSim24(p353, p354, v437, vLN50);
+          } else if (p352 === "233io9") {
+            result = await getPhoneCode233(p353, p354, v437, vLN50);
+          } else if (p352 === "simotp") {
+            result = await getPhoneCodeSimOtp(p353, p354, v437, vLN50);
+          } else if (p352 === "codesim") {
+            result = await getPhoneCodeCodeSim(p353, p354, v437, vLN50);
+          } else if (p352 === "template") {
+            result = await getPhoneCodeTemplate(p354, v437, vLN50);
+          } else {
+            throw new Error(`Servicio no soportado: ${p352}`);
+          }
+          
+          if (result) {
+            console.log(`✅ [getPhoneCode] Código obtenido exitosamente: ${result}`);
+            p355(result);
+          } else {
+            throw new Error("No se pudo obtener el código de verificación");
+          }
+          
+        } catch (serviceError) {
+          console.error(`❌ [getPhoneCode] Error del servicio ${p352}:`, serviceError);
+          throw serviceError;
         }
-        if (p352 === "viotp") {
-          vLS12 = await getPhoneCodeViOtp(p353, p354, v437, vLN50);
-        }
-        if (p352 === "xotp") {
-          vLS12 = await getPhoneCodeXotp(p353, p354, v437, vLN50);
-        }
-        if (p352 === "otponline") {
-          vLS12 = await getPhoneCodeOnlineOtp(p353, p354, v437, vLN50);
-        }
-        if (p352 === "sim24") {
-          vLS12 = await getPhoneCodeSim24(p353, p354, v437, vLN50);
-        }
-        if (p352 === "233io9") {
-          vLS12 = await getPhoneCode233(p353, p354, v437, vLN50);
-        }
-        if (p352 === "simotp") {
-          vLS12 = await getPhoneCodeSimOtp(p353, p354, v437, vLN50);
-        }
-        if (p352 === "codesim") {
-          vLS12 = await getPhoneCodeCodeSim(p353, p354, v437, vLN50);
-        }
-        if (p352 === "template") {
-          vLS12 = await getPhoneCodeTemplate(p354, v437, vLN50);
-        }
-        if (vLS12) {
-          p355(vLS12);
-        } else {
-          p356();
-        }
-      } catch (e74) {
-        p356(e74);
+        
+      } catch (error) {
+        console.error(`❌ [getPhoneCode] Error general:`, error);
+        p356(error);
       }
     });
   }
@@ -1187,18 +1230,47 @@ async function getBase64ImageFromUrl(p289) {
   function getPhoneSim24(p400, p401 = "facebook") {
     return new Promise(async (p402, p403) => {
       try {
-        const v468 = await fetch2("https://sim24.cc/api?action=number&service=" + p401 + "&apikey=" + p400);
+        console.log(`🔍 [getPhoneSim24] Iniciando obtención de número`);
+        console.log(`📋 Parámetros: API Key: ${p400 ? p400.substring(0, 10) + '...' : 'No definida'}, Servicio: ${p401}`);
+        
+        const apiUrl = `https://sim24.cc/api?action=number&service=${p401}&apikey=${p400}`;
+        console.log(`🌐 [getPhoneSim24] Llamando API: ${apiUrl.replace(p400, p400.substring(0, 5) + '...')}`);
+        
+        const v468 = await fetch2(apiUrl);
         const v469 = v468.json;
-        if (v469.ResponseCode == 0) {
-          const vO57 = {
-            number: v469.Result.number,
-            id: v469.Result.id
-          };
-          p402(vO57);
+        
+        console.log(`📋 [getPhoneSim24] Respuesta del servidor:`, v469);
+        
+        if (v469 && v469.ResponseCode !== undefined) {
+          if (v469.ResponseCode == 0) {
+            if (v469.Result && v469.Result.number && v469.Result.id) {
+              const vO57 = {
+                number: v469.Result.number,
+                id: v469.Result.id
+              };
+              console.log(`✅ [getPhoneSim24] Número obtenido exitosamente: ${vO57.number}, ID: ${vO57.id}`);
+              p402(vO57);
+            } else {
+              const errorMsg = `ResponseCode 0 pero datos inválidos en Result: ${JSON.stringify(v469.Result)}`;
+              console.log(`❌ [getPhoneSim24] ${errorMsg}`);
+              p403(new Error(errorMsg));
+            }
+          } else {
+            // Error en la respuesta
+            const errorMsg = `Error del servidor - ResponseCode: ${v469.ResponseCode}`;
+            console.log(`❌ [getPhoneSim24] ${errorMsg}`);
+            if (v469.Message) {
+              console.log(`📝 [getPhoneSim24] Mensaje del servidor: ${v469.Message}`);
+            }
+            p403(new Error(`${errorMsg}${v469.Message ? ': ' + v469.Message : ''}`));
+          }
         } else {
-          p403();
+          const errorMsg = `Respuesta inválida del servidor (sin ResponseCode): ${JSON.stringify(v469)}`;
+          console.log(`❌ [getPhoneSim24] ${errorMsg}`);
+          p403(new Error(errorMsg));
         }
       } catch (e84) {
+        console.error(`❌ [getPhoneSim24] Error general:`, e84);
         p403(e84);
       }
     });
@@ -1206,22 +1278,99 @@ async function getBase64ImageFromUrl(p289) {
   function getPhoneCodeSim24(p404, p405, p406, p407) {
     return new Promise(async (p408, p409) => {
       try {
+        console.log(`🔍 [getPhoneCodeSim24] Iniciando obtención de código para ID: ${p405}`);
+        console.log(`📋 Parámetros: API Key: ${p404 ? p404.substring(0, 10) + '...' : 'No definida'}, Intentos: ${p406}, Delay: ${p407}s`);
+        
         let v470 = null;
+        let lastResponse = null;
+        
         for (let vLN037 = 0; vLN037 < p406; vLN037++) {
-          await delayTime(p407 * 100);
-          const v471 = await fetch2("https://sim24.cc/api?action=code&id=" + p405 + "&apikey=" + p404);
-          const v472 = v471.json;
-          if (v472.ResponseCode == 0) {
-            v470 = v472.Result.otp;
-            break;
+          console.log(`🔄 [getPhoneCodeSim24] Intento ${vLN037 + 1}/${p406}...`);
+          
+          if (vLN037 > 0) {
+            console.log(`⏳ Esperando ${p407} segundos antes del siguiente intento...`);
+            await delayTime(p407 * 1000);
+          }
+          
+          try {
+            const apiUrl = `https://sim24.cc/api?action=code&id=${p405}&apikey=${p404}`;
+            console.log(`🌐 [getPhoneCodeSim24] Llamando API: ${apiUrl.replace(p404, p404.substring(0, 5) + '...')}`);
+            
+            const v471 = await fetch2(apiUrl);
+            const v472 = v471.json;
+            lastResponse = v472;
+            
+            console.log(`📋 [getPhoneCodeSim24] Respuesta del servidor:`, v472);
+            
+            if (v472 && v472.ResponseCode !== undefined) {
+              if (v472.ResponseCode == 0) {
+                // Código exitoso
+                if (v472.Result && v472.Result.otp) {
+                  v470 = v472.Result.otp;
+                  console.log(`✅ [getPhoneCodeSim24] Código obtenido exitosamente: ${v470}`);
+                  break;
+                } else {
+                  console.log(`⚠️ [getPhoneCodeSim24] ResponseCode 0 pero sin OTP en Result:`, v472.Result);
+                }
+              } else {
+                // Error en la respuesta
+                let errorDescription = '';
+                switch(v472.ResponseCode) {
+                  case 1:
+                    errorDescription = 'No hay código disponible aún (esperando SMS)';
+                    break;
+                  case 2:
+                    errorDescription = 'Número expirado o cancelado';
+                    break;
+                  case 3:
+                    errorDescription = 'Error de API o parámetros inválidos';
+                    break;
+                  case 4:
+                    errorDescription = 'Número ya usado o no válido';
+                    break;
+                  case 5:
+                    errorDescription = 'Saldo insuficiente';
+                    break;
+                  default:
+                    errorDescription = 'Error desconocido';
+                }
+                
+                console.log(`❌ [getPhoneCodeSim24] Error del servidor - ResponseCode: ${v472.ResponseCode} (${errorDescription})`);
+                if (v472.Message) {
+                  console.log(`📝 [getPhoneCodeSim24] Mensaje del servidor: ${v472.Message}`);
+                }
+                
+                // Algunos códigos de error indican que debemos parar inmediatamente
+                if (v472.ResponseCode == 2 || v472.ResponseCode == 3 || v472.ResponseCode == 4 || v472.ResponseCode == 5) {
+                  console.log(`🛑 [getPhoneCodeSim24] Código de error terminal (${errorDescription}), deteniendo intentos`);
+                  break;
+                }
+                
+                // ResponseCode 1 significa "esperando", así que continuamos
+                if (v472.ResponseCode == 1) {
+                  console.log(`⏳ [getPhoneCodeSim24] Continuando intentos... (${errorDescription})`);
+                }
+              }
+            } else {
+              console.log(`❌ [getPhoneCodeSim24] Respuesta inválida del servidor (sin ResponseCode):`, v472);
+            }
+            
+          } catch (requestError) {
+            console.error(`❌ [getPhoneCodeSim24] Error en solicitud HTTP:`, requestError);
+            lastResponse = { error: requestError.message };
           }
         }
+        
         if (v470) {
+          console.log(`🎉 [getPhoneCodeSim24] Proceso completado exitosamente con código: ${v470}`);
           p408(v470);
         } else {
-          p409();
+          const errorMsg = `No se pudo obtener código después de ${p406} intentos. Última respuesta: ${JSON.stringify(lastResponse)}`;
+          console.log(`❌ [getPhoneCodeSim24] ${errorMsg}`);
+          p409(new Error(errorMsg));
         }
       } catch (e85) {
+        console.error(`❌ [getPhoneCodeSim24] Error general:`, e85);
         p409(e85);
       }
     });
@@ -1574,3 +1723,420 @@ async function getBase64ImageFromUrl(p289) {
       p467();
     });
   }
+
+// =============================================================================
+// SISTEMA DE UTILIDADES DE DEBUGGING PARA TELÉFONOS
+// =============================================================================
+
+/**
+ * DivinAdsPhoneUtils - Sistema de debugging para servicios de teléfono
+ * Descripción: Conjunto de utilidades para debuggear y monitorear servicios de teléfono
+ */
+window.DivinAdsPhoneUtils = {
+  
+  /**
+   * Muestra el estado actual del sistema de teléfonos
+   */
+  showSystemStatus: async function() {
+    try {
+      console.log('📱 ===== ESTADO DEL SISTEMA DE TELÉFONOS =====');
+      
+      const settings = await saveSetting();
+      const phoneService = settings.general?.phoneService?.value || 'none';
+      const phoneServiceKey = settings.general?.phoneServiceKey?.value || '';
+      const getPhoneAttempts = settings.general?.getPhoneNumber?.value || 6;
+      const getCodeAttempts = settings.general?.getCodeNumber?.value || 10;
+      const delayBetweenAttempts = settings.general?.delay?.value || 1;
+      
+      console.log('🔧 Configuración:');
+      console.log(`   • Servicio: ${phoneService}`);
+      console.log(`   • API Key: ${phoneServiceKey ? phoneServiceKey.substring(0, 10) + '...' : 'No configurada'}`);
+      console.log(`   • Intentos obtener número: ${getPhoneAttempts}`);
+      console.log(`   • Intentos obtener código: ${getCodeAttempts}`);
+      console.log(`   • Delay entre intentos: ${delayBetweenAttempts}s`);
+      
+      // Verificar servicios soportados
+      const supportedServices = [
+        'chothuesimcode', 'viotp', 'xotp', 'otponline', 
+        'sim24', '233io9', 'simotp', 'codesim', 'template'
+      ];
+      
+      console.log('📋 Servicios soportados:', supportedServices);
+      console.log(`✅ Servicio actual válido: ${supportedServices.includes(phoneService)}`);
+      
+      // Estado de rate limiting (si existe)
+      const smsRateLimit = localStorage.getItem('sms_rate_limit_active');
+      if (smsRateLimit) {
+        console.log('🚫 Rate limit SMS activo desde:', new Date(smsRateLimit));
+      } else {
+        console.log('✅ Sin rate limit SMS activo');
+      }
+      
+      console.log('==============================================');
+      
+      return {
+        phoneService,
+        hasApiKey: !!phoneServiceKey,
+        getPhoneAttempts,
+        getCodeAttempts,
+        delayBetweenAttempts,
+        isServiceSupported: supportedServices.includes(phoneService),
+        smsRateLimited: !!smsRateLimit
+      };
+      
+    } catch (error) {
+      console.error('❌ Error al mostrar estado del sistema:', error);
+      return null;
+    }
+  },
+  
+  /**
+   * Prueba de conectividad básica con el servicio
+   */
+  testServiceConnectivity: async function(service = null, apiKey = null) {
+    try {
+      const settings = await saveSetting();
+      const phoneService = service || settings.general?.phoneService?.value;
+      const phoneServiceKey = apiKey || settings.general?.phoneServiceKey?.value;
+      
+      if (!phoneService || phoneService === 'none') {
+        throw new Error('No hay servicio configurado');
+      }
+      
+      if (!phoneServiceKey) {
+        throw new Error('No hay API Key configurada');
+      }
+      
+      console.log(`🔍 Probando conectividad con ${phoneService}...`);
+      
+      const result = await getPhone(phoneService, phoneServiceKey);
+      
+      if (result && result.number && result.id) {
+        console.log('✅ Conectividad exitosa');
+        console.log(`📞 Número de prueba: ${result.number}`);
+        console.log(`🆔 ID: ${result.id}`);
+        return { success: true, result };
+      } else {
+        console.log('❌ Conectividad fallida - respuesta inválida');
+        return { success: false, error: 'Respuesta inválida' };
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error de conectividad: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  /**
+   * Prueba completa del flujo de teléfono (número + código)
+   */
+  testFullPhoneFlow: async function(service = null, apiKey = null) {
+    try {
+      console.log('🧪 Iniciando prueba completa del flujo de teléfono...');
+      
+      const settings = await saveSetting();
+      const phoneService = service || settings.general?.phoneService?.value;
+      const phoneServiceKey = apiKey || settings.general?.phoneServiceKey?.value;
+      
+      // Paso 1: Obtener número
+      console.log('📱 Paso 1: Obteniendo número...');
+      const phoneResult = await getPhone(phoneService, phoneServiceKey);
+      
+      if (!phoneResult || !phoneResult.number || !phoneResult.id) {
+        throw new Error('No se pudo obtener número válido');
+      }
+      
+      console.log(`✅ Número obtenido: ${phoneResult.number}`);
+      console.log(`🆔 ID: ${phoneResult.id}`);
+      
+      // Paso 2: Esperar un poco
+      console.log('⏳ Esperando 10 segundos antes de intentar obtener código...');
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      
+      // Paso 3: Intentar obtener código
+      console.log('🔢 Paso 2: Intentando obtener código...');
+      try {
+        const codeResult = await getPhoneCode(phoneService, phoneServiceKey, phoneResult.id);
+        
+        if (codeResult) {
+          console.log(`✅ Código obtenido: ${codeResult}`);
+          console.log('🎉 Flujo completo exitoso!');
+          return { 
+            success: true, 
+            phone: phoneResult.number, 
+            id: phoneResult.id, 
+            code: codeResult 
+          };
+        } else {
+          console.log('⚠️ No se obtuvo código (puede ser normal)');
+          return { 
+            success: true, 
+            phone: phoneResult.number, 
+            id: phoneResult.id, 
+            code: null,
+            warning: 'Código no disponible'
+          };
+        }
+        
+      } catch (codeError) {
+        console.warn(`⚠️ Error al obtener código: ${codeError.message}`);
+        return { 
+          success: true, 
+          phone: phoneResult.number, 
+          id: phoneResult.id, 
+          code: null,
+          codeError: codeError.message
+        };
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error en flujo completo: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  /**
+   * Marca rate limit de SMS
+   */
+  markSmsRateLimit: function() {
+    const timestamp = new Date().toISOString();
+    localStorage.setItem('sms_rate_limit_active', timestamp);
+    console.log('🚫 Rate limit SMS marcado:', timestamp);
+  },
+  
+  /**
+   * Verifica si hay rate limit activo
+   */
+  checkSmsRateLimit: function() {
+    const rateLimitTime = localStorage.getItem('sms_rate_limit_active');
+    if (!rateLimitTime) return false;
+    
+    const limitTime = new Date(rateLimitTime);
+    const now = new Date();
+    const hoursElapsed = (now - limitTime) / (1000 * 60 * 60);
+    
+    const isActive = hoursElapsed < 24;
+    console.log(`🔍 Rate limit SMS: ${isActive ? 'ACTIVO' : 'INACTIVO'} (${hoursElapsed.toFixed(1)}h)`);
+    
+    return isActive;
+  },
+  
+  /**
+   * Limpia rate limit de SMS
+   */
+  clearSmsRateLimit: function() {
+    localStorage.removeItem('sms_rate_limit_active');
+    console.log('✅ Rate limit SMS limpiado');
+  },
+  
+  /**
+   * Lista todos los servicios disponibles
+   */
+  listAvailableServices: function() {
+    const services = {
+      'chothuesimcode': { name: 'yuenanka.com', features: ['phone', 'code'] },
+      'viotp': { name: 'viotp.com', features: ['phone', 'code'] },
+      'xotp': { name: 'xotp.pro', features: ['phone', 'code'] },
+      'otponline': { name: 'app.server-otponline.xyz', features: ['phone', 'code'] },
+      'sim24': { name: 'sim24.cc', features: ['phone', 'code'] },
+      '233io9': { name: 'api.233io9.info', features: ['phone', 'code'] },
+      'simotp': { name: 'simig.net', features: ['phone', 'code'] },
+      'codesim': { name: 'codesim.net', features: ['phone', 'code'] },
+      'template': { name: 'Personalizado', features: ['phone', 'code', 'custom'] }
+    };
+    
+    console.log('📋 Servicios de teléfono disponibles:');
+    Object.entries(services).forEach(([key, info]) => {
+      console.log(`   • ${key}: ${info.name} (${info.features.join(', ')})`);
+    });
+    
+    return services;
+  },
+  
+  /**
+   * Ejecuta diagnóstico completo
+   */
+  runFullDiagnostic: async function() {
+    console.log('🔧 ===== DIAGNÓSTICO COMPLETO DEL SISTEMA DE TELÉFONOS =====');
+    
+    // 1. Estado del sistema
+    const systemStatus = await this.showSystemStatus();
+    
+    // 2. Rate limit check
+    const rateLimited = this.checkSmsRateLimit();
+    
+    // 3. Servicios disponibles
+    this.listAvailableServices();
+    
+    // 4. Prueba de conectividad si está configurado
+    if (systemStatus && systemStatus.isServiceSupported && systemStatus.hasApiKey) {
+      console.log('🧪 Ejecutando prueba de conectividad...');
+      const connectivityTest = await this.testServiceConnectivity();
+      
+      if (connectivityTest.success) {
+        console.log('✅ Diagnóstico: Sistema funcionando correctamente');
+      } else {
+        console.log('❌ Diagnóstico: Problemas detectados');
+        console.log('💡 Sugerencias:');
+        console.log('   • Verifica tu API Key');
+        console.log('   • Confirma que tienes saldo suficiente');
+        console.log('   • Prueba con otro servicio');
+      }
+    } else {
+      console.log('⚠️ Sistema no completamente configurado');
+    }
+    
+    console.log('=======================================================');
+    
+    return {
+      systemStatus,
+      rateLimited,
+      configured: systemStatus?.isServiceSupported && systemStatus?.hasApiKey
+    };
+  },
+  
+  /**
+   * Funciones específicas para rate limit de SMS
+   */
+  smsRateLimit: {
+    /**
+     * Obtiene información detallada del rate limit activo
+     */
+    getInfo: function() {
+      const rateLimitTime = localStorage.getItem('sms_rate_limit_active');
+      if (!rateLimitTime) {
+        return {
+          active: false,
+          message: '✅ No hay rate limit de SMS activo'
+        };
+      }
+      
+      const limitTime = new Date(rateLimitTime);
+      const now = new Date();
+      const hoursElapsed = (now - limitTime) / (1000 * 60 * 60);
+      const hoursRemaining = Math.max(0, 24 - hoursElapsed);
+      
+      return {
+        active: hoursElapsed < 24,
+        activatedAt: limitTime,
+        hoursElapsed: hoursElapsed,
+        hoursRemaining: hoursRemaining,
+        message: hoursElapsed < 24 
+          ? `🚫 Rate limit activo. Quedan ${hoursRemaining.toFixed(1)} horas`
+          : '✅ Rate limit expirado (puede ser removido)'
+      };
+    },
+    
+    /**
+     * Muestra estado detallado del rate limit
+     */
+    showStatus: function() {
+      const info = this.getInfo();
+      console.log('📱 ===== ESTADO DEL RATE LIMIT DE SMS =====');
+      console.log(`Estado: ${info.message}`);
+      
+      if (info.active) {
+        console.log(`📅 Activado: ${info.activatedAt.toLocaleString()}`);
+        console.log(`⏱️ Tiempo transcurrido: ${info.hoursElapsed.toFixed(1)} horas`);
+        console.log(`⏰ Tiempo restante: ${info.hoursRemaining.toFixed(1)} horas`);
+        console.log('💡 Usa DivinAdsPhoneUtils.smsRateLimit.forceRemove() para eliminar (no recomendado)');
+      }
+      
+      console.log('==========================================');
+      return info;
+    },
+    
+    /**
+     * Remueve forzadamente el rate limit (no recomendado)
+     */
+    forceRemove: function() {
+      const info = this.getInfo();
+      if (!info.active) {
+        console.log('✅ No hay rate limit activo para remover');
+        return false;
+      }
+      
+      console.warn('⚠️ ADVERTENCIA: Removiendo rate limit forzadamente');
+      console.warn('⚠️ Esto puede resultar en desperdicio de números de teléfono');
+      console.warn(`⚠️ Rate limit tenía ${info.hoursRemaining.toFixed(1)} horas restantes`);
+      
+      localStorage.removeItem('sms_rate_limit_active');
+      console.log('✅ Rate limit removido');
+      
+      return true;
+    },
+    
+    /**
+     * Establece un rate limit manualmente
+     */
+    setManual: function(hoursFromNow = 24) {
+      const now = new Date();
+      const rateTime = new Date(now.getTime() - ((24 - hoursFromNow) * 60 * 60 * 1000));
+      
+      localStorage.setItem('sms_rate_limit_active', rateTime.toISOString());
+      console.log(`🚫 Rate limit establecido manualmente`);
+      console.log(`⏰ Expirará en: ${hoursFromNow} horas`);
+      
+      return this.getInfo();
+    }
+  },
+  
+  /**
+   * Herramientas de emergencia
+   */
+  emergency: {
+    /**
+     * Reinicia completamente el sistema de teléfonos
+     */
+    resetSystem: function() {
+      console.log('🚨 ===== REINICIO DE EMERGENCIA DEL SISTEMA =====');
+      
+      // Limpiar rate limits
+      localStorage.removeItem('sms_rate_limit_active');
+      console.log('✅ Rate limit de SMS removido');
+      
+      // Mostrar estado final
+      console.log('🔍 Estado final del sistema:');
+      window.DivinAdsPhoneUtils.showSystemStatus();
+      
+      console.log('===============================================');
+      console.log('⚠️ IMPORTANTE: Este reinicio no garantiza que Facebook acepte números');
+      console.log('⚠️ Si Facebook sigue rechazando, espera al menos 24 horas');
+    },
+    
+    /**
+     * Información sobre qué hacer en caso de problemas
+     */
+    help: function() {
+      console.log('🆘 ===== AYUDA DE EMERGENCIA =====');
+      console.log('');
+      console.log('🚫 Si Facebook rechaza números:');
+      console.log('   1. Verifica: DivinAdsPhoneUtils.smsRateLimit.showStatus()');
+      console.log('   2. Si hay rate limit activo, espera 24 horas');
+      console.log('   3. Usa otra cuenta de Facebook si tienes');
+      console.log('');
+      console.log('📱 Si sim24 no funciona:');
+      console.log('   1. Verifica: DivinAdsPhoneUtils.testServiceConnectivity()');
+      console.log('   2. Revisa tu saldo en sim24.cc');
+      console.log('   3. Cambia a otro servicio');
+      console.log('');
+      console.log('🔧 Comandos útiles:');
+      console.log('   • DivinAdsPhoneUtils.smsRateLimit.showStatus()');
+      console.log('   • DivinAdsPhoneUtils.emergency.resetSystem()');
+      console.log('   • DivinAdsPhoneUtils.runFullDiagnostic()');
+      console.log('');
+      console.log('================================');
+    }
+  }
+};
+
+console.log('📱 DivinAdsPhoneUtils cargado. Usa window.DivinAdsPhoneUtils.showSystemStatus() para ver el estado.');
+console.log('💡 Otros comandos útiles:');
+console.log('   • DivinAdsPhoneUtils.testServiceConnectivity() - Prueba conectividad');
+console.log('   • DivinAdsPhoneUtils.testFullPhoneFlow() - Prueba flujo completo');
+console.log('   • DivinAdsPhoneUtils.runFullDiagnostic() - Diagnóstico completo');
+console.log('   • DivinAdsPhoneUtils.checkSmsRateLimit() - Verificar rate limit');
+console.log('   • DivinAdsPhoneUtils.smsRateLimit.showStatus() - Estado detallado del rate limit');
+console.log('   • DivinAdsPhoneUtils.smsRateLimit.forceRemove() - Remover rate limit (no recomendado)');
+console.log('   • DivinAdsPhoneUtils.emergency.help() - Ayuda de emergencia');
+console.log('   • DivinAdsPhoneUtils.emergency.resetSystem() - Reinicio de emergencia');
