@@ -239,31 +239,124 @@ function uploadImage(p24, p25, p26, p27, p28) {
       // Subir directamente a Facebook
       console.log('📤 Subiendo imagen a Facebook...');
       
-      const uploadUrl = `https://rupload.facebook.com/checkpoint_1501092823525282_media_upload/a06d268a-bad7-49d7-b553-24d6f07c64ba?__usid=6-Tsc6xzrdp0tcu%3APsc78vt5c5znb%3A0-Asc78484bm17t-RV%3D6%3AF%3D&session_id=1f53971e4d475672&__aaid=0&__bid=${p26}&__user=${p27}&__a=1&__req=15&__hs=19832.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012908546&__s=j9683f%3Abgcl6p%3Avjr471&__hsi=7359625851859447619&__dyn=7xeXxa4EaolJ28S2q3m8G2abBAjxu59o9EeEb8nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2SaAxq4U5i48swj8qyoyazoO4o2oCyE9UixWq3i2q5E884a2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOXwAxm3G4UUhwXxW9wgo9oO1Wxu0zoO12ypUuyUd88EeAUpK19xmu2C2l0FggzE8U98doJ1Kfxa2y5E6a6TxC48G2q4p8y26U8U-UbE4S4oSq4VEhG7o4O1fwwxefzobElxm4E5yeDyUnwUzpErw-z8c8-5aDwQwKG13y85i4oKqbDyoOFEa9EHyU8U3xhU24wMwrU6CiVo88ak22eCK2q362u1dxW6U98a85Ou3u1Dxeu1owtU&__csr=&fb_dtsg=${p28}&jazoest=25676&lsd=6qUyi5kQucC-XaTIr34bGR&__spin_r=1012908546&__spin_b=trunk&__spin_t=1713546424&__jssesw=1&_callFlowletID=3740&_triggerFlowletID=2359`;
+      // Convertir blob a ArrayBuffer para tener control total
+      const arrayBuffer = await blob.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      
+      console.log('📊 Detalles de subida:');
+      console.log('- Tamaño real:', blob.size, 'bytes');
+      console.log('- Tamaño ArrayBuffer:', arrayBuffer.byteLength, 'bytes');
+      console.log('- Tipo:', blob.type);
+      
+      // Usar una URL más simple y genérica
+      const uploadUrl = `https://rupload.facebook.com/ajax/mercury/upload.php`;
+      
+      // Crear FormData
+      const formData = new FormData();
+      formData.append('source', blob, 'appeal_document.png');
+      formData.append('purpose', 'file_manager');
+      formData.append('av', p27);
+      formData.append('__user', p27);
+      formData.append('__a', '1');
+      formData.append('__req', '1');
+      formData.append('fb_dtsg', p28);
+      formData.append('jazoest', '25406');
       
       const uploadResponse = await fetch2(uploadUrl, {
+        method: 'POST',
+        body: formData,
         headers: {
           'accept': '*/*',
-          'accept-language': 'vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5',
-          'offset': '0',
-          'priority': 'u=1, i',
-          'x-entity-length': blob.size.toString(),
-          'x-entity-name': 'phoi.png',
-          'x-entity-type': 'image/png',
-          'content-type': 'application/x-www-form-urlencoded'
-        },
-        method: 'POST',
-        body: blob
+          'accept-language': 'es-ES,es;q=0.9,en;q=0.8',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-origin',
+          'x-fb-lsd': p28,
+          'x-fb-friendly-name': 'MediaManagerAttachmentUploadMutation',
+          'x-asbd-id': '129477'
+        }
       });
       
-      const result = uploadResponse.json;
+      console.log('📋 Respuesta de subida:', uploadResponse.text);
       
-      if (result && result.h) {
-        console.log('✅ Imagen subida exitosamente, handle:', result.h);
-        p29(result);
+      let result;
+      try {
+        result = typeof uploadResponse.json === 'string' ? JSON.parse(uploadResponse.json) : uploadResponse.json;
+      } catch (parseError) {
+        console.error('Error parsing upload response:', parseError);
+        throw new Error('Respuesta inválida de Facebook');
+      }
+      
+      // Buscar el handle en diferentes ubicaciones posibles
+      let handle = null;
+      if (result) {
+        // Intentar diferentes rutas donde Facebook puede devolver el handle
+        handle = result.h || 
+                 result.handle || 
+                 result.payload?.h || 
+                 result.payload?.handle ||
+                 result.data?.h ||
+                 result.data?.handle;
+                 
+        // Si no hay handle, buscar en objetos anidados
+        if (!handle && result.payload) {
+          const keys = Object.keys(result.payload);
+          for (const key of keys) {
+            if (result.payload[key] && typeof result.payload[key] === 'object') {
+              if (result.payload[key].h || result.payload[key].handle) {
+                handle = result.payload[key].h || result.payload[key].handle;
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      if (handle) {
+        console.log('✅ Imagen subida exitosamente, handle:', handle);
+        p29({ h: handle, ...result });
       } else {
         console.error('❌ Error en respuesta de Facebook:', uploadResponse.text);
-        throw new Error('Facebook no devolvió un handle válido');
+        console.error('📋 Estructura de respuesta:', result);
+        
+        // Intentar métodos alternativos si el principal falla
+        console.log('🔄 Intentando método alternativo...');
+        
+        // Método alternativo: usar endpoint diferente
+        const altUploadUrl = `https://upload.facebook.com/ajax/mercury/upload.php?target=composer&__user=${p27}&__a=1&__req=1&fb_dtsg=${p28}`;
+        
+        const altFormData = new FormData();
+        altFormData.append('upload_1001', blob, 'document.png');
+        altFormData.append('fb_dtsg', p28);
+        altFormData.append('__user', p27);
+        altFormData.append('__a', '1');
+        
+        const altResponse = await fetch2(altUploadUrl, {
+          method: 'POST',
+          body: altFormData,
+          headers: {
+            'accept': '*/*',
+            'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
+          }
+        });
+        
+        console.log('📋 Respuesta alternativa:', altResponse.text);
+        
+        let altResult;
+        try {
+          altResult = typeof altResponse.json === 'string' ? JSON.parse(altResponse.json) : altResponse.json;
+        } catch (e) {
+          console.error('Error parsing alt response:', e);
+        }
+        
+        const altHandle = altResult?.payload?.h || altResult?.h || altResult?.handle;
+        
+        if (altHandle) {
+          console.log('✅ Imagen subida exitosamente (método alternativo), handle:', altHandle);
+          p29({ h: altHandle, ...altResult });
+        } else {
+          throw new Error('No se pudo subir la imagen con ningún método disponible');
+        }
       }
       
     } catch (e8) {
@@ -744,6 +837,31 @@ $(document).on("click", "#k902", async function () {
 });
 async function startt() {
   if (!$("#start").is(":disabled")) {
+    // Verificar licencia antes de continuar
+    try {
+      const licenseData = JSON.parse(localStorage.getItem('license_data'));
+      if (!licenseData || new Date(licenseData.expiration_date) < new Date()) {
+        Swal.fire({
+          icon: "error",
+          title: "Error de activación",
+          text: "Licencia inválida o expirada",
+          confirmButtonText: "Verificar licencia"
+        }).then(result => {
+          if (result.isConfirmed) {
+            $("#settingModal").modal("show");
+          }
+        });
+        return;
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al verificar la licencia"
+      });
+      return;
+    }
+
     const v39 = await saveSetting();
     const v40 = $("#app").attr("data");
     if (v40 === "bm" && v39.bm?.nhanLinkBm?.value) {
@@ -1729,3 +1847,300 @@ $("#saveColumns").click(async function () {
   }
   $("#customizeModal").modal("hide");
 });
+
+/**
+ * Sistema de Licencia DivinAds
+ * Descripción: Sistema completo de verificación y manejo de licencias
+ */
+
+// Función principal para verificar licencia
+async function checkKey(license, showAlert = false) {
+  return new Promise(async (resolve, reject) => {
+      try {
+          if (!license) {
+              license = localStorage.getItem('current_license');
+          }
+          
+          if (!license) {
+              if (showAlert) {
+                  Swal.fire({
+                      icon: "error",
+                      title: "Error de Licencia",
+                      text: "No se ha ingresado una licencia",
+                      confirmButtonText: "Ingresar licencia"
+                  }).then(result => {
+                      if (result.isConfirmed) {
+                          $("#settingModal").modal("show");
+                      }
+                  });
+              }
+              reject();
+              return;
+          }
+
+          // Incluir el token de sesión en las cabeceras si existe
+          const headers = {
+              'Content-Type': 'application/json'
+          };
+          const sessionToken = localStorage.getItem('session_token');
+          if (sessionToken) {
+              headers['X-Session-Token'] = sessionToken;
+          }
+
+          // Usar fetch2 para evitar problemas de CORS
+          const response = await fetch2(`https://divinads.com/wp-json/divinads/v1/wp-email/${license}`, {
+              headers: headers
+          });
+          
+          let data;
+          try {
+              data = typeof response.json === 'string' ? JSON.parse(response.json) : response.json;
+          } catch (parseError) {
+              console.error('Error parsing response:', parseError);
+              throw new Error('Respuesta inválida del servidor');
+          }
+
+          // Verificar límite de sesiones
+          if (data.data && data.data.active_sessions && data.data.session_limit) {
+              const activeSessions = parseInt(data.data.active_sessions);
+              const sessionLimit = parseInt(data.data.session_limit);
+              
+              if (activeSessions >= sessionLimit) {
+                  if (showAlert) {
+                      Swal.fire({
+                          icon: "error",
+                          title: "Límite de sesiones alcanzado",
+                          text: `Has alcanzado el límite de ${sessionLimit} sesiones simultáneas permitidas en tu plan.`,
+                          confirmButtonText: "Entendido"
+                      });
+                  }
+                  reject();
+                  return;
+              }
+          }
+
+          if (data.error === 'session_expired') {
+              localStorage.removeItem('session_token');
+              return checkKey(license, showAlert);
+          }
+
+          if (data.success && data.data) {
+              localStorage.setItem('license_data', JSON.stringify(data.data));
+              localStorage.setItem('current_license', license);
+              
+              // Almacenar el token de sesión si está presente
+              if (data.data.session_token) {
+                  localStorage.setItem('session_token', data.data.session_token);
+              }
+              
+              // Iniciar el ping de sesión si no está activo
+              if (!window.sessionPingInterval) {
+                  startSessionKeepAlive();
+              }
+              
+              resolve(data.data);
+          } else {
+              if (showAlert) {
+                  Swal.fire({
+                      icon: "error",
+                      title: "Error de Licencia",
+                      text: "Licencia inválida o expirada"
+                  });
+              }
+              reject();
+          }
+      } catch (error) {
+          console.error('Error en checkKey:', error);
+          
+          if (showAlert) {
+              Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: "Error al verificar la licencia: " + (error.message || error)
+              });
+          }
+          reject();
+      }
+  });
+}
+
+// Función global para verificar licencia
+async function verifyLicense() {
+  try {
+      const licenseData = JSON.parse(localStorage.getItem('license_data'));
+      if (!licenseData) {
+          throw new Error('No hay datos de licencia');
+      }
+
+      const expirationDate = new Date(licenseData.expiration_date);
+      const now = new Date();
+      
+      if (expirationDate <= now) {
+          throw new Error('Licencia expirada');
+      }
+
+      return true;
+  } catch (error) {
+      Swal.fire({
+          icon: "error",
+          title: "Error de Licencia",
+          text: error.message || "Error al verificar la licencia",
+          confirmButtonText: "Verificar licencia"
+      }).then(result => {
+          if (result.isConfirmed) {
+              $("#settingModal").modal("show");
+          }
+      });
+      return false;
+  }
+}
+
+// Función para mantener la sesión activa
+function startSessionKeepAlive() {
+  // Limpiar el intervalo existente si hay uno
+  if (window.sessionPingInterval) {
+      clearInterval(window.sessionPingInterval);
+  }
+
+  // Crear nuevo intervalo de ping cada 5 minutos
+  window.sessionPingInterval = setInterval(async () => {
+      try {
+          const license = localStorage.getItem('current_license');
+          if (!license) {
+              clearInterval(window.sessionPingInterval);
+              return;
+          }
+
+          const headers = {
+              'Content-Type': 'application/json'
+          };
+          const sessionToken = localStorage.getItem('session_token');
+          if (sessionToken) {
+              headers['X-Session-Token'] = sessionToken;
+          }
+
+          // Usar fetch2 para evitar problemas de CORS
+          const response = await fetch2(`https://divinads.com/wp-json/divinads/v1/wp-email/${license}`, {
+              headers: headers
+          });
+          
+          let data;
+          try {
+              data = typeof response.json === 'string' ? JSON.parse(response.json) : response.json;
+          } catch (parseError) {
+              console.warn('Error parsing session ping response:', parseError);
+              return;
+          }
+
+          if (!data.success || data.error === 'session_expired') {
+              // Si la sesión expiró o hay error, limpiar datos y recargar
+              localStorage.removeItem('session_token');
+              localStorage.removeItem('license_data');
+              clearInterval(window.sessionPingInterval);
+              
+              Swal.fire({
+                  icon: "error",
+                  title: "Sesión expirada",
+                  text: "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+                  confirmButtonText: "Aceptar"
+              }).then(() => {
+                  location.reload();
+              });
+              return;
+          }
+
+          // Actualizar datos de licencia
+          if (data.data) {
+              localStorage.setItem('license_data', JSON.stringify(data.data));
+              if (data.data.session_token) {
+                  localStorage.setItem('session_token', data.data.session_token);
+              }
+          }
+
+      } catch (error) {
+          console.error('Error en el ping de sesión:', error);
+      }
+  }, 5 * 60 * 1000); // 5 minutos
+}
+
+// Verificar licencia antes de cualquier operación crítica
+$(document).on('click', '[data-requires-license="true"]', async function(e) {
+  if (!await verifyLicense()) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+  }
+});
+
+// Verificación periódica de licencia
+setInterval(async () => {
+  try {
+      const license = localStorage.getItem('current_license');
+      if (!license) return;
+
+      // Usar fetch2 para evitar problemas de CORS
+      const response = await fetch2(`https://divinads.com/wp-json/divinads/v1/wp-email/${license}`);
+      
+      let data;
+      try {
+          data = typeof response.json === 'string' ? JSON.parse(response.json) : response.json;
+      } catch (parseError) {
+          console.warn('Error parsing periodic license check response:', parseError);
+          return;
+      }
+      
+      if (!data.success) {
+          localStorage.removeItem('license_data');
+          localStorage.removeItem('current_license');
+          location.reload();
+      }
+  } catch (error) {
+      console.error('Error checking license:', error);
+  }
+}, 30000); // Verificar cada 30 segundos
+
+// Iniciar el sistema de mantenimiento de sesión cuando se carga el script
+document.addEventListener('DOMContentLoaded', () => {
+  const license = localStorage.getItem('current_license');
+  const sessionToken = localStorage.getItem('session_token');
+  if (license && sessionToken) {
+      startSessionKeepAlive();
+  }
+});
+
+// Función para validar y mostrar información de licencia
+async function validateAndShowLicenseInfo(license) {
+  try {
+      const licenseData = await checkKey(license, false);
+      if (licenseData) {
+          $('#licenseInfo').html(`
+              <div class="alert alert-success">
+                  <strong>Usuario:</strong> ${licenseData.user_email}<br>
+                  <strong>Días restantes:</strong> ${licenseData.days_remaining_formatted}<br>
+                  <strong>Expira:</strong> ${licenseData.expiration_date_formatted}
+              </div>
+          `);
+          return true;
+      }
+  } catch (error) {
+      $('#licenseInfo').html(`
+          <div class="alert alert-danger">
+              Error al verificar la licencia
+          </div>
+      `);
+      return false;
+  }
+}
+
+// Exponer funciones globalmente
+window.checkKey = checkKey;
+window.verifyLicense = verifyLicense;
+window.validateAndShowLicenseInfo = validateAndShowLicenseInfo;
+window.startSessionKeepAlive = startSessionKeepAlive;
+
+console.log('🔐 Sistema de licencia DivinAds cargado correctamente');
+console.log('🌐 VERIFICACIÓN REAL ACTIVA:');
+console.log('   • Conexión con servidor divinads.com');
+console.log('   • Verificación completa de licencias');
+console.log('   • Ping de sesión cada 5 minutos');
+console.log('   • Usando fetch2 para evitar CORS');

@@ -25,6 +25,57 @@ $(document).ready(async function() {
     $('#cookie').val(cookie)
     $('#accessToken').val(accessToken)
     
+    // Cargar licencia actual si existe
+    const currentLicense = localStorage.getItem('current_license');
+    if (currentLicense) {
+        $('input[name="license"]').val(currentLicense);
+        validateAndShowLicenseInfo(currentLicense);
+    }
+
+    // Manejar clic en botón de validación
+    $('#validateLicense').click(async function() {
+        const license = $('input[name="license"]').val().trim();
+        if (!license) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Por favor ingrese una licencia'
+            });
+            return;
+        }
+
+        $(this).prop('disabled', true);
+        $(this).html('<span class="spinner-border spinner-border-sm me-1"></span> Validando...');
+
+        try {
+            const isValid = await validateAndShowLicenseInfo(license);
+            if (isValid) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Licencia Válida',
+                    text: 'La licencia ha sido validada correctamente'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al validar la licencia'
+            });
+        } finally {
+            $(this).prop('disabled', false);
+            $(this).html('<i class="ri-checkbox-circle-line me-1"></i> Validar');
+        }
+    });
+
+    // Manejar cambio de licencia
+    $('input[name="license"]').on('change', async function() {
+        const newLicense = $(this).val().trim();
+        if (newLicense) {
+            await validateAndShowLicenseInfo(newLicense);
+        }
+    });
+
 })
 
 /**
