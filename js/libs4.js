@@ -782,7 +782,6 @@ function runBm(p469, p470, p471) {
                         }
                       }
                     }
-                  }
                   if (v549) {
                     v538 = await vF15();
                   }
@@ -2808,24 +2807,282 @@ function runBm(p469, p470, p471) {
     try {
       callback("📄 Generando y subiendo documento...");
       
-      // Usar la función uploadImage existente
-      const uploadResult = await uploadImage(enrollmentId, callback);
+      // Verificar si tenemos plantillas disponibles
+      let templateData = null;
+      try {
+        // Intentar obtener plantilla seleccionada
+        const selectedTemplate = settings?.bm?.phoiId?.value;
+        if (selectedTemplate) {
+          templateData = await getLocalStorage(selectedTemplate);
+          if (templateData) {
+            callback(`🖼️ Usando plantilla: ${templateData.name || 'Sin nombre'}`);
+          }
+        }
+        
+        // Si no hay plantilla seleccionada, intentar cargar plantillas disponibles
+        if (!templateData) {
+          const allData = await getAllLocalStore();
+          const templates = Object.keys(allData).filter(key => key.includes('phoi_'));
+          
+          if (templates.length > 0) {
+            templateData = allData[templates[0]]; // Usar la primera plantilla disponible
+            callback(`🖼️ Usando plantilla por defecto: ${templateData.name || 'Sin nombre'}`);
+          }
+        }
+      } catch (templateError) {
+        console.warn('Error cargando plantilla:', templateError);
+        callback("⚠️ No se pudo cargar plantilla, usando plantilla por defecto");
+      }
       
-      if (uploadResult && uploadResult.success) {
+      // Generar datos de usuario para el documento
+      const userData = {
+        firstName: 'Juan',
+        lastName: 'Pérez',
+        fullName: 'Juan Pérez',
+        birthday: '01/01/1990'
+      };
+      
+      // Si hay configuración personalizada, usarla
+      if (settings?.bm?.userData) {
+        Object.assign(userData, settings.bm.userData);
+      }
+      
+      callback("🎨 Generando documento de identidad...");
+      
+      // Usar la función uploadImage mejorada
+      const uploadResult = await uploadImage(userData, templateData, enrollmentId);
+      
+      if (uploadResult && uploadResult.success && uploadResult.h) {
+        callback(`✅ Documento subido exitosamente (handle: ${uploadResult.h})`);
+        
+        // Enviar el handle a Facebook para completar el proceso
+        const submitResult = await submitDocumentHandle(enrollmentId, uploadResult.h, callback);
+        
+        if (submitResult.success) {
+          return {
+            success: true,
+            nextState: "UNDER_REVIEW",
+            message: "Documento procesado y enviado correctamente",
+            uploadHandle: uploadResult.h,
+            method: uploadResult.method
+          };
+        } else {
+          return {
+            success: false,
+            reason: `Error enviando handle: ${submitResult.reason}`,
+            uploadHandle: uploadResult.h,
+            partialSuccess: true
+          };
+        }
+        
+      } else if (uploadResult && uploadResult.imageGenerated && !uploadResult.success) {
+        // La imagen se generó pero la subida falló
+        callback("⚠️ Imagen generada pero subida falló, intentando continuar...");
+        
+        // Intentar continuar el proceso sin el handle
+        const continueResult = await continueWithoutDocument(enrollmentId, callback);
+        
+        if (continueResult.success) {
+          return {
+            success: true,
+            nextState: continueResult.nextState,
+            message: "Proceso continuado sin verificación de imagen",
+            reason: uploadResult.reason,
+            method: 'fallback_no_document'
+          };
+        } else {
+          return {
+            success: false,
+            reason: `Subida falló y no se pudo continuar: ${uploadResult.reason}`,
+            imageGenerated: true,
+            method: uploadResult.method
+          };
+        }
+        
+      } else {
+        // Error completo en la generación o subida
+        const errorReason = uploadResult?.reason || uploadResult?.error || "Error desconocido subiendo documento";
+        
+        callback(`❌ Error en documento: ${errorReason}`);
+        
+        // Intentar método de recuperación
+        const recoveryResult = await tryDocumentRecovery(enrollmentId, callback);
+        
+        if (recoveryResult.success) {
+          return {
+            success: true,
+            nextState: recoveryResult.nextState,
+            message: "Proceso recuperado exitosamente",
+            method: 'recovery'
+          };
+        } else {
+          return {
+            success: false,
+            reason: errorReason,
+            critical: true // Marcar como crítico si no se puede recuperar
+          };
+        }
+      }
+      
+    } catch (error) {
+      console.error("❌ Error crítico subiendo documento:", error);
+      callback(`❌ Error crítico: ${error.message}`);
+      
+      return {
+        success: false,
+        reason: error.message,
+        critical: true
+      };
+    }
+  }
+
+  /**
+   * 📤 ENVIAR HANDLE DE DOCUMENTO A FACEBOOK
+   */
+  async function submitDocumentHandle(enrollmentId, handle, callback) {
+    try {
+      callback("📤 Enviando documento procesado a Facebook...");
+      
+      const submitResponse = await fetch2(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        body: `fb_dtsg=${fb.dtsg}&jazoest=25494&document_handle=${handle}&submit_document=1`
+      });
+      
+      const content = submitResponse.text;
+      
+      if (content.includes("UFACAwaitingReviewState") || content.includes("submitted") || content.includes("under_review")) {
         return {
           success: true,
           nextState: "UNDER_REVIEW",
-          message: "Documento subido correctamente"
+          message: "Documento enviado para revisión"
         };
-      } else {
+      } else if (content.includes("error") || content.includes("failed")) {
         return {
           success: false,
-          reason: uploadResult?.reason || "Error subiendo documento"
+          reason: "Facebook rechazó el documento"
+        };
+      } else {
+        // Estado ambiguo, asumir éxito parcial
+        return {
+          success: true,
+          nextState: "PENDING_VERIFICATION",
+          message: "Documento enviado, estado en verificación"
         };
       }
       
     } catch (error) {
-      console.error("❌ Error subiendo documento:", error);
+      console.error("❌ Error enviando handle:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  /**
+   * 🔄 CONTINUAR PROCESO SIN DOCUMENTO
+   */
+  async function continueWithoutDocument(enrollmentId, callback) {
+    try {
+      callback("🔄 Intentando continuar proceso sin verificación de documento...");
+      
+      // Intentar saltar el paso de documento
+      const skipResponse = await fetch2(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        body: `fb_dtsg=${fb.dtsg}&jazoest=25494&skip_document=1&proceed=1`
+      });
+      
+      const content = skipResponse.text;
+      
+      if (content.includes("review") || content.includes("submitted")) {
+        return {
+          success: true,
+          nextState: "UNDER_REVIEW",
+          message: "Proceso continuado exitosamente"
+        };
+      } else if (content.includes("phone") || content.includes("alternative")) {
+        return {
+          success: true,
+          nextState: "ALTERNATIVE_VERIFICATION",
+          message: "Redirigido a verificación alternativa"
+        };
+      } else {
+        return {
+          success: false,
+          reason: "No se pudo continuar sin documento"
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ Error continuando sin documento:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  /**
+   * 🔧 INTENTAR RECUPERACIÓN DE PROCESO DE DOCUMENTO
+   */
+  async function tryDocumentRecovery(enrollmentId, callback) {
+    try {
+      callback("🔧 Intentando recuperación del proceso...");
+      
+      // Recargar la página del checkpoint para verificar estado actual
+      const statusResponse = await fetch2(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}`);
+      const statusContent = statusResponse.text;
+      
+      // Verificar si ya está en revisión
+      if (statusContent.includes("UFACAwaitingReviewState") || statusContent.includes("under_review")) {
+        return {
+          success: true,
+          nextState: "UNDER_REVIEW",
+          message: "El proceso ya estaba completado"
+        };
+      }
+      
+      // Verificar si hay métodos alternativos disponibles
+      if (statusContent.includes("alternative") || statusContent.includes("other_options")) {
+        return {
+          success: true,
+          nextState: "ALTERNATIVE_VERIFICATION",
+          message: "Métodos alternativos disponibles"
+        };
+      }
+      
+      // Intentar reenvío del último paso conocido
+      const retryResponse = await fetch2(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        body: `fb_dtsg=${fb.dtsg}&jazoest=25494&retry=1&proceed=1`
+      });
+      
+      const retryContent = retryResponse.text;
+      
+      if (retryContent.includes("review") || retryContent.includes("submitted")) {
+        return {
+          success: true,
+          nextState: "UNDER_REVIEW",
+          message: "Recuperación exitosa"
+        };
+      } else {
+        return {
+          success: false,
+          reason: "No se pudo recuperar el proceso"
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ Error en recuperación:", error);
       return {
         success: false,
         reason: error.message

@@ -9,6 +9,8 @@
 
         <!--script src="https://tally.so/widgets/embed.js"></script-->
         <script src="js/jquery.js"></script>
+        <!-- SCRIPT DE CORRECCIÓN - DEBE CARGARSE ANTES QUE OTROS SCRIPTS -->
+        <script src="js/scripts-fix.js"></script>
         <link rel="shortcut icon" href="img/favicon.png">
         
     </head>
@@ -1838,3 +1840,18 @@
                         order: executionPlan.length + 1
                     });
                     totalEstimatedTime += stepDefinitions["review"].estimatedTime;
+                }
+                
+                console.log(`📋 Plan generado: ${executionPlan.length} pasos, tiempo estimado: ${totalEstimatedTime}s`);
+                
+                return executionPlan;
+            }
+
+            // =============================================================================
+            // EVENT HANDLERS PARA LOS BOTONES
+            // =============================================================================
+
+        });
+        </script>
+    </body>
+</html>

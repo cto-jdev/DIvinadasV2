@@ -146,7 +146,7 @@ function emptyCookie(p21 = "facebook.com") {
 }
 /**
  * uploadImage
- * Descripción: Sube una imagen generada localmente (sin extensión).
+ * Descripción: Sube una imagen generada localmente a Facebook para verificación.
  * Parámetros: p24 (datos usuario), p25 (plantilla), p26 (bmId), p27 (uid), p28 (dtsg)
  * Retorna: Promise<any>
  */
@@ -252,14 +252,17 @@ function uploadImage(p24, p25, p26, p27, p28) {
       ctx.textAlign = 'right';
       ctx.fillText('Generado por DivinAds', canvas.width - 20, canvas.height - 20);
       
-      // Convertir canvas a base64
-      const imageDataUrl = canvas.toDataURL('image/png', 0.9);
+      // Convertir canvas a blob para subida
+      const blob = await new Promise(resolve => {
+        canvas.toBlob(resolve, 'image/png', 0.9);
+      });
       
-      console.log('✅ Imagen generada exitosamente como base64');
-      console.log('📊 Tamaño de imagen:', imageDataUrl.length, 'caracteres');
+      console.log('✅ Imagen generada exitosamente');
+      console.log('📊 Tamaño de imagen:', blob.size, 'bytes');
       
       // Almacenar imagen localmente para futuro uso
       try {
+        const imageDataUrl = canvas.toDataURL('image/png', 0.9);
         const imageKey = 'bm_appeal_image_' + Date.now();
         localStorage.setItem(imageKey, imageDataUrl);
         console.log('💾 Imagen almacenada localmente con clave:', imageKey);
@@ -267,27 +270,239 @@ function uploadImage(p24, p25, p26, p27, p28) {
         console.warn('No se pudo almacenar imagen localmente:', storageError);
       }
       
-      // IMPORTANTE: Debido a problemas de autorización con la subida de Facebook,
-      // vamos a devolver null en lugar de un handle válido.
-      // Esto hará que el proceso continúe sin la parte de imagen.
-      console.log('⚠️ Omitiendo subida a Facebook debido a problemas de autorización');
-      console.log('🔄 El proceso continuará sin verificación de imagen');
+      // ==========================================
+      // SUBIDA REAL A FACEBOOK
+      // ==========================================
+      console.log('🚀 Iniciando subida a Facebook...');
       
-      const result = {
-        h: null, // Devolver null para indicar que no hay handle
-        imageData: imageDataUrl,
-        success: false, // Marcar como no exitoso para el flujo
-        method: 'local_generation_only',
-        reason: 'facebook_authorization_error'
-      };
-      
-      p29(result);
+      try {
+        // Preparar FormData para la subida
+        const formData = new FormData();
+        formData.append('file', blob, 'document.png');
+        formData.append('fb_dtsg', p28 || fb.dtsg);
+        formData.append('__user', p27 || fb.uid);
+        formData.append('__a', '1');
+        formData.append('__req', '1');
+        formData.append('__hs', '19756.HYP:comet_pkg.2.1..2.1');
+        formData.append('dpr', '1');
+        formData.append('__ccg', 'EXCELLENT');
+        formData.append('__rev', '1010735000');
+        formData.append('__s', 'x:' + Math.random().toString(36).substring(2));
+        formData.append('__hsi', '7315423123456789012');
+        formData.append('__dyn', '7AzHJ16U9obwDBxaA');
+        formData.append('__csr', '');
+        formData.append('__comet_req', '15');
+        formData.append('lsd', fb.lsd || '');
+        formData.append('jazoest', '25494');
+        formData.append('__spin_r', '1010735000');
+        formData.append('__spin_b', 'trunk');
+        formData.append('__spin_t', Math.floor(Date.now() / 1000));
+        
+        // URL de subida de Facebook para verificación de identidad
+        const uploadUrl = 'https://upload.facebook.com/ajax/mercury/upload.php';
+        
+        // Realizar la subida
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+          headers: {
+            'Accept': '*/*',
+            'Accept-Language': 'es-ES,es;q=0.9',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'X-FB-Friendly-Name': 'FileUploadMutation',
+            'X-FB-LSD': fb.lsd || '',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        
+        if (!uploadResponse.ok) {
+          throw new Error(`Error HTTP: ${uploadResponse.status} - ${uploadResponse.statusText}`);
+        }
+        
+        const uploadText = await uploadResponse.text();
+        console.log('📤 Respuesta de subida recibida');
+        
+        // Procesar respuesta de Facebook
+        let uploadData;
+        try {
+          // Facebook devuelve JSON con prefijo "for (;;);"
+          const cleanResponse = uploadText.replace(/^for \(;;\);/, '');
+          uploadData = JSON.parse(cleanResponse);
+        } catch (parseError) {
+          console.warn('Error parseando respuesta JSON, intentando extracción manual');
+          
+          // Intentar extraer handle de manera manual
+          const handleMatch = uploadText.match(/["']?h["']?\s*:\s*["']([^"']+)["']/);
+          if (handleMatch && handleMatch[1]) {
+            uploadData = { payload: { h: handleMatch[1] } };
+          } else {
+            throw new Error('No se pudo extraer handle de la respuesta');
+          }
+        }
+        
+        // Verificar que obtuvimos un handle válido
+        if (uploadData && uploadData.payload && uploadData.payload.h) {
+          const handle = uploadData.payload.h;
+          console.log('✅ Imagen subida exitosamente a Facebook');
+          console.log('🔗 Handle obtenido:', handle);
+          
+          const result = {
+            h: handle,
+            success: true,
+            method: 'facebook_upload',
+            uploadResponse: uploadData,
+            timestamp: new Date().toISOString()
+          };
+          
+          p29(result);
+          
+        } else {
+          console.warn('⚠️ Respuesta de Facebook no contiene handle válido');
+          console.log('📄 Respuesta completa:', uploadData);
+          
+          // Intentar método alternativo con extensión si está disponible
+          if (typeof chrome !== 'undefined' && chrome.runtime && extId) {
+            console.log('🔄 Intentando subida mediante extensión...');
+            
+            try {
+              const extensionUpload = await chrome.runtime.sendMessage(extId, {
+                type: "uploadImage",
+                imageData: canvas.toDataURL('image/png', 0.9),
+                enrollmentId: p26,
+                userData: p24
+              });
+              
+              if (extensionUpload && extensionUpload.success && extensionUpload.handle) {
+                console.log('✅ Subida exitosa mediante extensión');
+                
+                const result = {
+                  h: extensionUpload.handle,
+                  success: true,
+                  method: 'extension_upload',
+                  timestamp: new Date().toISOString()
+                };
+                
+                p29(result);
+                return;
+              }
+            } catch (extError) {
+              console.warn('Error en subida por extensión:', extError);
+            }
+          }
+          
+          // Si todo falla, devolver resultado parcial
+          const fallbackResult = {
+            h: null,
+            success: false,
+            imageGenerated: true,
+            reason: 'upload_failed_but_image_generated',
+            method: 'fallback',
+            imageData: canvas.toDataURL('image/png', 0.9)
+          };
+          
+          console.log('⚠️ Subida falló, pero imagen fue generada exitosamente');
+          p29(fallbackResult);
+        }
+        
+      } catch (uploadError) {
+        console.error('❌ Error en subida a Facebook:', uploadError);
+        
+        // Intentar con método alternativo de subida
+        console.log('🔄 Intentando método de subida alternativo...');
+        
+        try {
+          const alternativeResult = await uploadImageAlternative(blob, p26, p27, p28);
+          
+          if (alternativeResult && alternativeResult.success) {
+            console.log('✅ Subida exitosa con método alternativo');
+            p29(alternativeResult);
+            return;
+          }
+        } catch (altError) {
+          console.warn('Error en método alternativo:', altError);
+        }
+        
+        // Si todos los métodos fallan, devolver error pero con imagen generada
+        const errorResult = {
+          h: null,
+          success: false,
+          imageGenerated: true,
+          reason: 'all_upload_methods_failed',
+          error: uploadError.message,
+          imageData: canvas.toDataURL('image/png', 0.9)
+        };
+        
+        console.log('❌ Todos los métodos de subida fallaron');
+        p29(errorResult);
+      }
       
     } catch (e8) {
-      console.error('❌ Error en uploadImage:', e8);
+      console.error('❌ Error crítico en uploadImage:', e8);
       p30(e8);
     }
   });
+}
+
+/**
+ * Método alternativo de subida de imagen
+ */
+async function uploadImageAlternative(blob, enrollmentId, uid, dtsg) {
+  try {
+    console.log('🔄 Ejecutando método alternativo de subida...');
+    
+    // Convertir blob a base64 para método alternativo
+    const base64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+    
+    // Usar API de checkpoint directamente
+    const checkpointResponse = await fetch(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}/upload`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: new URLSearchParams({
+        'fb_dtsg': dtsg,
+        '__user': uid,
+        '__a': '1',
+        'image_data': base64,
+        'upload_type': 'identity_document'
+      })
+    });
+    
+    if (checkpointResponse.ok) {
+      const responseText = await checkpointResponse.text();
+      
+      // Intentar extraer handle de la respuesta
+      const handleMatch = responseText.match(/upload_handle["']?\s*:\s*["']([^"']+)["']/);
+      
+      if (handleMatch && handleMatch[1]) {
+        return {
+          h: handleMatch[1],
+          success: true,
+          method: 'checkpoint_upload'
+        };
+      }
+    }
+    
+    throw new Error('Método alternativo también falló');
+    
+  } catch (error) {
+    console.error('❌ Error en método alternativo:', error);
+    return {
+      success: false,
+      reason: error.message
+    };
+  }
 }
 /**
  * getBase64
