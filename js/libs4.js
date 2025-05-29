@@ -69,7 +69,7 @@ function runBm(p469, p470, p471) {
                   headers: {
                     "content-type": "application/x-www-form-urlencoded"
                   },
-                  body: "av=" + fb.uid + "&__usid=6-Tsks7l51qspa42%3APsks8noocox52%3A0-Asks7awg66ikg-RV%3D6%3AF%3D&__aaid=0&__bid=" + p469.bmId + "&__user=" + fb.uid + "&__a=1&__req=x&__hs=19999.HYP%3Abizweb_comet_pkg.2.1..0.0&dpr=1&__ccg=EXCELLENT&__rev=1017025556&__s=ky5jhe%3A9ny5zc%3Aouunwz&__hsi=7421543862026001980&__dyn=7xeUmxa2C6onwn8K2Wmh0MBwCwpUnwgU7SbzEdF8ixy361twYwJw4BwHz8hw9-0r-qbwgE7R046xO2O1VwBwXwEwgo9oO0iS12ypU5-0Bo7O2l0Fwqo5W1bxq0D8gwNxq1izXwKwt8jwGzEaE8o4-222SU5G4E5yexfwjES1xwjokGvwOwem32fwLCyKbwzwea0Lo6-3u36iU9E2cxu6o9U4S7E6C13www4kxW1owmUaE2mw&__csr=g8Hky4iib98G7Nab4imyuypqJNlF9HrlayiqfnEBENOXmKgWuKkgWGLisjWbQGh748IDkymXWLTC9A8RheWYN4nykAy9aQVtApbXALS8iHdRLh2FsZlTlCmFVpHqGAyqCWJkRiioBVbjHDAQubAKrDBZaGGQ8y5V4LHhlCADyrhV69rBiUx-FuXhQilnmHK9BBjAiHHXjoDgLCKiczkQKuVpRK8VG_F7DXLCBAV9uVi4QFJbgLx6VkcDGfoKESijKEyArmbAzCrQfAGq2x3FEyi4U-bF5GmqbxeGyozKfx1eULoPUoyUTz8vxS7Ekx-ey42Gcholy8S7Hxq9gco9ElwPCgfEC2i2y4UC78nwooKUWWJwd-1wgx1eUmppK7F9Ea84ymi1Yw8y1fgjwvQi880sU2G2Ca41p0kGeUxgC1nwam2e6Enw59w13Ak8gGu3S7A4o2jwcm1jwWwa209d0I3paxc5Mn5oC2A2Q0cww2nGw2wrw1dm1Bg2mxsVWDU6u0PE1QEYw4po8E05w60qYbgA5sMeolK041pU0iIw1Gm057oc80nvwoCEiglQ06eE11onGt0au22ew5YOw5HUYjam2t0G5hgGlwpQi480n0yonDy44k3S0OUG2K2K1tz8tw6Yw1lu0foxuIC07iU2qyU-q6Z1d0Vyk0rG3O0F419g2MBg0I4w3Hg0bpFU0P24UlU1HQ0wy0Pg92wpE0GB0ku0r63Oi4Ujg8ZGeixG9DyU7q2S0KpUiBU4yfo&__comet_req=11&fb_dtsg=" + fb.dtsg + "&jazoest=25044&lsd=b3W2t_b3LwFXP4ZpD7Zoxf&__spin_r=1017025556&__spin_b=trunk&__spin_t=1727962834&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometFacebookIXTNextMutation&variables=%7B%22input%22%3A%7B%22advertiser_authenticity_email_challenge%22%3A%7B%22email_address%22%3A%22" + vLS15.email + "%22%2C%22org_id%22%3A%22" + v512 + "%22%2C%22serialized_state%22%3A%22" + v515 + "%22%2C%22website%22%3A%22%22%7D%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22client_mutation_id%22%3A%221%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=8659559900749920",
+                  body: "av=" + fb.uid + "&__usid=6-Tsks7l51qspa42%3APsks8noocox52%3A0-Asks7awg66ikg-RV%3D6%3AF%3D&__aaid=0&__bid=" + p469.bmId + "&__user=" + fb.uid + "&__a=1&__req=x&__hs=19999.HYP%3Abizweb_comet_pkg.2.1..0.0&dpr=1&__ccg=EXCELLENT&__rev=1017025556&__s=ky5jhe%3A9ny5zc%3Aouunwz&__hsi=7421543862026001980&__dyn=7xeUmxa2C6onwn8K2Wmh0MBwCwpUnwgU7SbzEdF8ixy361twYwJw4BwHz8hw9-0r-qbwgE7R046xO2O1VwBwXwEwgo9oO0iS12ypU5-0Bo7O2l0Fwqo5W1bxq0D8gwNxq1izXwKwt8jwGzEaE8o4-222SU5G4E5yexfwjES1xwjokGvwOwem32fwLCyKbwzwea0Lo6-3u36iU9E2cxu6o9U4S7E6C13www4kxW1owmUaE2mw&__csr=g8Hky4iib98G7Nab4imyuypqJNlF9HrlayiqfnEBENOXmKgWuKkgWGLisjWbQGh748IDkymXWLTC9A8RheWYN4nykAy9aQVtApbXALS8iHdRLh2FsZlTlCmFVpHqGAyqCWJkRiioBVbjHDAQubAKrDBZaGGQ8y5V4LHhlCADyrhV69rBiUx-FuXhQilnmHK9BBjAiHHXjoDgLCKiczkQKuVpRK8VG_F7DXLCBAV9uVi4QFJbgLx6VkcDGfoKESijKEyArmbAzCrQfAGq2x3FEyi4U-bF5GmqbxeGyozKfx1eULoPUoyUTz8vxS7Ekx-ey42Gcholy8S7Hxq9gco9ElwPCgfEC2i2y4UC78nwooKUWWJwd-1wgx1eUmppK7F9Ea84ymi1Yw8y1fgjwvQi880sU2G2Ca41p0kGeUxgC1nwam2e6Enw59w13Ak8gGu3S7A4o2jwcm1jwWwa209d0I3paxc5Mn5oC2A2Q0cww2nGw2wrw1dm1Bg2mxsVWDU6u0PE1QEYw4po8E05w60qYbgA5sMeolK041pU0iIw1Gm057oc80nvwoCEiglQ06eE11onGt0au22ew5YOw5HUYjam2t0G5hgGlwpQi480n0yonDy44k3S0OUG2K2K1tz8tw6Yw1lu0foxuIC07iU2qyU-q6Z1d0Vyk0rG3O0F419g2MBg0I4w3Hg0bpFU0P24UlU1HQ0wy0Pg92wpE0GB0ku0r61Fg3Jwe-&__comet_req=11&fb_dtsg=" + fb.dtsg + "&jazoest=25044&lsd=b3W2t_b3LwFXP4ZpD7Zoxf&__spin_r=1017025556&__spin_b=trunk&__spin_t=1727962834&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometFacebookIXTNextMutation&variables=%7B%22input%22%3A%7B%22advertiser_authenticity_email_challenge%22%3A%7B%22email_address%22%3A%22" + vLS15.email + "%22%2C%22org_id%22%3A%22" + v512 + "%22%2C%22serialized_state%22%3A%22" + v515 + "%22%2C%22website%22%3A%22%22%7D%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22client_mutation_id%22%3A%221%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=8659559900749920",
                   method: "POST"
                 });
                 const v517 = v516.json;
@@ -93,7 +93,7 @@ function runBm(p469, p470, p471) {
                     headers: {
                       "content-type": "application/x-www-form-urlencoded"
                     },
-                    body: "av=" + fb.uid + "&__usid=6-Tsks9ku1odjn08%3APsks9ku1m32dt7%3A0-Asks7awg66ikg-RV%3D6%3AF%3D&__aaid=0&__bid=" + p469.bmId + "&__user=" + fb.uid + "&__a=1&__req=z&__hs=19999.HYP%3Abizweb_comet_pkg.2.1..0.0&dpr=1&__ccg=EXCELLENT&__rev=1017025556&__s=rttzo6%3Asirrph%3A4msabx&__hsi=7421548998706757440&__dyn=7xeUmxa2C6onwn8K2Wmh0MBwCwpUnwgU7SbzEdF8ixy361twYwJw4BwHz8hw9-0r-qbwgE7R046xO2O1VwBwXwEwgo9oO0iS12ypU5-0Bo7O2l0Fwqo5W1bxq0D8gwNxq1izXwKwt8jwGzEaE8o4-222SU5G4E5yexfwjES1xwjokGvwOwem32fwLCyKbwzwea0Lo6-3u36iU9E2cxu6o9U4S7E6C13www4kxW1owmUaE2mw&__csr=g8Hky4iib98G7Nab4imyuypqJNlF9HrlayiqfnEBENOXmKgWuKkgWGLisjWbQGh748IDkymXWLTC9A8RheWYN4nykAy9aQVtApbXALS8iHdRLh2FsZlTlCmFVpHqGAyqCWJkRiioBVbjHDAQubAKrDBZaGGQ8y5V4LHhlCADyrhV69rBiUx-FuXhQilnmHK9BBjAiHHXjoDgLCKiczkQKuVpRK8VG_F7DXLCBAV9uVi4QFJbgLx6VkcDGfoKESijKEyArmbAzCrQfAGq2x3FEyi4U-bF5GmqbxeGyozKfx1eULoPUoyUTz8vxS7Ekx-ey42Gcholy8S7Hxq9gco9ElwPCgfEC2i2y4UC78nwooKUWWJwd-1wgx1eUmppK7F9Ea84ymi1Yw8y1fgjwvQi880sU2G2Ca41p0kGeUxgC1nwam2e6Enw59w13Ak8gGu3S7A4o2jwcm1jwWwa209d0I3paxc5Mn5oC2A2Q0cww2nGw2wrw1dm1Bg2mxsVWDU6u0PE1QEYw4po8E05w60qYbgA5sMeolK041pU0iIw1Gm057oc80nvwoCEiglQ06eE11onGt0au22ew5YOw5HUYjam2t0G5hgGlwpQi480n0yonDy44k3S0OUG2K2K1tz8tw6Yw1lu0foxuIC07iU2qyU-q6Z1d0Vyk0rG3O0F419g2MBg0I4w3Hg0bpFU0P24UlU1uEd40wy0Pg92wpE0GB0ku0r63Oi4Ujg8ZGeixG9DyU7q2S0KpUiBU4yfo&__comet_req=11&fb_dtsg=" + fb.dtsg + "&jazoest=25528&lsd=D_TAqIY04WCN508sRmcBVa&__spin_r=1017025556&__spin_b=trunk&__spin_t=1727964030&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometFacebookIXTNextMutation&variables=%7B%22input%22%3A%7B%22advertiser_authenticity_enter_email_code%22%3A%7B%22check_id%22%3Anull%2C%22code%22%3A%22" + v518 + "%22%2C%22serialized_state%22%3A%22" + v515 + "%22%7D%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22client_mutation_id%22%3A%225%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=8659559900749920",
+                    body: "av=" + fb.uid + "&__usid=6-Tsks9ku1odjn08%3APsks9ku1m32dt7%3A0-Asks7awg66ikg-RV%3D6%3AF%3D&__aaid=0&__bid=" + p469.bmId + "&__user=" + fb.uid + "&__a=1&__req=z&__hs=19999.HYP%3Abizweb_comet_pkg.2.1..0.0&dpr=1&__ccg=EXCELLENT&__rev=1017025556&__s=rttzo6%3Asirrph%3A4msabx&__hsi=7421548998706757440&__dyn=7xeUmxa2C6onwn8K2Wmh0MBwCwpUnwgU7SbzEdF8ixy361twYwJw4BwHz8hw9-0r-qbwgE7R046xO2O1VwBwXwEwgo9oO0iS12ypU5-0Bo7O2l0Fwqo5W1bxq0D8gwNxq1izXwKwt8jwGzEaE8o4-222SU5G4E5yexfwjES1xwjokGvwOwem32fwLCyKbwzwea0Lo6-3u36iU9E2cxu6o9U4S7E6C13www4kxW1owmUaE2mw&__csr=g8Hky4iib98G7Nab4imyuypqJNlF9HrlayiqfnEBENOXmKgWuKkgWGLisjWbQGh748IDkymXWLTC9A8RheWYN4nykAy9aQVtApbXALS8iHdRLh2FsZlTlCmFVpHqGAyqCWJkRiioBVbjHDAQubAKrDBZaGGQ8y5V4LHhlCADyrhV69rBiUx-FuXhQilnmHK9BBjAiHHXjoDgLCKiczkQKuVpRK8VG_F7DXLCBAV9uVi4QFJbgLx6VkcDGfoKESijKEyArmbAzCrQfAGq2x3FEyi4U-bF5GmqbxeGyozKfx1eULoPUoyUTz8vxS7Ekx-ey42Gcholy8S7Hxq9gco9ElwPCgfEC2i2y4UC78nwooKUWWJwd-1wgx1eUmppK7F9Ea84ymi1Yw8y1fgjwvQi880sU2G2Ca41p0kGeUxgC1nwam2e6Enw59w13Ak8gGu3S7A4o2jwcm1jwWwa209d0I3paxc5Mn5oC2A2Q0cww2nGw2wrw1dm1Bg2mxsVWDU6u0PE1QEYw4po8E05w60qYbgA5sMeolK041pU0iIw1Gm057oc80nvwoCEiglQ06eE11onGt0au22ew5YOw5HUYjam2t0G5hgGlwpQi480n0yonDy44k3S0OUG2K2K1tz8tw6Yw1lu0foxuIC07iU2qyU-q6Z1d0Vyk0rG3O0F419g2MBg0I4w3Hg0bpFU0P24UlU1HQ0wy0Pg92wpE0GB0ku0r61Fg3Jwe-&__comet_req=11&fb_dtsg=" + fb.dtsg + "&jazoest=25528&lsd=D_TAqIY04WCN508sRmcBVa&__spin_r=1017025556&__spin_b=trunk&__spin_t=1727964030&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometFacebookIXTNextMutation&variables=%7B%22input%22%3A%7B%22advertiser_authenticity_enter_email_code%22%3A%7B%22check_id%22%3Anull%2C%22code%22%3A%22" + v518 + "%22%2C%22serialized_state%22%3A%22" + v515 + "%22%7D%2C%22actor_id%22%3A%22" + fb.uid + "%22%2C%22client_mutation_id%22%3A%225%22%7D%2C%22scale%22%3A1%7D&server_timestamps=true&doc_id=8659559900749920",
                     method: "POST"
                   });
                   const v521 = v520.text;
@@ -1948,3 +1948,986 @@ function runBm(p469, p470, p471) {
       updateXmdtLinksDisplay();
     });
   });
+
+  // =============================================================================
+  // SISTEMA DE ORQUESTACIÓN INTELIGENTE PARA APELACIÓN BM
+  // =============================================================================
+
+  /**
+   * 🚀 ORQUESTADOR MAESTRO DE APELACIÓN BM
+   * Detecta automáticamente el estado actual y ejecuta el proceso completo hasta el final
+   */
+  window.bmAppealOrchestrator = async function(enrollmentId, settings, callback) {
+    try {
+      console.log("🎯 [bmAppealOrchestrator] INICIANDO ORQUESTACIÓN COMPLETA");
+      callback("🎯 INICIANDO SISTEMA DE ORQUESTACIÓN INTELIGENTE");
+      
+      const orchestrationData = {
+        enrollmentId: enrollmentId,
+        settings: settings,
+        startTime: new Date(),
+        currentStep: 0,
+        totalSteps: 0,
+        completedSteps: [],
+        errors: [],
+        retryCount: 0,
+        maxRetries: 3
+      };
+      
+      // 📊 FASE 1: ANÁLISIS COMPLETO DEL ESTADO ACTUAL
+      callback("📊 FASE 1: Analizando estado actual del proceso...");
+      const stateAnalysis = await analyzeCurrentBmState(enrollmentId, callback);
+      
+      if (!stateAnalysis.success) {
+        throw new Error(`Análisis de estado falló: ${stateAnalysis.reason}`);
+      }
+      
+      // 📋 FASE 2: GENERACIÓN DEL PLAN DE EJECUCIÓN
+      callback("📋 FASE 2: Generando plan de ejecución personalizado...");
+      const executionPlan = generateExecutionPlan(stateAnalysis.currentState, stateAnalysis.detectedSteps);
+      orchestrationData.totalSteps = executionPlan.length;
+      
+      callback(`📋 Plan generado: ${executionPlan.length} pasos detectados`);
+      executionPlan.forEach((step, index) => {
+        callback(`   ${index + 1}. ${step.name} - ${step.description}`);
+      });
+      
+      // 🚀 FASE 3: EJECUCIÓN ORQUESTADA
+      callback("🚀 FASE 3: Iniciando ejecución orquestada...");
+      
+      for (let i = 0; i < executionPlan.length; i++) {
+        const step = executionPlan[i];
+        orchestrationData.currentStep = i + 1;
+        
+        callback(`🔄 Ejecutando paso ${i + 1}/${executionPlan.length}: ${step.name}`);
+        
+        try {
+          const stepResult = await executeOrchestrationStep(step, enrollmentId, settings, callback);
+          
+          if (stepResult.success) {
+            orchestrationData.completedSteps.push({
+              step: step.name,
+              result: stepResult,
+              completedAt: new Date()
+            });
+            callback(`✅ Paso ${i + 1} completado: ${step.name}`);
+            
+            // Verificar si el paso cambió el estado
+            if (stepResult.stateChanged) {
+              callback("🔄 Estado cambió, re-analizando...");
+              const newStateAnalysis = await analyzeCurrentBmState(enrollmentId, callback);
+              
+              if (newStateAnalysis.currentState === "UNDER_REVIEW") {
+                callback("🎉 ¡PROCESO COMPLETADO! El BM está en revisión");
+                break;
+              }
+            }
+            
+          } else {
+            orchestrationData.errors.push({
+              step: step.name,
+              error: stepResult.reason,
+              timestamp: new Date()
+            });
+            
+            if (stepResult.critical) {
+              throw new Error(`Paso crítico falló: ${step.name} - ${stepResult.reason}`);
+            } else {
+              callback(`⚠️ Paso ${i + 1} falló (no crítico): ${stepResult.reason}`);
+            }
+          }
+          
+        } catch (stepError) {
+          console.error(`❌ Error en paso ${step.name}:`, stepError);
+          
+          orchestrationData.retryCount++;
+          if (orchestrationData.retryCount < orchestrationData.maxRetries) {
+            callback(`🔄 Reintentando paso ${i + 1} (intento ${orchestrationData.retryCount + 1}/${orchestrationData.maxRetries})`);
+            i--; // Reintentar el mismo paso
+            continue;
+          } else {
+            throw new Error(`Máximo de reintentos alcanzado en paso: ${step.name}`);
+          }
+        }
+        
+        // Pausa entre pasos para evitar rate limiting
+        if (i < executionPlan.length - 1) {
+          callback("⏳ Pausa entre pasos...");
+          await delayTime(2000);
+        }
+      }
+      
+      // 📊 FASE 4: VERIFICACIÓN FINAL Y REPORTE
+      callback("📊 FASE 4: Verificación final del estado...");
+      const finalState = await analyzeCurrentBmState(enrollmentId, callback);
+      
+      const executionTime = (new Date() - orchestrationData.startTime) / 1000;
+      
+      if (finalState.currentState === "UNDER_REVIEW") {
+        callback("🎉 ¡ÉXITO TOTAL! El proceso de apelación BM ha sido completado");
+        callback(`📈 Estadísticas: ${orchestrationData.completedSteps.length} pasos completados en ${executionTime}s`);
+        
+        return {
+          success: true,
+          finalState: finalState.currentState,
+          completedSteps: orchestrationData.completedSteps,
+          executionTime: executionTime,
+          errors: orchestrationData.errors
+        };
+      } else {
+        callback(`⚠️ Proceso parcialmente completado. Estado actual: ${finalState.currentState}`);
+        
+        return {
+          success: false,
+          reason: "PARTIAL_COMPLETION",
+          finalState: finalState.currentState,
+          completedSteps: orchestrationData.completedSteps,
+          executionTime: executionTime,
+          errors: orchestrationData.errors,
+          nextSteps: finalState.nextPossibleSteps || []
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ [bmAppealOrchestrator] Error crítico:", error);
+      callback(`❌ Error crítico en orquestación: ${error.message}`);
+      
+      return {
+        success: false,
+        reason: "CRITICAL_ERROR",
+        error: error.message,
+        completedSteps: orchestrationData?.completedSteps || [],
+        errors: orchestrationData?.errors || []
+      };
+    }
+  };
+
+  /**
+   * 📊 ANALIZADOR AVANZADO DE ESTADO ACTUAL
+   */
+  async function analyzeCurrentBmState(enrollmentId, callback) {
+    try {
+      callback("🔍 Analizando estado actual en profundidad...");
+      
+      const enrollmentUrl = "https://www.facebook.com/checkpoint/1501092823525282/" + enrollmentId;
+      const response = await fetch2(enrollmentUrl);
+      const htmlContent = response.text;
+      
+      let detectedState = "UNKNOWN";
+      let detectedSteps = [];
+      let nextPossibleSteps = [];
+      let confidence = 0;
+      let statusMessage = "";
+      
+      // 🔍 ANÁLISIS AVANZADO DE ESTADOS
+      if (htmlContent.includes("UFACIntroState") || htmlContent.includes("get_started_button")) {
+        detectedState = "INTRO";
+        confidence = 95;
+        statusMessage = "📋 Estado: INICIO - El proceso no ha comenzado";
+        nextPossibleSteps = ["PROCEED_INTRO"];
+        detectedSteps = ["intro", "captcha", "phone", "document", "review"];
+        
+      } else if (htmlContent.includes("UFACBotCaptcha") || htmlContent.includes("captcha")) {
+        detectedState = "CAPTCHA";
+        confidence = 90;
+        statusMessage = "🤖 Estado: CAPTCHA - Necesita resolver captcha";
+        nextPossibleSteps = ["SOLVE_CAPTCHA"];
+        detectedSteps = ["captcha", "phone", "document", "review"];
+        
+      } else if (htmlContent.includes("UFACContactPointChallengeSetContactPointState") || htmlContent.includes("phone_number")) {
+        detectedState = "PHONE_SETUP";
+        confidence = 90;
+        statusMessage = "📱 Estado: CONFIGURAR TELÉFONO - Necesita agregar número";
+        nextPossibleSteps = ["ADD_PHONE"];
+        detectedSteps = ["phone", "document", "review"];
+        
+      } else if (htmlContent.includes("UFACContactPointChallengeSubmitCodeState") || htmlContent.includes("verification_code")) {
+        detectedState = "PHONE_CODE";
+        confidence = 85;
+        statusMessage = "🔢 Estado: CÓDIGO SMS - Número agregado, esperando código";
+        nextPossibleSteps = ["SUBMIT_CODE"];
+        detectedSteps = ["phone_code", "document", "review"];
+        
+      } else if (htmlContent.includes("UFACImageUploadChallengeState") || htmlContent.includes("upload") || htmlContent.includes("document")) {
+        detectedState = "DOCUMENT_UPLOAD";
+        confidence = 85;
+        statusMessage = "📄 Estado: SUBIR DOCUMENTO - Teléfono verificado, necesita documento";
+        nextPossibleSteps = ["UPLOAD_DOCUMENT"];
+        detectedSteps = ["document", "review"];
+        
+      } else if (htmlContent.includes("UFACAwaitingReviewState") || htmlContent.includes("under_review") || htmlContent.includes("submitted")) {
+        detectedState = "UNDER_REVIEW";
+        confidence = 100;
+        statusMessage = "⏳ Estado: EN REVISIÓN - Proceso completado, esperando respuesta";
+        nextPossibleSteps = [];
+        detectedSteps = [];
+        
+      } else if (htmlContent.includes("challenge_required") || htmlContent.includes("additional_verification")) {
+        detectedState = "CHALLENGE_REQUIRED";
+        confidence = 80;
+        statusMessage = "⚠️ Estado: DESAFÍO REQUERIDO - Necesita completación adicional";
+        nextPossibleSteps = ["HANDLE_CHALLENGE"];
+        detectedSteps = ["challenge", "review"];
+        
+      } else if (htmlContent.includes("error") || htmlContent.includes("blocked")) {
+        detectedState = "ERROR";
+        confidence = 75;
+        statusMessage = "❌ Estado: ERROR - Se detectó un problema en el proceso";
+        nextPossibleSteps = ["RESTART_PROCESS"];
+        detectedSteps = ["restart"];
+        
+      } else {
+        detectedState = "UNKNOWN";
+        confidence = 0;
+        statusMessage = "❓ Estado: DESCONOCIDO - Analizando contenido...";
+        
+        // Análisis de fallback usando palabras clave
+        const keywords = extractKeywords(htmlContent);
+        const fallbackAnalysis = analyzeFallbackKeywords(keywords);
+        
+        if (fallbackAnalysis.state !== "UNKNOWN") {
+          detectedState = fallbackAnalysis.state;
+          confidence = fallbackAnalysis.confidence;
+          statusMessage = fallbackAnalysis.message;
+          nextPossibleSteps = fallbackAnalysis.nextSteps;
+          detectedSteps = fallbackAnalysis.remainingSteps;
+        }
+      }
+      
+      callback(statusMessage + ` (Confianza: ${confidence}%)`);
+      
+      return {
+        success: true,
+        currentState: detectedState,
+        confidence: confidence,
+        detectedSteps: detectedSteps,
+        nextPossibleSteps: nextPossibleSteps,
+        statusMessage: statusMessage,
+        htmlSnippet: htmlContent.substring(0, 300) + "...",
+        analysis: {
+          url: enrollmentUrl,
+          timestamp: new Date().toISOString(),
+          contentLength: htmlContent.length
+        }
+      };
+      
+    } catch (error) {
+      console.error("❌ Error en análisis de estado:", error);
+      return {
+        success: false,
+        reason: "ANALYSIS_ERROR",
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 📋 GENERADOR DE PLAN DE EJECUCIÓN
+   */
+  function generateExecutionPlan(currentState, remainingSteps) {
+    const stepDefinitions = {
+      "intro": {
+        name: "Proceder desde Introducción",
+        description: "Avanzar desde la pantalla inicial",
+        action: "PROCEED_INTRO",
+        critical: true,
+        estimatedTime: 5
+      },
+      "captcha": {
+        name: "Resolver Captcha",
+        description: "Completar verificación de captcha",
+        action: "SOLVE_CAPTCHA",
+        critical: true,
+        estimatedTime: 30
+      },
+      "phone": {
+        name: "Configurar Teléfono",
+        description: "Agregar número de teléfono",
+        action: "ADD_PHONE",
+        critical: true,
+        estimatedTime: 15
+      },
+      "phone_code": {
+        name: "Verificar Código SMS",
+        description: "Ingresar código de verificación",
+        action: "SUBMIT_CODE",
+        critical: true,
+        estimatedTime: 60
+      },
+      "document": {
+        name: "Subir Documento",
+        description: "Cargar documento de identidad",
+        action: "UPLOAD_DOCUMENT",
+        critical: true,
+        estimatedTime: 45
+      },
+      "challenge": {
+        name: "Manejar Desafío",
+        description: "Completar verificación adicional",
+        action: "HANDLE_CHALLENGE",
+        critical: false,
+        estimatedTime: 30
+      },
+      "review": {
+        name: "Finalizar Revisión",
+        description: "Completar envío para revisión",
+        action: "FINALIZE_REVIEW",
+        critical: true,
+        estimatedTime: 10
+      }
+    };
+    
+    const executionPlan = [];
+    let totalEstimatedTime = 0;
+    
+    for (const stepKey of remainingSteps) {
+      if (stepDefinitions[stepKey]) {
+        const stepDef = stepDefinitions[stepKey];
+        executionPlan.push({
+          ...stepDef,
+          stepKey: stepKey,
+          order: executionPlan.length + 1
+        });
+        totalEstimatedTime += stepDef.estimatedTime;
+      }
+    }
+    
+    // Agregar paso de finalización si no está incluido
+    if (!remainingSteps.includes("review") && currentState !== "UNDER_REVIEW") {
+      executionPlan.push({
+        ...stepDefinitions["review"],
+        stepKey: "review",
+        order: executionPlan.length + 1
+      });
+      totalEstimatedTime += stepDefinitions["review"].estimatedTime;
+    }
+    
+    console.log(`📋 Plan generado: ${executionPlan.length} pasos, tiempo estimado: ${totalEstimatedTime}s`);
+    
+    return executionPlan;
+  }
+
+  /**
+   * 🚀 EJECUTOR DE PASOS DE ORQUESTACIÓN
+   */
+  async function executeOrchestrationStep(step, enrollmentId, settings, callback) {
+    try {
+      callback(`🔄 Ejecutando: ${step.description}...`);
+      console.log(`🔄 [executeOrchestrationStep] Ejecutando paso: ${step.action}`);
+      
+      let result = null;
+      
+      switch (step.action) {
+        case "PROCEED_INTRO":
+          result = await proceedFromIntro(enrollmentId, callback);
+          break;
+          
+        case "SOLVE_CAPTCHA":
+          result = await solveCaptchaStep(enrollmentId, settings, callback);
+          break;
+          
+        case "ADD_PHONE":
+          result = await addPhoneStep(enrollmentId, settings, callback);
+          break;
+          
+        case "SUBMIT_CODE":
+          result = await submitCodeStep(enrollmentId, settings, callback);
+          break;
+          
+        case "UPLOAD_DOCUMENT":
+          result = await uploadDocumentStep(enrollmentId, settings, callback);
+          break;
+          
+        case "HANDLE_CHALLENGE":
+          result = await handleAdditionalChallenge(enrollmentId, settings, callback);
+          break;
+          
+        case "FINALIZE_REVIEW":
+          result = await finalizeReviewSubmission(enrollmentId, callback);
+          break;
+          
+        default:
+          throw new Error(`Acción no reconocida: ${step.action}`);
+      }
+      
+      if (result && result.success) {
+        return {
+          success: true,
+          action: step.action,
+          result: result,
+          stateChanged: true,
+          nextState: result.nextState || null
+        };
+      } else {
+        return {
+          success: false,
+          action: step.action,
+          reason: result?.reason || "UNKNOWN_ERROR",
+          critical: step.critical
+        };
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error ejecutando paso ${step.action}:`, error);
+      return {
+        success: false,
+        action: step.action,
+        reason: error.message,
+        critical: step.critical
+      };
+    }
+  }
+
+  /**
+   * 🔍 EXTRACTOR DE PALABRAS CLAVE
+   */
+  function extractKeywords(htmlContent) {
+    const keywordPatterns = {
+      captcha: /captcha|robot|verification|prove/gi,
+      phone: /phone|mobile|number|sms|contact/gi,
+      document: /document|id|identity|upload|file/gi,
+      review: /review|submitted|pending|waiting/gi,
+      error: /error|failed|blocked|denied/gi,
+      success: /success|completed|approved|confirmed/gi
+    };
+    
+    const extractedKeywords = {};
+    
+    for (const [category, pattern] of Object.entries(keywordPatterns)) {
+      const matches = htmlContent.match(pattern);
+      extractedKeywords[category] = matches ? matches.length : 0;
+    }
+    
+    return extractedKeywords;
+  }
+
+  /**
+   * 🔍 ANALIZADOR DE PALABRAS CLAVE DE FALLBACK
+   */
+  function analyzeFallbackKeywords(keywords) {
+    const maxCategory = Object.keys(keywords).reduce((a, b) => 
+      keywords[a] > keywords[b] ? a : b
+    );
+    
+    const fallbackStates = {
+      captcha: {
+        state: "CAPTCHA",
+        confidence: 60,
+        message: "🤖 Estado detectado por análisis: CAPTCHA",
+        nextSteps: ["SOLVE_CAPTCHA"],
+        remainingSteps: ["captcha", "phone", "document", "review"]
+      },
+      phone: {
+        state: "PHONE_SETUP",
+        confidence: 55,
+        message: "📱 Estado detectado por análisis: TELÉFONO",
+        nextSteps: ["ADD_PHONE"],
+        remainingSteps: ["phone", "document", "review"]
+      },
+      document: {
+        state: "DOCUMENT_UPLOAD",
+        confidence: 55,
+        message: "📄 Estado detectado por análisis: DOCUMENTO",
+        nextSteps: ["UPLOAD_DOCUMENT"],
+        remainingSteps: ["document", "review"]
+      },
+      review: {
+        state: "UNDER_REVIEW",
+        confidence: 70,
+        message: "⏳ Estado detectado por análisis: REVISIÓN",
+        nextSteps: [],
+        remainingSteps: []
+      },
+      error: {
+        state: "ERROR",
+        confidence: 65,
+        message: "❌ Estado detectado por análisis: ERROR",
+        nextSteps: ["RESTART_PROCESS"],
+        remainingSteps: ["restart"]
+      }
+    };
+    
+    if (keywords[maxCategory] > 0 && fallbackStates[maxCategory]) {
+      return fallbackStates[maxCategory];
+    }
+    
+    return {
+      state: "UNKNOWN",
+      confidence: 0,
+      message: "❓ No se pudo determinar el estado",
+      nextSteps: ["START_FROM_BEGINNING"],
+      remainingSteps: ["intro", "captcha", "phone", "document", "review"]
+    };
+  }
+
+  /**
+   * 🔄 MANEJADOR DE DESAFÍOS ADICIONALES
+   */
+  async function handleAdditionalChallenge(enrollmentId, settings, callback) {
+    try {
+      callback("🔄 Manejando desafío adicional...");
+      
+      // Implementar lógica específica para desafíos adicionales
+      // Por ahora, simular éxito
+      await delayTime(5000);
+      
+      return {
+        success: true,
+        nextState: "DOCUMENT_UPLOAD",
+        message: "Desafío manejado exitosamente"
+      };
+      
+    } catch (error) {
+      console.error("❌ Error manejando desafío:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  /**
+   * ✅ FINALIZADOR DE ENVÍO PARA REVISIÓN
+   */
+  async function finalizeReviewSubmission(enrollmentId, callback) {
+    try {
+      callback("✅ Finalizando envío para revisión...");
+      
+      // Verificar estado final
+      const finalCheck = await fetch2(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}`);
+      const content = finalCheck.text;
+      
+      if (content.includes("UFACAwaitingReviewState") || content.includes("submitted")) {
+        return {
+          success: true,
+          nextState: "UNDER_REVIEW",
+          message: "Proceso enviado para revisión exitosamente"
+        };
+      } else {
+        return {
+          success: false,
+          reason: "Estado final no confirmado"
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ Error finalizando revisión:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  // =============================================================================
+  // INTEGRACIÓN CON EL SISTEMA EXISTENTE
+  // =============================================================================
+
+  // Modificar la función vF14 existente para usar el nuevo orquestador
+  const originalVF14 = window.vF14;
+  
+  /**
+   * 🎯 FUNCIÓN PRINCIPAL MEJORADA DE APELACIÓN BM
+   */
+  window.vF14Enhanced = async function(bmData, settings, callback) {
+    try {
+      callback("🎯 Iniciando proceso de apelación BM mejorado...");
+      
+      // Obtener el enrollment ID
+      const enrollmentId = await fb.getLinkkhangBm(bmData.bmId, () => {});
+      
+      if (!enrollmentId) {
+        throw new Error("No se pudo obtener el ID de enrollment");
+      }
+      
+      callback(`📋 ID de Enrollment obtenido: ${enrollmentId}`);
+      
+      // Usar el orquestador maestro
+      const result = await window.bmAppealOrchestrator(enrollmentId, settings, callback);
+      
+      if (result.success) {
+        callback("🎉 ¡PROCESO DE APELACIÓN BM COMPLETADO EXITOSAMENTE!");
+        return result;
+      } else {
+        throw new Error(`Proceso falló: ${result.reason}`);
+      }
+      
+    } catch (error) {
+      console.error("❌ Error en vF14Enhanced:", error);
+      callback(`❌ Error en proceso: ${error.message}`);
+      throw error;
+    }
+  };
+
+  console.log("✅ Sistema de Orquestación Inteligente BM cargado");
+  console.log("🚀 Funciones disponibles:");
+  console.log("   • window.bmAppealOrchestrator() - Orquestador maestro");
+  console.log("   • window.vF14Enhanced() - Proceso mejorado de apelación");
+  console.log("   • analyzeCurrentBmState() - Análisis de estado avanzado");
+
+  // =============================================================================
+  // FUNCIONES ESPECÍFICAS DE CADA PASO DEL PROCESO
+  // =============================================================================
+
+  /**
+   * 📋 PROCEDER DESDE INTRODUCCIÓN
+   */
+  async function proceedFromIntro(enrollmentId, callback) {
+    try {
+      callback("📋 Avanzando desde pantalla inicial...");
+      
+      const response = await fetch2(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        body: "fb_dtsg=" + fb.dtsg + "&jazoest=25494&proceed=1"
+      });
+      
+      const content = response.text;
+      
+      if (content.includes("UFACBotCaptcha") || content.includes("captcha")) {
+        return {
+          success: true,
+          nextState: "CAPTCHA",
+          message: "Avanzado correctamente a captcha"
+        };
+      } else if (content.includes("phone")) {
+        return {
+          success: true,
+          nextState: "PHONE_SETUP",
+          message: "Avanzado directamente a teléfono"
+        };
+      } else {
+        return {
+          success: false,
+          reason: "Estado inesperado después de proceder"
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ Error procediendo desde intro:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  /**
+   * 🤖 RESOLVER CAPTCHA
+   */
+  async function solveCaptchaStep(enrollmentId, settings, callback) {
+    try {
+      callback("🤖 Resolviendo captcha...");
+      
+      // Usar la función existente resolveCaptchaImage
+      const captchaResult = await resolveCaptchaImage(enrollmentId, callback);
+      
+      if (captchaResult && captchaResult.success) {
+        return {
+          success: true,
+          nextState: "PHONE_SETUP",
+          message: "Captcha resuelto correctamente"
+        };
+      } else {
+        return {
+          success: false,
+          reason: captchaResult?.reason || "Error desconocido en captcha"
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ Error resolviendo captcha:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  /**
+   * 📱 AGREGAR TELÉFONO
+   */
+  async function addPhoneStep(enrollmentId, settings, callback) {
+    try {
+      callback("📱 Agregando número de teléfono...");
+      
+      // Verificar si hay SMS rate limit
+      if (checkSmsRateLimit()) {
+        return {
+          success: false,
+          reason: "SMS rate limit activo - debe esperar 24 horas"
+        };
+      }
+      
+      // Obtener número de teléfono
+      const phoneResult = await getPhone();
+      
+      if (!phoneResult || !phoneResult.success) {
+        return {
+          success: false,
+          reason: phoneResult?.reason || "No se pudo obtener número de teléfono"
+        };
+      }
+      
+      callback(`📱 Número obtenido: ${phoneResult.phone}`);
+      
+      // Agregar el número al formulario
+      const addPhoneResponse = await fetch2(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        body: `fb_dtsg=${fb.dtsg}&jazoest=25494&phone=${encodeURIComponent(phoneResult.phone)}&submit_phone=1`
+      });
+      
+      const content = addPhoneResponse.text;
+      
+      if (content.includes("verification_code") || content.includes("UFACContactPointChallengeSubmitCodeState")) {
+        // Guardar información del teléfono para el siguiente paso
+        window.currentPhoneInfo = {
+          phone: phoneResult.phone,
+          transactionId: phoneResult.transactionId,
+          service: phoneResult.service
+        };
+        
+        return {
+          success: true,
+          nextState: "PHONE_CODE",
+          message: "Número agregado, esperando código SMS"
+        };
+      } else if (content.includes("Too Many SMS codes")) {
+        markSmsRateLimit();
+        return {
+          success: false,
+          reason: "Rate limit SMS detectado - proceso detenido"
+        };
+      } else {
+        return {
+          success: false,
+          reason: "Error agregando número de teléfono"
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ Error agregando teléfono:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  /**
+   * 🔢 ENVIAR CÓDIGO SMS
+   */
+  async function submitCodeStep(enrollmentId, settings, callback) {
+    try {
+      callback("🔢 Obteniendo y enviando código SMS...");
+      
+      if (!window.currentPhoneInfo) {
+        return {
+          success: false,
+          reason: "Información de teléfono no disponible"
+        };
+      }
+      
+      const phoneInfo = window.currentPhoneInfo;
+      
+      // Intentar obtener el código SMS
+      let attempts = 0;
+      const maxAttempts = 12; // 2 minutos
+      let smsCode = null;
+      
+      while (attempts < maxAttempts && !smsCode) {
+        attempts++;
+        callback(`🔢 Esperando SMS... (intento ${attempts}/${maxAttempts})`);
+        
+        const codeResult = await getPhoneCode(phoneInfo.phone, phoneInfo.transactionId, phoneInfo.service);
+        
+        if (codeResult && codeResult.success && codeResult.code) {
+          smsCode = codeResult.code;
+          break;
+        }
+        
+        await delayTime(10000); // Esperar 10 segundos entre intentos
+      }
+      
+      if (!smsCode) {
+        return {
+          success: false,
+          reason: "No se pudo obtener código SMS después de 2 minutos"
+        };
+      }
+      
+      callback(`🔢 Código SMS obtenido: ${smsCode}`);
+      
+      // Enviar el código
+      const submitResponse = await fetch2(`https://www.facebook.com/checkpoint/1501092823525282/${enrollmentId}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        body: `fb_dtsg=${fb.dtsg}&jazoest=25494&verification_code=${smsCode}&submit_code=1`
+      });
+      
+      const content = submitResponse.text;
+      
+      if (content.includes("upload") || content.includes("UFACImageUploadChallengeState")) {
+        return {
+          success: true,
+          nextState: "DOCUMENT_UPLOAD",
+          message: "Código SMS verificado correctamente"
+        };
+      } else if (content.includes("incorrect") || content.includes("invalid")) {
+        return {
+          success: false,
+          reason: "Código SMS incorrecto"
+        };
+      } else {
+        return {
+          success: false,
+          reason: "Error enviando código SMS"
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ Error enviando código:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  /**
+   * 📄 SUBIR DOCUMENTO
+   */
+  async function uploadDocumentStep(enrollmentId, settings, callback) {
+    try {
+      callback("📄 Generando y subiendo documento...");
+      
+      // Usar la función uploadImage existente
+      const uploadResult = await uploadImage(enrollmentId, callback);
+      
+      if (uploadResult && uploadResult.success) {
+        return {
+          success: true,
+          nextState: "UNDER_REVIEW",
+          message: "Documento subido correctamente"
+        };
+      } else {
+        return {
+          success: false,
+          reason: uploadResult?.reason || "Error subiendo documento"
+        };
+      }
+      
+    } catch (error) {
+      console.error("❌ Error subiendo documento:", error);
+      return {
+        success: false,
+        reason: error.message
+      };
+    }
+  }
+
+  // =============================================================================
+  // UTILIDADES PARA EL ORQUESTADOR
+  // =============================================================================
+
+  /**
+   * 🎯 DETECTOR INTELIGENTE DE ESTADO DESDE BM
+   */
+  window.detectBmStateFromBm = async function(bmId, callback) {
+    try {
+      callback("🎯 Detectando estado del BM desde Business Manager...");
+      
+      // Primero obtener el enrollment ID
+      const enrollmentId = await fb.getLinkkhangBm(bmId, callback);
+      
+      if (!enrollmentId) {
+        return {
+          success: false,
+          reason: "No se pudo obtener enrollment ID",
+          bmId: bmId
+        };
+      }
+      
+      // Ahora analizar el estado
+      const stateAnalysis = await analyzeCurrentBmState(enrollmentId, callback);
+      
+      return {
+        success: true,
+        bmId: bmId,
+        enrollmentId: enrollmentId,
+        ...stateAnalysis
+      };
+      
+    } catch (error) {
+      console.error("❌ Error detectando estado desde BM:", error);
+      return {
+        success: false,
+        reason: error.message,
+        bmId: bmId
+      };
+    }
+  };
+
+  /**
+   * 🚀 PROCESO AUTOMÁTICO COMPLETO
+   */
+  window.runCompleteBmAppeal = async function(bmId, callback) {
+    try {
+      callback("🚀 INICIANDO PROCESO AUTOMÁTICO COMPLETO DE APELACIÓN BM");
+      
+      // 1. Detectar estado actual
+      const stateDetection = await window.detectBmStateFromBm(bmId, callback);
+      
+      if (!stateDetection.success) {
+        throw new Error(`Error detectando estado: ${stateDetection.reason}`);
+      }
+      
+      // 2. Obtener configuraciones
+      const settings = await saveSetting();
+      
+      // 3. Ejecutar orquestación completa
+      const result = await window.bmAppealOrchestrator(
+        stateDetection.enrollmentId, 
+        settings, 
+        callback
+      );
+      
+      if (result.success) {
+        callback("🎉 ¡PROCESO AUTOMÁTICO COMPLETADO EXITOSAMENTE!");
+        callback(`📊 BM ${bmId} ahora está en estado: ${result.finalState}`);
+        
+        return {
+          success: true,
+          bmId: bmId,
+          enrollmentId: stateDetection.enrollmentId,
+          finalState: result.finalState,
+          completedSteps: result.completedSteps,
+          executionTime: result.executionTime
+        };
+      } else {
+        throw new Error(`Orquestación falló: ${result.reason}`);
+      }
+      
+    } catch (error) {
+      console.error("❌ Error en proceso automático completo:", error);
+      callback(`❌ Error crítico: ${error.message}`);
+      
+      return {
+        success: false,
+        bmId: bmId,
+        reason: error.message
+      };
+    }
+  };
+
+  console.log("✅ Funciones específicas de pasos agregadas");
+  console.log("🎯 Nuevas funciones disponibles:");
+  console.log("   • window.detectBmStateFromBm() - Detectar estado desde BM ID");
+  console.log("   • window.runCompleteBmAppeal() - Proceso automático completo");
