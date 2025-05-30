@@ -834,7 +834,7 @@ function runBm(p469, p470, p471) {
                 p490(e102);
               }
             });
-          };
+          }
           try {
             await vF14(p469.bmId, p470, p493 => {
               const vO81 = {
