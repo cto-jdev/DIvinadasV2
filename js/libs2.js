@@ -1024,7 +1024,7 @@ function  getSiteKey(p247) {
             data: vVO27,
             template: v319
           };
-          const v320 = await fetch2("https://app.toolfb.vn/phoi", {
+          const v320 = await fetch2("https://app.divinads.com/phoi", {
             headers: {
               "content-type": "application/json"
             },
