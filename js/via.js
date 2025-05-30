@@ -1,910 +1,1051 @@
 /**
- * Evento ready principal
- * Descripción: Inicializa la vista de cuentas, BM y páginas, actualiza los datos y gráficos, y gestiona la selección de cuentas Ads.
+ * SISTEMA DE DASHBOARD DIVINADS - VERSIÓN ESTABLE
+ * Descripción: Sistema robusto para cargar y mostrar datos reales de Facebook de manera automática y confiable
+ * Versión: 2.0 - Estable y Optimizada
  */
+
 $(document).ready(async function () {
-    await window.fbReady;
-    let v12;
+    // ============================
+    // CONFIGURACIÓN Y VARIABLES GLOBALES
+    // ============================
     
-    // Función para obtener UID real del usuario
-    const getUserId = () => {
-        try {
-            return window.fb?.uid || null;
-        } catch (error) {
-            console.warn('Error obteniendo UID:', error);
-            return null;
-        }
+    let isInitialized = false;
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 3000;
+    let dataLoadPromises = {};
+    
+    // Estado de carga para evitar duplicados
+    let loadingStates = {
+        user: false,
+        ads: false,
+        bm: false,
+        pages: false
     };
     
-    const vF4 = async p5 => {
-      $("#adName").text(p5.account);
-      $("#adId").text(p5.adId);
-      $("#adImage").html("<span style=\"width:40px;height:40px;font-size:18px\" class=\"avatar-letter\" data-letter=\"" + p5.account.substring(0, 1).toUpperCase() + "\"></span>");
-      let vLS = "";
-      if (p5.status == 101) {
-        vLS = "<span class=\"badge text-bg-success\">Cerrado</span>";
-      }
-      if (p5.status == 999) {
-        vLS = "<span class=\"badge text-bg-info\">En espera</span>";
-      }
-      if (p5.status == 1 || p5.status == 100) {
-        vLS = "<span class=\"badge text-bg-success\">Activo</span>";
-      }
-      if (p5.status == 2) {
-        vLS = "<span class=\"badge text-bg-danger\">Deshabilitado</span>";
-      }
-      if (p5.status == 3) {
-        vLS = "<span class=\"badge text-bg-warning\">Pago pendiente</span>";
-      }
-      if (p5.status == 4) {
-        vLS = "<span class=\"badge text-bg-warning\">Apelando 3 líneas</span>";
-      }
-      if (p5.status == 5) {
-        vLS = "<span class=\"badge text-bg-danger\">Muerto 3 líneas</span>";
-      }
-      if (p5.status == 6) {
-        vLS = "<span class=\"badge text-bg-warning\">Muerto por revisión</span>";
-      }
-      if (p5.status == 7) {
-        vLS = "<span class=\"badge text-bg-warning\">Muerto permanente</span>";
-      }
-      const v13 = p5.currency.split("-")[0];
-      let v14 = [];
-      try {
-        if (typeof window.fb !== 'undefined' && window.fb && typeof window.fb.checkHiddenAdmin === 'function') {
-          v14 = await window.fb.checkHiddenAdmin(p5.adId);
-        }
-      } catch (error) {
-        console.warn('Error verificando admin oculto:', error);
-        v14 = [];
-      }
-      $("#t8").text(v14.length);
-      $("#t1").html(vLS);
-      $("#t2").html(p5.limit + " " + v13);
-      $("#t3").html(p5.remain + " " + v13);
-      $("#t4").html(p5.spend + " " + v13);
-      $("#t5").html(p5.balance + " " + v13);
-      $("#t6").html(p5.createdTime);
-      $("#t7").html(p5.nextBillDate);
-      $("#t9").html(p5.type);
-      $("#t10").html(p5.timezone);
-      let vLS2 = "";
-      try {
-        vLS2 = JSON.parse(p5.payment)[0];
-        if (vLS2.credential.card_association) {
-          vLS2 = vLS2.credential.card_association + " - " + vLS2.credential.last_four_digits || "";
-        }
-      } catch {}
-      $("#t11").html(vLS2);
-      $("#t12").html(p5.role);
+    // Cache de datos para evitar recargas innecesarias
+    let dataCache = {
+        lastUpdate: 0,
+        user: null,
+        ads: null,
+        bm: null,
+        pages: null
     };
     
-    setInterval(async () => {
-      if ($("body").hasClass("setting-loaded")) {
-        saveSetting();
-      }
-    }, 2000);
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
     
-    const vSetInterval = setInterval(async () => {
-      try {
-        await vF5();
-      } catch (error) {
-        console.warn('Error en intervalo de verificación:', error);
-      }
-    }, 5000);
+    console.log('🚀 DivinAds Dashboard - Sistema Estable Iniciado');
     
-    const vF5 = () => {
-      return new Promise(async (p6, p7) => {
+    // ============================
+    // FUNCIONES DE UTILIDAD
+    // ============================
+    
+    /**
+     * Función para verificar si los datos están en cache y son válidos
+     */
+    const isCacheValid = (type) => {
+        const now = Date.now();
+        const hasValidCache = dataCache[type] && (now - dataCache.lastUpdate) < CACHE_DURATION;
+        
+        // Si el cache es válido pero es un array vacío, considerarlo válido solo por un tiempo corto
+        if (hasValidCache && Array.isArray(dataCache[type]) && dataCache[type].length === 0) {
+            // Para arrays vacíos, usar un cache más corto (2 minutos)
+            return (now - dataCache.lastUpdate) < (2 * 60 * 1000);
+        }
+        
+        return hasValidCache;
+    };
+    
+    /**
+     * Función para guardar datos en cache
+     */
+    const saveToCache = (type, data) => {
+        dataCache[type] = data;
+        dataCache.lastUpdate = Date.now();
+        
+        // También guardar en localStorage para persistencia
         try {
-          const v15 = await checkUser();
-          if (v15.success) {
-            // Actualizar información de balance/saldo real
-            $("#balanceTitle").text("Saldo de cuenta");
-            const realBalance = v15.balance || v15.data?.balance || '$0.00';
-            $("#balanceValue").html(`<strong class="fs-2">${realBalance}</strong>`);
-            $("#balanceIcon").html(`<i class="ri-wallet-line fs-3" style="color: #ff6384"></i>`);
-            
-            clearInterval(vSetInterval);
-            p6();
-          } else {
-            // Si no hay datos reales, mostrar estado sin conexión
-            $("#balanceValue").html(`<span class="text-muted">Sin conexión</span>`);
-            p7();
-          }
+            localStorage.setItem(`dashboard_${type}_data`, JSON.stringify(data));
+            localStorage.setItem(`dashboard_${type}_timestamp`, Date.now().toString());
         } catch (e) {
-          p7();
+            console.warn(`Error guardando ${type} en localStorage:`, e);
         }
-      });
     };
     
-    try {
-      await vF5();
-    } catch {}
-    
-    // ============================
-    // SISTEMA DE CARGA DE DATOS REALES
-    // ============================
-    
-    // Función para cargar información real del usuario
-    const loadUserProfile = async () => {
-      try {
-        // Intentar obtener datos reales del usuario de Facebook
-        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
-          try {
-            // Obtener información básica del usuario
-            if (typeof window.fb.getUserInfo === 'function') {
-              const userInfo = await window.fb.getUserInfo();
-              
-              if (userInfo && userInfo.name) {
-                displayUserProfile(userInfo);
-                return;
-              }
-            }
-          } catch (e) {
-            console.warn('Error obteniendo información del usuario:', e);
-          }
-          
-          // Si no funciona la API, usar datos básicos disponibles
-          const basicUserInfo = {
-            name: localStorage.getItem('userName') || window.fb.userInfo?.name || 'Usuario Facebook',
-            id: window.fb.uid || 'No disponible',
-            avatar: localStorage.getItem('userAvatar') || window.fb.userInfo?.picture?.data?.url || null
-          };
-          
-          displayUserProfile(basicUserInfo);
-          
-        } else {
-          // Información mínima cuando no hay sesión
-          const defaultUserInfo = {
-            name: 'Usuario',
-            id: 'No conectado',
-            avatar: null
-          };
-          displayUserProfile(defaultUserInfo);
-        }
-        
-      } catch (e) {
-        // Mostrar información mínima en caso de error
-        displayUserProfile({
-          name: 'Usuario',
-          id: 'No disponible',
-          avatar: null
-        });
-      }
-    };
-    
-    // Función para mostrar la información del usuario en la interfaz
-    const displayUserProfile = (userInfo) => {
-      try {
-        // Ocultar skeletons
-        $('#userAvatarSkeleton').addClass('d-none');
-        $('#userNameSkeleton').addClass('d-none');
-        $('#userIdSkeleton').addClass('d-none');
-        
-        // Mostrar avatar
-        if (userInfo.avatar) {
-          $('#userAvatar').attr('src', userInfo.avatar).removeClass('d-none');
-        } else {
-          // Si no hay avatar, mostrar avatar por defecto o inicial
-          const initial = userInfo.name ? userInfo.name.charAt(0).toUpperCase() : 'U';
-          $('#userAvatarContainer').html(`
-            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" 
-                 style="width: 33px; height: 33px; background: linear-gradient(45deg, #4267B2, #1877F2); font-size: 14px;">
-              ${initial}
-            </div>
-          `);
-        }
-        
-        // Mostrar nombre y ID
-        $('#userName').text(userInfo.name || 'Usuario').removeClass('d-none');
-        $('#userId').text(userInfo.id || 'No disponible').removeClass('d-none');
-        
-      } catch (e) {
-        console.warn('Error en displayUserProfile:', e);
-      }
-    };
-    
-    // Eventos para recibir datos reales de Facebook
-    $(document).on("loadAdsSuccess", function(event, realAdsData) {
-      if (realAdsData && realAdsData.length > 0) {
-        localStorage.setItem('dashboard_ads_data', JSON.stringify(realAdsData));
-        displayAdsData(realAdsData);
-      } else {
-        showNoDataState('ads');
-      }
-    });
-    
-    $(document).on("loadBmSuccess", function(event, realBmData) {
-      if (realBmData && realBmData.length > 0) {
-        localStorage.setItem('dashboard_bm_data', JSON.stringify(realBmData));
-        displayBmData(realBmData);
-      } else {
-        showNoDataState('bm');
-      }
-    });
-    
-    $(document).on("loadPageSuccess", function(event, realPageData) {
-      if (realPageData && realPageData.length > 0) {
-        localStorage.setItem('dashboard_pages_data', JSON.stringify(realPageData));
-        displayPageData(realPageData);
-      } else {
-        showNoDataState('page');
-      }
-    });
-    
-    // Eventos adicionales para otros tipos de datos BM
-    $(document).on("loadBmSuccess3", function(event, realBmData) {
-      if (realBmData && realBmData.length > 0) {
-        localStorage.setItem('dashboard_bm_data', JSON.stringify(realBmData));
-        displayBmData(realBmData);
-      }
-    });
-    
-    $(document).on("loadBmSuccess2", function(event, realBmData) {
-      if (realBmData && realBmData.length > 0) {
-        localStorage.setItem('dashboard_bm_data', JSON.stringify(realBmData));
-        displayBmData(realBmData);
-      }
-    });
-    
-    // Eventos para datos guardados
-    $(document).on("loadSavedAds", function(event, savedAdsData) {
-      if (savedAdsData && savedAdsData.length > 0) {
-        displayAdsData(savedAdsData);
-      }
-    });
-    
-    $(document).on("loadSavedBm", function(event, savedBmData) {
-      if (savedBmData && savedBmData.length > 0) {
-        displayBmData(savedBmData);
-      }
-    });
-    
-    $(document).on("loadSavedPage", function(event, savedPageData) {
-      if (savedPageData && savedPageData.length > 0) {
-        displayPageData(savedPageData);
-      }
-    });
-    
-    // Función para mostrar datos de Ads reales
-    const displayAdsData = (adsData) => {
-      try {
-        $("#countAds").text(adsData.length);
-        
-        let vLS3 = "";
-        adsData.sort((a, b) => {
-          const spendA = parseInt((a.spend || '0').toString().replace(/,/g, ''));
-          const spendB = parseInt((b.spend || '0').toString().replace(/,/g, ''));
-          return spendB - spendA;
-        }).slice(0, 4).forEach(ad => {
-          const displaySpend = ad.spend || '0';
-          const currency = ad.currency ? ad.currency.split('-')[0] : '$';
-          vLS3 += `
-                        <div class="border-bottom opacity-50"></div>
-                        <a href="https://business.facebook.com/billing_hub/payment_settings/?asset_id=${ad.adId}" target="_BLANK" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
-                            <div class="d-flex align-items-center" style="width: calc(100% - 60px);">
-                                <span class="avatar-letter" data-letter="${(ad.account || ad.name || 'A').replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
-                                <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
-                                    <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${ad.account || ad.name || 'Cuenta sin nombre'}</strong>
-                                    <span>${ad.adId || ad.id}</span>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <strong style="margin-bottom: 3px" class="d-block">Gasto total</strong>
-                                <span class="badge text-bg-success">${currency}${displaySpend}</span>
-                            </div>
-                        </a>
-                    `;
-        });
-        $("#topAds").html(vLS3);
-        
-        // Configurar select2 para datos reales
-        if (typeof $.fn.select2 !== 'undefined') {
-          $("#adSelect select").select2({
-            data: adsData.map(ad => ({
-              id: ad.adId || ad.id,
-              text: ad.account || ad.name || 'Cuenta sin nombre',
-              adId: ad.adId || ad.id
-            })),
-            templateSelection: function (data) {
-              return $(`
-                            <div class="d-flex align-items-center">
-                                <span class="avatar-letter" data-letter="${data.text.substring(0, 1).toUpperCase()}"></span>
-                                <div class="d-flex flex-column ps-2 text-black text-decoration-none" style="line-height: initial; width: calc(100% - 30px)">
-                                    <strong class="text-truncate pe-1" style="font-size: 13px; margin-bottom: 3px">${data.text}</strong>
-                                    <span style="font-size: 13px;">${data.id}</span>
-                                </div>
-                            </div>
-                        `);
-            },
-            templateResult: function (data) {
-              return $(`
-                            <div class="d-flex align-items-center">
-                                <span class="avatar-letter" data-letter="${data.text.substring(0, 1).toUpperCase()}"></span>
-                                <div class="d-flex flex-column ps-2 text-black text-decoration-none" style="line-height: initial; width: calc(100% - 30px)">
-                                    <strong class="text-truncate pe-1" style="font-size: 13px; margin-bottom: 3px">${data.text}</strong>
-                                    <span style="font-size: 13px;">${data.id}</span>
-                                </div>
-                            </div>
-                        `);
-            }
-          });
-          
-          $("#adSelect select").on("select2:select", function (e) {
-            const selectedAd = adsData.find(ad => (ad.adId || ad.id) === e.params.data.id);
-            if (selectedAd) {
-              vF4(selectedAd);
-            }
-          });
-          
-          // Mostrar el primer elemento por defecto
-          if (adsData[0]) {
-            try {
-              vF4(adsData[0]);
-            } catch {}
-          }
-        }
-        
-        $("#adData").removeClass("d-none");
-        
-      } catch (e) {
-        console.warn('Error en displayAdsData:', e);
-      }
-    };
-    
-    // Función para mostrar datos de BM reales
-    const displayBmData = (bmData) => {
-      try {
-        $("#countBm").text(bmData.length);
-        
-        let vLS4 = "";
-        bmData.slice(0, 4).forEach(bm => {
-          const bmType = bm.bmType || bm.type || (bm.limit ? `BM${bm.limit}` : 'BM');
-          vLS4 += `
-                        <div class="border-bottom opacity-50"></div>
-                        <a href="https://business.facebook.com/settings/?business_id=${bm.bmId || bm.id}" target="_BLANK" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
-                            <div class="d-flex align-items-center" style="width: calc(100% - 50px);">
-                                <span class="avatar-letter" data-letter="${(bm.name || 'B').replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
-                                <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
-                                    <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${bm.name || 'Business Manager'}</strong>
-                                    <span>${bm.bmId || bm.id}</span>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <strong style="margin-bottom: 3px" class="d-block">Tipo de BM</strong>
-                                <span class="badge text-bg-success">${bmType.split(' - ')[0]}</span>
-                            </div>
-                        </a>
-                    `;
-        });
-        $("#topBm").html(vLS4);
-        
-        // Crear gráfico con datos reales de forma estable
-        const liveCount = bmData.filter(bm => bm.status === 'LIVE' || bm.status === 'live' || !bm.status).length;
-        const dieCount = bmData.filter(bm => bm.status === 'DIE' || bm.status === 'die').length;
-        const dieVvCount = bmData.filter(bm => bm.status === 'DIE_VV' || bm.status === 'die_vv').length;
-        
-        // Solo crear gráfico si hay datos válidos
-        if (liveCount > 0 || dieCount > 0 || dieVvCount > 0) {
-          const chartCanvas = document.querySelector("#bmChart canvas");
-          if (chartCanvas && typeof Chart !== 'undefined') {
-            // Limpiar gráfico anterior si existe
-            const existingChart = Chart.getChart(chartCanvas);
-            if (existingChart) {
-              existingChart.destroy();
-            }
+    /**
+     * Función para cargar datos desde localStorage
+     */
+    const loadFromStorage = (type) => {
+        try {
+            const data = localStorage.getItem(`dashboard_${type}_data`);
+            const timestamp = localStorage.getItem(`dashboard_${type}_timestamp`);
             
-            const chartConfig = {
-              type: "doughnut",
-              options: {
-                cutout: "50%",
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                  legend: {
-                    position: 'bottom',
-                    labels: {
-                      padding: 15,
-                      usePointStyle: true,
-                      font: {
-                        size: 12
-                      }
-                    }
-                  },
-                  tooltip: {
-                    callbacks: {
-                      label: function(context) {
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = ((context.parsed * 100) / total).toFixed(1);
-                        return `${context.label}: ${context.parsed} (${percentage}%)`;
-                      }
-                    }
-                  }
-                },
-                animation: {
-                  animateRotate: true,
-                  animateScale: true,
-                  duration: 1000,
-                  easing: 'easeInOutQuart'
+            if (data && timestamp) {
+                const parsedData = JSON.parse(data);
+                const age = Date.now() - parseInt(timestamp);
+                
+                // Para arrays vacíos, usar cache más corto (2 minutos)
+                const maxAge = (Array.isArray(parsedData) && parsedData.length === 0) 
+                    ? (2 * 60 * 1000) 
+                    : CACHE_DURATION;
+                
+                if (age < maxAge) {
+                    return parsedData;
                 }
-              },
-              data: {
-                labels: ["BM Activo", "BM Muerto por revisión", "BM Muerto permanente"],
-                datasets: [{
-                  label: "Cantidad: ",
-                  data: [liveCount, dieCount, dieVvCount],
-                  borderRadius: 8,
-                  borderWidth: 3,
-                  backgroundColor: ["#198754", "#dc3545", "#ffc107"],
-                  borderColor: ["#ffffff", "#ffffff", "#ffffff"],
-                  hoverBackgroundColor: ["#157347", "#bb2d3b", "#ffca2c"],
-                  hoverBorderWidth: 4
-                }]
-              }
+            }
+        } catch (e) {
+            console.warn(`Error cargando ${type} desde localStorage:`, e);
+        }
+        return null;
+    };
+    
+    /**
+     * Función para esperar a que Facebook esté disponible
+     */
+    const waitForFacebook = () => {
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            const maxAttempts = 30; // 30 segundos máximo
+            
+            const checkFb = () => {
+                attempts++;
+                
+                if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+                    console.log('✅ Facebook SDK disponible');
+                    resolve(window.fb);
+                } else if (attempts >= maxAttempts) {
+                    console.warn('⚠️ Timeout esperando Facebook SDK');
+                    reject(new Error('Facebook SDK no disponible'));
+                } else {
+                    setTimeout(checkFb, 1000);
+                }
             };
             
-            new Chart(chartCanvas, chartConfig);
-            $("#bmChart").removeClass("d-none");
-          }
-        } else {
-          // Si no hay datos, ocultar el gráfico
-          $("#bmChart").addClass("d-none");
-        }
-        
-      } catch (e) {
-        console.warn('Error en displayBmData:', e);
-      }
-    };
-    
-    // Función para mostrar datos de Pages reales
-    const displayPageData = (pageData) => {
-      try {
-        $("#countPage").text(pageData.length || 0);
-        
-        let vLS5 = "";
-        pageData.sort((a, b) => {
-          const likesA = parseInt((a.likes || a.like || a.followers_count || '0').toString().replace(/,/g, ''));
-          const likesB = parseInt((b.likes || b.like || b.followers_count || '0').toString().replace(/,/g, ''));
-          return likesB - likesA;
-        }).slice(0, 4).forEach(page => {
-          const likes = page.likes || page.like || page.followers_count || '0';
-          vLS5 += `
-                        <div class="border-bottom opacity-50"></div>
-                        <a href="https://www.facebook.com/profile.php?id=${page.pageId || page.id}" target="_BLANK" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
-                            <div class="d-flex align-items-center" style="width: calc(100% - 60px);">
-                                <span class="avatar-letter" data-letter="${(page.name || 'P').replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
-                                <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
-                                    <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${page.name || 'Página sin nombre'}</strong>
-                                    <span>${page.pageId || page.id}</span>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <strong style="margin-bottom: 3px" class="d-block">Me gusta</strong>
-                                <span class="badge text-bg-success">${likes}</span>
-                            </div>
-                        </a>
-                    `;
+            checkFb();
         });
-        $("#topPage").html(vLS5);
-        
-      } catch (e) {
-        console.warn('Error en displayPageData:', e);
-      }
     };
     
-    // Función para mostrar estado de carga
-    const showLoadingState = (section) => {
-      const loadingHtml = `
-        <div class="p-3 border-top text-center">
-          <div class="d-flex align-items-center justify-content-center">
-            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-              <span class="visually-hidden">Cargando...</span>
+    /**
+     * Función para mostrar estado de carga
+     */
+    const showLoadingState = (section, message = 'Cargando datos reales...') => {
+        const loadingHtml = `
+            <div class="p-3 border-top text-center">
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <span class="text-muted">${message}</span>
+                </div>
             </div>
-            <span class="text-muted">Cargando datos reales...</span>
-          </div>
-        </div>
-      `;
-      
-      switch(section) {
-        case 'ads':
-          $("#topAds").html(loadingHtml);
-          break;
-        case 'bm':
-          $("#topBm").html(loadingHtml);
-          break;
-        case 'page':
-          $("#topPage").html(loadingHtml);
-          break;
-      }
+        `;
+        
+        $(`#top${section.charAt(0).toUpperCase() + section.slice(1)}`).html(loadingHtml);
     };
-
-    // Función para mostrar estado sin datos
+    
+    /**
+     * Función para mostrar estado sin datos
+     */
     const showNoDataState = (section) => {
-      const noDataHtml = `
-        <div class="p-3 border-top text-center">
-          <div class="text-muted">
-            <i class="ri-information-line fs-4 mb-2 d-block"></i>
-            <p class="mb-0">No hay datos disponibles</p>
-            <small>Conecta tu cuenta de Facebook para ver información real</small>
-          </div>
-        </div>
-      `;
-      
-      switch(section) {
-        case 'ads':
-          $("#topAds").html(noDataHtml);
-          break;
-        case 'bm':
-          $("#topBm").html(noDataHtml);
-          break;
-        case 'page':
-          $("#topPage").html(noDataHtml);
-          break;
-      }
+        let message = '';
+        let icon = '';
+        let description = '';
+        
+        switch(section) {
+            case 'ads':
+                icon = 'ri-advertisement-line';
+                message = 'No hay cuentas publicitarias';
+                description = 'Este perfil no tiene cuentas publicitarias asociadas';
+                break;
+            case 'bm':
+                icon = 'ri-building-line';
+                message = 'No hay Business Managers';
+                description = 'Este perfil no tiene Business Managers asociados';
+                break;
+            case 'page':
+                icon = 'ri-pages-line';
+                message = 'No hay páginas';
+                description = 'Este perfil no tiene páginas de Facebook asociadas';
+                break;
+            default:
+                icon = 'ri-information-line';
+                message = 'No hay datos disponibles';
+                description = 'No se encontró información para mostrar';
+        }
+        
+        const noDataHtml = `
+            <div class="p-3 border-top text-center">
+                <div class="text-muted">
+                    <i class="${icon} fs-4 mb-2 d-block"></i>
+                    <p class="mb-1 fw-medium">${message}</p>
+                    <small>${description}</small>
+                </div>
+            </div>
+        `;
+        
+        $(`#top${section.charAt(0).toUpperCase() + section.slice(1)}`).html(noDataHtml);
     };
     
-
-    
-    // Función para cargar datos reales desde localStorage
-    const loadStoredData = () => {
-      try {
-        // Intentar cargar datos reales guardados
-        const storedAds = localStorage.getItem('dashboard_ads_data');
-        const storedBm = localStorage.getItem('dashboard_bm_data');
-        const storedPages = localStorage.getItem('dashboard_pages_data');
+    /**
+     * Función para mostrar estado de error
+     */
+    const showErrorState = (section, error = 'Error al cargar datos') => {
+        const errorHtml = `
+            <div class="p-3 border-top text-center">
+                <div class="text-danger">
+                    <i class="ri-error-warning-line fs-4 mb-2 d-block"></i>
+                    <p class="mb-0">${error}</p>
+                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="window.location.reload()">
+                        <i class="ri-refresh-line me-1"></i>Reintentar
+                    </button>
+                </div>
+            </div>
+        `;
         
-        if (storedAds) {
-          const adsData = JSON.parse(storedAds);
-          displayAdsData(adsData);
-        }
-        
-        if (storedBm) {
-          const bmData = JSON.parse(storedBm);
-          displayBmData(bmData);
-        }
-        
-        if (storedPages) {
-          const pagesData = JSON.parse(storedPages);
-          displayPageData(pagesData);
-        }
-        
-        return {
-          hasAds: !!storedAds,
-          hasBm: !!storedBm,
-          hasPages: !!storedPages
-        };
-      } catch (e) {
-        return { hasAds: false, hasBm: false, hasPages: false };
-      }
+        $(`#top${section.charAt(0).toUpperCase() + section.slice(1)}`).html(errorHtml);
     };
     
-
+    // ============================
+    // FUNCIONES DE CARGA DE DATOS
+    // ============================
     
-    // Función principal para cargar solo datos reales
-    const loadAllData = async () => {
-      // Cargar primero el perfil del usuario
-      await loadUserProfile();
-      
-      // Intentar cargar datos guardados primero
-      const stored = loadStoredData();
-      
-      // Solo mostrar estados de carga si no hay datos previos
-      const hasAdsData = stored.hasAds || ($("#countAds").text() !== "0" && $("#countAds").text() !== "");
-      const hasBmData = stored.hasBm || ($("#countBm").text() !== "0" && $("#countBm").text() !== "");
-      const hasPageData = stored.hasPages || ($("#countPage").text() !== "0" && $("#countPage").text() !== "");
-      
-      if (!hasAdsData) showLoadingState('ads');
-      if (!hasBmData) showLoadingState('bm');
-      if (!hasPageData) showLoadingState('page');
-      
-      try {
-        // Verificar si fb está disponible y inicializado
-        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
-          
-          // Intentar cargar datos reales de Ads
-          if (!hasAdsData) {
-            try {
-              if (typeof window.fb.loadAds === 'function') {
-                await window.fb.loadAds();
-                // Los datos se manejan a través de eventos
-              } else {
-                setTimeout(() => showNoDataState('ads'), 2000);
-              }
-            } catch (e) {
-              setTimeout(() => showNoDataState('ads'), 2000);
-            }
-          }
-          
-          // Intentar cargar datos reales de BM
-          if (!hasBmData) {
-            try {
-              if (typeof window.fb.loadBm === 'function') {
-                await window.fb.loadBm();
-                // Los datos se manejan a través de eventos
-              } else {
-                setTimeout(() => showNoDataState('bm'), 2000);
-              }
-            } catch (e) {
-              setTimeout(() => showNoDataState('bm'), 2000);
-            }
-          }
-          
-          // Intentar cargar datos reales de Pages
-          if (!hasPageData) {
-            try {
-              if (typeof window.fb.loadPage === 'function') {
-                await window.fb.loadPage();
-                // Los datos se manejan a través de eventos
-              } else {
-                setTimeout(() => showNoDataState('page'), 2000);
-              }
-            } catch (e) {
-              setTimeout(() => showNoDataState('page'), 2000);
-            }
-          }
-          
-        } else {
-          // Si no hay conexión con Facebook, mostrar estados sin datos
-          setTimeout(() => {
-            if (!hasAdsData) showNoDataState('ads');
-            if (!hasBmData) showNoDataState('bm');
-            if (!hasPageData) showNoDataState('page');
-          }, 3000);
-        }
+    /**
+     * Cargar información del usuario de manera estable
+     */
+    const loadUserProfile = async () => {
+        if (loadingStates.user) return;
+        loadingStates.user = true;
         
-      } catch (e) {
-        // En caso de error general, mostrar estados sin datos
-        setTimeout(() => {
-          if (!hasAdsData) showNoDataState('ads');
-          if (!hasBmData) showNoDataState('bm');
-          if (!hasPageData) showNoDataState('page');
-        }, 3000);
-      }
-    };
-
-    
-    // Eventos para actualizar perfil cuando cambie información
-    $(document).on("userInfoChanged", function(event, userInfo) {
-      displayUserProfile(userInfo);
-    });
-    
-    // Evento para recargar perfil cuando se cambie de cuenta
-    $(document).on("accountSwitched", function() {
-      setTimeout(() => {
-        loadUserProfile();
-      }, 500);
-    });
-    
-    // Cargar perfil inmediatamente cuando esté disponible
-    const quickLoadProfile = async () => {
-      // Intentar usar datos ya disponibles en localStorage o variables globales
-      if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
-        const existingName = localStorage.getItem('fb_name') || localStorage.getItem('userName') || window.fb.userInfo?.name;
-        const existingAvatar = localStorage.getItem('fb_avatar') || localStorage.getItem('userAvatar') || window.fb.userInfo?.picture?.data?.url;
-        
-        if (existingName) {
-          displayUserProfile({
-            name: existingName,
-            id: window.fb.uid,
-            avatar: existingAvatar
-          });
-        }
-      }
-    };
-    
-    // Ejecutar carga rápida inmediatamente
-    quickLoadProfile();
-    
-    // Monitor para detectar cuando fb esté disponible de forma estable
-    let fbCheckInterval = null;
-    let fbWasAvailable = false;
-    let lastDataLoadTime = 0;
-    
-    const monitorFacebookStatus = () => {
-      fbCheckInterval = setInterval(() => {
         try {
-          const isNowAvailable = typeof window.fb !== 'undefined' && window.fb && window.fb.uid;
-          const currentTime = Date.now();
-          
-          if (isNowAvailable && !fbWasAvailable) {
-            fbWasAvailable = true;
-            loadUserProfile();
-            
-            // Solo recargar datos si han pasado al menos 10 segundos desde la última carga
-            if (currentTime - lastDataLoadTime > 10000) {
-              lastDataLoadTime = currentTime;
-              
-              // Verificar si realmente necesitamos cargar datos
-              const hasAnyData = $("#countAds").text() !== "0" || $("#countBm").text() !== "0" || $("#countPage").text() !== "0";
-              
-              if (!hasAnyData) {
-                loadAllData();
-              }
+            // Verificar cache primero
+            if (isCacheValid('user')) {
+                displayUserProfile(dataCache.user);
+                return;
             }
-          } else if (!isNowAvailable && fbWasAvailable) {
-            fbWasAvailable = false;
-          }
+            
+            // Intentar cargar desde localStorage
+            const storedUser = loadFromStorage('user');
+            if (storedUser) {
+                displayUserProfile(storedUser);
+                dataCache.user = storedUser;
+                return;
+            }
+            
+            // Esperar a que Facebook esté disponible
+            const fb = await waitForFacebook();
+            
+            let userInfo = null;
+            
+            // Intentar obtener información completa del usuario
+            if (typeof fb.getUserInfo === 'function') {
+                try {
+                    userInfo = await fb.getUserInfo();
+                } catch (e) {
+                    console.warn('Error obteniendo getUserInfo:', e);
+                }
+            }
+            
+            // Si no funciona, usar información básica disponible
+            if (!userInfo || !userInfo.name) {
+                userInfo = {
+                    name: fb.userInfo?.name || localStorage.getItem('userName') || 'Usuario Facebook',
+                    id: fb.uid || 'No disponible',
+                    avatar: fb.userInfo?.picture?.data?.url || localStorage.getItem('userAvatar') || null
+                };
+            }
+            
+            // Guardar en cache y mostrar
+            saveToCache('user', userInfo);
+            displayUserProfile(userInfo);
+            
+        } catch (error) {
+            console.warn('Error cargando perfil de usuario:', error);
+            
+            // Mostrar información mínima
+            const fallbackUser = {
+                name: 'Usuario',
+                id: 'No conectado',
+                avatar: null
+            };
+            displayUserProfile(fallbackUser);
+            
+        } finally {
+            loadingStates.user = false;
+        }
+    };
+    
+    /**
+     * Mostrar información del usuario en la interfaz
+     */
+    const displayUserProfile = (userInfo) => {
+        try {
+            // Ocultar skeletons
+            $('#userAvatarSkeleton, #userNameSkeleton, #userIdSkeleton').addClass('d-none');
+            
+            // Mostrar avatar
+            if (userInfo.avatar) {
+                $('#userAvatar').attr('src', userInfo.avatar).removeClass('d-none');
+            } else {
+                const initial = userInfo.name ? userInfo.name.charAt(0).toUpperCase() : 'U';
+                $('#userAvatarContainer').html(`
+                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" 
+                         style="width: 33px; height: 33px; background: linear-gradient(45deg, #4267B2, #1877F2); font-size: 14px;">
+                        ${initial}
+                    </div>
+                `);
+            }
+            
+            // Mostrar nombre y ID
+            $('#userName').text(userInfo.name || 'Usuario').removeClass('d-none');
+            $('#userId').text(userInfo.id || 'No disponible').removeClass('d-none');
+            
         } catch (e) {
-          // Error silencioso, continuar monitoreando
+            console.warn('Error en displayUserProfile:', e);
         }
-      }, 5000); // Aumentar intervalo para ser menos agresivo
     };
     
-    // Iniciar monitoreo
-    monitorFacebookStatus();
-    
-    // Limpiar interval cuando la página se descargue
-    $(window).on('beforeunload', () => {
-      if (fbCheckInterval) {
-        clearInterval(fbCheckInterval);
-      }
-    });
-    
-    // Limpiar cualquier dato de muestra que pueda existir
-    const clearSampleData = () => {
-      try {
-        // Solo limpiar si los datos parecen ser de muestra
-        const storedAds = localStorage.getItem('dashboard_ads_data');
-        const storedBm = localStorage.getItem('dashboard_bm_data');
-        const storedPages = localStorage.getItem('dashboard_pages_data');
+    /**
+     * Cargar datos de Ads de manera estable
+     */
+    const loadAdsData = async () => {
+        if (loadingStates.ads) return;
+        loadingStates.ads = true;
         
-        if (storedAds) {
-          const adsData = JSON.parse(storedAds);
-          // Verificar si son datos de muestra (por ID conocido)
-          if (adsData.some(ad => ad.adId === '1234567890123456' || ad.adId === '2345678901234567')) {
-            localStorage.removeItem('dashboard_ads_data');
-          }
-        }
-        
-        if (storedBm) {
-          const bmData = JSON.parse(storedBm);
-          // Verificar si son datos de muestra
-          if (bmData.some(bm => bm.bmId === '297391731418010916' || bm.name === 'BM Cuentas Publicitarias')) {
-            localStorage.removeItem('dashboard_bm_data');
-          }
-        }
-        
-        if (storedPages) {
-          const pagesData = JSON.parse(storedPages);
-          // Verificar si son datos de muestra
-          if (pagesData.some(page => page.pageId === '123456789012345' || page.name === 'Página Principal Marketing')) {
-            localStorage.removeItem('dashboard_pages_data');
-          }
-        }
-      } catch (e) {
-        // Error silencioso
-      }
-    };
-    
-    // Limpiar datos de muestra al iniciar
-    clearSampleData();
-    
-    // Iniciar carga automática de datos reales únicamente
-    setTimeout(() => {
-      loadAllData();
-      lastDataLoadTime = Date.now();
-    }, 500);
-    
-    // Reintento de carga solo si es realmente necesario
-    setTimeout(() => {
-      if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
-        loadUserProfile();
-        
-        // Solo verificar si hay estados de carga activos
-        const adsHtml = $("#topAds").html();
-        const bmHtml = $("#topBm").html();
-        const pageHtml = $("#topPage").html();
-        
-        const isStillLoading = (adsHtml && adsHtml.includes('Cargando datos reales')) || 
-                              (bmHtml && bmHtml.includes('Cargando datos reales')) || 
-                              (pageHtml && pageHtml.includes('Cargando datos reales'));
-        
-        if (isStillLoading) {
-          // Solo recargar las secciones que están cargando
-          if (adsHtml && adsHtml.includes('Cargando datos reales')) {
+        try {
+            // Verificar cache primero
+            if (isCacheValid('ads')) {
+                displayAdsData(dataCache.ads);
+                return;
+            }
+            
+            // Intentar cargar desde localStorage
+            const storedAds = loadFromStorage('ads');
+            if (storedAds && storedAds.length > 0) {
+                displayAdsData(storedAds);
+                dataCache.ads = storedAds;
+                return;
+            }
+            
+            showLoadingState('ads');
+            
+            // Esperar a que Facebook esté disponible
+            const fb = await waitForFacebook();
+            
+            if (typeof fb.loadAds === 'function') {
+                // Crear promesa para manejar el evento con timeout más corto
+                const adsPromise = new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        // En lugar de rechazar, resolver con array vacío
+                        console.log('⏰ Timeout cargando cuentas publicitarias - probablemente no hay cuentas disponibles');
+                        resolve([]);
+                    }, 15000); // Reducido de 30s a 15s
+                    
+                    const handleAdsSuccess = (event, adsData) => {
+                        clearTimeout(timeout);
+                        $(document).off("loadAdsSuccess", handleAdsSuccess);
+                        $(document).off("loadSavedAds", handleAdsSuccess);
+                        resolve(adsData || []);
+                    };
+                    
+                    // También escuchar eventos de error o "no data"
+                    const handleAdsError = (event) => {
+                        clearTimeout(timeout);
+                        $(document).off("loadAdsSuccess", handleAdsSuccess);
+                        $(document).off("loadSavedAds", handleAdsSuccess);
+                        $(document).off("loadAdsError", handleAdsError);
+                        $(document).off("loadAdsEmpty", handleAdsError);
+                        console.log('💰 No se encontraron cuentas publicitarias en este perfil');
+                        resolve([]);
+                    };
+                    
+                    $(document).on("loadAdsSuccess", handleAdsSuccess);
+                    $(document).on("loadSavedAds", handleAdsSuccess);
+                    $(document).on("loadAdsError", handleAdsError);
+                    $(document).on("loadAdsEmpty", handleAdsError);
+                });
+                
+                // Iniciar carga
+                await fb.loadAds();
+                
+                // Esperar resultado
+                const adsData = await adsPromise;
+                
+                if (adsData && adsData.length > 0) {
+                    saveToCache('ads', adsData);
+                    displayAdsData(adsData);
+                } else {
+                    // Guardar array vacío en cache para evitar recargas innecesarias
+                    saveToCache('ads', []);
+                    showNoDataState('ads');
+                }
+            } else {
+                showNoDataState('ads');
+            }
+            
+        } catch (error) {
+            console.log('💰 No se pudieron cargar las cuentas publicitarias:', error.message);
+            // En lugar de mostrar error, mostrar estado sin datos
             showNoDataState('ads');
-          }
-          if (bmHtml && bmHtml.includes('Cargando datos reales')) {
+        } finally {
+            loadingStates.ads = false;
+        }
+    };
+    
+    /**
+     * Cargar datos de BM de manera estable
+     */
+    const loadBmData = async () => {
+        if (loadingStates.bm) return;
+        loadingStates.bm = true;
+        
+        try {
+            // Verificar cache primero
+            if (isCacheValid('bm')) {
+                displayBmData(dataCache.bm);
+                return;
+            }
+            
+            // Intentar cargar desde localStorage
+            const storedBm = loadFromStorage('bm');
+            if (storedBm && storedBm.length > 0) {
+                displayBmData(storedBm);
+                dataCache.bm = storedBm;
+                return;
+            }
+            
+            showLoadingState('bm');
+            
+            // Esperar a que Facebook esté disponible
+            const fb = await waitForFacebook();
+            
+            if (typeof fb.loadBm === 'function') {
+                // Crear promesa para manejar los eventos con timeout más corto
+                const bmPromise = new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        // En lugar de rechazar, resolver con array vacío
+                        console.log('⏰ Timeout cargando Business Managers - probablemente no hay BM disponibles');
+                        resolve([]);
+                    }, 15000); // Reducido de 30s a 15s
+                    
+                    const handleBmSuccess = (event, bmData) => {
+                        clearTimeout(timeout);
+                        $(document).off("loadBmSuccess", handleBmSuccess);
+                        $(document).off("loadBmSuccess2", handleBmSuccess);
+                        $(document).off("loadBmSuccess3", handleBmSuccess);
+                        $(document).off("loadSavedBm", handleBmSuccess);
+                        resolve(bmData || []);
+                    };
+                    
+                    // También escuchar eventos de error o "no data"
+                    const handleBmError = (event) => {
+                        clearTimeout(timeout);
+                        $(document).off("loadBmSuccess", handleBmSuccess);
+                        $(document).off("loadBmSuccess2", handleBmSuccess);
+                        $(document).off("loadBmSuccess3", handleBmSuccess);
+                        $(document).off("loadSavedBm", handleBmSuccess);
+                        $(document).off("loadBmError", handleBmError);
+                        $(document).off("loadBmEmpty", handleBmError);
+                        console.log('🏢 No se encontraron Business Managers en este perfil');
+                        resolve([]);
+                    };
+                    
+                    $(document).on("loadBmSuccess", handleBmSuccess);
+                    $(document).on("loadBmSuccess2", handleBmSuccess);
+                    $(document).on("loadBmSuccess3", handleBmSuccess);
+                    $(document).on("loadSavedBm", handleBmSuccess);
+                    $(document).on("loadBmError", handleBmError);
+                    $(document).on("loadBmEmpty", handleBmError);
+                });
+                
+                // Iniciar carga
+                await fb.loadBm();
+                
+                // Esperar resultado
+                const bmData = await bmPromise;
+                
+                if (bmData && bmData.length > 0) {
+                    saveToCache('bm', bmData);
+                    displayBmData(bmData);
+                } else {
+                    // Guardar array vacío en cache para evitar recargas innecesarias
+                    saveToCache('bm', []);
+                    showNoDataState('bm');
+                }
+            } else {
+                showNoDataState('bm');
+            }
+            
+        } catch (error) {
+            console.log('🏢 No se pudieron cargar los Business Managers:', error.message);
+            // En lugar de mostrar error, mostrar estado sin datos
             showNoDataState('bm');
-          }
-          if (pageHtml && pageHtml.includes('Cargando datos reales')) {
+        } finally {
+            loadingStates.bm = false;
+        }
+    };
+    
+    /**
+     * Cargar datos de Pages de manera estable
+     */
+    const loadPagesData = async () => {
+        if (loadingStates.pages) return;
+        loadingStates.pages = true;
+        
+        try {
+            // Verificar cache primero
+            if (isCacheValid('pages')) {
+                displayPageData(dataCache.pages);
+                return;
+            }
+            
+            // Intentar cargar desde localStorage
+            const storedPages = loadFromStorage('pages');
+            if (storedPages && storedPages.length > 0) {
+                displayPageData(storedPages);
+                dataCache.pages = storedPages;
+                return;
+            }
+            
+            showLoadingState('page');
+            
+            // Esperar a que Facebook esté disponible
+            const fb = await waitForFacebook();
+            
+            if (typeof fb.loadPage === 'function') {
+                // Crear promesa para manejar el evento con timeout más corto
+                const pagesPromise = new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        // En lugar de rechazar, resolver con array vacío
+                        console.log('⏰ Timeout cargando páginas - probablemente no hay páginas disponibles');
+                        resolve([]);
+                    }, 15000); // Reducido de 30s a 15s
+                    
+                    const handlePagesSuccess = (event, pagesData) => {
+                        clearTimeout(timeout);
+                        $(document).off("loadPageSuccess", handlePagesSuccess);
+                        $(document).off("loadSavedPage", handlePagesSuccess);
+                        resolve(pagesData || []);
+                    };
+                    
+                    // También escuchar eventos de error o "no data"
+                    const handlePagesError = (event) => {
+                        clearTimeout(timeout);
+                        $(document).off("loadPageSuccess", handlePagesSuccess);
+                        $(document).off("loadSavedPage", handlePagesSuccess);
+                        $(document).off("loadPageError", handlePagesError);
+                        $(document).off("loadPageEmpty", handlePagesError);
+                        console.log('📄 No se encontraron páginas en este perfil');
+                        resolve([]);
+                    };
+                    
+                    $(document).on("loadPageSuccess", handlePagesSuccess);
+                    $(document).on("loadSavedPage", handlePagesSuccess);
+                    $(document).on("loadPageError", handlePagesError);
+                    $(document).on("loadPageEmpty", handlePagesError);
+                });
+                
+                // Iniciar carga
+                await fb.loadPage();
+                
+                // Esperar resultado
+                const pagesData = await pagesPromise;
+                
+                if (pagesData && pagesData.length > 0) {
+                    saveToCache('pages', pagesData);
+                    displayPageData(pagesData);
+                } else {
+                    // Guardar array vacío en cache para evitar recargas innecesarias
+                    saveToCache('pages', []);
+                    showNoDataState('page');
+                }
+            } else {
+                showNoDataState('page');
+            }
+            
+        } catch (error) {
+            console.log('📄 No se pudieron cargar las páginas:', error.message);
+            // En lugar de mostrar error, mostrar estado sin datos
             showNoDataState('page');
-          }
+        } finally {
+            loadingStates.pages = false;
         }
-      }
-    }, 5000);
+    };
     
     // ============================
-    // EVENTOS DE BOTONES
+    // FUNCIONES DE VISUALIZACIÓN
     // ============================
     
     /**
-     * Evento click loadBm - Recarga datos reales de BM de forma estable
+     * Mostrar datos de Ads en la interfaz
      */
-    $(document).on('click', '#loadBm', async function () {
-      const $button = $(this);
-      $button.prop('disabled', true);
-      
-      showLoadingState('bm');
-      
-      try {
-        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
-          // Limpiar datos anteriores
-          localStorage.removeItem('dashboard_bm_data');
-          
-          if (typeof window.fb.loadBm === 'function') {
-            await window.fb.loadBm();
-            // Los datos se manejan a través de eventos
-          } else {
-            setTimeout(() => showNoDataState('bm'), 2000);
-          }
-        } else {
-          setTimeout(() => showNoDataState('bm'), 2000);
+    const displayAdsData = (adsData) => {
+        try {
+            $("#countAds").text(adsData.length);
+            
+            let adsHtml = "";
+            adsData.sort((a, b) => {
+                const spendA = parseInt((a.spend || '0').toString().replace(/,/g, ''));
+                const spendB = parseInt((b.spend || '0').toString().replace(/,/g, ''));
+                return spendB - spendA;
+            }).slice(0, 4).forEach(ad => {
+                const displaySpend = ad.spend || '0';
+                const currency = ad.currency ? ad.currency.split('-')[0] : '$';
+                const accountName = ad.account || ad.name || 'Cuenta sin nombre';
+                const accountId = ad.adId || ad.id;
+                
+                adsHtml += `
+                    <div class="border-bottom opacity-50"></div>
+                    <a href="https://business.facebook.com/billing_hub/payment_settings/?asset_id=${accountId}" target="_blank" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
+                        <div class="d-flex align-items-center" style="width: calc(100% - 60px);">
+                            <span class="avatar-letter" data-letter="${accountName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
+                            <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
+                                <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${accountName}</strong>
+                                <span>${accountId}</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <strong style="margin-bottom: 3px" class="d-block">Gasto total</strong>
+                            <span class="badge text-bg-success">${currency}${displaySpend}</span>
+                        </div>
+                    </a>
+                `;
+            });
+            
+            $("#topAds").html(adsHtml);
+            
+            // Configurar select para detalles de ads si existe
+            if (typeof $.fn.select2 !== 'undefined' && $("#adSelect select").length) {
+                $("#adSelect select").select2({
+                    data: adsData.map(ad => ({
+                        id: ad.adId || ad.id,
+                        text: ad.account || ad.name || 'Cuenta sin nombre'
+                    }))
+                });
+                
+                $("#adSelect select").on("select2:select", function (e) {
+                    const selectedAd = adsData.find(ad => (ad.adId || ad.id) === e.params.data.id);
+                    if (selectedAd) {
+                        displayAdDetails(selectedAd);
+                    }
+                });
+                
+                // Mostrar el primer elemento por defecto
+                if (adsData[0]) {
+                    displayAdDetails(adsData[0]);
+                }
+                
+                $("#adData").removeClass("d-none");
+            }
+            
+        } catch (e) {
+            console.warn('Error en displayAdsData:', e);
         }
-      } catch (e) {
-        setTimeout(() => showNoDataState('bm'), 2000);
-      } finally {
-        setTimeout(() => $button.prop('disabled', false), 3000);
-      }
-    });
+    };
     
     /**
-     * Evento click loadAds - Recarga datos reales de Ads de forma estable
+     * Mostrar detalles de una cuenta publicitaria específica
      */
-    $(document).on('click', '#loadAds', async function () {
-      const $button = $(this);
-      $button.prop('disabled', true);
-      
-      showLoadingState('ads');
-      
-      try {
-        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
-          // Limpiar datos anteriores
-          localStorage.removeItem('dashboard_ads_data');
-          
-          if (typeof window.fb.loadAds === 'function') {
-            await window.fb.loadAds();
-            // Los datos se manejan a través de eventos
-          } else {
-            setTimeout(() => showNoDataState('ads'), 2000);
-          }
-        } else {
-          setTimeout(() => showNoDataState('ads'), 2000);
+    const displayAdDetails = async (adData) => {
+        try {
+            $("#adName").text(adData.account || adData.name);
+            $("#adId").text(adData.adId || adData.id);
+            $("#adImage").html(`<span style="width:40px;height:40px;font-size:18px" class="avatar-letter" data-letter="${(adData.account || adData.name || 'A').substring(0, 1).toUpperCase()}"></span>`);
+            
+            // Determinar estado
+            let statusBadge = "";
+            switch(adData.status) {
+                case 101:
+                    statusBadge = '<span class="badge text-bg-success">Cerrado</span>';
+                    break;
+                case 999:
+                    statusBadge = '<span class="badge text-bg-info">En espera</span>';
+                    break;
+                case 1:
+                case 100:
+                    statusBadge = '<span class="badge text-bg-success">Activo</span>';
+                    break;
+                case 2:
+                    statusBadge = '<span class="badge text-bg-danger">Deshabilitado</span>';
+                    break;
+                case 3:
+                    statusBadge = '<span class="badge text-bg-warning">Pago pendiente</span>';
+                    break;
+                default:
+                    statusBadge = '<span class="badge text-bg-secondary">Desconocido</span>';
+            }
+            
+            const currency = adData.currency ? adData.currency.split("-")[0] : "$";
+            
+            // Verificar administradores ocultos
+            let hiddenAdmins = [];
+            try {
+                if (typeof window.fb !== 'undefined' && window.fb && typeof window.fb.checkHiddenAdmin === 'function') {
+                    hiddenAdmins = await window.fb.checkHiddenAdmin(adData.adId || adData.id);
+                }
+            } catch (error) {
+                console.warn('Error verificando admin oculto:', error);
+            }
+            
+            // Actualizar campos
+            $("#t1").html(statusBadge);
+            $("#t2").html((adData.limit || '0') + " " + currency);
+            $("#t3").html((adData.remain || '0') + " " + currency);
+            $("#t4").html((adData.spend || '0') + " " + currency);
+            $("#t5").html((adData.balance || '0') + " " + currency);
+            $("#t6").html(adData.createdTime || 'N/A');
+            $("#t7").html(adData.nextBillDate || 'N/A');
+            $("#t8").text(hiddenAdmins.length);
+            $("#t9").html(adData.type || 'N/A');
+            $("#t10").html(adData.timezone || 'N/A');
+            $("#t12").html(adData.role || 'N/A');
+            
+            // Información de tarjeta de pago
+            let cardInfo = "";
+            try {
+                if (adData.payment) {
+                    const paymentData = JSON.parse(adData.payment)[0];
+                    if (paymentData && paymentData.credential && paymentData.credential.card_association) {
+                        cardInfo = paymentData.credential.card_association + " - " + (paymentData.credential.last_four_digits || "");
+                    }
+                }
+            } catch (e) {
+                cardInfo = "No disponible";
+            }
+            $("#t11").html(cardInfo);
+            
+        } catch (e) {
+            console.warn('Error en displayAdDetails:', e);
         }
-      } catch (e) {
-        setTimeout(() => showNoDataState('ads'), 2000);
-      } finally {
-        setTimeout(() => $button.prop('disabled', false), 3000);
-      }
-    });
+    };
     
     /**
-     * Evento click loadPage - Recarga datos reales de Pages de forma estable
+     * Mostrar datos de BM en la interfaz
      */
-    $(document).on('click', '#loadPage', async function () {
-      const $button = $(this);
-      $button.prop('disabled', true);
-      
-      showLoadingState('page');
-      
-      try {
-        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
-          // Limpiar datos anteriores
-          localStorage.removeItem('dashboard_pages_data');
-          
-          if (typeof window.fb.loadPage === 'function') {
-            await window.fb.loadPage();
-            // Los datos se manejan a través de eventos
-          } else {
-            setTimeout(() => showNoDataState('page'), 2000);
-          }
-        } else {
-          setTimeout(() => showNoDataState('page'), 2000);
+    const displayBmData = (bmData) => {
+        try {
+            $("#countBm").text(bmData.length);
+            
+            let bmHtml = "";
+            bmData.slice(0, 4).forEach(bm => {
+                const bmType = bm.bmType || bm.type || (bm.limit ? `BM${bm.limit}` : 'BM');
+                const bmName = bm.name || 'Business Manager';
+                const bmId = bm.bmId || bm.id;
+                
+                bmHtml += `
+                    <div class="border-bottom opacity-50"></div>
+                    <a href="https://business.facebook.com/settings/?business_id=${bmId}" target="_blank" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
+                        <div class="d-flex align-items-center" style="width: calc(100% - 50px);">
+                            <span class="avatar-letter" data-letter="${bmName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
+                            <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
+                                <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${bmName}</strong>
+                                <span>${bmId}</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <strong style="margin-bottom: 3px" class="d-block">Tipo de BM</strong>
+                            <span class="badge text-bg-success">${bmType.split(' - ')[0]}</span>
+                        </div>
+                    </a>
+                `;
+            });
+            
+            $("#topBm").html(bmHtml);
+            
+            // Crear gráfico de estadísticas BM
+            createBmChart(bmData);
+            
+        } catch (e) {
+            console.warn('Error en displayBmData:', e);
         }
-      } catch (e) {
-        setTimeout(() => showNoDataState('page'), 2000);
-      } finally {
-        setTimeout(() => $button.prop('disabled', false), 3000);
-      }
+    };
+    
+    /**
+     * Crear gráfico de estadísticas de BM
+     */
+    const createBmChart = (bmData) => {
+        try {
+            const liveCount = bmData.filter(bm => bm.status === 'LIVE' || bm.status === 'live' || !bm.status).length;
+            const dieCount = bmData.filter(bm => bm.status === 'DIE' || bm.status === 'die').length;
+            const dieVvCount = bmData.filter(bm => bm.status === 'DIE_VV' || bm.status === 'die_vv').length;
+            
+            if (liveCount > 0 || dieCount > 0 || dieVvCount > 0) {
+                const chartCanvas = document.querySelector("#bmChart canvas");
+                if (chartCanvas && typeof Chart !== 'undefined') {
+                    // Limpiar gráfico anterior
+                    const existingChart = Chart.getChart(chartCanvas);
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+                    
+                    new Chart(chartCanvas, {
+                        type: "doughnut",
+                        options: {
+                            cutout: "50%",
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 15,
+                                        usePointStyle: true,
+                                        font: { size: 12 }
+                                    }
+                                }
+                            }
+                        },
+                        data: {
+                            labels: ["BM Activo", "BM Muerto por revisión", "BM Muerto permanente"],
+                            datasets: [{
+                                data: [liveCount, dieCount, dieVvCount],
+                                backgroundColor: ["#198754", "#dc3545", "#ffc107"],
+                                borderColor: ["#ffffff", "#ffffff", "#ffffff"],
+                                borderWidth: 3
+                            }]
+                        }
+                    });
+                    
+                    $("#bmChart").removeClass("d-none");
+                }
+            }
+        } catch (e) {
+            console.warn('Error creando gráfico BM:', e);
+        }
+    };
+    
+    /**
+     * Mostrar datos de Pages en la interfaz
+     */
+    const displayPageData = (pageData) => {
+        try {
+            $("#countPage").text(pageData.length || 0);
+            
+            let pageHtml = "";
+            pageData.sort((a, b) => {
+                const likesA = parseInt((a.likes || a.like || a.followers_count || '0').toString().replace(/,/g, ''));
+                const likesB = parseInt((b.likes || b.like || b.followers_count || '0').toString().replace(/,/g, ''));
+                return likesB - likesA;
+            }).slice(0, 4).forEach(page => {
+                const likes = page.likes || page.like || page.followers_count || '0';
+                const pageName = page.name || 'Página sin nombre';
+                const pageId = page.pageId || page.id;
+                
+                pageHtml += `
+                    <div class="border-bottom opacity-50"></div>
+                    <a href="https://www.facebook.com/profile.php?id=${pageId}" target="_blank" class="text-decoration-none py-2 px-3 d-flex justify-content-between text-dark dark-link">
+                        <div class="d-flex align-items-center" style="width: calc(100% - 60px);">
+                            <span class="avatar-letter" data-letter="${pageName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 1).toUpperCase()}"></span>
+                            <div class="d-flex flex-column ps-3" style="line-height: initial; width: calc(100% - 30px)">
+                                <strong class="text-truncate pe-1" style="font-size: 14px; margin-bottom: 3px">${pageName}</strong>
+                                <span>${pageId}</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <strong style="margin-bottom: 3px" class="d-block">Me gusta</strong>
+                            <span class="badge text-bg-success">${likes}</span>
+                        </div>
+                    </a>
+                `;
+            });
+            
+            $("#topPage").html(pageHtml);
+            
+        } catch (e) {
+            console.warn('Error en displayPageData:', e);
+        }
+    };
+    
+    // ============================
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
+    // ============================
+    
+    /**
+     * Función principal para inicializar el dashboard de manera estable
+     */
+    const initializeDashboard = async () => {
+        if (isInitialized) return;
+        isInitialized = true;
+        
+        console.log('🔄 Inicializando Dashboard DivinAds...');
+        
+        try {
+            // 1. Cargar perfil de usuario inmediatamente
+            await loadUserProfile();
+            
+            // 2. Cargar datos desde cache/localStorage si están disponibles
+            const cachedAds = loadFromStorage('ads');
+            const cachedBm = loadFromStorage('bm');
+            const cachedPages = loadFromStorage('pages');
+            
+            if (cachedAds && cachedAds.length > 0) {
+                displayAdsData(cachedAds);
+                dataCache.ads = cachedAds;
+            }
+            
+            if (cachedBm && cachedBm.length > 0) {
+                displayBmData(cachedBm);
+                dataCache.bm = cachedBm;
+            }
+            
+            if (cachedPages && cachedPages.length > 0) {
+                displayPageData(cachedPages);
+                dataCache.pages = cachedPages;
+            }
+            
+            // 3. Cargar datos frescos en paralelo
+            const loadPromises = [];
+            
+            if (!cachedAds || cachedAds.length === 0) {
+                loadPromises.push(loadAdsData());
+            }
+            
+            if (!cachedBm || cachedBm.length === 0) {
+                loadPromises.push(loadBmData());
+            }
+            
+            if (!cachedPages || cachedPages.length === 0) {
+                loadPromises.push(loadPagesData());
+            }
+            
+            // Ejecutar cargas en paralelo
+            if (loadPromises.length > 0) {
+                await Promise.allSettled(loadPromises);
+            }
+            
+            console.log('✅ Dashboard inicializado correctamente');
+            
+        } catch (error) {
+            console.error('❌ Error inicializando dashboard:', error);
+            
+            // Reintentar si no hemos alcanzado el máximo
+            if (retryCount < MAX_RETRIES) {
+                retryCount++;
+                console.log(`🔄 Reintentando inicialización (${retryCount}/${MAX_RETRIES})...`);
+                
+                setTimeout(() => {
+                    isInitialized = false;
+                    initializeDashboard();
+                }, RETRY_DELAY);
+            }
+        }
+    };
+    
+    // ============================
+    // EVENTOS Y LISTENERS
+    // ============================
+    
+    // Eventos para recibir datos de Facebook
+    $(document).on("loadAdsSuccess loadSavedAds", function(event, adsData) {
+        if (adsData && adsData.length > 0) {
+            saveToCache('ads', adsData);
+            displayAdsData(adsData);
+        }
     });
-  });
+    
+    $(document).on("loadBmSuccess loadBmSuccess2 loadBmSuccess3 loadSavedBm", function(event, bmData) {
+        if (bmData && bmData.length > 0) {
+            saveToCache('bm', bmData);
+            displayBmData(bmData);
+        }
+    });
+    
+    $(document).on("loadPageSuccess loadSavedPage", function(event, pageData) {
+        if (pageData && pageData.length > 0) {
+            saveToCache('pages', pageData);
+            displayPageData(pageData);
+        }
+    });
+    
+    // Botones de recarga manual
+    $(document).on('click', '#loadAds', async function() {
+        const $button = $(this);
+        $button.prop('disabled', true);
+        
+        try {
+            // Limpiar cache
+            localStorage.removeItem('dashboard_ads_data');
+            dataCache.ads = null;
+            loadingStates.ads = false;
+            
+            await loadAdsData();
+        } finally {
+            setTimeout(() => $button.prop('disabled', false), 3000);
+        }
+    });
+    
+    $(document).on('click', '#loadBm', async function() {
+        const $button = $(this);
+        $button.prop('disabled', true);
+        
+        try {
+            // Limpiar cache
+            localStorage.removeItem('dashboard_bm_data');
+            dataCache.bm = null;
+            loadingStates.bm = false;
+            
+            await loadBmData();
+        } finally {
+            setTimeout(() => $button.prop('disabled', false), 3000);
+        }
+    });
+    
+    $(document).on('click', '#loadPage', async function() {
+        const $button = $(this);
+        $button.prop('disabled', true);
+        
+        try {
+            // Limpiar cache
+            localStorage.removeItem('dashboard_pages_data');
+            dataCache.pages = null;
+            loadingStates.pages = false;
+            
+            await loadPagesData();
+        } finally {
+            setTimeout(() => $button.prop('disabled', false), 3000);
+        }
+    });
+    
+    // Actualización automática cada 5 minutos
+    setInterval(() => {
+        if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
+            // Solo actualizar si han pasado más de 5 minutos desde la última actualización
+            const now = Date.now();
+            if (now - dataCache.lastUpdate > CACHE_DURATION) {
+                console.log('🔄 Actualizando datos automáticamente...');
+                
+                // Limpiar estados de carga
+                loadingStates.ads = false;
+                loadingStates.bm = false;
+                loadingStates.pages = false;
+                
+                // Cargar datos frescos
+                loadAdsData();
+                loadBmData();
+                loadPagesData();
+            }
+        }
+    }, 5 * 60 * 1000); // 5 minutos
+    
+    // ============================
+    // INICIALIZACIÓN AUTOMÁTICA
+    // ============================
+    
+    // Esperar a que el DOM esté completamente cargado
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+    } else {
+        // Si ya está cargado, inicializar inmediatamente
+        setTimeout(initializeDashboard, 100);
+    }
+    
+    // También inicializar cuando window.fbReady esté disponible
+    if (typeof window.fbReady !== 'undefined') {
+        window.fbReady.then(() => {
+            if (!isInitialized) {
+                setTimeout(initializeDashboard, 500);
+            }
+        });
+    }
+    
+    console.log('📊 Sistema de Dashboard DivinAds cargado y listo');
+});
