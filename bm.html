@@ -254,15 +254,14 @@
                             </span>
                             <span class="border-end me-2 pe-2">
                                 <strong>Deshabilitados en Apelación:</strong> 
-                                <strong>Deshabilitados en Apelaci�n:</strong> 
                                 <span class="status101Count badge text-bg-secondary">0</span>
                             </span>
                             <span class="border-end me-2 pe-2">
-                                <strong>BM Apelaci�n XMDT:</strong> 
+                                <strong>BM Apelación XMDT:</strong> 
                                 <span class="status999Count badge text-bg-info">0</span>
                             </span>
                             <span>
-                                <strong>BM Apelaci�n 3 l�neas:</strong> 
+                                <strong>BM Apelación 3 líneas:</strong> 
                                 <span class="status5Count badge text-bg-info">0</span>
                             </span>
                         </div>
@@ -293,7 +292,7 @@
 					
 
 					<div class="flex-grow-1 overflow-auto">
-						<div class="overflow-auto p-3" data-tool="bm">
+						<div class="overflow-auto p-3 pb-5" data-tool="bm" style="padding-bottom: 100px !important;">
 
                             <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
 
@@ -410,7 +409,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-medium mb-2">
-                                            Contrase�a
+                                            Contraseña
                                         </label>
                                         
                                         <input type="text" class="form-control" name="nhanLinkPassword">
@@ -537,7 +536,7 @@
 								<div class="p-3">
 									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
 										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-flag-line fs-5 me-2"></i><span class="fw-bold">Activar P�gina</span>
+											<i class="ri-flag-line fs-5 me-2"></i><span class="fw-bold">Activar Página</span>
 										</label>
 										<input class="form-check-input" data-target="" name="activePage" type="checkbox" role="switch">
 									</div>
@@ -1598,14 +1597,14 @@
             // =============================================================================
 
             /**
-             * ?? Interceptar el botn principal de inicio para usar orquestación inteligente
+             * 🔗 Interceptar el botón principal de inicio para usar orquestación inteligente
              */
             const originalStartHandler = window.startBmProcess;
             
             window.startBmProcess = function() {
                 // Verificar si la orquestación inteligente está habilitada
                 if ($('#khangBm').is(':checked') && $('#enableSmartOrchestration').is(':checked')) {
-                    console.log('?? Usando Sistema de Orquestación Inteligente');
+                    console.log('🚀 Usando Sistema de Orquestación Inteligente');
                     
                     // Usar el nuevo sistema en lugar del proceso tradicional
                     $('#executeOrchestrationBtn').click();
@@ -1616,7 +1615,7 @@
                 if (originalStartHandler) {
                     originalStartHandler();
                 } else {
-                    console.log('?? Usando proceso tradicional de apelación BM');
+                    console.log('✅ Usando proceso tradicional de apelación BM');
                 }
             };
 
@@ -1642,28 +1641,28 @@
                 
                 enableDebugMode() {
                     window.DEBUG_ORCHESTRATION = true;
-                    console.log('?? Modo debug de orquestación habilitado');
+                    console.log('✅ Modo debug de orquestación habilitado');
                 },
                 
                 disableDebugMode() {
                     window.DEBUG_ORCHESTRATION = false;
-                    console.log('? Modo debug de orquestación deshabilitado');
+                    console.log('❌ Modo debug de orquestación deshabilitado');
                 }
             };
             
-            console.log('? Sistema de Orquestación Inteligente BM cargado');
-            console.log('?? Funciones de debugging disponibles en window.DivinAdsBmOrchestrator');
-            console.log('   � testAnalysis() - Probar análisis de estado');
-            console.log('    testExecution() - Probar ejecución de orquestación');
-            console.log('    showCurrentState() - Mostrar estado actual');
-            console.log('    enableDebugMode() - Habilitar modo debug');
+            console.log('🚀 Sistema de Orquestación Inteligente BM cargado');
+            console.log('💡 Funciones de debugging disponibles en window.DivinAdsBmOrchestrator');
+            console.log('   • testAnalysis() - Probar análisis de estado');
+            console.log('   • testExecution() - Probar ejecución de orquestación');
+            console.log('   • showCurrentState() - Mostrar estado actual');
+            console.log('   • enableDebugMode() - Habilitar modo debug');
         });
         </script>
          
          <!-- Script para crear plantilla de prueba si no existe -->
          <script>
          $(document).ready(async function() {
-             console.log('?? Verificando plantillas disponibles...');
+             console.log('🔍 Verificando plantillas disponibles...');
              
              // Verificar plantillas usando la misma lógica que loadPhoi()
              let hasTemplates = false;
@@ -1675,12 +1674,12 @@
                  
                  if (extensionTemplates.length > 0) {
                      hasTemplates = true;
-                     console.log('? Plantillas encontradas en extensión:', extensionTemplates.length);
+                     console.log('✅ Plantillas encontradas en extensión:', extensionTemplates.length);
                  } else {
-                     console.log('?? No se encontraron plantillas en extensión');
+                     console.log('⚠️ No se encontraron plantillas en extensión');
                  }
              } catch (error) {
-                 console.warn('? Error accediendo a extensión:', error);
+                 console.warn('⚠️ Error accediendo a extensión:', error);
              }
              
              // Verificar localStorage nativo si no hay plantillas de la extensión
@@ -1688,13 +1687,13 @@
                  const nativeTemplates = Object.keys(localStorage).filter(key => key.includes('phoi_'));
                  if (nativeTemplates.length > 0) {
                      hasTemplates = true;
-                     console.log('? Plantillas encontradas en localStorage nativo:', nativeTemplates.length);
+                     console.log('✅ Plantillas encontradas en localStorage nativo:', nativeTemplates.length);
                  }
              }
              
              // Si no hay plantillas, crear una de prueba
              if (!hasTemplates) {
-                 console.log('?? Creando plantilla de prueba automáticamente...');
+                 console.log('🚀 Creando plantilla de prueba automáticamente...');
                  
                  const testTemplate = {
                      name: 'Plantilla de Prueba DivinAds',
@@ -1747,16 +1746,16 @@
                      // Usar setLocalStorage para consistencia
                      const templateKey = 'phoi_' + Date.now();
                      await setLocalStorage(templateKey, testTemplate);
-                     console.log('? Plantilla de prueba creada exitosamente:', templateKey);
-                     console.log('?? Ahora puedes usar el selector de plantillas en "Apelar BM"');
+                     console.log('✅ Plantilla de prueba creada exitosamente:', templateKey);
+                     console.log('💡 Ahora puedes usar el selector de plantillas en "Apelar BM"');
                  } catch (error) {
-                     console.error('? Error creando plantilla de prueba:', error);
+                     console.error('❌ Error creando plantilla de prueba:', error);
                      // Fallback a localStorage nativo
                      localStorage.setItem('phoi_' + Date.now(), JSON.stringify(testTemplate));
-                     console.log('? Plantilla de prueba creada en localStorage nativo');
+                     console.log('✅ Plantilla de prueba creada en localStorage nativo');
                  }
              } else {
-                 console.log('?? Plantillas existentes encontradas, no es necesario crear plantilla de prueba');
+                 console.log('✔️ Plantillas existentes encontradas, no es necesario crear plantilla de prueba');
              }
          });
          </script>
