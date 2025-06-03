@@ -616,7 +616,7 @@ body.hideMenu .account-wrapper, body.hideMenu .header-bottom {
 }
 
 #loadingData:before {
-  content: 'Đang tải dữ liệu...';
+  content: 'Cargando datos...';
   position: absolute;
   top: 50%;
   left: 50%;
