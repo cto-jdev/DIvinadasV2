@@ -1,10 +1,22 @@
-// Inicialización segura de fb para evitar errores si no existe
+// FASE 1 SECURITY FIX: Usar sessionStorage y validación para credenciales
+// Credenciales ahora se encriptan en sessionStorage (expira al cerrar pestaña)
 window.fb = window.fb || {};
-fb.uid = fb.uid || localStorage.getItem('fb_uid') || '';
-fb.dtsg = fb.dtsg || localStorage.getItem('fb_dtsg') || '';
+fb.uid = fb.uid || CryptoModule.getSecureCredential('fb_uid') || '';
+fb.dtsg = fb.dtsg || CryptoModule.getSecureCredential('fb_dtsg') || '';
 
 const url = new URL(location.href);
-const extId = url.searchParams.get("extId") ? url.searchParams.get("extId") : localStorage.getItem("extId");
+// FASE 1 SECURITY FIX: Validar extId contra lista blanca
+const ALLOWED_EXT_IDS = [
+  'divinads-extension', // Reemplazar con IDs reales de tu extensión
+  // Agregar IDs adicionales de extensiones confiables aquí
+];
+let extId = url.searchParams.get("extId") || CryptoModule.getSecureCredential('extId') || '';
+
+// Validar que extId sea válido
+if (!extId || !ALLOWED_EXT_IDS.includes(extId)) {
+  console.warn('⚠️ WARNING: Invalid or missing extension ID. Extension communication may fail.');
+  // No lanzar error aún, permitir que checkExtension() maneje la situación
+}
 $("[data-tooltip]").tinyTooltip();
 const checkExtension = async function () {
   try {

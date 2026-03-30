@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -l \"<script src=\"\"js/scripts.js\"\">\" *.html)"
+    ]
+  }
+}

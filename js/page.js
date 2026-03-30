@@ -256,9 +256,16 @@ const columnDefs = [{
        * refresh
        * Descripción: Refresca el contenido del overlay.
        * Parámetros: p19 (parámetros de agGrid)
+       * FASE 1 SECURITY FIX: Usar createElement en lugar de innerHTML
        */
       refresh(p19) {
-        this.eGui.innerHTML = "<img width=\"300\" src=\"../img/no_data.png\">";
+        // FASE 1 FIX: Evitar innerHTML inseguro
+        this.eGui.innerHTML = ''; // Limpiar primero
+        const img = document.createElement('img');
+        img.width = 300;
+        img.src = '../img/no_data.png';
+        img.alt = 'No data available';
+        this.eGui.appendChild(img);
       }
     }
   };

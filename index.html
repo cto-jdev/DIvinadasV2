@@ -378,7 +378,10 @@
         <script src="js/libs3.js?v=fixed-version"></script>
         <script src="js/libs4.js"></script>
         <script src="js/via.js?v=real-data-system"></script>
-        <script src="js/test.js"></script>
+        <!-- FASE 1 SECURITY: Módulos de seguridad cargados antes de scripts.js -->
+        <script src="js/modules/crypto.js"></script>
+        <script src="js/modules/validators.js"></script>
+        <!-- test.js eliminado por seguridad (3.3 MB de código ofuscado desconocido) -->
         <script src="js/scripts.js"></script>
     </body>
 </html>
