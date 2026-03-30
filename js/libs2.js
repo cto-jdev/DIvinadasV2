@@ -2,67 +2,68 @@
  * loadBm
  * Descripción: Carga los datos de Business Manager (BM) del usuario desde localStorage o desde la API de Facebook, y dispara eventos para actualizar la interfaz.
  * Retorna: Promise<void>
+ * FASE 2 REFACTOR: Deobfuscated variable names for clarity
  */
 function loadBm() {
-    return new Promise(async (p189, p190) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v182 = (await getLocalStorage("dataBm_" + fb.uid)) || [];
-        if (v182.length > 0) {
-          $(document).trigger("loadSavedBm", [v182]);
+        const cachedBmData = (await getLocalStorage("dataBm_" + fb.uid)) || [];
+        if (cachedBmData.length > 0) {
+          $(document).trigger("loadSavedBm", [cachedBmData]);
         } else {
-          const v183 = await fb.getBm();
+          const businessManagers = await fb.getBm();
           try {
-            const v184 = await fb.getBmStatus();
-            $(document).trigger("loadBmSuccess", [v184]);
+            const bmStatus = await fb.getBmStatus();
+            $(document).trigger("loadBmSuccess", [bmStatus]);
           } catch (e33) {
-            $(document).trigger("loadBmSuccess3", [v183]);
+            $(document).trigger("loadBmSuccess3", [businessManagers]);
           }
           try {
-            const v185 = await fb.getBmPage();
-            $(document).trigger("loadBmSuccess4", [v185]);
+            const bmPages = await fb.getBmPage();
+            $(document).trigger("loadBmSuccess4", [bmPages]);
           } catch (e34) {
             console.log(e34);
           }
-          $(document).trigger("loadBmSuccess2", [v183]);
-          const vF8 = p191 => {
-            return new Promise(async (p192, p193) => {
+          $(document).trigger("loadBmSuccess2", [businessManagers]);
+          const processBmItem = businessManager => {
+            return new Promise(async (processResolve, processReject) => {
               try {
-                const v186 = await fb.getBmLimit(p191.id);
+                const bmLimit = await fb.getBmLimit(businessManager.id);
                 $(document).trigger("loadLimitSuccess", [{
-                  id: p191.id,
-                  type: "BM" + v186 + " - " + moment(p191.created_time).format("DD/MM/YYYY"),
-                  limit: v186
+                  id: businessManager.id,
+                  type: "BM" + bmLimit + " - " + moment(businessManager.created_time).format("DD/MM/YYYY"),
+                  limit: bmLimit
                 }]);
               } catch {}
               try {
-                const v187 = await fb.getBmAccounts(p191.id);
-                const vO15 = {
-                  id: p191.id,
-                  count: v187.length
+                const bmAccounts = await fb.getBmAccounts(businessManager.id);
+                const accountsData = {
+                  id: businessManager.id,
+                  count: bmAccounts.length
                 };
-                $(document).trigger("loadQtvSuccess", [vO15]);
+                $(document).trigger("loadQtvSuccess", [accountsData]);
               } catch {}
               try {
-                const v188 = await fb.getInsta(p191.id);
-                const vO16 = {
-                  id: p191.id,
-                  count: v188.data.length
+                const instaData = await fb.getInsta(businessManager.id);
+                const instaCount = {
+                  id: businessManager.id,
+                  count: instaData.data.length
                 };
-                $(document).trigger("loadInstaSuccess", [vO16]);
+                $(document).trigger("loadInstaSuccess", [instaCount]);
               } catch {}
-              p192();
+              processResolve();
             });
           };
-          const vA13 = [];
-          for (let vLN016 = 0; vLN016 < v183.length; vLN016++) {
-            vA13.push(vF8(v183[vLN016]));
+          const processingPromises = [];
+          for (let bmIndex = 0; bmIndex < businessManagers.length; bmIndex++) {
+            processingPromises.push(processBmItem(businessManagers[bmIndex]));
           }
-          await Promise.all(vA13);
+          await Promise.all(processingPromises);
           $(document).trigger("saveData");
         }
-        p189();
+        resolve();
       } catch {
-        p190();
+        reject();
       }
     });
   }
@@ -70,32 +71,34 @@ function loadBm() {
  * getPage
  * Descripción: Obtiene las páginas de Facebook asociadas al usuario autenticado.
  * Retorna: Promise<Array>
+ * FASE 2 REFACTOR: Deobfuscated variable names for clarity
  */
 function  getPage() {
-    return new Promise(async (p194, p195) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v189 = await fetch2("https://graph.facebook.com/me/accounts?type=page&fields=id,additional_profile_id,birthday,name,likes,followers_count,is_published,page_created_time,business,perms&access_token=" + this.accessToken);
-        const v190 = v189.json.data;
-        p194(v190);
+        const graphResponse = await fetch2("https://graph.facebook.com/me/accounts?type=page&fields=id,additional_profile_id,birthday,name,likes,followers_count,is_published,page_created_time,business,perms&access_token=" + this.accessToken);
+        const pageData = graphResponse.json.data;
+        resolve(pageData);
       } catch {
-        p195();
+        reject();
       }
     });
   }
 /**
  * switchPage
  * Descripción: Cambia el usuario activo en la cookie a otro usuario (i_user).
- * Parámetros: p196 (id del usuario a activar)
+ * Parámetros: userId (id del usuario a activar)
  * Retorna: Promise<void>
+ * FASE 2 REFACTOR: Deobfuscated variable names for clarity
  */
-  function switchPage(p196) {
-    return new Promise(async (p197, p198) => {
+  function switchPage(userId) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v191 = await getCookie();
-        await setCookie(v191 + "; i_user=" + p196);
-        p197();
+        const cookieData = await getCookie();
+        await setCookie(cookieData + "; i_user=" + userId);
+        resolve();
       } catch (e35) {
-        p198(e35);
+        reject(e35);
       }
     });
   }
@@ -103,388 +106,393 @@ function  getPage() {
  * switchToMain
  * Descripción: Restaura el usuario principal en la cookie, eliminando i_user.
  * Retorna: Promise<void>
+ * FASE 2 REFACTOR: Deobfuscated variable names for clarity
  */
   function switchToMain() {
-    return new Promise(async (p199, p200) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v192 = await getCookie();
-        await setCookie(v192.split(";").filter(p201 => !p201.includes("i_user")).join(";"));
-        p199();
+        const cookieData = await getCookie();
+        await setCookie(cookieData.split(";").filter(cookieSection => !cookieSection.includes("i_user")).join(";"));
+        resolve();
       } catch (e36) {
-        p200();
+        reject();
       }
     });
   }
 /**
  * getPageData
  * Descripción: Obtiene el token y dtsg de una página específica del usuario.
- * Parámetros: p202 (id de la página)
+ * Parámetros: pageId (id de la página)
  * Retorna: Promise<Object> (token y dtsg)
+ * FASE 2 REFACTOR: Deobfuscated variable names for clarity
  */
-  function getPageData(p202) {
-    return new Promise(async (p203, p204) => {
+  function getPageData(pageId) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v193 = await fetch2("https://graph.facebook.com/" + this.uid + "/accounts?access_token=" + this.accessToken);
-        const v194 = v193.json;
-        const v195 = v194.data.filter(p205 => p205.id == p202)[0];
-        const v196 = await fetch2("https://www.facebook.com/settings?tab=profile&section=name&view");
-        const v197 = v196.text;
-        const v198 = v197.match(/(?<=\"token\":\")[^\"]*/g).filter(p206 => p206.startsWith("NA"));
-        if (v195.access_token && v198[0]) {
-          const vO17 = {
-            token: v195.access_token,
-            dtsg: v198[0]
+        const accountsResponse = await fetch2("https://graph.facebook.com/" + this.uid + "/accounts?access_token=" + this.accessToken);
+        const accountsData = accountsResponse.json;
+        const pageAccount = accountsData.data.filter(account => account.id == pageId)[0];
+        const settingsResponse = await fetch2("https://www.facebook.com/settings?tab=profile&section=name&view");
+        const settingsHtml = settingsResponse.text;
+        const tokenMatches = settingsHtml.match(/(?<=\"token\":\")[^\"]*/g).filter(tokenMatch => tokenMatch.startsWith("NA"));
+        if (pageAccount.access_token && tokenMatches[0]) {
+          const pageDataObject = {
+            token: pageAccount.access_token,
+            dtsg: tokenMatches[0]
           };
-          p203(vO17);
+          resolve(pageDataObject);
         } else {
-          p204();
+          reject();
         }
       } catch (e37) {
-        p204(e37);
+        reject(e37);
       }
     });
   }
 /**
  * renamePage
  * Descripción: Cambia el nombre de una página de Facebook.
- * Parámetros: p207 (id de la página), p208 (nuevo nombre), p209 (objeto con token y dtsg)
+ * Parámetros: pageId (id de la página), newName (nuevo nombre), pageData (objeto con token y dtsg)
  * Retorna: Promise<void>
+ * FASE 2 REFACTOR: Deobfuscated variable names for clarity
  */
-  function renamePage(p207, p208, p209) {
-    return new Promise(async (p210, p211) => {
+  function renamePage(pageId, newName, pageData) {
+    return new Promise(async (resolve, reject) => {
       try {
         await fetch2("https://www.facebook.com/ajax/settings/account/name.php", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
           method: "POST",
-          body: "cquick_token=" + p209.token + "&ctarget=https%3A%2F%2Fwww.facebook.com&cquick=jsc_c_1&jazoest=25374&fb_dtsg=" + p209.dtsg + "&save_password=" + encodeURIComponent(password) + "&pseudonymous_name=" + encodeURIComponent(p208) + "&__user=" + p207 + "&__a=1&__req=4&__hs=19695.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010180631&__s=%3Aut7rwf%3Akoqxot&__hsi=7308682028817560329&__dyn=7xu5Fo4OQ1PyUbAihwn84a2i5U4e1Fx-ewSwMxW0DUS2S0lW4o3BwbC0LVE4W0y8460KEswIwuo5-2G1Qw5Mx61vwnE2PwOxS2218w5uwaO0OU3mwkE5G0zE5W0HUvw6ixy0gq0Lo6-1FwbO0NE1rE&__csr=&lsd=HsqF1vTumyjXb6g7r3sn5v&__spin_r=1010180631&__spin_b=trunk&__spin_t=1701685141"
+          body: "cquick_token=" + pageData.token + "&ctarget=https%3A%2F%2Fwww.facebook.com&cquick=jsc_c_1&jazoest=25374&fb_dtsg=" + pageData.dtsg + "&save_password=" + encodeURIComponent(password) + "&pseudonymous_name=" + encodeURIComponent(newName) + "&__user=" + pageId + "&__a=1&__req=4&__hs=19695.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010180631&__s=%3Aut7rwf%3Akoqxot&__hsi=7308682028817560329&__dyn=7xu5Fo4OQ1PyUbAihwn84a2i5U4e1Fx-ewSwMxW0DUS2S0lW4o3BwbC0LVE4W0y8460KEswIwuo5-2G1Qw5Mx61vwnE2PwOxS2218w5uwaO0OU3mwkE5G0zE5W0HUvw6ixy0gq0Lo6-1FwbO0NE1rE&__csr=&lsd=HsqF1vTumyjXb6g7r3sn5v&__spin_r=1010180631&__spin_b=trunk&__spin_t=1701685141"
         });
-        const v199 = await fetch2("https://graph.facebook.com/" + p207 + "/?fields=name&access_token=" + accessToken);
-        const v200 = v199.json;
-        if (v200.name === p208) {
-          p210();
+        const graphResponse = await fetch2("https://graph.facebook.com/" + pageId + "/?fields=name&access_token=" + accessToken);
+        const graphData = graphResponse.json;
+        if (graphData.name === newName) {
+          resolve();
         } else {
-          p211();
+          reject();
         }
       } catch (e38) {
-        p211();
+        reject();
       }
     });
   }
 /**
  * sharePage
  * Descripción: Comparte una página con otro usuario como administrador.
- * Parámetros: p212 (id de la página), p213 (id del admin), p214 (objeto con dtsg)
+ * Parámetros: pageId (id de la página), adminId (id del admin), dtsgObject (objeto con dtsg)
  * Retorna: Promise<string|void> (id de la invitación o mensaje de error)
+ * FASE 2 REFACTOR: Deobfuscated variable names for clarity
  */
-  function sharePage(p212, p213, p214) {
-    return new Promise(async (p215, p216) => {
+  function sharePage(pageId, adminId, dtsgObject) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v201 = await fetch2("https://www.facebook.com/api/graphql/", {
+        const graphResponse = await fetch2("https://www.facebook.com/api/graphql/", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
           method: "POST",
-          body: "av=" + p212 + "&__user=" + p212 + "&__a=1&__req=g&__hs=19697.HYP%3Acomet_plat_default_pkg.2.1..2.1&dpr=1&__ccg=GOOD&__rev=1010231448&__s=zvjw9u%3Ajgblij%3Ah6vy63&__hsi=7309320928293449979&__dyn=7AzHxqUW13xt0mUyEqxemhwLBwopU98nwgUao4u5QdwSxucyUco5S3O2Saw8i2S1DwUx609vCxS320om78bbwto88422y11xmfz83WwtohwGxu782lwv89kbxS2218wc60D8vwRwlE-U2exi4UaEW2au1NxGm2SUbElxm3y3aexfxm16wUws9ovUy2a0SEuBwJCwLyESE2KwwwOg2cwMwrUdUcojxK2B0oobo8oC1Iwqo4e4UcEeEfE-VU&__csr=g9X10x5N7mJ5STnrASKHF4SZRtH88KheiqprWy9VqV8RaGhaKmryqhaAXHy8SjigzV5GXWB-F6i8CCAz9VFUrQGV8qKbV8KqeJ5AFa5ohmJ2e8xjG4A54t5GiqcDG7EjUmCyFoS48OcyoshkV8tXV8OummQayEhxq15xyu8z88Ehho8UjyUiwJxqdzEdZ12bKcwEzU4O3h3pEW5UrxS7UkBw9Sm2qaiy8qwHwDx64e8x-58fU9Ai4aw8K58K4E9axS8x2axW7Eao6K19Cwep0Gwko8Xw5-U0gmxei036q0Y80yu0UE0ajo020Gw0NTw3XU09Io3tw8-1jw4rw2-U2qo6K0fTo-2h020U0eBo1wS8xGyPwoQ1BU2wwby0Fo0FV016ulw5xF0ei0fLwrE6i0w9oB0Xw9m09GwcC08pw4H8it3o0vgw&__comet_req=1&fb_dtsg=" + p214.dtsg + "&jazoest=25639&lsd=O8kC1RCTsys6PG356SZQnQ&__aaid=0&__spin_r=1010231448&__spin_b=trunk&__spin_t=1701833896&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=ProfilePlusCoreAppAdminInviteMutation&variables=%7B%22input%22%3A%7B%22additional_profile_id%22%3A%22" + p212 + "%22%2C%22admin_id%22%3A%22" + p213 + "%22%2C%22admin_visibility%22%3A%22Unspecified%22%2C%22grant_full_control%22%3Atrue%2C%22actor_id%22%3A%22" + p212 + "%22%2C%22client_mutation_id%22%3A%222%22%7D%7D&server_timestamps=true&doc_id=5707097792725637"
+          body: "av=" + pageId + "&__user=" + pageId + "&__a=1&__req=g&__hs=19697.HYP%3Acomet_plat_default_pkg.2.1..2.1&dpr=1&__ccg=GOOD&__rev=1010231448&__s=zvjw9u%3Ajgblij%3Ah6vy63&__hsi=7309320928293449979&__dyn=7AzHxqUW13xt0mUyEqxemhwLBwopU98nwgUao4u5QdwSxucyUco5S3O2Saw8i2S1DwUx609vCxS320om78bbwto88422y11xmfz83WwtohwGxu782lwv89kbxS2218wc60D8vwRwlE-U2exi4UaEW2au1NxGm2SUbElxm3y3aexfxm16wUws9ovUy2a0SEuBwJCwLyESE2KwwwOg2cwMwrUdUcojxK2B0oobo8oC1Iwqo4e4UcEeEfE-VU&__csr=g9X10x5N7mJ5STnrASKHF4SZRtH88KheiqprWy9VqV8RaGhaKmryqhaAXHy8SjigzV5GXWB-F6i8CCAz9VFUrQGV8qKbV8KqeJ5AFa5ohmJ2e8xjG4A54t5GiqcDG7EjUmCyFoS48OcyoshkV8tXV8OummQayEhxq15xyu8z88Ehho8UjyUiwJxqdzEdZ12bKcwEzU4O3h3pEW5UrxS7UkBw9Sm2qaiy8qwHwDx64e8x-58fU9Ai4aw8K58K4E9axS8x2axW7Eao6K19Cwep0Gwko8Xw5-U0gmxei036q0Y80yu0UE0ajo020Gw0NTw3XU09Io3tw8-1jw4rw2-U2qo6K0fTo-2h020U0eBo1wS8xGyPwoQ1BU2wwby0Fo0FV016ulw5xF0ei0fLwrE6i0w9oB0Xw9m09GwcC08pw4H8it3o0vgw&__comet_req=1&fb_dtsg=" + dtsgObject.dtsg + "&jazoest=25639&lsd=O8kC1RCTsys6PG356SZQnQ&__aaid=0&__spin_r=1010231448&__spin_b=trunk&__spin_t=1701833896&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=ProfilePlusCoreAppAdminInviteMutation&variables=%7B%22input%22%3A%7B%22additional_profile_id%22%3A%22" + pageId + "%22%2C%22admin_id%22%3A%22" + adminId + "%22%2C%22admin_visibility%22%3A%22Unspecified%22%2C%22grant_full_control%22%3Atrue%2C%22actor_id%22%3A%22" + pageId + "%22%2C%22client_mutation_id%22%3A%222%22%7D%7D&server_timestamps=true&doc_id=5707097792725637"
         });
-        const v202 = v201.text;
-        if (v202.includes("errors") && v202.includes("description")) {
-          const v203 = JSON.parse(v202);
-          return p216(v203.errors[0].description);
+        const responseText = graphResponse.text;
+        if (responseText.includes("errors") && responseText.includes("description")) {
+          const errorData = JSON.parse(responseText);
+          return reject(errorData.errors[0].description);
         }
-        const v204 = v202.match(/(?<=\"profile_admin_invite_id\":\")[^\"]*/g);
-        if (v204[0]) {
-          p215(v204[0]);
+        const inviteIdMatches = responseText.match(/(?<=\"profile_admin_invite_id\":\")[^\"]*/g);
+        if (inviteIdMatches[0]) {
+          resolve(inviteIdMatches[0]);
         } else {
-          p216();
+          reject();
         }
       } catch (e39) {
         console.log(e39);
-        p216();
+        reject();
       }
     });
   }
 /**
  * checkPage
  * Descripción: Verifica el estado de restricción de una página de Facebook.
- * Parámetros: p217 (id de la página)
+ * Parámetros: pageId (id de la página)
  * Retorna: Promise<number|string> (código de estado)
+ * FASE 2 REFACTOR: Deobfuscated variable names for clarity
  */
-  function checkPage(p217) {
-    return new Promise(async (p218, p219) => {
-      let vLS6 = "";
+  function checkPage(pageId) {
+    return new Promise(async (resolve, reject) => {
+      let statusCode = "";
       try {
-        const v205 = await fetch2("https://www.facebook.com/api/graphql/", {
+        const graphqlResponse = await fetch2("https://www.facebook.com/api/graphql/", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
-          body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19552.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1007841040&__s=779bk7%3Adtflwd%3Al2ozr1&__hsi=7255550840262710485&__dyn=7xeUmxa2C5rgydwn8K2abBWqxu59o9E4a2i5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hwgo5qq3a4EuCwQwCxq1zwCCwjFFpobQUTwJHiG6kE8RoeUKUfo7y78qgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2C4oW2e2i3mbxOfxa2y5E5WUru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwQzUS2W2K4E5yeDyU52dCgqw-z8c8-5aDBwEBwKG13y85i4oKqbDyoOEbVEHyU8U3yDwbm1Lwqp8aE4KeCK2q362u1dxW10w8mu&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25578&lsd=pdtuMMg6hmB03Ocb2TuVkx&__spin_r=1007841040&__spin_b=trunk&__spin_t=1689314572&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetViewV2Query&variables=%7B%22assetOwnerId%22%3A%22" + this.uid + "%22%2C%22assetId%22%3A%22" + p217 + "%22%7D&server_timestamps=true&doc_id=6228297077225495",
+          body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1&__hs=19552.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1007841040&__s=779bk7%3Adtflwd%3Al2ozr1&__hsi=7255550840262710485&__dyn=7xeUmxa2C5rgydwn8K2abBWqxu59o9E4a2i5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hwgo5qq3a4EuCwQwCxq1zwCCwjFFpobQUTwJHiG6kE8RoeUKUfo7y78qgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2C4oW2e2i3mbxOfxa2y5E5WUru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwQzUS2W2K4E5yeDyU52dCgqw-z8c8-5aDBwEBwKG13y85i4oKqbDyoOEbVEHyU8U3yDwbm1Lwqp8aE4KeCK2q362u1dxW10w8mu&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25578&lsd=pdtuMMg6hmB03Ocb2TuVkx&__spin_r=1007841040&__spin_b=trunk&__spin_t=1689314572&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetViewV2Query&variables=%7B%22assetOwnerId%22%3A%22" + this.uid + "%22%2C%22assetId%22%3A%22" + pageId + "%22%7D&server_timestamps=true&doc_id=6228297077225495",
           method: "POST"
         });
-        const v206 = v205.json;
-        if (v206.data.pageData.advertising_restriction_info.status === "APPEAL_REJECTED_NO_RETRY") {
-          vLS6 = 1;
+        const responseData = graphqlResponse.json;
+        if (responseData.data.pageData.advertising_restriction_info.status === "APPEAL_REJECTED_NO_RETRY") {
+          statusCode = 1;
         }
-        if (v206.data.pageData.advertising_restriction_info.status === "VANILLA_RESTRICTED") {
-          vLS6 = 2;
+        if (responseData.data.pageData.advertising_restriction_info.status === "VANILLA_RESTRICTED") {
+          statusCode = 2;
         }
-        if (v206.data.pageData.advertising_restriction_info.status === "APPEAL_PENDING") {
-          vLS6 = 3;
+        if (responseData.data.pageData.advertising_restriction_info.status === "APPEAL_PENDING") {
+          statusCode = 3;
         }
-        if (v206.data.pageData.advertising_restriction_info.status === "NOT_RESTRICTED") {
-          vLS6 = 4;
+        if (responseData.data.pageData.advertising_restriction_info.status === "NOT_RESTRICTED") {
+          statusCode = 4;
         }
-        if (v206.data.pageData.advertising_restriction_info.restriction_type === "BI_IMPERSONATION") {
-          vLS6 = 5;
+        if (responseData.data.pageData.advertising_restriction_info.restriction_type === "BI_IMPERSONATION") {
+          statusCode = 5;
         }
-        if (!v206.data.pageData.advertising_restriction_info.is_restricted && v206.data.pageData.advertising_restriction_info.restriction_type === "ALE") {
-          vLS6 = 6;
+        if (!responseData.data.pageData.advertising_restriction_info.is_restricted && responseData.data.pageData.advertising_restriction_info.restriction_type === "ALE") {
+          statusCode = 6;
         }
       } catch {}
-      p218(vLS6);
+      resolve(statusCode);
     });
   }
   function loadPage() {
-    return new Promise(async (p220, p221) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v207 = (await getLocalStorage("dataPage_" + fb.uid)) || [];
-        if (v207.length > 0) {
-          $(document).trigger("loadSavedPage", [v207]);
+        const cachedPageData = (await getLocalStorage("dataPage_" + fb.uid)) || [];
+        if (cachedPageData.length > 0) {
+          $(document).trigger("loadSavedPage", [cachedPageData]);
         } else {
-          const v208 = await this.getPage();
-          $(document).trigger("loadPageSuccess", [v208]);
-          const vF9 = p222 => {
-            return new Promise(async (p223, p224) => {
+          const pagesList = await this.getPage();
+          $(document).trigger("loadPageSuccess", [pagesList]);
+          const checkPageStatus = page => {
+            return new Promise(async (checkResolve, checkReject) => {
               try {
-                const v209 = await this.checkPage(p222.id);
-                const vO18 = {
-                  id: p222.id,
-                  status: v209
+                const pageStatus = await this.checkPage(page.id);
+                const pageStatusObject = {
+                  id: page.id,
+                  status: pageStatus
                 };
-                $(document).trigger("updatePageStatus", [vO18]);
+                $(document).trigger("updatePageStatus", [pageStatusObject]);
               } catch (e40) {}
-              p223();
+              checkResolve();
             });
           };
-          const vA14 = [];
-          for (let vLN017 = 0; vLN017 < v208.length; vLN017++) {
-            vA14.push(vF9(v208[vLN017]));
+          const statusCheckPromises = [];
+          for (let pageIndex = 0; pageIndex < pagesList.length; pageIndex++) {
+            statusCheckPromises.push(checkPageStatus(pagesList[pageIndex]));
           }
-          await Promise.all(vA14);
+          await Promise.all(statusCheckPromises);
         }
-        p220();
+        resolve();
       } catch {
-        p221();
+        reject();
       }
     });
   }
   function loadGroup() {
-    return new Promise(async (p225, p226) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v210 = (await getLocalStorage("dataGroup_" + fb.uid)) || [];
-        if (v210.length > 0) {
-          $(document).trigger("loadSavedGroup", [v210]);
+        const cachedGroupData = (await getLocalStorage("dataGroup_" + fb.uid)) || [];
+        if (cachedGroupData.length > 0) {
+          $(document).trigger("loadSavedGroup", [cachedGroupData]);
         } else {
-          const v211 = await this.getGroup();
-          $(document).trigger("loadGroupSuccess", [v211]);
+          const groupsList = await this.getGroup();
+          $(document).trigger("loadGroupSuccess", [groupsList]);
         }
-        p225();
+        resolve();
       } catch {
-        p226();
+        reject();
       }
     });
   }
   function getInvites() {
-    return new Promise(async (p227, p228) => {
-      let vA15 = [];
+    return new Promise(async (resolve, reject) => {
+      let invitesList = [];
       try {
-        const v212 = await fetch2("https://www.facebook.com/api/graphql/", {
+        const invitesResponse = await fetch2("https://www.facebook.com/api/graphql/", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
           method: "POST",
           body: "av=" + this.uid + "&__aaid=0&__user=" + this.uid + "&__a=1&__req=1n&__hs=19809.HYP2%3Acomet_pkg.2.1..2.1&dpr=1&__ccg=GOOD&__rev=1012346269&__s=hlz3t5%3Aqps39g%3Aphae8m&__hsi=7350991099154827576&__dyn=7AzHK4HwBgDx-5Q1ryaxG4Qih09y2O5U4e2CEf9UKbgS3qi7UK360CEboG4E762S1DwUx60xU8k1sw9u0LVEtwMw65xO321Rwwwg8a8462mcw8a1TwgEcEhwGxu782lwj8bU9kbxS210hU31wiE567Udo5qfK0zEkxe2Gexe5E5e7oqBwJK2W5olwUwOzEjUlDw-wQK2616DBx_xWcwoE2mBwFKq2-azo6O14wwwOg2cwMwhEkxebwHwNxe6Uak2-1vwxyo566k1FwgU4q3G3WfKufxa3m7E&__csr=gtgoR2fk4IQZjElbEttlNidNa5h6yN29bOhdvRqaJGBjNQJidZ8Fz9RFGpCkGKJlZ4iOFfFXjmt6GFaFHLt4ABQh4RF997pnjhpGAJER7l5qZCinDRgJkBVanABnh9uZmVppd4QXjLybXvK-KrApp5z8y9FenWRjyBznyFCrGVbGGAAVUTVUgyBhWyV8zxi4p9UqAzUmx2uczrpK-7RCKagCiW-hmcgC4otwNAxeUC4EfF9rUKu9zeexmlabADxycG32E8Qdxi8AwAKFUKUhwyxiu58y2a3y7UmUvg9pHh8lDwhUC5UaJ1ui4-9wLwOwQwKzBwEK8z8KdK5UyUqxO291i4orxuexTAwFxC225EhwtVFA5Egxe3xei8w8Si0jW9KEG4WwUG8h8K2B0Gx0iqaEE8Q3qESB6PRAGl4OQ8AbkJQwyEbonw8aewjA19UaU2MwYgSq9tt1DgCcwjo6q2a0z9rCwLxZx1wbW1owcK19wjA2y58lic3O227Udo6-0HUc8VyHCyFU56Ue-fyqhpU0Li06ro34w32UC1nDw18i8xm0MXwzwcW0fjU6J03dU0P201M8wr804X20H40kyCewh8iBG0rSQ5U5e1lwzg1Fk1awyxu0bdw7tw1Au0P83pw12a68K0LqUqw7hw189wdm0QU0jbw6dwKx61nwlo14Uy0dwg0WW0e5AG0dSo4Whyo3zw1Ni3Nw2041rxe5to2Xwd60mq8yEc8F1504Jziw1iu1Uw16au8w&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25312&lsd=EM5XT5VIDQF8uzBNd5t2fD&__spin_r=1012346269&__spin_b=trunk&__spin_t=1711535989&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=PageCometLaunchpointInvitesRootQuery&variables=%7B%22id%22%3A%22" + this.uid + "%22%7D&server_timestamps=true&doc_id=7224925170868877"
         });
-        const v213 = v212.json;
-        vA15 = v213.data.user.profile_admin_invites.map(p229 => {
-          const vO20 = {
-            inviteId: p229.profile_admin_invite_id,
-            pageId: p229.profile_admin_inviter.id
+        const invitesData = invitesResponse.json;
+        invitesList = invitesData.data.user.profile_admin_invites.map(invite => {
+          const inviteObject = {
+            inviteId: invite.profile_admin_invite_id,
+            pageId: invite.profile_admin_inviter.id
           };
-          return vO20;
+          return inviteObject;
         });
       } catch (e41) {
         console.log(e41);
       }
-      p227(vA15);
+      resolve(invitesList);
     });
   }
-  function acceptPage(p230) {
-    return new Promise(async (p231, p232) => {
+  function acceptPage(invite) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v214 = await fetch2("https://www.facebook.com/api/graphql/", {
+        const acceptResponse = await fetch2("https://www.facebook.com/api/graphql/", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
           method: "POST",
-          body: "av=" + this.uid + "&__aaid=0&__user=" + this.uid + "&__a=1&__req=1t&__hs=19809.HYP2%3Acomet_pkg.2.1..2.1&dpr=1&__ccg=GOOD&__rev=1012346269&__s=58dfwt%3Aqps39g%3Ad4ou37&__hsi=7350991530179737815&__dyn=7AzHK4HwkEng5K8G6EjBAg2owIxu13wFwnUW3q2ibwNw9G2Saw8i2S1DwUx60GE3Qwb-q7oc81xoswMwto886C11wBz83WwgEcEhwGxu782lwv89kbxS2218wc61awkovwRwlE-U2exi4UaEW2G1jxS6FobrwKxm5o7G4-5pUfEe88o4Wm7-7EO0-poarCwLyES1Iwh888cA0z8c84q58jyUaUcojxK2B08-269wkopg6C13whEeE4WVU-4Edouw&__csr=gtgoR6itgmjRlEnTIrsKx3dOi8l4qTP8AL9kHvRqayGBjEnOH8T8K8Fd9paDDi8EBRVkLqjW-8m8ypWFADQiimXh8JetCmbDUCPoJ2HozHDHy-mdKaABx24payV8izXLHzobUS7ERwKBGaxqUozosyd2U9FpUO58mx27VEzKU89EWaAKq9zoC18xy68ym1rx62-5ob85a17zk1Txi7898fWxO1HAxS0B81dEiAwCwo88Ukw50w-w7bw5hw1jy0oG0ii1So88mwEwd2037a07j40XpU092U03g4g0TKQ5U5e1lwzg0yO04GU0p7wcO0So04va09Yw0pPk1rxe5to6m1lw2go0sXw3oU&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25593&lsd=DKpGY6WjRs4LdeRqjPDpX2&__spin_r=1012346269&__spin_b=trunk&__spin_t=1711536089&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=ProfilePlusCometAcceptOrDeclineAdminInviteMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%221%22%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22is_accept%22%3Atrue%2C%22profile_admin_invite_id%22%3A%22" + p230.inviteId + "%22%2C%22user_id%22%3A%22" + this.uid + "%22%7D%2C%22scale%22%3A1%2C%22__relay_internal__pv__VideoPlayerRelayReplaceDashManifestWithPlaylistrelayprovider%22%3Afalse%7D&server_timestamps=true&doc_id=25484830601161332"
+          body: "av=" + this.uid + "&__aaid=0&__user=" + this.uid + "&__a=1&__req=1t&__hs=19809.HYP2%3Acomet_pkg.2.1..2.1&dpr=1&__ccg=GOOD&__rev=1012346269&__s=58dfwt%3Aqps39g%3Ad4ou37&__hsi=7350991530179737815&__dyn=7AzHK4HwkEng5K8G6EjBAg2owIxu13wFwnUW3q2ibwNw9G2Saw8i2S1DwUx60GE3Qwb-q7oc81xoswMwto886C11wBz83WwgEcEhwGxu782lwv89kbxS2218wc61awkovwRwlE-U2exi4UaEW2G1jxS6FobrwKxm5o7G4-5pUfEe88o4Wm7-7EO0-poarCwLyES1Iwh888cA0z8c84q58jyUaUcojxK2B08-269wkopg6C13whEeE4WVU-4Edouw&__csr=gtgoR6itgmjRlEnTIrsKx3dOi8l4qTP8AL9kHvRqayGBjEnOH8T8K8Fd9paDDi8EBRVkLqjW-8m8ypWFADQiimXh8JetCmbDUCPoJ2HozHDHy-mdKaABx24payV8izXLHzobUS7ERwKBGaxqUozosyd2U9FpUO58mx27VEzKU89EWaAKq9zoC18xy68ym1rx62-5ob85a17zk1Txi7898fWxO1HAxS0B81dEiAwCwo88Ukw50w-w7bw5hw1jy0oG0ii1So88mwEwd2037a07j40XpU092U03g4g0TKQ5U5e1lwzg0yO04GU0p7wcO0So04va09Yw0pPk1rxe5to6m1lw2go0sXw3oU&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25593&lsd=DKpGY6WjRs4LdeRqjPDpX2&__spin_r=1012346269&__spin_b=trunk&__spin_t=1711536089&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=ProfilePlusCometAcceptOrDeclineAdminInviteMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%221%22%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22is_accept%22%3Atrue%2C%22profile_admin_invite_id%22%3A%22" + invite.inviteId + "%22%2C%22user_id%22%3A%22" + this.uid + "%22%7D%2C%22scale%22%3A1%2C%22__relay_internal__pv__VideoPlayerRelayReplaceDashManifestWithPlaylistrelayprovider%22%3Afalse%7D&server_timestamps=true&doc_id=25484830601161332"
         });
-        const v215 = v214.json;
-        if (v215.data.accept_or_decline_profile_plus_admin_invite.id === this.uid) {
-          p231();
+        const acceptData = acceptResponse.json;
+        if (acceptData.data.accept_or_decline_profile_plus_admin_invite.id === this.uid) {
+          resolve();
         } else {
-          p232();
+          reject();
         }
       } catch (e42) {
-        p232(e42);
+        reject(e42);
       }
     });
   }
   function getAccountQuality() {
-    return new Promise(async (p233, p234) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v216 = await fetch2("https://www.facebook.com/api/graphql/?_flowletID=1&_triggerFlowletID=2", {
+        const qualityResponse = await fetch2("https://www.facebook.com/api/graphql/?_flowletID=1&_triggerFlowletID=2", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
           body: "av=" + this.uid + "&__usid=6-Tsas5n6h0it5h%3APsas5n4jqrxdy%3A0-Asas5ms1bzoc6y-RV%3D6%3AF%3D&session_id=2791d1615dda0cb8&__aaid=0&__user=" + this.uid + "&__a=1&__req=1&__hs=19805.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1012251909&__s=p9dz00%3A3ya0mx%3Aafup89&__hsi=7349388123137635674&__dyn=7xeUmxa2C5rgydwn8K2abBAjxu59o9E6u5VGxK5FEG484S4UKewSAxam4EuGfwnoiz8WdwJzUmxe1kx21FxG9xedz8hw9yq3a4EuCwQwCxq1zwCCwjFFpobQUTwJBGEpiwzlwXyXwZwu8sxF3bwExm3G4UhwXxW9wgo9oO1Wxu0zoO12ypUuwg88EeAUpK19xmu2C2l0Fx6ewzwAwRyQ6U-4Ea8mwoEru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e18w9Cu0Jo6-4e1mAyo884KeCK2q362u1dxW6U98a85Ou0DU7i&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25334&lsd=" + this.lsd + "&__spin_r=1012251909&__spin_b=trunk&__spin_t=1711162767&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetOwnerViewQuery&variables=%7B%22assetOwnerId%22%3A%22" + this.uid + "%22%7D&server_timestamps=true&doc_id=7327539680662016",
           method: "POST"
         });
-        const v217 = v216.json;
-        if (!v217.errors) {
-          let vLSNA = "N/A";
-          let vLS7 = "";
-          const v218 = v217.data.assetOwnerData.advertising_restriction_info.is_restricted;
-          const v219 = v217.data.assetOwnerData.advertising_restriction_info.status;
-          const v220 = v217.data.assetOwnerData.advertising_restriction_info.restriction_type;
-          if (!v218) {
-            if (v220 == "PREHARM" && v219 == "APPEAL_ACCEPTED") {
-              vLSNA = "Verificado XMDT";
-              vLS7 = "success";
+        const responseData = qualityResponse.json;
+        if (!responseData.errors) {
+          let statusMessage = "N/A";
+          let statusColor = "";
+          const isRestricted = responseData.data.assetOwnerData.advertising_restriction_info.is_restricted;
+          const restrictionStatus = responseData.data.assetOwnerData.advertising_restriction_info.status;
+          const restrictionType = responseData.data.assetOwnerData.advertising_restriction_info.restriction_type;
+          if (!isRestricted) {
+            if (restrictionType == "PREHARM" && restrictionStatus == "APPEAL_ACCEPTED") {
+              statusMessage = "Verificado XMDT";
+              statusColor = "success";
             }
-            if (v220 == "ALE" && v219 == "APPEAL_ACCEPTED") {
-              vLSNA = "Verificado 902";
-              vLS7 = "success";
+            if (restrictionType == "ALE" && restrictionStatus == "APPEAL_ACCEPTED") {
+              statusMessage = "Verificado 902";
+              statusColor = "success";
             }
-            if (v219 == "NOT_RESTRICTED") {
-              vLSNA = "Live Ads - Sin Problemas";
-              vLS7 = "success";
+            if (restrictionStatus == "NOT_RESTRICTED") {
+              statusMessage = "Live Ads - Sin Problemas";
+              statusColor = "success";
             }
-            if (v220 == "ADS_ACTOR_SCRIPTING") {
-              vLSNA = "Verificado XMDT oculto";
-              vLS7 = "success";
+            if (restrictionType == "ADS_ACTOR_SCRIPTING") {
+              statusMessage = "Verificado XMDT oculto";
+              statusColor = "success";
             }
-            if (v219 == "NOT_RESTRICTED" && v220 == "BUSINESS_INTEGRITY") {
-              vLSNA = "Verificado 902 oculto";
-              vLS7 = "success";
+            if (restrictionStatus == "NOT_RESTRICTED" && restrictionType == "BUSINESS_INTEGRITY") {
+              statusMessage = "Verificado 902 oculto";
+              statusColor = "success";
             }
           } else {
-            if (v219 == "VANILLA_RESTRICTED" && v220 == "BUSINESS_INTEGRITY") {
-              vLSNA = "Restricción 902 XMDT";
-              vLS7 = "danger";
+            if (restrictionStatus == "VANILLA_RESTRICTED" && restrictionType == "BUSINESS_INTEGRITY") {
+              statusMessage = "Restricción 902 XMDT";
+              statusColor = "danger";
             }
-            if (v219 == "APPEAL_INCOMPLETE" && v220 == "BUSINESS_INTEGRITY") {
-              vLSNA = "XMDT 902 INCOMPLETO";
-              vLS7 = "danger";
+            if (restrictionStatus == "APPEAL_INCOMPLETE" && restrictionType == "BUSINESS_INTEGRITY") {
+              statusMessage = "XMDT 902 INCOMPLETO";
+              statusColor = "danger";
             }
-            if (v219 == "APPEAL_PENDING" && v220 == "BUSINESS_INTEGRITY") {
-              vLSNA = "Apelando 902";
-              vLS7 = "danger";
+            if (restrictionStatus == "APPEAL_PENDING" && restrictionType == "BUSINESS_INTEGRITY") {
+              statusMessage = "Apelando 902";
+              statusColor = "danger";
             }
-            if (v219 == "APPEAL_REJECTED" && v220 == "BUSINESS_INTEGRITY") {
-              vLSNA = "Restricción 902 rechazada - Volver a XMDT 273";
-              vLS7 = "danger";
+            if (restrictionStatus == "APPEAL_REJECTED" && restrictionType == "BUSINESS_INTEGRITY") {
+              statusMessage = "Restricción 902 rechazada - Volver a XMDT 273";
+              statusColor = "danger";
             }
-            if (v218 && v220 == "PREHARM") {
-              if (v219 == "VANILLA_RESTRICTED") {
-                vLSNA = "Restricción Publicitaria";
-                vLS7 = "danger";
+            if (isRestricted && restrictionType == "PREHARM") {
+              if (restrictionStatus == "VANILLA_RESTRICTED") {
+                statusMessage = "Restricción Publicitaria";
+                statusColor = "danger";
               }
-              if (v219 == "APPEAL_PENDING") {
-                vLSNA = "Apelando XMDT";
-                vLS7 = "danger";
+              if (restrictionStatus == "APPEAL_PENDING") {
+                statusMessage = "Apelando XMDT";
+                statusColor = "danger";
               }
-              if (v219 == "APPEAL_INCOMPLETE") {
-                vLSNA = "XMDT Incompleto";
-                vLS7 = "danger";
+              if (restrictionStatus == "APPEAL_INCOMPLETE") {
+                statusMessage = "XMDT Incompleto";
+                statusColor = "danger";
               }
-              if (v219 == "APPEAL_REJECTED_NO_RETRY" || v219 == "APPEAL_TIMEOUT" || v219 == "APPEAL_TIMEOUT") {
-                vLSNA = "XMDT Rechazado - Volver a XMDT 273";
-                vLS7 = "danger";
+              if (restrictionStatus == "APPEAL_REJECTED_NO_RETRY" || restrictionStatus == "APPEAL_TIMEOUT" || restrictionStatus == "APPEAL_TIMEOUT") {
+                statusMessage = "XMDT Rechazado - Volver a XMDT 273";
+                statusColor = "danger";
               }
             }
-            if (v218 && v220 == "ALE") {
-              if (v219 == "APPEAL_PENDING") {
-                vLSNA = "Apelando 902";
-                vLS7 = "warning";
+            if (isRestricted && restrictionType == "ALE") {
+              if (restrictionStatus == "APPEAL_PENDING") {
+                statusMessage = "Apelando 902";
+                statusColor = "warning";
               }
-              if (v219 == "APPEAL_REJECTED_NO_RETRY") {
-                vLSNA = "Restricción Permanente";
-                vLS7 = "danger";
+              if (restrictionStatus == "APPEAL_REJECTED_NO_RETRY") {
+                statusMessage = "Restricción Permanente";
+                statusColor = "danger";
               }
-              const v221 = v217.data.assetOwnerData.advertising_restriction_info.additional_parameters.ufac_state;
-              const v222 = v217.data.assetOwnerData.advertising_restriction_info.additional_parameters.appeal_friction;
-              const v223 = v217.data.assetOwnerData.advertising_restriction_info.additional_parameters.appeal_ineligibility_reason;
-              if (v219 == "VANILLA_RESTRICTED" && v221 == "FAILED" || v219 == "VANILLA_RESTRICTED" && v221 == "TIMEOUT") {
-                vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
-                vLS7 = "danger";
+              const ufacState = responseData.data.assetOwnerData.advertising_restriction_info.additional_parameters.ufac_state;
+              const appealFriction = responseData.data.assetOwnerData.advertising_restriction_info.additional_parameters.appeal_friction;
+              const appealIneligibilityReason = responseData.data.assetOwnerData.advertising_restriction_info.additional_parameters.appeal_ineligibility_reason;
+              if (restrictionStatus == "VANILLA_RESTRICTED" && ufacState == "FAILED" || restrictionStatus == "VANILLA_RESTRICTED" && ufacState == "TIMEOUT") {
+                statusMessage = "XMDT 902 Fallado - Volver a XMDT 273";
+                statusColor = "danger";
               }
-              if (v219 == "VANILLA_RESTRICTED" && v221 == null && v222 == "UFAC") {
-                vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
-                vLS7 = "danger";
+              if (restrictionStatus == "VANILLA_RESTRICTED" && ufacState == null && appealFriction == "UFAC") {
+                statusMessage = "XMDT 902 Fallado - Volver a XMDT 273";
+                statusColor = "danger";
               }
-              if (v219 == "VANILLA_RESTRICTED" && v221 == null && v222 == null && v223 == "ENTITY_APPEAL_LIMIT_REACHED") {
-                vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
-                vLS7 = "danger";
+              if (restrictionStatus == "VANILLA_RESTRICTED" && ufacState == null && appealFriction == null && appealIneligibilityReason == "ENTITY_APPEAL_LIMIT_REACHED") {
+                statusMessage = "XMDT 902 Fallado - Volver a XMDT 273";
+                statusColor = "danger";
               } else {
-                if (v219 == "VANILLA_RESTRICTED" && v221 == null && v222 == null) {
-                  vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
-                  vLS7 = "danger";
+                if (restrictionStatus == "VANILLA_RESTRICTED" && ufacState == null && appealFriction == null) {
+                  statusMessage = "XMDT 902 Fallado - Volver a XMDT 273";
+                  statusColor = "danger";
                 }
-                if (v219 == "VANILLA_RESTRICTED" && v221 == "SUCCESS" && v222 == null) {
-                  vLSNA = "XMDT 902 Fallado - Volver a XMDT 273";
-                  vLS7 = "danger";
+                if (restrictionStatus == "VANILLA_RESTRICTED" && ufacState == "SUCCESS" && appealFriction == null) {
+                  statusMessage = "XMDT 902 Fallado - Volver a XMDT 273";
+                  statusColor = "danger";
                 }
               }
             }
-            if (v218 && v220 == "ACE" || v220 === "GENERIC") {
-              vLSNA = "XMDT Fallado - Volver a XMDT 273";
-              vLS7 = "danger";
+            if (isRestricted && restrictionType == "ACE" || restrictionType === "GENERIC") {
+              statusMessage = "XMDT Fallado - Volver a XMDT 273";
+              statusColor = "danger";
             }
-            if (v218 && v220 == "RISK_REVIEW" || v220 === "RISK_REVIEW_EMAIL_VERIFICATION") {
-              vLSNA = "XMDT Checkpoint";
-              vLS7 = "danger";
+            if (isRestricted && restrictionType == "RISK_REVIEW" || restrictionType === "RISK_REVIEW_EMAIL_VERIFICATION") {
+              statusMessage = "XMDT Checkpoint";
+              statusColor = "danger";
             }
-            if (v220 == "ADS_ACTOR_SCRIPTING") {
-              if (v219 == "APPEAL_REJECTED") {
-                vLSNA = "XMDT Fallado - Volver a XMDT 273";
-                vLS7 = "danger";
-              } else if (v219 == "APPEAL_PENDING") {
-                vLSNA = "Apelando XMDT";
-                vLS7 = "warning";
-              } else if (v219 == "APPEAL_ACCEPTED") {
-                vLSNA = "Verificado 902";
-                vLS7 = "success";
-              } else if (v219 == "APPEAL_INCOMPLETE") {
-                vLSNA = "XMDT Incompleto";
-                vLS7 = "danger";
+            if (restrictionType == "ADS_ACTOR_SCRIPTING") {
+              if (restrictionStatus == "APPEAL_REJECTED") {
+                statusMessage = "XMDT Fallado - Volver a XMDT 273";
+                statusColor = "danger";
+              } else if (restrictionStatus == "APPEAL_PENDING") {
+                statusMessage = "Apelando XMDT";
+                statusColor = "warning";
+              } else if (restrictionStatus == "APPEAL_ACCEPTED") {
+                statusMessage = "Verificado 902";
+                statusColor = "success";
+              } else if (restrictionStatus == "APPEAL_INCOMPLETE") {
+                statusMessage = "XMDT Incompleto";
+                statusColor = "danger";
               } else {
-                vLSNA = "Restricción Publicitaria";
-                vLS7 = "danger";
+                statusMessage = "Restricción Publicitaria";
+                statusColor = "danger";
               }
             }
           }
-          const vO22 = {
-            status: vLSNA,
-            color: vLS7
+          const qualityStatusObject = {
+            status: statusMessage,
+            color: statusColor
           };
-          p233(vO22);
+          resolve(qualityStatusObject);
         } else {
-          p234(v217.errors[0].summary);
+          reject(responseData.errors[0].summary);
         }
       } catch (e43) {
-        p234(e43);
+        reject(e43);
       }
     });
   }
