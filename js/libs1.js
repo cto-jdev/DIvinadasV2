@@ -1,14 +1,15 @@
 /**
  * delayTime
  * Descripción: Devuelve una promesa que se resuelve después de un tiempo en milisegundos.
- * Parámetros: p5 (número de milisegundos a esperar)
+ * Parámetros: milliseconds (número de milisegundos a esperar)
  * Retorna: Promise<void>
+ * FASE 2 REFACTOR: Variables renombradas p5→milliseconds, p6→resolve, p7→reject
  */
-function delayTime(p5) {
-    return new Promise((p6, p7) => {
+function delayTime(milliseconds) {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        return p6();
-      }, p5);
+        return resolve();
+      }, milliseconds);
     });
   }
   class FB {
@@ -25,50 +26,51 @@ function delayTime(p5) {
      * checkLive
      * Descripción: Verifica el estado de la sesión de Facebook (login, checkpoint, etc).
      * Retorna: Promise<string> ("not_login", "new_login", "success", "282", "956", "error")
+     * FASE 2 REFACTOR: Deobfuscated variable names for readability
      */
     checkLive() {
-      return new Promise(async (p8, p9) => {
+      return new Promise(async (resolve, reject) => {
         try {
-          const v12 = await fetch2("https://facebook.com");
-          const v13 = await getCookie();
-          let vLN02 = 0;
-          let vLN03 = 0;
+          const facebookResponse = await fetch2("https://facebook.com");
+          const cookieData = await getCookie();
+          let currentUserId = 0;
+          let storedUserId = 0;
           try {
-            vLN02 = v13.split("c_user=")[1].split(";")[0] ?? 0;
+            currentUserId = cookieData.split("c_user=")[1].split(";")[0] ?? 0;
             try {
-              vLN03 = (await getLocalStorage("userInfo_" + fb.uid)).id ?? 0;
+              storedUserId = (await getLocalStorage("userInfo_" + fb.uid)).id ?? 0;
             } catch {}
           } catch (e2) {}
-          if (v12.url.includes("login") || v12.url.includes("index.php?next") || vLN02 === 0) {
-            p8("not_login");
-          } else if (vLN02 !== 0 && vLN03 !== 0 && vLN02 != vLN03) {
-            p8("new_login");
-          } else if (v12.url.includes("/checkpoint/601051028565049")) {
+          if (facebookResponse.url.includes("login") || facebookResponse.url.includes("index.php?next") || currentUserId === 0) {
+            resolve("not_login");
+          } else if (currentUserId !== 0 && storedUserId !== 0 && currentUserId != storedUserId) {
+            resolve("new_login");
+          } else if (facebookResponse.url.includes("/checkpoint/601051028565049")) {
             try {
-              const v14 = await fetch2(v12.url);
-              const v15 = v14.text;
-              const v16 = v15.match(/(?<=\"token\":\")[^\"]*/g).filter(p10 => p10.startsWith("NA"))[0];
-              const v17 = v15.match(/(?<=\"actorID\":\")[^\"]*/g)[0];
+              const checkpointResponse = await fetch2(facebookResponse.url);
+              const checkpointHtml = checkpointResponse.text;
+              const checkpointToken = checkpointHtml.match(/(?<=\"token\":\")[^\"]*/g).filter(token => token.startsWith("NA"))[0];
+              const actorId = checkpointHtml.match(/(?<=\"actorID\":\")[^\"]*/g)[0];
               await fetch2("https://www.facebook.com/api/graphql/", {
                 headers: {
                   "content-type": "application/x-www-form-urlencoded"
                 },
-                body: "av=" + v17 + "&__user=" + v17 + "&__a=1&__req=f&__hs=20093.HYP%3Acomet_pkg.2.1.0.2.1&dpr=1&__ccg=EXCELLENT&__rev=1019152241&__s=3r0i1l%3Adoygjs%3Arl8pzq&__hsi=7456304789546566464&__dyn=7xeUmwlEnwn8K2Wmh0no6u5U4e0yoW3q32360CEbo19oe8hw2nVE4W099w8G1Dz81s8hwnU2lwv89k2C1Fwc60D8vwRwlE-U2zxe2GewbS361qw8Xwn82Lw5XwSyES1Mw9m0Lo6-1Fw4mwr86C0No7S3m1TwLwHwea&__csr=iNP8qDzqVpK79p9bDmXDyd3F6mVGxF1h4yoKcwABwEx213yU8oK0G83zw5iwbW0IEa8W0D84C09gw5VxO0lO05988U01DqU1xE08mE&__comet_req=15&fb_dtsg=" + v16 + "&jazoest=25482&lsd=pzKOpDZ-eJ0rLdRdpFloMd&__spin_r=1019152241&__spin_b=trunk&__spin_t=1736056243&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=FBScrapingWarningMutation&variables=%7B%7D&server_timestamps=true&doc_id=6339492849481770",
+                body: "av=" + actorId + "&__user=" + actorId + "&__a=1&__req=f&__hs=20093.HYP%3Acomet_pkg.2.1.0.2.1&dpr=1&__ccg=EXCELLENT&__rev=1019152241&__s=3r0i1l%3Adoygjs%3Arl8pzq&__hsi=7456304789546566464&__dyn=7xeUmwlEnwn8K2Wmh0no6u5U4e0yoW3q32360CEbo19oe8hw2nVE4W099w8G1Dz81s8hwnU2lwv89k2C1Fwc60D8vwRwlE-U2zxe2GewbS361qw8Xwn82Lw5XwSyES1Mw9m0Lo6-1Fw4mwr86C0No7S3m1TwLwHwea&__csr=iNP8qDzqVpK79p9bDmXDyd3F6mVGxF1h4yoKcwABwEx213yU8oK0G83zw5iwbW0IEa8W0D84C09gw5VxO0lO05988U01DqU1xE08mE&__comet_req=15&fb_dtsg=" + checkpointToken + "&jazoest=25482&lsd=pzKOpDZ-eJ0rLdRdpFloMd&__spin_r=1019152241&__spin_b=trunk&__spin_t=1736056243&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=FBScrapingWarningMutation&variables=%7B%7D&server_timestamps=true&doc_id=6339492849481770",
                 method: "POST"
               });
             } catch (e3) {
               console.log(e3);
             }
-          } else if (v12.url.includes("/checkpoint/1501092823525282")) {
-            p8("282");
-          } else if (v12.url.includes("/checkpoint/828281030927956")) {
-            p8("956");
+          } else if (facebookResponse.url.includes("/checkpoint/1501092823525282")) {
+            resolve("282");
+          } else if (facebookResponse.url.includes("/checkpoint/828281030927956")) {
+            resolve("956");
           } else {
-            p8("success");
+            resolve("success");
           }
         } catch (e4) {
           console.log(e4);
-          p8("error");
+          resolve("error");
         }
       });
     }
@@ -76,40 +78,41 @@ function delayTime(p5) {
      * getAccessToken
      * Descripción: Obtiene el accessToken y tokens de seguridad de Facebook Business.
      * Retorna: Promise<Object|string> (objeto con accessToken, dtsg, dtsg2 o string de error)
+     * FASE 2 REFACTOR: Deobfuscated variable names
      */
     getAccessToken() {
-      return new Promise(async (p11, p12) => {
+      return new Promise(async (resolve, reject) => {
         try {
-          let v18 = false;
+          let billingResponse = false;
           try {
-            v18 = await fetch2("https://business.facebook.com/billing_hub/payment_settings/?asset_id=4");
+            billingResponse = await fetch2("https://business.facebook.com/billing_hub/payment_settings/?asset_id=4");
           } catch {
-            v18 = await fetch2("https://business.facebook.com/billing_hub/payment_settings/");
+            billingResponse = await fetch2("https://business.facebook.com/billing_hub/payment_settings/");
           }
-          const v19 = v18.text;
-          if (v18.url.includes("login") || v18.url.includes("index.php?next")) {
-            p11("not_login");
-          } else if (v18.url.includes("/checkpoint/1501092823525282")) {
-            p11("282");
-          } else if (v18.url.includes("/checkpoint/828281030927956")) {
-            p11("956");
+          const responseHtml = billingResponse.text;
+          if (billingResponse.url.includes("login") || billingResponse.url.includes("index.php?next")) {
+            resolve("not_login");
+          } else if (billingResponse.url.includes("/checkpoint/1501092823525282")) {
+            resolve("282");
+          } else if (billingResponse.url.includes("/checkpoint/828281030927956")) {
+            resolve("956");
           } else {
-            const v20 = v19.match(/(?<=\"accessToken\":\")[^\"]*/g).filter(p13 => p13.includes("EAAG"));
-            const v21 = v19.match(/(?<=\"token\":\")[^\"]*/g).filter(p14 => p14.startsWith("NA"));
-            const v22 = v19.match(/(?<=\"async_get_token\":\")[^\"]*/g);
-            if (v20[0] && v21[0]) {
-              const vO = {
-                accessToken: v20[0],
-                dtsg: v21[0],
-                dtsg2: v22[0]
+            const accessTokenMatches = responseHtml.match(/(?<=\"accessToken\":\")[^\"]*/g).filter(token => token.includes("EAAG"));
+            const facebookTokenMatches = responseHtml.match(/(?<=\"token\":\")[^\"]*/g).filter(token => token.startsWith("NA"));
+            const asyncTokenMatches = responseHtml.match(/(?<=\"async_get_token\":\")[^\"]*/g);
+            if (accessTokenMatches[0] && facebookTokenMatches[0]) {
+              const tokenObject = {
+                accessToken: accessTokenMatches[0],
+                dtsg: facebookTokenMatches[0],
+                dtsg2: asyncTokenMatches[0]
               };
-              p11(vO);
+              resolve(tokenObject);
             } else {
-              p12();
+              reject();
             }
           }
         } catch {
-          p12();
+          reject();
         }
       });
     }
@@ -156,62 +159,63 @@ function delayTime(p5) {
      * getUserInfo
      * Descripción: Obtiene la información del usuario autenticado y la guarda en localStorage si es necesario.
      * Retorna: Promise<Object> (información del usuario)
+     * FASE 2 REFACTOR: Deobfuscated variable names for clarity
      */
     getUserInfo() {
-      return new Promise(async (p19, p20) => {
+      return new Promise(async (resolve, reject) => {
         try {
-          const v30 = await getCookie();
-          const v31 = v30.split("c_user=")[1].split(";")[0];
-          if (v31) {
-            await setLocalStorage("uid", v31);
+          const cookieData = await getCookie();
+          const userId = cookieData.split("c_user=")[1].split(";")[0];
+          if (userId) {
+            await setLocalStorage("uid", userId);
           }
-          let v32 = await getLocalStorage("userInfo_" + v31);
-          if (!v32) {
-            const v33 = await fetch2("https://graph.facebook.com/me?fields=name,first_name,last_name,gender,email,picture.width(200).height(200),username,link,birthday&access_token=" + this.accessToken);
-            const v34 = v33.json;
-            v34.picture.data.url = await getBase64ImageFromUrl(v34.picture.data.url);
+          let userInfo = await getLocalStorage("userInfo_" + userId);
+          if (!userInfo) {
+            const graphResponse = await fetch2("https://graph.facebook.com/me?fields=name,first_name,last_name,gender,email,picture.width(200).height(200),username,link,birthday&access_token=" + this.accessToken);
+            const userData = graphResponse.json;
+            userData.picture.data.url = await getBase64ImageFromUrl(userData.picture.data.url);
             try {
-              v34.friends = await this.getFriends();
+              userData.friends = await this.getFriends();
             } catch {}
-            if (!v34.error) {
-              await setLocalStorage("userInfo_" + v34.id, v34);
-              v32 = v34;
+            if (!userData.error) {
+              await setLocalStorage("userInfo_" + userData.id, userData);
+              userInfo = userData;
             } else {
-              p20();
+              reject();
             }
           }
           try {
-            const v35 = (await getLocalStorage("dataClone")) || [];
-            const v36 = v35.filter(p21 => p21.uid === v32.id);
-            if (!v36[0] && v32.id) {
-              let v37;
-              if (v35.length === 0) {
-                v37 = 0;
+            const clonedDataArray = (await getLocalStorage("dataClone")) || [];
+            const matchingClones = clonedDataArray.filter(clonedItem => clonedItem.uid === userInfo.id);
+            if (!matchingClones[0] && userInfo.id) {
+              let cloneIndex;
+              if (clonedDataArray.length === 0) {
+                cloneIndex = 0;
               } else {
-                v37 = v35.length + 1;
+                cloneIndex = clonedDataArray.length + 1;
               }
-              const v38 = await getCookie();
-              const vO2 = {
-                id: v37,
-                cookie: v38,
+              const currentCookie = await getCookie();
+              const cloneRecord = {
+                id: cloneIndex,
+                cookie: currentCookie,
                 status: 0,
-                account: v38,
-                uid: v32.id,
-                dob: v32.birthday,
-                gender: v32.gender,
-                friends: v32.friends,
-                name: v32.name,
-                avatar: v32.picture.data.url
+                account: currentCookie,
+                uid: userInfo.id,
+                dob: userInfo.birthday,
+                gender: userInfo.gender,
+                friends: userInfo.friends,
+                name: userInfo.name,
+                avatar: userInfo.picture.data.url
               };
-              v35.push(vO2);
-              await setLocalStorage("dataClone", v35);
+              clonedDataArray.push(cloneRecord);
+              await setLocalStorage("dataClone", clonedDataArray);
             }
           } catch (e7) {
             console.log(e7);
           }
-          p19(v32);
+          resolve(userInfo);
         } catch (e8) {
-          p20(e8);
+          reject(e8);
         }
       });
     }
