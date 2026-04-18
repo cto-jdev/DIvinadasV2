@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "DivinAds — Facebook Business Manager",
   "short_name": "DivinAds",
-  "version": "1.0.0",
-  "description": "Gestión profesional de Facebook Business Manager, Cuentas de Anuncios y Páginas con IA integrada.",
+  "version": "2.0.0",
+  "description": "Gestión profesional de Facebook Business Manager, Cuentas de Anuncios y Páginas mediante la Marketing API oficial de Meta.",
   "author": "DivinAds Team",
 
   "icons": {
@@ -18,57 +18,36 @@
       "48":  "img/favicon.png"
     },
     "default_title": "DivinAds",
-    "default_popup": "popup.html"
+    "default_popup": "index.html"
   },
 
   "background": {
     "service_worker": "background.js"
   },
 
-  "content_scripts": [
-    {
-      "matches": [
-        "https://www.facebook.com/*",
-        "https://business.facebook.com/*",
-        "https://adsmanager.facebook.com/*"
-      ],
-      "js": ["js/content.js"],
-      "run_at": "document_idle",
-      "all_frames": false
-    }
-  ],
-
   "permissions": [
-    "cookies",
     "storage",
     "tabs",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
 
   "host_permissions": [
-    "*://*.facebook.com/*",
-    "https://business.facebook.com/*",
-    "https://adsmanager.facebook.com/*",
-    "https://graph.facebook.com/*",
-    "https://upload.facebook.com/*",
-    "https://api.anthropic.com/*"
+    "http://localhost:8080/*",
+    "https://localhost:8080/*"
   ],
 
   "web_accessible_resources": [
     {
       "resources": [
         "index.html",
+        "connect.html",
+        "dashboard.html",
         "bm.html",
         "ads.html",
         "page.html",
-        "clone.html",
-        "setting.html",
-        "fb-connect.html",
-        "phoi.html",
-        "viewBm.html",
-        "viewAds.html",
-        "viewPage.html",
+        "pixel.html",
+        "advantage.html",
+        "attribution.html",
         "img/*",
         "css/*",
         "js/*",
@@ -80,7 +59,7 @@
   ],
 
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:8080 https://localhost:8080"
   },
 
   "externally_connectable": {

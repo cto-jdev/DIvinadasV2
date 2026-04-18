@@ -13,7 +13,23 @@
       "Bash(npm ls:*)",
       "Bash(node -e ':*)",
       "Bash(git rm:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(grep -iE \"^\\\\.env$|sessions\\\\.json|tokens\\\\.json|\\\\.DS_Store\")",
+      "Bash(git commit -m ':*)",
+      "Bash(ls js/libs*.js js/content.js js/fb-connect.js js/fix_functions.js js/scripts-fix.js js/copilot-mock.js js/mock-extension.js js/test.js js/tkqc.js js/via.js js/bops.js)",
+      "Bash(ls *.html)",
+      "Bash(ls PHASE2*.md PHASE1*.md)",
+      "Bash(rm -f js/libs1.js js/libs2.js js/libs3.js js/libs4.js js/libs5_clean.js js/content.js js/fb-connect.js js/fix_functions.js js/scripts-fix.js js/copilot-mock.js js/mock-extension.js js/test.js js/tkqc.js js/via.js js/bops.js js/scripts.js js/popup.js js/setting.js js/clone.js js/phoi.js)",
+      "Bash(rm -rf js/modules)",
+      "Bash(rm -f fb-connect.html clone.html phoi.html viewBm.html viewAds.html viewPage.html popup.html setting.html)",
+      "Bash(rm -f PHASE1_SECURITY_CHANGES.md PHASE2_DEOBFUSCATION_MAPPING.md PHASE2_PROGRESS.md PHASE2_REFACTORING_COMPLETE.md PHASE2_SESSION2_PROGRESS.md)",
+      "Bash(rm -f sessions.json)",
+      "Bash(rm -f manifest.json server.js bm.html ads.html page.html pixel.html js/bm.js js/ads.js js/page.js)",
+      "Bash(mv manifest.oauth.json manifest.json)",
+      "Bash(mv server.oauth.js server.js)",
+      "Bash(mv bm.oauth.html bm.html)",
+      "Bash(mv ads.oauth.html ads.html)",
+      "Bash(ls *.html js/*.js)"
     ]
   }
 }

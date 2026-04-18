@@ -1,805 +1,89 @@
 <!doctype html>
 <html lang="es" data-bs-theme="dark" class="dark-mode">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Gestión de Anuncios | DivinAds</title>
-        <!-- <link href="css/sweetalert2.min.css" rel="stylesheet">
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/remixicon.css" rel="stylesheet">
-        <link href="css/chrome-bright.css" rel="stylesheet" />
-        <link href="css/select2.min.css" rel="stylesheet" /> -->
-                <link href="css/libs.css" rel="stylesheet">
-        <link href="css/glass.css" rel="stylesheet">
-        <link href="css/animations.css" rel="stylesheet">
-        <link href="css/sidebar.css" rel="stylesheet">
-        <link href="css/dashboard.css" rel="stylesheet">
-        <link href="css/style.css" rel="stylesheet">
-        <link href="css/morecard-improvements.css?v=2.0.1" rel="stylesheet">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ads — DivinAds</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/glass.css" rel="stylesheet">
+    <link href="css/remixicon.css" rel="stylesheet">
+    <link rel="shortcut icon" href="img/favicon.png">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+        }
+        .topbar { padding:16px 24px; border-bottom:1px solid rgba(255,255,255,0.08);
+            display:flex; align-items:center; justify-content:space-between; }
+        .nav-links a { color:#cbd5e1; margin-right:20px; text-decoration:none; font-size:14px; }
+        .nav-links a.active { color:#fff; font-weight:600; }
+        .nav-links a:hover { color:#fff; }
+        .account-select { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+            color:#e2e8f0; padding:8px 12px; border-radius:6px; font-size:13px; min-width:200px; }
+        .container-ads { padding:24px; }
+        .status-pill { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; }
+        .status-dot { width:8px; height:8px; border-radius:50%; }
+        .status-ACTIVE            { color:#10b981; }
+        .status-ACTIVE .status-dot{ background:#10b981; }
+        .status-DISABLED          { color:#ef4444; }
+        .status-DISABLED .status-dot{ background:#ef4444; }
+        .status-UNSETTLED         { color:#f59e0b; }
+        .status-UNSETTLED .status-dot{ background:#f59e0b; }
+        .status-PENDING_RISK_REVIEW { color:#f59e0b; }
+        .status-PENDING_RISK_REVIEW .status-dot{ background:#f59e0b; }
+        .status-CLOSED            { color:#6b7280; }
+        .status-CLOSED .status-dot{ background:#6b7280; }
+        .empty-state { padding:60px; text-align:center; color:#94a3b8; }
+        .empty-state .icon { font-size:48px; margin-bottom:12px; }
+        #ads-grid-container { background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.08); border-radius:8px; overflow:hidden; }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="d-flex align-items-center">
+        <img src="img/logo-divinads.png" alt="DivinAds" height="24" class="me-3">
+        <nav class="nav-links">
+            <a href="index.html">Inicio</a>
+            <a href="bm.html">Business Managers</a>
+            <a href="ads.html" class="active">Ads</a>
+            <a href="page.html">Páginas</a>
+            <a href="connect.html">Cuentas</a>
+        </nav>
+    </div>
+    <div>
+        <select id="account-select" class="account-select">
+            <option value="">Selecciona una cuenta…</option>
+        </select>
+    </div>
+</div>
 
-        <!--script src="https://tally.so/widgets/embed.js"></script-->
-        <script src="js/jquery.js"></script>
-        
-        <!-- Script de Limpieza Automática de Cache -->
-        <script src="js/cache-cleaner.js"></script>
-        
-        <link rel="shortcut icon" href="img/favicon.png">
-        
-    </head>
-    <body class="folded">
-        
-        <div id="pageLoading"></div>
-        
-        <div id="app" data="ads">
+<div class="container-ads">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="m-0">
+            Cuentas de Anuncios
+            <span id="count" class="badge bg-success ms-2">0</span>
+        </h4>
+        <button id="btn-refresh" class="btn btn-sm btn-outline-light">
+            <i class="ri-refresh-line"></i> Actualizar
+        </button>
+    </div>
 
-            <div id="header">
-                <div class="header-top">
-                    <div class="row align-items-center h-100">
-                        <div class="col-4">
-                            <span class="titleBar fw-medium d-flex align-items-center">
-                                <img src="img/logo-divinads.png" alt="DivinAds Logo" height="30">
-                                <span class="appVersion ms-2 fw-medium"></span>
-                            </span>
-                        </div>
-                        <div class="col-4 d-flex justify-content-center">
-                            <div class="rounded row fw-medium" style="height: 35px; line-height: 25px; padding: 5px;width:350px;">
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="index.html">INICIO</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="clone.html">CLONAR</a>
-                                <a class="col text-decoration-none mx-1 text-black bg-white bg-opacity-10 shadow text-center d-block rounded" href="javascript:;" style="border: 1px solid rgba(255,255,255,0.2);">ADS</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="bm.html">BM</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="page.html">PÁGINA</a>
-                            </div>
-                        </div>
-                        <div class="col-4 d-flex justify-content-end">
-                            <div id="quality"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="app-wrapper rounded overflow-hidden d-flex shadow flex-grow-1 glass-panel">
-                <div class="account-wrapper d-flex flex-column overflow-hidden flex-grow-1 position-relative overflow-hidden">
-
-                   
-
-                    <div class="border-bottom border-light border-opacity-10 glass-panel mb-2" style="z-index: 101;">
-                        <div class="p-3 d-flex justify-content-between" style="height: 59px;">
-                            <div class="d-flex">
-                                <div class="d-flex">
-                                    <button type="button" class="shadow-sm control-btn btn border h-100 me-3" id="start" data-requires-license="true">
-                                        <i class="ri-play-fill" style="background-color: #4caf50;"></i>
-                                        Iniciar
-                                    </button>
-                                    <button type="button" class="shadow-sm control-btn btn border h-100 me-3 d-none" id="stop">
-                                        <i class="ri-stop-fill" style="background-color: #f44336;"></i>
-                                        Detener
-                                    </button>
-                                </div>
-                                <div class="d-flex">
-                                    <div class="dropdown me-2">
-                                        <button class="shadow-sm control-btn btn border h-100 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ri-filter-line fs-5 m-0" style="color: #666"></i>
-                                        </button>
-                                        <div class="dropdown-menu mt-2 border dropdown-menu-end shadow-sm p-2" style="width: 250px;">
-                                            <div class="mb-2">
-                                                <strong>Estado</strong>
-                                            </div>
-                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="1">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-success rounded-circle me-2"></span><strong class="text-success">ACTIVO</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status1Count">0</span>
-                                            </label>
-                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="2">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DESHABILITADO XMDT</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status2Count">0</span>
-                                            </label>
-                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="4">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">DESHABILITADO 3 LÍNEAS</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status4Count">0</span>
-                                            </label>
-                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="5">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DESHABILITADO 3 LÍNEAS</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status5Count">0</span>
-                                            </label>
-                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="6">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DESHABILITADO XMDT</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status6Count">0</span>
-                                            </label>
-                                            <label class="border rounded mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="7">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-danger rounded-circle me-2"></span><strong class="text-danger">DESHABILITADO PERMANENTE</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status7Count">0</span>
-                                            </label>
-                                            <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="3">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-warning rounded-circle me-2"></span><strong class="text-warning">PAGO PENDIENTE</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status3Count">0</span>
-                                            </label>
-                                            <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="101">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-info rounded-circle me-2"></span><strong class="text-info">CERRADO</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status101Count">0</span>
-                                            </label>
-                                            <label class="border rounded mb-2 mb-2 p-2 d-flex align-items-center">
-                                                <div class="form-check me-2">
-                                                    <input class="form-check-input statusFilter" type="checkbox" value="999">
-                                                </div>
-                                                <span class="d-flex align-items-center flex-grow-1"><span style="width: 7px; height: 7px" class="d-flex bg-secondary rounded-circle me-2"></span><strong class="text-secondary">EN ESPERA</strong></span>
-                                                <span class="badge rounded-pill text-bg-primary status999Count">0</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <button class="shadow-sm control-btn btn border h-100 px-2 me-2" type="button" id="importData">
-                                        <i class="ri-menu-add-fill fs-5 m-0" style="color: #666"></i>
-                                    </button>
-                                    <button class="shadow-sm control-btn btn border h-100 px-2 me-2" type="button" id="reloadData">
-                                        <i class="ri-loop-left-fill fs-5 m-0" style="color: #666"></i>
-                                    </button>
-                                    <button class="shadow-sm control-btn btn border h-100 px-2 me-2" type="button" id="loadPixelsBtn" onclick="loadAllAccountPixels()" title="Cargar píxeles de todas las cuentas">
-                                        <i class="ri-radar-line fs-5 m-0" style="color: #666"></i>
-                                    </button>
-                                    <button type="button" class="shadow-sm control-btn btn border px-2 h-100" data-bs-toggle="modal" data-bs-target="#customizeModal">
-                                        <i class="ri-layout-line fs-5 m-0" style="color: #666"></i>
-                                    </button>
-                                    <!-- <div class="me-3 h-100" style="width: 200px;">
-                                        <select id="accountSelect" class="form-select">
-                                            <option value="0">Todas las cuentas</option>
-                                        </select>
-                                    </div> -->
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 px-3">
-                                <div class="position-relative h-100">
-                                    <a href="javascript:;" id="searchSubmit" class="text-dark"><i class="ri-search-line fs-5 position-absolute" style="top: 3px; right: 8px"></i></a>
-                                    <input class="form-control h-100 fw-medium" style="padding-right: 30px;" id="search" placeholder="Ingrese palabras clave...">
-                                </div>
-                            </div>
-                            <div data-tool="general" class="d-flex gap-3" style="width:400px">
-                                <div>
-                                    <div class="position-relative h-100">
-                                        <label class="position-absolute fw-medium" style=" top: 7px; left: 7px;">Hilos</label>
-                                        <input type="number" name="limit" class="form-control h-100 text-center" style="padding-left:50px;" value="2">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div class="position-relative h-100">
-                                        <label class="position-absolute fw-medium" style=" top: 7px; left: 7px;">Delay</label>
-                                        <input type="number" name="delay" class="form-control h-100 text-center" style="padding-left:50px;" value="10">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div class="position-relative h-100 d-flex">
-                                        <a href="https://chat.whatsapp.com/HsKE3vczj7E1Y6gGcBqVkT" target="_blank" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap">
-                                            <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Soporte
-                                        </a>
-                                        <a href="/fb-connect.html" id="fbStatusBtn" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap" title="Estado de conexión a Facebook">
-                                            <i class="ri-facebook-circle-line fs-5 m-0 me-1" id="fbStatusIcon" style="color:#aaa"></i><span id="fbStatusText">Conectar FB</span>
-                                        </a>
-                                        <button type="button" class="text-nowrap shadow-sm control-btn btn border px-2 pe-3 h-100" data-bs-toggle="modal" data-bs-target="#settingModal">
-                                    <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Configuración
-                                </button>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="userInfo">
-                                <div class="d-flex justify-content-between border-start ms-3 ps-3 h-100" style="width:calc(350px - 1rem)">
-                                    <div class="d-flex flex-column">
-                                        <div class="position-relative">
-                                            
-                                            <div class="d-flex align-items-center flex-wrap">
-                                                <div class="rounded-circle overflow-hidden" style="width: 33px;">
-                                                    <div class="skeleton rounded-circle" style="width: 33px; height: 33px"></div>
-                                                </div>
-                                                <div class="ps-2" style="width: calc(100% - 33px)">
-                                                    <span class="d-block skeleton rounded" style="width: 150px; height: 10px; margin-bottom: 9px;"></span>
-                                                    <span class="d-block skeleton rounded" style="width: 120px; height: 10px;"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="gridLoading" class="d-flex align-items-center justify-content-center"></div>
-
-                    <div id="accounts" class="ag-theme-balham flex-grow-1 h-100"></div>
-
-                    <div class="border-top p-3 py-2 d-flex justify-content-between align-items-center dark-bg dark-border" style="height: 45px;">
-                    
-                        <div class="d-flex">
-                            <div class="d-flex align-items-center border px-3 py-1 me-2 rounded">
-                                <span class="border-end me-2 pe-2">
-                                    <strong>Total: </strong>
-                                    <span id="tong" class="badge text-bg-secondary">0</span>
-                                </span>
-                                <span class="border-end me-2 pe-2">
-                                    <strong>Seleccionados:</strong> 
-                                    <span id="dachon" class="badge text-bg-secondary">0</span>
-                                </span>
-                                <span>
-                                    <strong>Resaltados:</strong> 
-                                    <span id="boiden" class="badge text-bg-secondary">0</span>
-                                </span>
-                            </div>
-                            <div class="dropup">
-                                <button type="button" data-bs-toggle="dropdown" class="text-nowrap shadow-sm control-btn btn border px-2 py-0 h-100 d-flex align-items-center">
-                                    <i class="ri-money-dollar-circle-fill m-0 me-1" style="color: #666; font-size: 18px;"></i>Moneda:<span class="currentCurrency ms-2">MIX</span>
-                                    <i class="ri-arrow-up-s-fill m-0 mb-1" style="color: #666; font-size: 14px;"></i>
-                                </button>
-                                <ul class="dropdown-menu currencyMenu">
-                                    <li><a href="#" class="dropdown-item fw-medium">MIX</a></li>
-                                    <li><a href="#" class="dropdown-item fw-medium">VND</a></li>
-                                    <li><a href="#" class="dropdown-item fw-medium">USD</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-
-                        <div class="d-flex align-items-center border px-3 py-1 me-2 rounded">
-                            <span class="border-end me-2 pe-2">
-                                <strong>Activos:</strong> 
-                                <span class="status1Count badge text-bg-success">0</span>
-                            </span>
-                            <span class="border-end me-2 pe-2">
-                                <strong>Deshabilitados:</strong> 
-                                <span class="status2Count badge text-bg-danger">0</span>
-                            </span>
-                            <span class="border-end me-2 pe-2">
-                                <strong>Apelación 3L:</strong> 
-                                <span class="status4Count badge text-bg-warning">0</span>
-                            </span>
-                            <span class="border-end me-2 pe-2">
-                                <strong>Deshab. 3L:</strong> 
-                                <span class="status5Count badge text-bg-danger">0</span>
-                            </span>
-                            <span class="border-end me-2 pe-2">
-                                <strong>Deshab. XMDT:</strong> 
-                                <span class="status6Count badge text-bg-danger">0</span>
-                            </span>
-                            <span class="border-end me-2 pe-2">
-                                <strong>Deshab. Perm:</strong> 
-                                <span class="status7Count badge text-bg-danger">0</span>
-                            </span>
-                            <span class="border-end me-2 pe-2">
-                                <strong>Pago Pend.:</strong> 
-                                <span class="status3Count badge text-bg-warning">0</span>
-                            </span>
-                            <span class="border-end me-2 pe-2">
-                                <strong>Cerrados:</strong> 
-                                <span class="status101Count badge text-bg-secondary">0</span>
-                            </span>
-                            <span>
-                                <strong>En Espera:</strong> 
-                                <span class="status999Count badge text-bg-info">0</span>
-                            </span>
-                        </div>
-                        <!-- <div class="d-flex align-items-center">
-                            <div class="d-flex align-items-center">
-                                <div class="pe-3">
-                                    <span id="lastSync" class="fw-medium"></span>
-                                </div>
-                                <button class="shadow-sm btn border me-2 pe-3 h-100 d-flex align-items-center" onclick="openLink('https://t.me/+lqVNxKOd_nRkOTM1')">
-                                    <i class="ri-alert-line me-2 fs-6"></i> <strong>Reportar Error</strong>
-                                </button>
-                                <button class="shadow-sm btn border h-100 d-flex align-items-center">
-                                    <strong>Checkpoint </strong><span class="badge text-bg-danger ms-2" id="cpCount">0</span>
-                                </button>
-                            </div>
-                            <div class="d-flex align-items-center" id="thoihan"></div>
-                        </div> -->
-                    </div>
-                </div>
-
-                <!-- Copilot Sidebar Integrada -->
-                <div id="copilotPanelWrapper" style="width: 320px; min-width: 320px; border-left: 1px solid rgba(255,255,255,0.05);" class="d-none d-xl-block">
-                    <div class="copilot-panel">
-                        <div class="copilot-header">
-                            <div class="dot pulse"></div>
-                            <div>
-                                <h6 class="m-0 fs-6 fw-bold">Claude Copilot</h6>
-                                <small class="text-muted text-opacity-75" style="font-size:11px;">Agentic Marketing | Meta 2026</small>
-                            </div>
-                            <div class="ms-auto flex-shrink-0">
-                                <i class="ri-magic-line" style="color: #c084fc;"></i>
-                            </div>
-                        </div>
-                        <div class="copilot-body d-flex flex-column" id="copilotChat">
-                            <div class="mt-auto" id="copilotMessages">
-                                <!-- Cargado por copilot-mock.js -->
-                            </div>
-                        </div>
-                        <div class="p-3 border-top border-light border-opacity-10">
-                            <form id="copilotForm" class="position-relative m-0" onsubmit="event.preventDefault(); window.mockCopilotSubmit();">
-                                <input type="text" id="copilotInput" class="form-control hover-glass text-white" placeholder="Analiza esta cuenta..." style="font-size: 13px; padding-right: 35px; border-radius: 20px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
-                                <button type="submit" class="btn btn-sm text-primary position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent">
-                                    <i class="ri-send-plane-fill" style="color:#38bdf8"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-				<div id="adPanel" class="dark-bg border-start dark-border d-flex flex-column">
-
-                    <div id="foldButton" class="dark-bg dark-border border border-end-0">
-                        <i class="ri-arrow-drop-left-line"></i>
-                        <i class="ri-arrow-drop-right-line"></i>
-                    </div>
-
-					
-
-					<div class="flex-grow-1 overflow-auto">
-						<div class="overflow-auto p-3" data-tool="ads">
-
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-
-								<div class="p-3">
-									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Compartir BM Socio</span>
-										</label>
-										<input class="form-check-input" data-target="shareBmSetting" name="shareBm" type="checkbox" role="switch">
-									</div>
-								</div>
-
-								<div id="shareBmSetting" class="p-3 d-none border-top">
-                                    <label class="form-label fw-medium">
-                                        ID BM
-                                    </label>
-                                    <input type="text" class="form-control" value="" name="idBm">
-								</div>
-							</div>
-
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-
-								<div class="p-3">
-									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Obtener Link BM</span>
-										</label>
-										<input class="form-check-input" data-target="getLinkShareBmSetting" name="getLinkShareBm" type="checkbox" role="switch">
-									</div>
-								</div>
-
-								<div id="getLinkShareBmSetting" class="p-3 d-none border-top">
-                                    <label class="form-label fw-medium">Link <span class="ms-2 badge text-bg-success" id="linkShareBmCount">0</span></label>
-                                    <textarea class="form-control" name="linkShareBm" rows="10" spellcheck="false"></textarea>
-								</div>
-							</div>
-
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-
-								<div class="p-3">
-									<div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-										<label class="form-check-label fw-medium d-flex align-items-center">
-											<i class="ri-link fs-5 me-2"></i><span class="fw-bold">Obtener Link XMDT</span>
-										</label>
-										<input class="form-check-input" data-target="getLinkXmdtSetting" name="getLinkXmdtAds" type="checkbox" role="switch">
-									</div>
-								</div>
-
-								<div id="getLinkXmdtSetting" class="p-3 d-none border-top">
-									<div class="d-flex justify-content-between align-items-center mb-2">
-										<label class="form-label fw-medium mb-0">Enlaces XMDT Generados <span class="ms-2 badge text-bg-success" id="xmdtLinksCount">0</span></label>
-										<div class="btn-group btn-group-sm">
-											<button type="button" class="btn btn-outline-primary btn-sm" id="refreshXmdtLinks" title="Actualizar">
-												<i class="ri-refresh-line"></i>
-											</button>
-											<button type="button" class="btn btn-outline-success btn-sm" id="copyXmdtLinks" title="Copiar todos">
-												<i class="ri-file-copy-line"></i>
-											</button>
-											<button type="button" class="btn btn-outline-danger btn-sm" id="clearXmdtLinks" title="Limpiar">
-												<i class="ri-delete-bin-line"></i>
-											</button>
-										</div>
-									</div>
-									<div class="small text-muted mb-2">Formato: UID|LINK</div>
-									<textarea class="form-control" id="xmdtLinksDisplay" rows="8" readonly placeholder="Los enlaces XMDT generados aparecerán aquí en formato UID|LINK..." style="font-family: monospace; font-size: 12px;"></textarea>
-								</div>
-
-							</div>
-
-							<div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-
-                                <div class="p-3">
-                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-                                        <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-edit-line fs-5 me-2"></i><span class="fw-bold">Cambiar nombre</span>
-                                        </label>
-                                        <input class="form-check-input" data-target="renameSetting" name="rename" type="checkbox" role="switch">
-                                    </div>
-                                </div>
-    
-                                <div id="renameSetting" class="p-3 d-none border-top">
-                                    <label class="form-label fw-medium">
-                                        Nuevo nombre
-                                    </label>
-                                    <input type="text" class="form-control" value="DiviAnds" name="newName">
-                                </div>
-                            </div>
-    
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-    
-                                <div class="p-3">
-                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-                                        <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-information-line fs-5 me-2"></i><span class="fw-bold">Cambiar información</span>
-                                        </label>
-                                        <input class="form-check-input" data-target="changeInfoSetting" name="changeInfo" type="checkbox" role="switch">
-                                    </div>
-                                </div>
-    
-                                <div id="changeInfoSetting" class="p-3 d-none border-top">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium mb-2 d-block">
-                                            Moneda
-                                        </label>
-                                        <select class="form-select select2" name="currency"></select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium mb-2 d-block">
-                                            Zona horaria
-                                        </label>
-                                        <select class="form-select select2" name="timezone"></select>
-                                    </div>
-                                    <div class="">
-                                        <label class="form-label fw-medium mb-2 d-block">
-                                            País
-                                        </label>
-                                        <select class="form-select" name="country"></select>
-                                    </div>  
-                                </div>
-                            </div>
-
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-
-                                <div class="p-3">
-                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-                                        <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-user-add-line fs-5 me-2"></i><span class="fw-bold">Agregar usuario</span>
-                                        </label>
-                                        <input class="form-check-input" data-target="addAdmiSetting" name="addAdmin" type="checkbox" role="switch">
-                                    </div>
-                                </div>
-    
-                                <div id="addAdmiSetting" class="p-3 d-none border-top">
-                                    <label class="form-label fw-medium">
-                                        UID
-                                    </label>
-                                    <input type="text" class="form-control" value="" name="newAdminUid">
-                                </div>
-                            </div>
-    
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-    
-                                <div class="p-3">
-                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-                                        <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-spy-line fs-5 me-2"></i><span class="fw-bold">Eliminar admin</span>
-                                        </label>
-                                        <input class="form-check-input" data-target="removeAdminSetting" name="removeAdmin" type="checkbox" role="switch">
-                                    </div>
-                                </div>
-    
-                                <div id="removeAdminSetting" class="p-3 d-none border-top">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="removeHidden" id="removeHidden">
-                                                <label class="form-check-label" for="removeHidden">
-                                                    Eliminar admin oculto
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="removeAll" id="removeAll">
-                                                <label class="form-check-label" for="removeAll">
-                                                    Eliminar todos excepto tú
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                            </div>
-
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-    
-                                <div class="p-3">
-                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-                                        <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-door-closed-line me-2"></i><span class="fw-bold">Abrir cuenta cerrada</span>
-                                        </label>
-                                        <input class="form-check-input" name="openAccount" type="checkbox" role="switch">
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-    
-                                <div class="p-3">
-                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-                                        <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-bank-card-2-line me-2"></i><span class="fw-bold">Agregar tarjeta</span>
-                                        </label>
-                                        <input class="form-check-input" data-target="addCardSetting" name="addCard" type="checkbox" role="switch">
-                                    </div>
-                                </div>
-    
-                                <div id="addCardSetting" class="p-3 d-none border-top">
-                                    <div class="row mb-3">
-                                        <div class="col-4">
-                                            <label class="form-label fw-medium">
-                                                Modo
-                                            </label>
-                                            <select class="form-select" name="addCardMode">
-                                                <option value="1">Modo 1 - Básico</option>
-                                                <option value="2">Modo 2 - Avanzado</option>
-                                                <option value="3">Modo 3 - Rotativo</option>
-                                                <option value="4">Modo 4 - Aleatorio</option>
-                                                <option value="5">Modo 5 - Secuencial</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-3">
-                                            <label class="form-label fw-medium">
-                                                Máximo
-                                            </label>
-                                            <input type="number" class="form-control" value="10" name="maxCard" min="1" max="100">
-                                        </div>
-                                        <div class="col-5">
-                                            <label class="form-label fw-medium">
-                                                Gestión
-                                            </label>
-                                            <button type="button" class="control-btn btn border p-2 w-100" data-bs-toggle="modal" data-bs-target="#cardModal" style="background: #fff; color: #666; border: 1px solid #e2e2e2;">
-                                                <i class="ri-bank-card-line fs-5 me-2"></i>
-                                                Lista de Tarjetas <span class="badge bg-secondary ms-2" id="cardCountButton">0</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="alert alert-info py-2 mb-3" style="font-size: 0.9em;">
-                                        <i class="ri-information-line me-1"></i>
-                                        <strong>Instrucciones:</strong> Selecciona las cuentas de anuncios en la tabla principal, luego configura el modo y límite de tarjetas para agregar automáticamente.
-                                    </div>
-                                </div>                            </div>
-
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">
-    
-                                <div class="p-3">
-                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">
-                                        <label class="form-check-label fw-medium d-flex align-items-center">
-                                            <i class="ri-credit-card-2-line me-2"></i><span class="fw-bold">Asignar tarjetas a cuentas</span>
-                                        </label>
-                                        <input class="form-check-input" data-target="assignCardsSetting" name="assignCards" type="checkbox" role="switch">
-                                    </div>
-                                </div>
-    
-                                <div id="assignCardsSetting" class="p-3 d-none border-top">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium">
-                                            Tarjeta a asignar
-                                        </label>
-                                        <select class="form-select" id="cardSelectForAssign" name="selectedCardForAssignment">
-                                            <option value="">Seleccionar tarjeta...</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="alert alert-info py-2 mb-3" style="font-size: 0.9em;">
-                                        <i class="ri-information-line me-1"></i>
-                                        <strong>Instrucciones:</strong> Selecciona las cuentas publicitarias en la tabla principal, elige una tarjeta aquí y presiona el botón "Iniciar" para asignar automáticamente.
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-7">
-                                            <label class="form-label fw-medium">
-                                                Gestión de tarjetas
-                                            </label>
-                                            <button type="button" class="control-btn btn border p-2 w-100" data-bs-toggle="modal" data-bs-target="#cardModal" style="background: #fff; color: #666; border: 1px solid #e2e2e2;">
-                                                <i class="ri-bank-card-line fs-5 me-2"></i>
-                                                Administrar Tarjetas <span class="badge bg-secondary ms-2" id="cardCountButton2">0</span>
-                                            </button>
-                                        </div>
-                                        <div class="col-5">
-                                            <label class="form-label fw-medium">
-                                                Limpiar asignaciones
-                                            </label>
-                                            <button type="button" class="btn btn-outline-danger btn-sm p-2 w-100" onclick="window.clearAllCardAssignments()" style="font-size: 0.8em;">
-                                                <i class="ri-delete-bin-line me-1"></i>
-                                                Quitar Todas
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card shadow-sm border-light-subtle mb-3 p-0 dark-border-0">                                <div class="p-3">                                    <div class="form-check form-switch mb-0 ps-0 form-switch-md justify-content-between d-flex align-items-center">                                        <label class="form-check-label fw-medium d-flex align-items-center">                                            <i class="ri-share-line fs-5 me-2"></i><span class="fw-bold">Conectar Píxeles a Cuentas</span>                                        </label>                                        <input class="form-check-input" data-target="connectPixelsSetting" name="connectPixels" type="checkbox" role="switch">                                    </div>                                </div>                                <div id="connectPixelsSetting" class="p-3 d-none border-top">                                    <div class="alert alert-info py-2 mb-3" style="font-size: 0.9em;">                                        <i class="ri-information-line me-1"></i>                                        <strong>Instrucciones:</strong> Selecciona las cuentas publicitarias en la tabla principal, luego elige BM y píxel para conectar.                                    </div>                                                                        <div id="pixelLoadingMessage" class="alert alert-info py-2 mb-3" style="display: none;">                                        Cargando...                                    </div>                                    <div class="mb-3">                                        <label class="form-label fw-medium d-flex justify-content-between align-items-center">                                            <span>Business Manager</span>                                            <button type="button" class="btn btn-sm btn-outline-primary" id="loadBMsButton" onclick="loadBusinessManagersManually()">                                                <i class="ri-refresh-line me-1"></i>Cargar BMs                                            </button>                                        </label>                                        <select class="form-select" name="businessManager">                                            <option value="">Haz clic en "Cargar BMs" para comenzar...</option>                                        </select>                                        <div id="bmLoadingStatus" class="small text-muted mt-1" style="display: none;">                                            <i class="ri-loader-2-line spinner-grow spinner-grow-sm me-1"></i>                                            <span id="bmStatusText">Cargando Business Managers...</span>                                        </div>                                    </div>                                    <div class="mb-3">                                        <label class="form-label fw-medium d-flex justify-content-between align-items-center">                                            <span>Píxel de Facebook</span>                                            <button type="button" class="btn btn-sm btn-outline-success" id="loadPixelsButton" onclick="loadPixelsManually()">                                                <i class="ri-refresh-line me-1"></i>Cargar Píxeles                                            </button>                                        </label>                                        <select class="form-select" name="pixel">                                            <option value="">Selecciona un BM primero...</option>                                        </select>                                        <div id="pixelLoadingStatus" class="small text-muted mt-1" style="display: none;">                                            <i class="ri-loader-2-line spinner-grow spinner-grow-sm me-1"></i>                                            <span id="pixelStatusText">Cargando píxeles...</span>                                        </div>                                    </div>                                    <div id="pixelProgressArea" class="mt-3" style="display: none;">                                        <label class="form-label fw-medium">                                            Progreso de Conexión                                        </label>                                        <div id="pixelProgressMessages" class="border rounded p-2 bg-light" style="height: 150px; overflow-y: auto;">                                        </div>                                    </div>                                </div>                            </div>						</div>					</div>                </div>            </div>        </div>
-
-        <div class="modal fade" id="cardModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="cardModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h1 class="modal-title fs-4 d-flex align-items-center" id="cardModalLabel">
-                            <i class="ri-bank-card-2-line me-2"></i>
-                            Gestión de Tarjetas de Pago
-                            <span class="ms-3 badge bg-light text-dark" id="cardCount">0</span>
-                        </h1>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-0">
-                        <!-- Header con acciones -->
-                        <div class="border-bottom bg-light p-3">
-                            <div class="row align-items-center">
-                                <div class="col-md-6">
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-success btn-sm" id="addCardBtn">
-                                            <i class="ri-add-line me-1"></i>Agregar Tarjeta
-                                        </button>
-                                        <button type="button" class="btn btn-info btn-sm" id="pasteCardsBtn">
-                                            <i class="ri-clipboard-line me-1"></i>Pegar desde Portapapeles
-                                        </button>
-                                        <button type="button" class="btn btn-warning btn-sm" id="clearCardsBtn">
-                                            <i class="ri-delete-bin-line me-1"></i>Limpiar Todo
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="alert alert-info mb-0 py-2" style="font-size: 0.8em;">
-                                        <i class="ri-information-line me-1"></i>
-                                        <strong>Tip:</strong> Haz clic derecho en la tabla para ver opciones de menú contextual
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Formulario para agregar tarjeta manual -->
-                        <div id="addCardForm" class="p-3 bg-light border-bottom d-none">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <label class="form-label fw-medium">Nombre en tarjeta</label>
-                                    <input type="text" class="form-control" id="cardName" placeholder="Juan Pérez">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-medium">Número de tarjeta</label>
-                                    <input type="text" class="form-control" id="cardNumber" placeholder="1234567890123456">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label fw-medium">Vencimiento</label>
-                                    <input type="text" class="form-control" id="expDate" placeholder="MM/YY">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label fw-medium">CCV</label>
-                                    <input type="text" class="form-control" id="cardCsv" placeholder="123">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label fw-medium">&nbsp;</label>
-                                    <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-primary btn-sm w-50" id="saveCardBtn">
-                                            <i class="ri-save-line"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-secondary btn-sm w-50" id="cancelCardBtn">
-                                            <i class="ri-close-line"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Grid de tarjetas -->
-                        <div id="cards" class="ag-theme-balham" style="height: 400px"></div>
-                    </div>
-                    <div class="modal-footer bg-light">
-                        <div class="me-auto">
-                            <small class="text-muted">
-                                <i class="ri-shield-check-line me-1"></i>
-                                Las tarjetas se almacenan localmente en tu navegador de forma segura
-                            </small>
-                        </div>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                            <i class="ri-check-line me-1"></i>Aceptar
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="ri-close-line me-1"></i>Cerrar
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <div id="ads-grid-container">
+        <div id="ads-grid" class="ag-theme-balham-dark" style="height:70vh; width:100%;"></div>
+        <div id="empty-state" class="empty-state" style="display:none;">
+            <div class="icon">🔗</div>
+            <h5>Sin cuenta conectada</h5>
+            <p>Conecta tu cuenta de Facebook para ver tus Ads.</p>
+            <a href="connect.html" class="btn btn-primary">Conectar cuenta</a>
         </div>
+    </div>
+</div>
 
-        <div class="modal fade" id="settingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5">Configuración</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-0">
-                        <iframe src="setting.html" border="0" width="100%" height="500px"></iframe>
-                    </div>
-                    <div class="modal-footer d-flex">
-                        
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Guardar configuración</button>
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="customizeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5">Personalizar columnas</h1>
-                    </div>
-                    <div class="modal-body p-0">
-                        <div id="colCustomize" class="overflow-y-auto p-3" style="max-height: 350px;">
-
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" id="resetColumns" class="btn btn-secondary">Por defecto</button>
-                        <button type="button" id="saveColumns" class="btn btn-primary">Guardar configuración</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- <script src="js/ua-parser.min.js"></script>
-        <script src="js/select2.min.js"></script>
-        <script src="js/sortable.min.js"></script>
-        <script src="js/moment.min.js"></script>
-        <script src="js/context.min.js"></script> -->
-        <script src="js/sweetalert2.all.min.js"></script>
-        <script src="js/bootstrap.bundle.min.js"></script>
-        <script src="js/ag-grid-enterprise.min.js"></script>
-        <script src="js/fix_functions.js"></script>
-        <script src="js/context-menu-simple.js"></script>
-        <!-- Libs core (definen extId, FB class, fetch2, etc.) -->
-        <script src="js/libs1.js"></script>
-        <script src="js/libs2.js"></script>
-        <script src="js/libs3.js"></script>
-        <script src="js/libs4.js"></script>
-        <script src="js/libs5_clean.js"></script>
-        <!-- FASE 1 SECURITY: Módulos de seguridad -->
-        <script src="js/modules/crypto.js"></script>
-        <script src="js/modules/validators.js"></script>
-        <!-- MOCK: Simulación de extensión para pruebas locales -->
-
-        <!-- FASE 3: Claude Copilot Mock UI -->
-
-        <!-- scripts.js DESPUÉS de libs y mock para que extId esté definido -->
-        <script src="js/scripts.js"></script>
-        <script src="js/tkqc.js"></script>
-        <script src="js/card-manager.js"></script>
-        <script src="js/card-assignment.js"></script>
-        <script src="js/sidebar.js"></script>
-        
-    </body>
+<script src="js/jquery.js"></script>
+<script src="js/ag-grid-enterprise.min.js"></script>
+<script src="js/ads.js"></script>
+</body>
 </html>

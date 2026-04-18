@@ -11,13 +11,12 @@
 
   const navItems = [
     { section: 'Principal' },
-    { id: 'dashboard', label: 'Dashboard',      icon: 'ri-dashboard-line',     href: 'index.html',       badge: null },
+    { id: 'dashboard', label: 'Dashboard',      icon: 'ri-dashboard-line',     href: 'dashboard.html',   badge: null },
     { section: 'Gestión Meta' },
-    { id: 'ads',       label: 'Cuentas ADS',    icon: 'ri-megaphone-line',     href: 'ads.html',         badge: '12',  badgeType: '' },
-    { id: 'bm',        label: 'Business Manager',icon: 'ri-briefcase-line',    href: 'bm.html',          badge: '5',   badgeType: '' },
-    { id: 'pages',     label: 'Páginas',         icon: 'ri-flag-line',          href: 'page.html',        badge: '8',   badgeType: '' },
-    { id: 'clones',    label: 'Clones',          icon: 'ri-file-copy-line',     href: 'clone.html',       badge: null },
-    { id: 'phoi',      label: 'Plantillas',      icon: 'ri-image-line',         href: 'phoi.html',        badge: null },
+    { id: 'ads',       label: 'Cuentas ADS',    icon: 'ri-megaphone-line',     href: 'ads.html',         badge: null, badgeType: '' },
+    { id: 'bm',        label: 'Business Manager',icon: 'ri-briefcase-line',    href: 'bm.html',          badge: null, badgeType: '' },
+    { id: 'pages',     label: 'Páginas',         icon: 'ri-flag-line',          href: 'page.html',        badge: null, badgeType: '' },
+    { id: 'connect',   label: 'Cuentas',         icon: 'ri-link',               href: 'connect.html',     badge: null },
     { section: 'Inteligencia' },
     { id: 'advantage', label: 'Advantage+',      icon: 'ri-robot-line',         href: 'advantage.html',   badge: 'AI',  badgeType: 'success' },
     { id: 'pixel',     label: 'Pixel & CAPI',    icon: 'ri-radar-line',         href: 'pixel.html',       badge: null },
@@ -25,7 +24,7 @@
   ];
 
   function isActive(href) {
-    if (href === 'index.html' && (currentPage === '' || currentPage === 'index.html')) return true;
+    if (href === 'dashboard.html' && (currentPage === '' || currentPage === 'index.html' || currentPage === 'dashboard.html')) return true;
     return currentPage === href;
   }
 
@@ -87,7 +86,7 @@
 
   function injectSidebar() {
     // Don't inject in iframe pages (setting.html loaded as iframe, viewAds, viewBm, viewPage)
-    const skipPages = ['setting.html', 'viewAds.html', 'viewBm.html', 'viewPage.html', 'popup.html'];
+    const skipPages = ['connect.html'];
     if (skipPages.includes(currentPage)) return;
     if (window.self !== window.top) return; // inside iframe
 

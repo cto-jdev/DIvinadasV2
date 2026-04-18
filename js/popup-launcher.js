@@ -17,7 +17,7 @@ document.getElementById('btnDashboard').addEventListener('click', () => {
 });
 
 document.getElementById('btnConnect').addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('fb-connect.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('connect.html') });
     window.close();
 });
 

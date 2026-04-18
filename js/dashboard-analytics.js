@@ -186,9 +186,9 @@
               <div class="chart-title mb-3">Acciones Rápidas</div>
               <div class="row g-2">
                 <div class="col-4">
-                  <a href="clone.html" class="quick-action">
-                    <i class="ri-file-copy-line" style="color:#38bdf8"></i>
-                    <span>Clonar Cuenta</span>
+                  <a href="bm.html" class="quick-action">
+                    <i class="ri-briefcase-line" style="color:#38bdf8"></i>
+                    <span>Business Managers</span>
                   </a>
                 </div>
                 <div class="col-4">
@@ -206,7 +206,7 @@
                 <div class="col-4">
                   <a href="ads.html" class="quick-action">
                     <i class="ri-megaphone-line" style="color:#fb923c"></i>
-                    <span>Ver ADS</span>
+                    <span>Cuentas ADS</span>
                   </a>
                 </div>
                 <div class="col-4">
@@ -216,9 +216,9 @@
                   </a>
                 </div>
                 <div class="col-4">
-                  <a href="phoi.html" class="quick-action">
-                    <i class="ri-image-line" style="color:#a78bfa"></i>
-                    <span>Plantillas</span>
+                  <a href="connect.html" class="quick-action">
+                    <i class="ri-link" style="color:#a78bfa"></i>
+                    <span>Cuentas</span>
                   </a>
                 </div>
               </div>

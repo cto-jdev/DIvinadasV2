@@ -1,327 +1,42 @@
 <!doctype html>
 <html lang="es" data-bs-theme="dark" class="dark-mode">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Inicio | DivinAds</title>
-        <link href="css/style.css" rel="stylesheet">
-        <link href="css/libs.css" rel="stylesheet">
-        <link href="css/glass.css" rel="stylesheet">
-        <link href="css/animations.css" rel="stylesheet">
-        <link href="css/sidebar.css" rel="stylesheet">
-        <link href="css/dashboard.css" rel="stylesheet">
-
-        <!--script src="https://tally.so/widgets/embed.js"></script-->
-        <script src="js/jquery.js"></script>
-        
-        <!-- Script de Limpieza Automática de Cache -->
-        <script src="js/cache-cleaner.js"></script>
-        
-        <link rel="shortcut icon" href="img/favicon.png">
-        
-    </head>
-    <body class="folded">
-        
-        <div id="pageLoading" class="d-none"></div>
-
-        <!-- <div id="loadingScreen" class="d-flex align-items-center justify-content-center">
-            <div class="spinner-border text-secondary" role="status"></div>
-        </div> -->
-        <div id="app" data="via">
-
-            <div id="header">
-                <div class="header-top">
-                    <div class="row align-items-center h-100">
-                        <div class="col-4">
-                            <span class="titleBar fw-medium d-flex align-items-center">
-                                <img src="img/logo-divinads.png" alt="DivinAds Logo" height="30">
-                                <span class="appVersion ms-2 fw-medium"></span>
-                            </span>
-                        </div>
-                        <div class="col-4 d-flex justify-content-center">
-                            <div class="rounded row fw-medium" style="height: 35px; line-height: 25px; padding: 5px;width:350px;">
-                                <a class="col text-decoration-none mx-1 text-black bg-white rounded shadow text-center d-block" href="javascript:;">INICIO</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="clone.html">CLONAR</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="ads.html">ADS</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="bm.html">BM</a>
-                                <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="page.html">PÁGINA</a>
-                            </div>
-                        </div>
-                        <div class="col-4 d-flex justify-content-end">
-                            <div id="quality"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="app-wrapper rounded overflow-hidden d-flex shadow">
-                <div class="account-wrapper d-flex flex-column overflow-hidden flex-grow-1 position-relative overflow-hidden">
-
-                    <div class="border-bottom bg-white dark-border dark-body-bg" style="z-index: 101;">
-                        <div class="p-3 d-flex justify-content-between" style="height: 59px;">
-                            <div class="d-flex py-1">
-                                <div class="d-flex align-items-center border-end pe-3 me-3">
-                                    <a href="https://divinads.com/" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
-                                        <img src="public/assets/img/menu.png" height="25" width="25" class="me-3">
-                                        <strong style="font-size: 14px;">Inicio</strong>
-                                    </a>
-                                </div>
-                                <!-- Recargar y Comprar Paquete eliminados - modo local -->
-                                <!-- Sesiones Activas eliminado - modo local -->
-                                <div class="d-flex align-items-center">
-                                    <a href="https://divinads.com/" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
-                                        <img src="public/assets/img/history.png" height="25" width="25" class="me-3">
-                                        <strong style="font-size: 14px;">Historial</strong>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 px-3">
-                                
-                            </div>
-            
-                            <div class="position-relative h-100 d-flex">
-                                <a href="https://chat.whatsapp.com/HsKE3vczj7E1Y6gGcBqVkT" target="_blank" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap">
-                                    <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Soporte
-                                </a>
-                                <a href="/fb-connect.html" id="fbStatusBtn" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap" title="Estado de conexión a Facebook">
-                                    <i class="ri-facebook-circle-line fs-5 m-0 me-1" id="fbStatusIcon" style="color:#aaa"></i><span id="fbStatusText">Conectar FB</span>
-                                </a>
-                                <button type="button" class="text-nowrap shadow-sm control-btn btn border px-2 pe-3 h-100" data-bs-toggle="modal" data-bs-target="#settingModal">
-                                    <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Configuración
-                                </button>
-                            </div>
-
-                            <div id="userInfo">
-                                <div class="d-flex justify-content-between border-start ms-3 ps-3 h-100" style="width:calc(350px - 1rem)">
-                                    <div class="d-flex flex-column">
-                                        <div class="position-relative">
-                                            <div class="d-flex align-items-center flex-wrap" id="userProfileArea">
-                                                <!-- Skeleton loading inicial -->
-                                                <div class="rounded-circle overflow-hidden" style="width: 33px;" id="userAvatarContainer">
-                                                    <div class="skeleton rounded-circle" style="width: 33px; height: 33px" id="userAvatarSkeleton"></div>
-                                                    <img id="userAvatar" src="" alt="Avatar" class="rounded-circle d-none" style="width: 33px; height: 33px; object-fit: cover;">
-                                                </div>
-                                                <div class="ps-2" style="width: calc(100% - 33px)" id="userTextContainer">
-                                                    <!-- Skeletons iniciales -->
-                                                    <span class="d-block skeleton rounded" style="width: 150px; height: 10px; margin-bottom: 9px;" id="userNameSkeleton"></span>
-                                                    <span class="d-block skeleton rounded" style="width: 120px; height: 10px;" id="userIdSkeleton"></span>
-                                                    <!-- Datos reales (inicialmente ocultos) -->
-                                                    <span class="d-block fw-bold d-none" style="font-size: 14px; margin-bottom: 3px;" id="userName"></span>
-                                                    <span class="d-block text-muted d-none" style="font-size: 12px;" id="userId"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <button type="button" class="btn btn-sm btn-outline-primary me-2" id="switch" title="Cambiar cuenta">
-                                            <i class="ri-user-settings-line"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" id="logout" title="Cerrar sesión">
-                                            <i class="ri-logout-box-line"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                         </div>
-                    </div>
-
-                    <div id="gridLoading" class="d-flex align-items-center justify-content-center d-none"></div>
-
-                    <div class="d-flex w-100 h-100 overflow-hidden">
-                        <!-- Main Dashboard Area -->
-                        <div id="viaPanel" class="flex-grow-1 overflow-auto h-100 p-4 position-relative glass-panel" style="background-color: transparent !important;">
-                            <div class="container-fluid py-2">
-                                <div id="viaInfo"></div>
-                                
-                                <!-- Ocultos para mantener retrocompatibilidad con via.js si es necesario -->
-                                <div class="d-none" id="topPage"></div>
-                                <div class="d-none" id="versions"></div>
-                                <div class="d-none" id="adData"><select></select></div>
-                                <div class="d-none" id="adSelect"><select></select></div>
-
-                                <div class="bento-grid mb-4">
-                                    <div class="bento-col-3" id="balance">
-                                        <div class="glass-card glow-purple h-100 position-relative overflow-hidden">
-                                            <div class="position-absolute" style="top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(192, 132, 252, 0.2) 0%, transparent 70%); border-radius:50%;"></div>
-                                            <div class="d-flex justify-content-between align-items-center position-relative z-1" id="balanceContent">
-                                                <div>
-                                                    <strong class="fs-6 text-muted-glass mb-1 d-block" id="balanceTitle">Saldo de cuenta</strong>
-                                                    <div id="balanceValue">
-                                                        <strong class="fs-2 glowing-text text-white">$0.00</strong>
-                                                    </div>
-                                                </div>
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(192,132,252,0.3)" id="balanceIcon">
-                                                    <i class="ri-wallet-line fs-4" style="color: #c084fc"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="bento-col-3">
-                                        <div class="glass-card glow-blue h-100 position-relative overflow-hidden">
-                                            <div class="position-absolute" style="top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, transparent 70%); border-radius:50%;"></div>
-                                            <div class="d-flex justify-content-between align-items-center position-relative z-1">
-                                                <div>
-                                                    <strong class="fs-6 text-muted-glass mb-1 d-block">Cuentas BM</strong>
-                                                    <strong class="fs-2 glowing-text text-white" id="countBm">0</strong>
-                                                </div>
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(56, 189, 248, 0.3)">
-                                                    <i class="ri-briefcase-line fs-4" style="color: #38bdf8"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="bento-col-3">
-                                        <div class="glass-card glow-orange h-100 position-relative overflow-hidden">
-                                            <div class="position-absolute" style="top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(251, 146, 60, 0.2) 0%, transparent 70%); border-radius:50%;"></div>
-                                            <div class="d-flex justify-content-between align-items-center position-relative z-1">
-                                                <div>
-                                                    <strong class="fs-6 text-muted-glass mb-1 d-block">Cuentas Ads</strong>
-                                                    <strong class="fs-2 glowing-text text-white" id="countAds">0</strong>
-                                                </div>
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(251, 146, 60, 0.3)">
-                                                    <i class="ri-megaphone-line fs-4" style="color: #fb923c"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="bento-col-3">
-                                        <div class="glass-card glow-green h-100 position-relative overflow-hidden">
-                                            <div class="position-absolute" style="top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(74, 222, 128, 0.2) 0%, transparent 70%); border-radius:50%;"></div>
-                                            <div class="d-flex justify-content-between align-items-center position-relative z-1">
-                                                <div>
-                                                    <strong class="fs-6 text-muted-glass mb-1 d-block">Páginas</strong>
-                                                    <strong class="fs-2 glowing-text text-white" id="countPage">0</strong>
-                                                </div>
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(74, 222, 128, 0.3)">
-                                                    <i class="ri-flag-line fs-4" style="color: #4ade80"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bento-grid" style="min-height: 400px;">
-                                    <div class="bento-col-8">
-                                        <div class="glass-panel p-4 h-100" id="bmChartBox" style="min-height: 350px;">
-                                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                                <strong class="fs-5 text-white">Rendimiento Advantage+ (Simulado)</strong>
-                                                <span class="badge bg-primary bg-opacity-25 text-primary border border-primary">Live API</span>
-                                            </div>
-                                            <div class="" id="bmChart" style="display:block!important;"><canvas style="width:100%; height:250px;"></canvas></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="bento-col-4 d-flex flex-column gap-3">
-                                        <div class="glass-panel p-0 flex-grow-1 overflow-hidden d-flex flex-column h-50">
-                                            <div class="d-flex justify-content-between p-3 border-bottom border-light border-opacity-10 align-items-center">
-                                                <strong class="fs-6 text-white">Top Cuentas BM</strong>
-                                                <a href="bm.html" class="text-decoration-none text-muted-glass hover-white"><i class="ri-external-link-line"></i></a>
-                                            </div>
-                                            <div id="topBm" class="flex-grow-1 p-0 overflow-auto">
-                                                <div class="p-4 text-center">
-                                                    <i class="ri-shield-keyhole-line fs-1 text-muted-glass opacity-50 mb-2 d-block"></i>
-                                                    <span class="text-muted-glass small">Recopilando datos de Meta Graph...</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="glass-panel p-0 flex-grow-1 overflow-hidden d-flex flex-column h-50">
-                                            <div class="d-flex justify-content-between p-3 border-bottom border-light border-opacity-10 align-items-center">
-                                                <strong class="fs-6 text-white">Riesgos Compliance</strong>
-                                            </div>
-                                            <div id="topAds" class="flex-grow-1 p-0 overflow-auto">
-                                                <div class="p-3 text-center">
-                                                    <span class="badge bg-success bg-opacity-25 text-success border border-success d-inline-block mb-2"><i class="ri-check-line"></i> Aprobado</span>
-                                                    <span class="text-muted-glass small d-block">Todas tus audiencias pasan el H.E.C test.</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Copilot Sidebar -->
-                        <div id="copilotPanelWrapper" style="width: 340px; min-width: 340px; border-left: 1px solid rgba(255,255,255,0.05);" class="d-none d-xl-block">
-                            <div class="copilot-panel">
-                                <div class="copilot-header">
-                                    <div class="dot pulse"></div>
-                                    <div>
-                                        <h6 class="m-0 fs-6 fw-bold">Claude Copilot</h6>
-                                        <small class="text-muted text-opacity-75" style="font-size:11px;">Agentic Marketing | Meta 2026</small>
-                                    </div>
-                                    <div class="ms-auto flex-shrink-0">
-                                        <i class="ri-magic-line" style="color: #c084fc;"></i>
-                                    </div>
-                                </div>
-                                <div class="copilot-body d-flex flex-column" id="copilotChat">
-                                    <div class="mt-auto" id="copilotMessages">
-                                        <!-- Cargado por copilot-mock.js -->
-                                    </div>
-                                </div>
-                                <div class="p-3 border-top border-light border-opacity-10">
-                                    <form id="copilotForm" class="position-relative m-0" onsubmit="event.preventDefault(); window.mockCopilotSubmit();">
-                                        <input type="text" id="copilotInput" class="form-control hover-glass text-white" placeholder="Pídele a Claude..." style="font-size: 13px; padding-right: 35px; border-radius: 20px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
-                                        <button type="submit" class="btn btn-sm text-primary position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent">
-                                            <i class="ri-send-plane-fill" style="color:#38bdf8"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <iframe id="iframe" src="" style="position: absolute;width:0;height:0;border:0;"></iframe>
-
-                </div>
-
-            </div>
-        </div>
-
-        <div class="modal fade" id="settingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5">Configuración</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-0">
-                        <iframe src="setting.html" border="0" width="100%" height="500px"></iframe>
-                    </div>
-                    <div class="modal-footer d-flex">
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Guardar configuración</button>
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Cerrar</button>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        
-        <script src="js/sweetalert2.all.min.js"></script>
-        <script src="js/bootstrap.bundle.min.js"></script>
-        <script src="js/tinyTooltip.js"></script>
-        <script src="js/chart.js"></script>
-        <script src="js/libs1.js"></script>
-        <script src="js/libs2.js"></script>
-        <script src="js/libs3.js?v=fixed-version"></script>
-        <script src="js/libs4.js"></script>
-        <script src="js/via.js?v=real-data-system"></script>
-        <!-- FASE 1 SECURITY: Módulos de seguridad cargados antes de scripts.js -->
-        <script src="js/modules/crypto.js"></script>
-        <script src="js/modules/validators.js"></script>
-        <!-- test.js eliminado por seguridad (3.3 MB de código ofuscado desconocido) -->
-        <!-- MOCK: Simulación de extensión para pruebas locales (quitar en producción con extensión real) -->
-
-        
-        <!-- FASE 3: Claude Copilot Mock UI -->
-
-        <script src="js/sidebar.js"></script>
-        <!-- Simulador de métricas eliminado para dar paso a la información real de Meta -->
-        <!-- <script src="js/dashboard-analytics.js"></script> -->
-        <script src="js/scripts.js"></script>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DivinAds</title>
+    <link rel="shortcut icon" href="img/favicon.png">
+    <style>
+        body {
+            margin:0; font-family:'Noto Sans',sans-serif;
+            min-height:100vh;
+            background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+            color:#e2e8f0;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .wrap { text-align:center; max-width:480px; padding:40px; }
+        img { height:48px; margin-bottom:24px; }
+        h1 { font-size:22px; font-weight:600; margin:0 0 8px; }
+        p  { font-size:14px; color:#94a3b8; margin:0 0 24px; }
+        .btn {
+            display:inline-block; padding:12px 28px;
+            background:#3b82f6; color:#fff; border-radius:8px;
+            text-decoration:none; font-weight:600; font-size:14px;
+            transition:background .2s;
+        }
+        .btn:hover { background:#2563eb; }
+        .muted {
+            display:block; margin-top:16px; font-size:12px;
+            color:#64748b; text-decoration:none;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <img src="img/logo-divinads.png" alt="DivinAds">
+        <h1>DivinAds v2.0 — Marketing API</h1>
+        <p>Conecta tu cuenta de Facebook Business para acceder a tus Business Managers, Ad Accounts, Páginas y Pixels mediante la API oficial de Meta.</p>
+        <a href="connect.html" class="btn">Conectar cuenta</a>
+        <a href="dashboard.html" class="muted">Ya conectado → Abrir dashboard</a>
+    </div>
+</body>
 </html>
