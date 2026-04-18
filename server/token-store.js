@@ -28,7 +28,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const TOKENS_PATH = path.join(__dirname, '..', 'tokens.json');
+const TOKENS_PATH = process.env.TOKENS_PATH || path.join(__dirname, '..', 'tokens.json');
 const ALGO = 'aes-256-gcm';
 
 function getKey() {
