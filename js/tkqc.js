@@ -566,7 +566,7 @@ const columnDefs = [{
           accountGrid.api.forEachNode(function (p28) {
             vA2.push(p28.data);
           });
-          if (vA2.length > 0) {
+          if (vA2.length > 0 && fb.uid) {
             await setLocalStorage("dataAds_" + fb.uid, vA2);
           }
           const v26 = accountGrid.columnApi.getColumnState();

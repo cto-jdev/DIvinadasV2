@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark" class="dark-mode">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conectar cuenta — DivinAds</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/glass.css" rel="stylesheet">
+    <link href="css/animations.css" rel="stylesheet">
+    <link href="css/remixicon.css" rel="stylesheet">
+    <link rel="shortcut icon" href="img/favicon.png">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .connect-card {
+            max-width: 480px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .fb-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #1877f2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        .btn-fb {
+            background: #1877f2;
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: background .15s;
+            text-decoration: none;
+        }
+        .btn-fb:hover { background: #166fe5; color: #fff; }
+        .btn-fb:disabled { background: #64748b; cursor: not-allowed; }
+        .scope-list {
+            text-align: left;
+            margin: 24px 0;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+        .scope-list li { margin-bottom: 6px; }
+        .account-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 8px;
+        }
+        .account-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .account-meta {
+            flex: 1;
+            min-width: 0;
+        }
+        .account-meta strong {
+            display: block;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        .account-meta small {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+        .btn-disconnect {
+            background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-disconnect:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="connect-card text-center text-white">
+        <div class="fb-logo"><i class="ri-facebook-fill"></i></div>
+        <h2 class="mb-2" style="font-size: 22px;">Conectar con Facebook</h2>
+        <p class="text-white-50 mb-4" style="font-size: 14px;">
+            DivinAds se conecta a tu Business Manager mediante el protocolo
+            OAuth oficial de Meta. Nunca almacenamos tu contraseña ni tus cookies.
+        </p>
+
+        <div id="connected-section" style="display: none;">
+            <h5 class="mb-3" style="font-size: 15px;">Cuentas conectadas</h5>
+            <div id="accounts-list"></div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+        </div>
+
+        <a href="#" id="btn-connect" class="btn-fb">
+            <i class="ri-facebook-fill"></i>
+            <span>Conectar cuenta</span>
+        </a>
+
+        <details class="mt-4" style="text-align: left;">
+            <summary class="text-white-50" style="cursor: pointer; font-size: 13px;">
+                ¿Qué permisos se solicitan?
+            </summary>
+            <ul class="scope-list">
+                <li><strong>ads_management</strong> — crear y editar campañas</li>
+                <li><strong>ads_read</strong> — leer datos de campañas e insights</li>
+                <li><strong>business_management</strong> — listar Business Managers y cuentas</li>
+                <li><strong>pages_show_list</strong> — listar páginas que administras</li>
+                <li><strong>pages_read_engagement</strong> — insights de páginas</li>
+                <li><strong>public_profile</strong>, <strong>email</strong> — identificarte</li>
+            </ul>
+        </details>
+
+        <p class="text-white-50 mt-3" style="font-size: 11px;">
+            Puedes revocar el acceso en cualquier momento desde
+            <a href="https://www.facebook.com/settings?tab=business_tools"
+               target="_blank" class="text-info">
+                Configuración → Apps y sitios web
+            </a>
+            en tu cuenta de Facebook.
+        </p>
+    </div>
+
+    <script src="js/connect.js"></script>
+</body>
+</html>

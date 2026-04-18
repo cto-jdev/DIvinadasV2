@@ -77,8 +77,8 @@ const columnDefs = [{
     field: "account",
     headerName: "Cuenta",
     minWidth: 250,
-    cellRenderer: p2 => {
-      return "\n                <div class=\"d-flex align-items-center\">\n                    <span class=\"avatar-letter\" data-letter=\"" + p2.data.account.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                    <a href=\"https://business.facebook.com/billing_hub/payment_settings/?asset_id=" + p2.data.adId + "\" target=\"_BLANK\" class=\"ps-3 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + p2.data.account + "</strong>\n                        <span>" + p2.data.adId + "</span>\n                    </a>\n                </div>\n            ";
+    cellRenderer: params => {
+      return "\n                <div class=\"d-flex align-items-center\">\n                    <span class=\"avatar-letter\" data-letter=\"" + params.data.account.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                    <a href=\"https://business.facebook.com/billing_hub/payment_settings/?asset_id=" + params.data.adId + "\" target=\"_BLANK\" class=\"ps-3 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + params.data.account + "</strong>\n                        <span>" + params.data.adId + "</span>\n                    </a>\n                </div>\n            ";
     }
   }, {
     field: "id",
@@ -120,80 +120,84 @@ const columnDefs = [{
     field: "payment",
     headerName: "Pago",
     minWidth: 200,
-    cellRenderer: p3 => {
-      let v2 = "";
-      if (p3.data.payment) {
-        const v3 = JSON.parse(p3.data.payment);
-        if (v3.length > 0) {
-          const v4 = v3.map(p4 => {
-            if (p4.credential.__typename === "AdsToken") {
-              p4.img = "../img/credit.svg";
-              p4.credential.last_four_digits = 1007;
+    cellRenderer: params => {
+      let paymentHtml = "";
+      if (params.data.payment) {
+        const paymentList = JSON.parse(params.data.payment);
+        if (paymentList.length > 0) {
+          const enrichedList = paymentList.map(paymentItem => {
+            if (paymentItem.credential.__typename === "AdsToken") {
+              paymentItem.img = "../img/credit.svg";
+              paymentItem.credential.last_four_digits = 1007;
             }
-            if (p4.credential.__typename === "PaymentPaypalBillingAgreement") {
-              p4.img = "../img/paypal.svg";
-              p4.credential.last_four_digits = "PayPal";
+            if (paymentItem.credential.__typename === "PaymentPaypalBillingAgreement") {
+              paymentItem.img = "../img/paypal.svg";
+              paymentItem.credential.last_four_digits = "PayPal";
             }
-            if (p4.credential.__typename === "DirectDebit") {
-              p4.img = "../img/direct.svg";
+            if (paymentItem.credential.__typename === "DirectDebit") {
+              paymentItem.img = "../img/direct.svg";
             }
-            if (p4.credential.card_association === "AMERICANEXPRESS") {
-              p4.img = "../img/amex.svg";
+            if (paymentItem.credential.card_association === "AMERICANEXPRESS") {
+              paymentItem.img = "../img/amex.svg";
             }
-            if (p4.credential.card_association === "VISA") {
-              p4.img = "../img/visa.svg";
+            if (paymentItem.credential.card_association === "VISA") {
+              paymentItem.img = "../img/visa.svg";
             }
-            if (p4.credential.card_association === "MASTERCARD") {
-              p4.img = "../img/mastercard.svg";
+            if (paymentItem.credential.card_association === "MASTERCARD") {
+              paymentItem.img = "../img/mastercard.svg";
             }
-            return p4;
+            return paymentItem;
           });
-          let v5 = v4.filter(p5 => p5.is_primary)[0];
-          if (!v5) {
-            v5 = v4[0];
+          let primaryItem = enrichedList.filter(item => item.is_primary)[0];
+          if (!primaryItem) {
+            primaryItem = enrichedList.length > 0 ? enrichedList[0] : null;
           }
-          v2 = "<div class=\"accountPayments\" style=\"line-height: initial;\">";
-          let v6 = "";
-          if (v5.usability === "USABLE") {
-            v6 = "<span class=\"badge rounded-pill text-bg-success\">Activo</span>";
+          if (!primaryItem) {
+            paymentHtml = "";
+            return;
           }
-          if (v5.usability === "PENDING_VERIFICATION" || v5.usability === "UNVERIFIED_OR_PENDING_AUTH") {
-            v6 = "<span class=\"badge rounded-pill text-bg-warning\">Verificación pendiente</span>";
+          paymentHtml = "<div class=\"accountPayments\" style=\"line-height: initial;\">";
+          let primaryBadgeHtml = "";
+          if (primaryItem.usability === "USABLE") {
+            primaryBadgeHtml = "<span class=\"badge rounded-pill text-bg-success\">Activo</span>";
           }
-          if (v5.usability === "ADS_PAYMENTS_RESTRICTED" || v5.usability === "UNVERIFIABLE") {
-            v6 = "<span class=\"badge rounded-pill text-bg-danger\">Restringido</span>";
+          if (primaryItem.usability === "PENDING_VERIFICATION" || primaryItem.usability === "UNVERIFIED_OR_PENDING_AUTH") {
+            primaryBadgeHtml = "<span class=\"badge rounded-pill text-bg-warning\">Verificación pendiente</span>";
           }
-          v2 += "\n                        <div class=\"d-flex align-items-center\">\n                            <img src=\"" + v5.img + "\" class=\"me-2\"><strong>" + v5.credential.last_four_digits + "</strong><span class=\"mx-1\">&#8226;</span><span>" + v6 + "</span>\n                        </div>\n\n                    ";
-          if (v4.length > 1) {
-            v2 += "\n                            <strong class=\"more text-primary d-block\" style=\"margin-top: 2px\">" + (v4.length - 1) + " Más tarjetas...</strong>\n                            <div class=\"subMenu d-none\">\n                        ";
-            v4.forEach(p6 => {
-              let v7 = "";
-              let v8 = "";
-              if (!p6.credential.email) {
-                v7 = "<small>Fecha de expiración: " + p6.credential.expiry_month + "/" + p6.credential.expiry_year + "</small>";
+          if (primaryItem.usability === "ADS_PAYMENTS_RESTRICTED" || primaryItem.usability === "UNVERIFIABLE") {
+            primaryBadgeHtml = "<span class=\"badge rounded-pill text-bg-danger\">Restringido</span>";
+          }
+          paymentHtml += "\n                        <div class=\"d-flex align-items-center\">\n                            <img src=\"" + primaryItem.img + "\" class=\"me-2\"><strong>" + primaryItem.credential.last_four_digits + "</strong><span class=\"mx-1\">&#8226;</span><span>" + primaryBadgeHtml + "</span>\n                        </div>\n\n                    ";
+          if (enrichedList.length > 1) {
+            paymentHtml += "\n                            <strong class=\"more text-primary d-block\" style=\"margin-top: 2px\">" + (enrichedList.length - 1) + " Más tarjetas...</strong>\n                            <div class=\"subMenu d-none\">\n                        ";
+            enrichedList.forEach(item => {
+              let itemDetail = "";
+              let itemBadgeHtml = "";
+              if (!item.credential.email) {
+                itemDetail = "<small>Fecha de expiración: " + item.credential.expiry_month + "/" + item.credential.expiry_year + "</small>";
               } else {
-                v7 = "<small>" + p6.credential.email + "</small>";
+                itemDetail = "<small>" + item.credential.email + "</small>";
               }
-              if (p6.usability === "USABLE") {
-                v8 = "<span class=\"badge rounded-pill text-bg-success\">Activo</span>";
+              if (item.usability === "USABLE") {
+                itemBadgeHtml = "<span class=\"badge rounded-pill text-bg-success\">Activo</span>";
               }
-              if (p6.usability === "PENDING_VERIFICATION" || p6.usability === "UNVERIFIED_OR_PENDING_AUTH") {
-                v8 = "<span class=\"badge rounded-pill text-bg-warning\">Verificación pendiente</span>";
+              if (item.usability === "PENDING_VERIFICATION" || item.usability === "UNVERIFIED_OR_PENDING_AUTH") {
+                itemBadgeHtml = "<span class=\"badge rounded-pill text-bg-warning\">Verificación pendiente</span>";
               }
-              if (p6.usability === "ADS_PAYMENTS_RESTRICTED" || p6.usability === "UNVERIFIABLE") {
-                v8 = "<span class=\"badge rounded-pill text-bg-danger\">Restringido</span>";
+              if (item.usability === "ADS_PAYMENTS_RESTRICTED" || item.usability === "UNVERIFIABLE") {
+                itemBadgeHtml = "<span class=\"badge rounded-pill text-bg-danger\">Restringido</span>";
               }
-              if (p6.credential.__typename === "AdsToken") {
-                v7 = "";
+              if (item.credential.__typename === "AdsToken") {
+                itemDetail = "";
               }
-              v2 += "\n                                <div class=\"cardItem d-flex align-items-center\">\n                                    <img src=\"" + p6.img + "\" height=\"20\" class=\"me-3\"> \n                                    <div>\n                                        <span class=\"d-block\"><strong>" + p6.credential.last_four_digits + "</strong> &#8226; " + v8 + "</span>\n                                        " + v7 + "\n                                    </div>\n                                </div>\n                            ";
+              paymentHtml += "\n                                <div class=\"cardItem d-flex align-items-center\">\n                                    <img src=\"" + item.img + "\" height=\"20\" class=\"me-3\"> \n                                    <div>\n                                        <span class=\"d-block\"><strong>" + item.credential.last_four_digits + "</strong> &#8226; " + itemBadgeHtml + "</span>\n                                        " + itemDetail + "\n                                    </div>\n                                </div>\n                            ";
             });
-            v2 += "</div>";
+            paymentHtml += "</div>";
           }
-          v2 += "</div>";
+          paymentHtml += "</div>";
         }
       }
-      return v2;
+      return paymentHtml;
     }
   }, {
     field: "nextBillDate",
@@ -299,93 +303,48 @@ const columnDefs = [{
      * Parámetros: p7 (objeto con propiedad data)
      * Retorna: id de la fila
      */
-    getRowId: function (p7) {
-      return p7.data.id;
+    getRowId: function (params) {
+      return params.data.id;
     },
-    /**
-     * onFirstDataRendered
-     * Descripción: Llama a countStatus cuando los datos se renderizan por primera vez en la grilla.
-     * Parámetros: p8 (evento de agGrid)
-     */
-    onFirstDataRendered: function (p8) {
-      countStatus(p8, 0);
+    onFirstDataRendered: function (event) {
+      countStatus(event, 0);
     },
-    /**
-     * onRangeSelectionChanged
-     * Descripción: Actualiza el contador de filas seleccionadas en un rango.
-     * Parámetros: p9 (evento de selección de rango de agGrid)
-     */
-    onRangeSelectionChanged: function (p9) {
-      const v9 = p9.api.getCellRanges();
-      if (v9.length) {
-        let v10 = 0;
-        if (v9[0].startRow.rowIndex < v9[0].endRow.rowIndex) {
-          v10 = v9[0].endRow.rowIndex - (v9[0].startRow.rowIndex - 1);
+    onRangeSelectionChanged: function (event) {
+      const cellRanges = event.api.getCellRanges();
+      if (cellRanges.length) {
+        let rangeCount = 0;
+        if (cellRanges[0].startRow.rowIndex < cellRanges[0].endRow.rowIndex) {
+          rangeCount = cellRanges[0].endRow.rowIndex - (cellRanges[0].startRow.rowIndex - 1);
         } else {
-          v10 = v9[0].startRow.rowIndex - (v9[0].endRow.rowIndex - 1);
+          rangeCount = cellRanges[0].startRow.rowIndex - (cellRanges[0].endRow.rowIndex - 1);
         }
-        $("#boiden").text(v10);
+        $("#boiden").text(rangeCount);
       } else {
         $("#boiden").text(0);
       }
     },
-    /**
-     * onSelectionChanged
-     * Descripción: Actualiza el contador de filas seleccionadas.
-     * Parámetros: p10 (evento de selección de agGrid)
-     */
-    onSelectionChanged: function (p10) {
-      const v11 = p10.api.getSelectedRows();
-      $("#dachon").text(v11.length);
+    onSelectionChanged: function (event) {
+      const selectedRows = event.api.getSelectedRows();
+      $("#dachon").text(selectedRows.length);
     },
-    /**
-     * onRowDataUpdated
-     * Descripción: Actualiza el contador total de filas mostradas en la grilla.
-     * Parámetros: p11 (evento de actualización de datos de agGrid)
-     */
-    onRowDataUpdated: function (p11) {
-      $("#tong").text(p11.api.getDisplayedRowCount());
+    onRowDataUpdated: function (event) {
+      $("#tong").text(event.api.getDisplayedRowCount());
     },
-    /**
-     * onFilterChanged
-     * Descripción: Actualiza el contador total de filas mostradas tras aplicar un filtro.
-     * Parámetros: p12 (evento de filtrado de agGrid)
-     */
-    onFilterChanged: function (p12) {
-      $("#tong").text(p12.api.getDisplayedRowCount());
+    onFilterChanged: function (event) {
+      $("#tong").text(event.api.getDisplayedRowCount());
     },
     rowClassRules: {
-      /**
-       * running
-       * Descripción: Devuelve true si el estado de la fila es "RUNNING" para aplicar una clase CSS.
-       * Parámetros: p13 (objeto con propiedad data)
-       */
-      running: function (p13) {
-        return p13.data.status === "RUNNING";
+      running: function (params) {
+        return params.data.status === "RUNNING";
       },
-      /**
-       * finished
-       * Descripción: Devuelve true si el estado de la fila es "FINISHED" para aplicar una clase CSS.
-       * Parámetros: p14 (objeto con propiedad data)
-       */
-      finished: function (p14) {
-        return p14.data.status === "FINISHED";
+      finished: function (params) {
+        return params.data.status === "FINISHED";
       }
     },
-    /**
-     * onBodyScroll
-     * Descripción: Marca la variable global 'scrolling' como true cuando se detecta scroll en la tabla.
-     * Parámetros: p15 (evento de scroll)
-     */
-    onBodyScroll: function (p15) {
+    onBodyScroll: function (event) {
       scrolling = true;
     },
-    /**
-     * onBodyScrollEnd
-     * Descripción: Marca la variable global 'scrolling' como false cuando termina el scroll en la tabla.
-     * Parámetros: p16 (evento de fin de scroll)
-     */
-    onBodyScrollEnd: function (p16) {
+    onBodyScrollEnd: function (event) {
       scrolling = false;
     }
   };
@@ -452,45 +411,45 @@ const columnDefs = [{
    * Descripción: Inicializa la grilla de cuentas y tarjetas, carga datos desde localStorage, configura eventos y sincronización periódica.
    */
   $(document).ready(async function () {
-    const v13 = document.querySelector("#accounts");
+    const gridContainer = document.querySelector("#accounts");
     try {
-      const v14 = document.querySelector("#cards");
-      if (v14) {
-        new agGrid.Grid(v14, cardGrid);
+      const cardsContainer = document.querySelector("#cards");
+      if (cardsContainer) {
+        new agGrid.Grid(cardsContainer, cardGrid);
       }
     } catch (error) {
       console.warn('Error inicializando grilla de tarjetas:', error);
     }
-    new agGrid.Grid(v13, accountGrid);
-    const v15 = JSON.parse(localStorage.getItem("stateAds")) || [];
-    const v16 = {
-      state: v15,
+    new agGrid.Grid(gridContainer, accountGrid);
+    const savedColumnState = JSON.parse(localStorage.getItem("stateAds")) || [];
+    const columnStateConfig = {
+      state: savedColumnState,
       applyOrder: true
     };
-    accountGrid.columnApi.applyColumnState(v16);
-    const v17 = new URL(location.href);
-    const v18 = v17.searchParams.get("id");
-    if (v18) {
-      const v19 = await getLocalStorage("dataAds_" + v18);
-      $("#count").text(v19.length);
-      accountGrid.api.setRowData(v19);
+    accountGrid.columnApi.applyColumnState(columnStateConfig);
+    const pageUrl = new URL(location.href);
+    const urlUserId = pageUrl.searchParams.get("id");
+    if (urlUserId) {
+      const savedData = (await getLocalStorage("dataAds_" + urlUserId)) || [];
+      $("#count").text(savedData.length);
+      accountGrid.api.setRowData(savedData);
     } else {
-            $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"], div[col-id=\"pixel\"]", function () {        if ($(this).find(".more").length > 0 && $(".moreCard").length === 0) {          const v20 = $(this).find(".more").offset();          const v21 = parseInt($(this).find(".more").attr("offset")) || 2;          const v22 = $(this).find(".subMenu").html();                    // Mejorar el posicionamiento para evitar superposición          let topPosition = v20.top + v21;          let leftPosition = v20.left - 10;                    // Obtener dimensiones de la ventana          const windowHeight = $(window).height();          const windowWidth = $(window).width();          const cardEstimatedHeight = 200; // Altura estimada de la tarjeta          const cardEstimatedWidth = 350; // Ancho estimado de la tarjeta                    // Ajustar posición vertical si se sale de la pantalla por abajo          if (topPosition + cardEstimatedHeight > windowHeight) {            topPosition = v20.top - cardEstimatedHeight - 10;          }                    // Ajustar posición horizontal si se sale de la pantalla por la derecha          if (leftPosition + cardEstimatedWidth > windowWidth) {            leftPosition = windowWidth - cardEstimatedWidth - 20;          }                    // Asegurar que no se salga por la izquierda          if (leftPosition < 10) {            leftPosition = 10;          }                    // Asegurar que no se salga por arriba          if (topPosition < 10) {            topPosition = 10;          }                    $("body").append("\n                    <div class=\"moreCard shadow rounded p-3\" style=\"top: " + topPosition + "px; left: " + leftPosition + "px\">" + v22 + "</div>\n                ");        }      });      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"], div[col-id=\"pixel\"]", function () {        $(".moreCard").remove();      });
+            $(document).on("mouseover", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"], div[col-id=\"pixel\"]", function () {        if ($(this).find(".more").length > 0 && $(".moreCard").length === 0) {          const moreOffset = $(this).find(".more").offset();          const offsetVal = parseInt($(this).find(".more").attr("offset")) || 2;          const subMenuHtml = $(this).find(".subMenu").html();                    let topPosition = moreOffset.top + offsetVal;          let leftPosition = moreOffset.left - 10;                    const windowHeight = $(window).height();          const windowWidth = $(window).width();          const cardEstimatedHeight = 200;          const cardEstimatedWidth = 350;                    if (topPosition + cardEstimatedHeight > windowHeight) {            topPosition = moreOffset.top - cardEstimatedHeight - 10;          }                    if (leftPosition + cardEstimatedWidth > windowWidth) {            leftPosition = windowWidth - cardEstimatedWidth - 20;          }                    if (leftPosition < 10) {            leftPosition = 10;          }                    if (topPosition < 10) {            topPosition = 10;          }                    $("body").append("\n                    <div class=\"moreCard shadow rounded p-3\" style=\"top: " + topPosition + "px; left: " + leftPosition + "px\">" + subMenuHtml + "</div>\n                ");        }      });      $(document).on("mouseleave", "div[col-id=\"payment\"], div[col-id=\"hiddenAdmins\"], div[col-id=\"pixel\"]", function () {        $(".moreCard").remove();      });
       setInterval(async () => {
         if ($("body").hasClass("setting-loaded")) {
           saveSetting();
         }
         if ($("body").hasClass("data-loaded")) {
-          const v23 = [];
-          accountGrid.api.forEachNode(function (p17) {
-            v23.push(p17.data);
+          const rowDataArray = [];
+          accountGrid.api.forEachNode(function (node) {
+            rowDataArray.push(node.data);
           });
-          if (v23.length > 0) {
-            localStorage.setItem("dataAds", JSON.stringify(v23));
-            await setLocalStorage("dataAds_" + fb.uid, v23);
+          if (rowDataArray.length > 0 && fb.uid) {
+            localStorage.setItem("dataAds", JSON.stringify(rowDataArray));
+            await setLocalStorage("dataAds_" + fb.uid, rowDataArray);
           }
-          const v24 = accountGrid.columnApi.getColumnState();
-          localStorage.setItem("stateAds", JSON.stringify(v24));
+          const currentColumnState = accountGrid.columnApi.getColumnState();
+          localStorage.setItem("stateAds", JSON.stringify(currentColumnState));
         }
       }, 2000);
     }
@@ -499,42 +458,44 @@ const columnDefs = [{
    * Evento loadSavedAds
    * Descripción: Carga anuncios guardados y los muestra en la grilla.
    */
-  $(document).on("loadSavedAds", function (p18, p19) {
-    p19 = p19.map(p20 => {
-      p20.process = "";
-      return p20;
+  $(document).on("loadSavedAds", function (event, adsList) {
+    adsList = adsList.map(ad => {
+      ad.process = "";
+      return ad;
     });
-    accountGrid.api.setRowData(p19);
+    accountGrid.api.setRowData(adsList);
   });
   const adsMap = [];
   /**
    * Evento loadAdsSuccess
    * Descripción: Procesa y muestra anuncios tras una carga exitosa, asignando IDs y mapeando anuncios.
    */
-  $(document).on("loadAdsSuccess", function (p21, p22) {
-    let v25 = 1;
-    p22 = p22.map(p23 => {
-      const v26 = {
-        id: v25,
-        adId: p23.adId
+  $(document).on("loadAdsSuccess", function (event, adsData) {
+    let rowIndex = 1;
+    adsData = adsData.map(ad => {
+      const mapEntry = {
+        id: rowIndex,
+        adId: ad.adId
       };
-      adsMap.push(v26);
-      p23.id = v25;
-      v25++;
-      return p23;
+      adsMap.push(mapEntry);
+      ad.id = rowIndex;
+      rowIndex++;
+      return ad;
     });
-    accountGrid.api.setRowData(p22);
+    accountGrid.api.setRowData(adsData);
   });
   /**
    * Evento loadAdsSuccess2
    * Descripción: Actualiza datos específicos de un anuncio (país, pago, estado) en la grilla.
    */
-  $(document).on("loadAdsSuccess2", function (p24, p25) {
-    const v27 = adsMap.filter(p26 => p26.adId == p25.id)[0].id;
-    accountGrid.api.getRowNode(v27).setDataValue("country", p25.country);
-    accountGrid.api.getRowNode(v27).setDataValue("payment", p25.payment);
-    if (p25.status) {
-      accountGrid.api.getRowNode(v27).setDataValue("status", p25.status);
+  $(document).on("loadAdsSuccess2", function (event, adDetail) {
+    const adsMapEntry = adsMap.filter(entry => entry.adId == adDetail.id)[0];
+    if (!adsMapEntry) return;
+    const rowId = adsMapEntry.id;
+    accountGrid.api.getRowNode(rowId).setDataValue("country", adDetail.country);
+    accountGrid.api.getRowNode(rowId).setDataValue("payment", adDetail.payment);
+    if (adDetail.status) {
+      accountGrid.api.getRowNode(rowId).setDataValue("status", adDetail.status);
     }
   });
   /**
@@ -542,39 +503,39 @@ const columnDefs = [{
    * Descripción: Actualiza el contador de enlaces de BM compartidos al cambiar el input.
    */
   $("[name=\"linkShareBm\"]").on("input", function () {
-    const v28 = $("[name=\"linkShareBm\"]").val().split(/\r?\n|\r|\n/g).filter(p27 => p27);
-    $("#linkShareBmCount").text(v28.length);
+    const shareLinks = $("[name=\"linkShareBm\"]").val().split(/\r?\n|\r|\n/g).filter(line => line);
+    $("#linkShareBmCount").text(shareLinks.length);
   });
   /**
    * Evento updateShareBmLink
    * Descripción: Añade un nuevo enlace de BM compartido y actualiza el contador.
    */
-  $(document).on("updateShareBmLink", function (p28, p29) {
-    const v29 = $("[name=\"linkShareBm\"]").val().split(/\r?\n|\r|\n/g).filter(p30 => p30);
-    v29.push(p29.link);
-    $("[name=\"linkShareBm\"]").val(v29.join("\r\n"));
-    $("#linkShareBmCount").text(v29.length);
+  $(document).on("updateShareBmLink", function (event, linkData) {
+    const shareLinks = $("[name=\"linkShareBm\"]").val().split(/\r?\n|\r|\n/g).filter(line => line);
+    shareLinks.push(linkData.link);
+    $("[name=\"linkShareBm\"]").val(shareLinks.join("\r\n"));
+    $("#linkShareBmCount").text(shareLinks.length);
   });
   /**
    * Evento updateAdsName
    * Descripción: Actualiza el nombre de la cuenta de un anuncio en la grilla.
    */
-  $(document).on("updateAdsName", function (p31, p32) {
-    accountGrid.api.getRowNode(parseInt(p32.id)).setDataValue("account", p32.name);
+  $(document).on("updateAdsName", function (event, nameData) {
+    accountGrid.api.getRowNode(parseInt(nameData.id)).setDataValue("account", nameData.name);
   });
   /**
    * Evento updateAdInfo
    * Descripción: Actualiza información adicional de un anuncio (zona horaria, moneda, país) en la grilla.
    */
-  $(document).on("updateAdInfo", function (p33, p34) {
-    if (p34.timezone) {
-      accountGrid.api.getRowNode(parseInt(p34.id)).setDataValue("timezone", p34.timezone);
+  $(document).on("updateAdInfo", function (event, adInfo) {
+    if (adInfo.timezone) {
+      accountGrid.api.getRowNode(parseInt(adInfo.id)).setDataValue("timezone", adInfo.timezone);
     }
-    if (p34.currency) {
-      accountGrid.api.getRowNode(parseInt(p34.id)).setDataValue("currency", p34.currency);
+    if (adInfo.currency) {
+      accountGrid.api.getRowNode(parseInt(adInfo.id)).setDataValue("currency", adInfo.currency);
     }
-    if (p34.country) {
-      accountGrid.api.getRowNode(parseInt(p34.id)).setDataValue("country", p34.country);
+    if (adInfo.country) {
+      accountGrid.api.getRowNode(parseInt(adInfo.id)).setDataValue("country", adInfo.country);
     }
   });
 
@@ -582,18 +543,16 @@ const columnDefs = [{
    * Evento updatePixels
    * Descripción: Actualiza los píxeles asociados a una cuenta en la grilla.
    */
-  $(document).on("updatePixels", function (p35, p36) {
-    if (p36.pixels && p36.accountId) {
-      // Buscar la fila por adId
+  $(document).on("updatePixels", function (event, pixelData) {
+    if (pixelData.pixels && pixelData.accountId) {
       let targetRowNode = null;
       accountGrid.api.forEachNode(function(node) {
-        if (node.data.adId === p36.accountId) {
+        if (node.data.adId === pixelData.accountId) {
           targetRowNode = node;
         }
       });
-      
       if (targetRowNode) {
-        targetRowNode.setDataValue("pixel", p36.pixels);
+        targetRowNode.setDataValue("pixel", pixelData.pixels);
       }
     }
   });
@@ -779,7 +738,13 @@ const columnDefs = [{
    * Retorna: false
    */
   async function pasteCard() {
-    const v30 = (await navigator.clipboard.readText()) ?? "";
+    let v30 = "";
+    try {
+      v30 = (await navigator.clipboard.readText()) ?? "";
+    } catch (clipErr) {
+      console.warn('[DivinAds] Clipboard no disponible:', clipErr.message);
+      return false;
+    }
     if (v30.length > 0) {
       accountGrid.api.clearRangeSelection();
       const v31 = v30.split(/\r?\n|\r|\n/g);
@@ -806,26 +771,26 @@ const columnDefs = [{
    * Evento show.bs.modal cardModal
    * Descripción: Configura el menú contextual para pegar o eliminar tarjetas al mostrar el modal.
    */
-  $("#cardModal").on("show.bs.modal", function (p35) {
+  $("#cardModal").on("show.bs.modal", function (event) {
     loadCards();
-    const v35 = [{
+    const menuActions = [{
       text: "Paste",
-      onclick: p36 => {
+      onclick: clickEvent => {
         pasteCard();
       }
     }, {
       text: "Delete",
-      onclick: p37 => {
-        cardGrid.api.forEachNodeAfterFilterAndSort(p38 => {
-          if (p38.selected) {
-            localStorage.removeItem("card_" + p38.data.cardNumber);
+      onclick: clickEvent => {
+        cardGrid.api.forEachNodeAfterFilterAndSort(node => {
+          if (node.selected) {
+            localStorage.removeItem("card_" + node.data.cardNumber);
           }
         });
         loadCards();
       }
     }];
-    const v36 = new ContextMenu(document.getElementById("cards"), v35);
-    v36.install();
+    const contextMenuInstance = new ContextMenu(document.getElementById("cards"), menuActions);
+    contextMenuInstance.install();
   });
   /**
    * loadCards

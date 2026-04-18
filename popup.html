@@ -1,92 +1,95 @@
 <!doctype html>
 <html lang="es">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Gestión de BM</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/remixicon.css" rel="stylesheet">
-        <link href="css/style.css" rel="stylesheet">
-        <script src="js/jquery.js"></script>
-    </head>
-    <body>
-        
-        <div class="p-3 d-flex flex-column" id="app" style="height: 100vh;" data="popup">
-            <div class="d-flex mb-3 text-white">
-                <img src="img/logo.png" height="48">
-                <div class="ms-3">
-                    <span class="d-block fw-bold" style="font-size: 28px; line-height: 28px;">DivinAds</span>
-                    <span id="ver"></span>
-                </div>
-            </div>
-            <div class="rounded p-3 h-100 w-100" style="font-size: 14px; background-color: rgba(255, 255, 255, 0.6); backdrop-filter: blur(30px);">
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-flag-line"></i> <span class="ms-2">Estado de la cuenta</span></strong>
-                    <span class="fw-medium" id="t1"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-coin-line"></i> <span class="ms-2">Límite de gasto diario</span></strong>
-                    <span class="fw-medium" id="t2"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-line-chart-fill"></i> <span class="ms-2">Umbral actual</span></strong>
-                    <span class="fw-medium" id="t3"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-pie-chart-line"></i> <span class="ms-2">Gasto total</span></strong>
-                    <span class="fw-medium" id="t4"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-wallet-line"></i> <span class="ms-2">Saldo</span></strong>
-                    <span class="fw-medium" id="t5"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-time-line"></i> <span class="ms-2">Fecha de creación de la cuenta</span></strong>
-                    <span class="fw-medium" id="t6"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-file-list-3-line"></i> <span class="ms-2">Fecha de facturación</span></strong>
-                    <span class="fw-medium" id="t7"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-eye-off-line"></i> <span class="ms-2">Administradores ocultos</span></strong>
-                    <span class="fw-medium" id="t8"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-account-circle-line"></i> <span class="ms-2">Tipo de cuenta</span></strong>
-                    <span class="fw-medium" id="t9"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-earth-line"></i> <span class="ms-2">Zona horaria</span></strong>
-                    <span class="fw-medium" id="t10"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-bank-card-2-line"></i> <span class="ms-2">Tarjeta de pago</span></strong>
-                    <span class="fw-medium" id="t11"></span>
-                </div>
-                <div class="border-bottom opacity-25 my-2"></div>
-                <div class="d-flex justify-content-between">
-                    <strong><i class="text-primary ri-shield-line"></i> <span class="ms-2">Permisos de la cuenta</span></strong>
-                    <span class="fw-medium" id="t12"></span>
-                </div>
-            </div>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DivinAds</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            width: 300px;
+            min-height: 190px;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #fff;
+            overflow: hidden;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo { width: 32px; height: 32px; border-radius: 8px; }
+        .app-name { font-size: 18px; font-weight: 700; }
+        .version { font-size: 11px; color: rgba(255,255,255,0.45); }
+        .status-area {
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.06);
+            margin: 10px 12px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-dot.checking     { background: #ffa726; animation: pulse 1s infinite; }
+        .status-dot.connected    { background: #66bb6a; }
+        .status-dot.disconnected { background: #ef5350; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+        .status-text { font-size: 13px; font-weight: 600; }
+        .status-sub  { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+        .actions { padding: 0 12px 14px; display: flex; flex-direction: column; gap: 7px; }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.15s, transform 0.1s;
+            width: 100%;
+        }
+        .btn:hover  { opacity: 0.85; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary   { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: #fff; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.18); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="img/favicon.png" class="logo" alt="DivinAds">
+        <div>
+            <div class="app-name">DivinAds</div>
+            <div class="version" id="ver">v1.0.0</div>
         </div>
+    </div>
 
-        <script src="js/libs1.js"></script>
-        <script src="js/libs2.js"></script>
-        <script src="js/libs3.js"></script>
-        <script src="js/libs4.js"></script>
-        <script src="js/scripts.js"></script>
-        <script src="js/popup.js"></script>
-    </body>
+    <div class="status-area">
+        <div class="status-dot checking" id="statusDot"></div>
+        <div>
+            <div class="status-text" id="statusText">Verificando sesión...</div>
+            <div class="status-sub"  id="statusSub"></div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn btn-primary"   id="btnDashboard">🚀 Abrir Dashboard</button>
+        <button class="btn btn-secondary" id="btnConnect">🔗 Conectar Facebook</button>
+    </div>
+
+    <!-- Script externo (requerido por CSP script-src 'self') -->
+    <script src="js/popup-launcher.js"></script>
+</body>
 </html>

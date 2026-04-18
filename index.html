@@ -1,11 +1,15 @@
-﻿<!doctype html>
-<html lang="es" data-bs-theme="">
+<!doctype html>
+<html lang="es" data-bs-theme="dark" class="dark-mode">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Inicio | DiviAnds</title>
-        <link href="css/libs.css" rel="stylesheet">
+        <title>Inicio | DivinAds</title>
         <link href="css/style.css" rel="stylesheet">
+        <link href="css/libs.css" rel="stylesheet">
+        <link href="css/glass.css" rel="stylesheet">
+        <link href="css/animations.css" rel="stylesheet">
+        <link href="css/sidebar.css" rel="stylesheet">
+        <link href="css/dashboard.css" rel="stylesheet">
 
         <!--script src="https://tally.so/widgets/embed.js"></script-->
         <script src="js/jquery.js"></script>
@@ -18,7 +22,7 @@
     </head>
     <body class="folded">
         
-        <div id="pageLoading"></div>
+        <div id="pageLoading" class="d-none"></div>
 
         <!-- <div id="loadingScreen" class="d-flex align-items-center justify-content-center">
             <div class="spinner-border text-secondary" role="status"></div>
@@ -62,24 +66,8 @@
                                         <strong style="font-size: 14px;">Inicio</strong>
                                     </a>
                                 </div>
-                                <div class="d-flex align-items-center border-end pe-3 me-3">
-                                    <a href="https://divinads.com/" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
-                                        <img src="public/assets/img/dollar2.png" height="25" width="25" class="me-3">
-                                        <strong style="font-size: 14px;">Recargar</strong>
-                                    </a>
-                                </div>
-                                <div class="d-flex align-items-center border-end pe-3 me-3">
-                                    <a href="https://divinads.com/inicio-de-sesion/" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
-                                        <img src="public/assets/img/cart.png" height="25" width="25" class="me-3">
-                                        <strong style="font-size: 14px;">Comprar Paquete</strong>
-                                    </a>
-                                </div>
-                                <div class="d-flex align-items-center border-end pe-3 me-3">
-                                    <a href="https://divinads.com/inicio-de-sesion/" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
-                                        <img src="public/assets/img/lock.png" height="25" width="25" class="me-3">
-                                        <strong style="font-size: 14px;">Sesiones Activas</strong>
-                                    </a>
-                                </div>
+                                <!-- Recargar y Comprar Paquete eliminados - modo local -->
+                                <!-- Sesiones Activas eliminado - modo local -->
                                 <div class="d-flex align-items-center">
                                     <a href="https://divinads.com/" target="_blank" class="text-decoration-none border-0 flex-row align-items-center text-black dark-link p-1 d-flex">
                                         <img src="public/assets/img/history.png" height="25" width="25" class="me-3">
@@ -94,6 +82,9 @@
                             <div class="position-relative h-100 d-flex">
                                 <a href="https://chat.whatsapp.com/HsKE3vczj7E1Y6gGcBqVkT" target="_blank" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap">
                                     <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Soporte
+                                </a>
+                                <a href="/fb-connect.html" id="fbStatusBtn" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap" title="Estado de conexión a Facebook">
+                                    <i class="ri-facebook-circle-line fs-5 m-0 me-1" id="fbStatusIcon" style="color:#aaa"></i><span id="fbStatusText">Conectar FB</span>
                                 </a>
                                 <button type="button" class="text-nowrap shadow-sm control-btn btn border px-2 pe-3 h-100" data-bs-toggle="modal" data-bs-target="#settingModal">
                                     <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Configuración
@@ -134,215 +125,153 @@
                          </div>
                     </div>
 
-                    <div id="gridLoading" class="d-flex align-items-center justify-content-center"></div>
+                    <div id="gridLoading" class="d-flex align-items-center justify-content-center d-none"></div>
 
-                    <div id="viaPanel" class="dark-bg overflow-auto h-100 p-3 position-relative" style="background-color: #f5f5f5;">
-                        
-                        <div class="container py-3" style="max-width: 1208px;">
-
-                            <div id="viaInfo"></div>
-
-                            <div class="row mb-4">
+                    <div class="d-flex w-100 h-100 overflow-hidden">
+                        <!-- Main Dashboard Area -->
+                        <div id="viaPanel" class="flex-grow-1 overflow-auto h-100 p-4 position-relative glass-panel" style="background-color: transparent !important;">
+                            <div class="container-fluid py-2">
+                                <div id="viaInfo"></div>
                                 
-                                <div class="col" id="balance">
-                                    <div class="card rounded-4 shadow-sm border-0 p-3">
-                                        <div class="d-flex justify-content-between align-items-center" id="balanceContent">
-                                            <div class="">
-                                                <strong class="fs-5 mb-2 d-block" id="balanceTitle">Saldo de cuenta</strong>
-                                                                                                                        <div id="balanceValue">
-                                            <strong class="fs-2">$0.00</strong>
-                                        </div>
+                                <!-- Ocultos para mantener retrocompatibilidad con via.js si es necesario -->
+                                <div class="d-none" id="topPage"></div>
+                                <div class="d-none" id="versions"></div>
+                                <div class="d-none" id="adData"><select></select></div>
+                                <div class="d-none" id="adSelect"><select></select></div>
+
+                                <div class="bento-grid mb-4">
+                                    <div class="bento-col-3" id="balance">
+                                        <div class="glass-card glow-purple h-100 position-relative overflow-hidden">
+                                            <div class="position-absolute" style="top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(192, 132, 252, 0.2) 0%, transparent 70%); border-radius:50%;"></div>
+                                            <div class="d-flex justify-content-between align-items-center position-relative z-1" id="balanceContent">
+                                                <div>
+                                                    <strong class="fs-6 text-muted-glass mb-1 d-block" id="balanceTitle">Saldo de cuenta</strong>
+                                                    <div id="balanceValue">
+                                                        <strong class="fs-2 glowing-text text-white">$0.00</strong>
+                                                    </div>
+                                                </div>
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(192,132,252,0.3)" id="balanceIcon">
+                                                    <i class="ri-wallet-line fs-4" style="color: #c084fc"></i>
+                                                </div>
                                             </div>
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(249 116 132 / 20%)" id="balanceIcon">
-                                                <i class="ri-wallet-line fs-3" style="color: #ff6384"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="bento-col-3">
+                                        <div class="glass-card glow-blue h-100 position-relative overflow-hidden">
+                                            <div class="position-absolute" style="top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, transparent 70%); border-radius:50%;"></div>
+                                            <div class="d-flex justify-content-between align-items-center position-relative z-1">
+                                                <div>
+                                                    <strong class="fs-6 text-muted-glass mb-1 d-block">Cuentas BM</strong>
+                                                    <strong class="fs-2 glowing-text text-white" id="countBm">0</strong>
+                                                </div>
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(56, 189, 248, 0.3)">
+                                                    <i class="ri-briefcase-line fs-4" style="color: #38bdf8"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bento-col-3">
+                                        <div class="glass-card glow-orange h-100 position-relative overflow-hidden">
+                                            <div class="position-absolute" style="top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(251, 146, 60, 0.2) 0%, transparent 70%); border-radius:50%;"></div>
+                                            <div class="d-flex justify-content-between align-items-center position-relative z-1">
+                                                <div>
+                                                    <strong class="fs-6 text-muted-glass mb-1 d-block">Cuentas Ads</strong>
+                                                    <strong class="fs-2 glowing-text text-white" id="countAds">0</strong>
+                                                </div>
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(251, 146, 60, 0.3)">
+                                                    <i class="ri-megaphone-line fs-4" style="color: #fb923c"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bento-col-3">
+                                        <div class="glass-card glow-green h-100 position-relative overflow-hidden">
+                                            <div class="position-absolute" style="top:-20px; right:-20px; width:100px; height:100px; background:radial-gradient(circle, rgba(74, 222, 128, 0.2) 0%, transparent 70%); border-radius:50%;"></div>
+                                            <div class="d-flex justify-content-between align-items-center position-relative z-1">
+                                                <div>
+                                                    <strong class="fs-6 text-muted-glass mb-1 d-block">Páginas</strong>
+                                                    <strong class="fs-2 glowing-text text-white" id="countPage">0</strong>
+                                                </div>
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(74, 222, 128, 0.3)">
+                                                    <i class="ri-flag-line fs-4" style="color: #4ade80"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="col">
-                                    <div class="card rounded-4 shadow-sm border-0 p-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="">
-                                                <strong class="fs-5 mb-2 d-block">Cuentas BM</strong>
-                                                <strong class="fs-2" id="countBm">0</strong>
+                                <div class="bento-grid" style="min-height: 400px;">
+                                    <div class="bento-col-8">
+                                        <div class="glass-panel p-4 h-100" id="bmChartBox" style="min-height: 350px;">
+                                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                                <strong class="fs-5 text-white">Rendimiento Advantage+ (Simulado)</strong>
+                                                <span class="badge bg-primary bg-opacity-25 text-primary border border-primary">Live API</span>
                                             </div>
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(135 75 209 / 20%)">
-                                                <i class="ri-briefcase-line fs-3" style="color: #874bd1"></i>
+                                            <div class="" id="bmChart" style="display:block!important;"><canvas style="width:100%; height:250px;"></canvas></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bento-col-4 d-flex flex-column gap-3">
+                                        <div class="glass-panel p-0 flex-grow-1 overflow-hidden d-flex flex-column h-50">
+                                            <div class="d-flex justify-content-between p-3 border-bottom border-light border-opacity-10 align-items-center">
+                                                <strong class="fs-6 text-white">Top Cuentas BM</strong>
+                                                <a href="bm.html" class="text-decoration-none text-muted-glass hover-white"><i class="ri-external-link-line"></i></a>
+                                            </div>
+                                            <div id="topBm" class="flex-grow-1 p-0 overflow-auto">
+                                                <div class="p-4 text-center">
+                                                    <i class="ri-shield-keyhole-line fs-1 text-muted-glass opacity-50 mb-2 d-block"></i>
+                                                    <span class="text-muted-glass small">Recopilando datos de Meta Graph...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="glass-panel p-0 flex-grow-1 overflow-hidden d-flex flex-column h-50">
+                                            <div class="d-flex justify-content-between p-3 border-bottom border-light border-opacity-10 align-items-center">
+                                                <strong class="fs-6 text-white">Riesgos Compliance</strong>
+                                            </div>
+                                            <div id="topAds" class="flex-grow-1 p-0 overflow-auto">
+                                                <div class="p-3 text-center">
+                                                    <span class="badge bg-success bg-opacity-25 text-success border border-success d-inline-block mb-2"><i class="ri-check-line"></i> Aprobado</span>
+                                                    <span class="text-muted-glass small d-block">Todas tus audiencias pasan el H.E.C test.</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                </div>
-
-                                <div class="col">
-                                    <div class="card rounded-4 border-0 p-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="">
-                                                <strong class="fs-5 mb-2 d-block">Cuentas Ads</strong>
-                                                <strong class="fs-2" id="countAds">0</strong>
-                                            </div>
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(253 172 47 / 20%)">
-                                                <i class="ri-megaphone-line fs-3" style="color: #fdac2f"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="col">
-                                    <div class="card rounded-4 shadow-sm border-0 p-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="">
-                                                <strong class="fs-5 mb-2 d-block">Páginas</strong>
-                                                <strong class="fs-2" id="countPage">0</strong>
-                                            </div>
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: rgb(82 166 246 / 20%)">
-                                                <i class="ri-flag-line fs-3" style="color: #52a6f6;"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
-
-                            <div class="row">
-                                <div class="col-4">
-
-                                    <div class="card rounded-4 shadow-sm border-0 p-0 mb-4">
-                                        <div class="d-flex justify-content-between p-3 align-items-center">
-                                            <strong class="fs-5">Top BM</strong>
-                                            <a href="bm.html" class="d-flex align-items-center text-decoration-none"><i class="ri-external-link-line ms-2 fs-5"></i></a>
-                                        </div>
-                                        <div id="topBm">
-                                            <div class="p-3 border-top text-center">
-                                                <div class="d-flex align-items-center justify-content-center">
-                                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                                        <span class="visually-hidden">Cargando...</span>
-                                                    </div>
-                                                    <span class="text-muted">Cargando datos reales...</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>  
-                                    
-                                    <div class="card rounded-4 shadow-sm border-0 p-0 overflow-hidden p-3 d-none" id="bmChart">
-                                        <div class="mb-3">
-                                            <strong class="fs-5">Estadísticas BM</strong>
-                                        </div>
-                                        <div class="px-5"><canvas></canvas></div>
-                                    </div>
-                                </div>
-                                <div class="col-4"> 
-
-                                    <div class="card rounded-4 shadow-sm border-0 p-0 mb-4">
-                                        <div class="d-flex justify-content-between p-3 align-items-center">
-                                            <strong class="fs-5">Top Cuentas Ads</strong>
-                                            <a href="ads.html" class="d-flex align-items-center text-decoration-none"><i class="ri-external-link-line ms-2 fs-5"></i></a>
-                                        </div>
-                                        <div id="topAds">
-                                            <div class="p-3 border-top text-center">
-                                                <div class="d-flex align-items-center justify-content-center">
-                                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                                        <span class="visually-hidden">Cargando...</span>
-                                                    </div>
-                                                    <span class="text-muted">Cargando datos reales...</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> 
-
-                                    <div class="card rounded-4 shadow-sm border-0 p-0 overflow-hidden d-none" id="adData">
-                                        <div class="d-flex align-items-center justify-content-between p-3" id="adSelect">
-                                            <select class="form-select"></select>
-                                        </div>
-                                        <div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-flag-line"></i> <span class="ms-2">Estado de la cuenta</span></strong>
-                                                <span class="fw-medium" id="t1"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-coin-line"></i> <span class="ms-2">Límite de gasto diario</span></strong>
-                                                <span class="fw-medium" id="t2"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-line-chart-fill"></i> <span class="ms-2">Umbral actual</span></strong>
-                                                <span class="fw-medium" id="t3"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-pie-chart-line"></i> <span class="ms-2">Gasto total</span></strong>
-                                                <span class="fw-medium" id="t4"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-wallet-line"></i> <span class="ms-2">Saldo</span></strong>
-                                                <span class="fw-medium" id="t5"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-eye-off-line"></i> <span class="ms-2">Administrador oculto</span></strong>
-                                                <span class="fw-medium" id="t8"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-account-circle-line"></i> <span class="ms-2">Tipo de cuenta</span></strong>
-                                                <span class="fw-medium" id="t9"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-earth-line"></i> <span class="ms-2">Zona horaria</span></strong>
-                                                <span class="fw-medium" id="t10"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-bank-card-2-line"></i> <span class="ms-2">Tarjeta de pago</span></strong>
-                                                <span class="fw-medium" id="t11"></span>
-                                            </div>
-                                            <div class="border-bottom opacity-50"></div>
-                                            <div class="d-flex justify-content-between p-3">
-                                                <strong><i class="text-primary ri-shield-line"></i> <span class="ms-2">Permisos de cuenta</span></strong>
-                                                <span class="fw-medium" id="t12"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    
-                                    <div class="card rounded-4 shadow-sm border-0 p-0 mb-4">
-                                        <div class="d-flex justify-content-between p-3 align-items-center">
-                                            <strong class="fs-5">Top Páginas</strong>
-                                            <a href="page.html" class="d-flex align-items-center text-decoration-none"><i class="ri-external-link-line ms-2 fs-5"></i></a>
-                                        </div>
-                                        <div id="topPage">
-                                            <div class="p-3 border-top text-center">
-                                                <div class="d-flex align-items-center justify-content-center">
-                                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                                        <span class="visually-hidden">Cargando...</span>
-                                                    </div>
-                                                    <span class="text-muted">Cargando datos reales...</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> 
-
-                                    <div class="card rounded-4 shadow-sm border-0 p-0 mb-4">
-                                        <div class="d-flex justify-content-between p-3 align-items-center">
-                                            <strong class="fs-5">Historial de actualizaciones</strong>
-                                        </div>
-                                        <div class="border-bottom opacity-50"></div>
-                                        <div class="p-3" style="height: 400px; overflow-y: auto;">
-                                            <div id="versions"></div>
-                                        </div>
-                                    </div> 
-
-                                </div>
-                            </div>
-                            
                         </div>
-        
+
+                        <!-- Copilot Sidebar -->
+                        <div id="copilotPanelWrapper" style="width: 340px; min-width: 340px; border-left: 1px solid rgba(255,255,255,0.05);" class="d-none d-xl-block">
+                            <div class="copilot-panel">
+                                <div class="copilot-header">
+                                    <div class="dot pulse"></div>
+                                    <div>
+                                        <h6 class="m-0 fs-6 fw-bold">Claude Copilot</h6>
+                                        <small class="text-muted text-opacity-75" style="font-size:11px;">Agentic Marketing | Meta 2026</small>
+                                    </div>
+                                    <div class="ms-auto flex-shrink-0">
+                                        <i class="ri-magic-line" style="color: #c084fc;"></i>
+                                    </div>
+                                </div>
+                                <div class="copilot-body d-flex flex-column" id="copilotChat">
+                                    <div class="mt-auto" id="copilotMessages">
+                                        <!-- Cargado por copilot-mock.js -->
+                                    </div>
+                                </div>
+                                <div class="p-3 border-top border-light border-opacity-10">
+                                    <form id="copilotForm" class="position-relative m-0" onsubmit="event.preventDefault(); window.mockCopilotSubmit();">
+                                        <input type="text" id="copilotInput" class="form-control hover-glass text-white" placeholder="Pídele a Claude..." style="font-size: 13px; padding-right: 35px; border-radius: 20px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
+                                        <button type="submit" class="btn btn-sm text-primary position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent">
+                                            <i class="ri-send-plane-fill" style="color:#38bdf8"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <iframe id="iframe" src="" style="position: absolute;width:0;height:0;border:0;"></iframe>
@@ -372,6 +301,9 @@
         </div>
     
         
+        <script src="js/sweetalert2.all.min.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="js/tinyTooltip.js"></script>
         <script src="js/chart.js"></script>
         <script src="js/libs1.js"></script>
         <script src="js/libs2.js"></script>
@@ -382,6 +314,14 @@
         <script src="js/modules/crypto.js"></script>
         <script src="js/modules/validators.js"></script>
         <!-- test.js eliminado por seguridad (3.3 MB de código ofuscado desconocido) -->
+        <!-- MOCK: Simulación de extensión para pruebas locales (quitar en producción con extensión real) -->
+
+        
+        <!-- FASE 3: Claude Copilot Mock UI -->
+
+        <script src="js/sidebar.js"></script>
+        <!-- Simulador de métricas eliminado para dar paso a la información real de Meta -->
+        <!-- <script src="js/dashboard-analytics.js"></script> -->
         <script src="js/scripts.js"></script>
     </body>
 </html>

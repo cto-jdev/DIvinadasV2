@@ -1,10 +1,14 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-bs-theme="dark" class="dark-mode">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Gestión de BM | DivinAds</title>
         <link href="css/libs.css" rel="stylesheet">
+        <link href="css/glass.css" rel="stylesheet">
+        <link href="css/animations.css" rel="stylesheet">
+        <link href="css/sidebar.css" rel="stylesheet">
+        <link href="css/dashboard.css" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
 
         <!--script src="https://tally.so/widgets/embed.js"></script-->
@@ -41,7 +45,7 @@
                                 <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="index.html">INICIO</a>
                                 <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="clone.html">CLONAR</a>
                                 <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="ads.html">ADS</a>
-                                <a class="col text-decoration-none mx-1 text-black bg-white rounded shadow text-center d-block" href="javascript:;">BM</a>
+                                <a class="col text-decoration-none mx-1 text-black bg-white bg-opacity-10 shadow text-center d-block rounded" href="javascript:;" style="border: 1px solid rgba(255,255,255,0.2);">BM</a>
                                 <a class="col text-decoration-none mx-1 text-white text-center d-block rounded" href="page.html">Página</a>
                             </div>
                         </div>
@@ -52,12 +56,12 @@
                 </div>
             </div>
             
-            <div class="app-wrapper rounded overflow-hidden d-flex shadow">
+            <div class="app-wrapper rounded overflow-hidden d-flex shadow flex-grow-1 glass-panel">
                 <div class="account-wrapper d-flex flex-column overflow-hidden flex-grow-1 position-relative overflow-hidden">
 
                    
 
-                    <div class="border-bottom bg-white dark-border dark-body-bg" style="z-index: 101;">
+                    <div class="border-bottom border-light border-opacity-10 glass-panel mb-2" style="z-index: 101;">
                         <div class="p-3 d-flex justify-content-between" style="height: 59px;">
                             <div class="d-flex">
                                 <div class="d-flex">
@@ -172,6 +176,9 @@
                                         <a href="https://chat.whatsapp.com/HsKE3vczj7E1Y6gGcBqVkT" target="_blank" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap">
                                             <i class="ri-customer-service-line fs-5 m-0 me-1" style="color: #666"></i>Soporte
                                         </a>
+                                        <a href="/fb-connect.html" id="fbStatusBtn" class="shadow-sm control-btn btn border px-2 pe-3 h-100 me-2 text-nowrap" title="Estado de conexión a Facebook">
+                                            <i class="ri-facebook-circle-line fs-5 m-0 me-1" id="fbStatusIcon" style="color:#aaa"></i><span id="fbStatusText">Conectar FB</span>
+                                        </a>
                                         <button type="button" class="text-nowrap shadow-sm control-btn btn border px-2 pe-3 h-100" data-bs-toggle="modal" data-bs-target="#settingModal">
                                     <i class="ri-equalizer-line fs-5 m-0 me-1" style="color: #666"></i>Configuración
                                 </button>
@@ -279,6 +286,35 @@
                             </div>
                             <div class="d-flex align-items-center" id="thoihan"></div>
                         </div> -->
+                    </div>
+                </div>
+
+                <!-- Copilot Sidebar Integrada -->
+                <div id="copilotPanelWrapper" style="width: 320px; min-width: 320px; border-left: 1px solid rgba(255,255,255,0.05);" class="d-none d-xl-block">
+                    <div class="copilot-panel">
+                        <div class="copilot-header">
+                            <div class="dot pulse"></div>
+                            <div>
+                                <h6 class="m-0 fs-6 fw-bold">Claude Copilot</h6>
+                                <small class="text-muted text-opacity-75" style="font-size:11px;">Agentic Marketing | Meta 2026</small>
+                            </div>
+                            <div class="ms-auto flex-shrink-0">
+                                <i class="ri-magic-line" style="color: #c084fc;"></i>
+                            </div>
+                        </div>
+                        <div class="copilot-body d-flex flex-column" id="copilotChat">
+                            <div class="mt-auto" id="copilotMessages">
+                                <!-- Cargado por copilot-mock.js -->
+                            </div>
+                        </div>
+                        <div class="p-3 border-top border-light border-opacity-10">
+                            <form id="copilotForm" class="position-relative m-0" onsubmit="event.preventDefault(); window.mockCopilotSubmit();">
+                                <input type="text" id="copilotInput" class="form-control hover-glass text-white" placeholder="Analiza esta cuenta..." style="font-size: 13px; padding-right: 35px; border-radius: 20px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
+                                <button type="submit" class="btn btn-sm text-primary position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent">
+                                    <i class="ri-send-plane-fill" style="color:#38bdf8"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -1178,6 +1214,10 @@
         <!-- FASE 1 SECURITY: Módulos de seguridad -->
         <script src="js/modules/crypto.js"></script>
         <script src="js/modules/validators.js"></script>
+        <!-- MOCK: Simulación de extensión para pruebas locales -->
+
+        <!-- FASE 3: Claude Copilot Mock UI -->
+
         <script src="js/scripts.js"></script>
         
         <!-- ============================================== -->
@@ -1859,5 +1899,6 @@
 
         });
         </script>
+        <script src="js/sidebar.js"></script>
     </body>
 </html>

@@ -4,35 +4,35 @@
  * Retorna: Promise<Object> (usuario actual)
  */
 function getCurrentUser() {
-    return new Promise(async (p286, p287) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v359 = await getLocalStorage("uid");
-        const v360 = await getLocalStorage("dataClone");
-        const v361 = v360.filter(p288 => p288.uid === v359)[0];
-        p286(v361);
-      } catch (e60) {
-        p287(e60);
+        const uid = await getLocalStorage("uid");
+        const cloneData = (await getLocalStorage("dataClone")) || [];
+        const currentUser = cloneData.filter(user => user.uid === uid)[0];
+        resolve(currentUser);
+      } catch (err) {
+        reject(err);
       }
     });
   }
 /**
  * getBase64ImageFromUrl
  * Descripción: Convierte una imagen obtenida por URL a formato base64.
- * Parámetros: p289 (string URL de la imagen)
+ * Parámetros: imageUrl (string URL de la imagen)
  * Retorna: Promise<string> (base64 de la imagen)
  */
-async function getBase64ImageFromUrl(p289) {
-    const v362 = await fetch(p289);
-    const v363 = await v362.blob();
-    return new Promise((p290, p291) => {
-      const v364 = new FileReader();
-      v364.addEventListener("load", function () {
-        p290(v364.result);
+async function getBase64ImageFromUrl(imageUrl) {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener("load", function () {
+        resolve(reader.result);
       }, false);
-      v364.onerror = () => {
-        return p291(this);
+      reader.onerror = () => {
+        return reject(this);
       };
-      v364.readAsDataURL(v363);
+      reader.readAsDataURL(blob);
     });
   }
   let rates = false;
@@ -41,38 +41,46 @@ async function getBase64ImageFromUrl(p289) {
    * Descripción: Inicializa la aplicación, verifica actualizaciones, estado de sesión y carga datos de usuario y calidad de cuenta.
    */
   $(document).ready(async function () {
-    const v365 = $("#app").attr("data");
-    const v366 = await getLocalStorage("folded");
-    if (!v366) {
+    const appPage = $("#app").attr("data");
+    const isFolded = await getLocalStorage("folded");
+    if (!isFolded) {
       $("body").removeClass("folded");
     }
-    if (v365 !== "setting") {
-      const v367 = await fetch("https://divinads.com/wp-json/divinads/v1/updates", {
-        cache: "no-cache"
-      });
-      rates = await (await fetch("../rates.json")).json();
-      const v368 = await v367.json();
-      
-      // Usar directamente los elementos web ya que es todo lo que tenemos
-      const v369 = v368.filter(p292 => p292.type === "web");
-      const v370 = await getVersion();
-      
+    if (appPage !== "setting") {
+      let updatesJson = [];
+      let webUpdates = [];
+      try {
+        const updatesResponse = await fetch("https://divinads.com/wp-json/divinads/v1/updates", {
+          cache: "no-cache"
+        });
+        updatesJson = await updatesResponse.json();
+        webUpdates = updatesJson.filter(update => update.type === "web");
+      } catch (fetchErr) {
+        console.warn('[DivinAds] No se pudo obtener actualizaciones:', fetchErr.message);
+      }
+      try {
+        rates = await (await fetch("../rates.json")).json();
+      } catch (ratesErr) {
+        console.warn('[DivinAds] No se pudo cargar rates.json:', ratesErr.message);
+      }
+      const currentVersion = await getVersion();
+
       // Verificar que tenemos datos antes de acceder
-      if (v369.length > 0) {
-        const v371 = v369[0].version;
-        const v372 = v369[0].note;
-        const v376 = await getLocalStorage("ver");
+      if (webUpdates.length > 0) {
+        const latestVersion = webUpdates[0].version;
+        const releaseNotes = webUpdates[0].note;
+        const storedVersion = await getLocalStorage("ver");
         
-        if (v376 !== v371) {
-          await setLocalStorage("ver", v371);
-          $(".appVersion").html("<span class=\"mb-0 text-decoration-none badge text-bg-light\">v" + v371 + "</span>");
+        if (storedVersion !== latestVersion) {
+          await setLocalStorage("ver", latestVersion);
+          $(".appVersion").html("<span class=\"mb-0 text-decoration-none badge text-bg-light\">v" + latestVersion + "</span>");
           Swal.fire({
             icon: "success",
-            title: "Actualización exitosa v" + v371,
+            title: "Actualización exitosa v" + latestVersion,
             text: "¿Qué hay de nuevo en esta versión?",
             confirmButtonText: "Continuar",
             input: "textarea",
-            inputValue: v372.replaceAll("<br>", "\r\n"),
+            inputValue: releaseNotes.replaceAll("<br>", "\r\n"),
             allowOutsideClick: false,
             inputAttributes: {
               rows: 7,
@@ -81,14 +89,14 @@ async function getBase64ImageFromUrl(p289) {
           });
         }
       }
-      let v377 = false;
-      const vF11 = async () => {
-        const v378 = await fb.checkLive();
-        if (v378 !== "success") {
-          if (v378 === "not_login") {
+      let sessionInitialized = false;
+      const checkSession = async () => {
+        const liveStatus = await fb.checkLive();
+        if (liveStatus !== "success") {
+          if (liveStatus === "not_login") {
             $(document).trigger("notLogged");
           }
-          if (v378 === "282") {
+          if (liveStatus === "282") {
             $(document).trigger("282");
             Swal.fire({
               icon: "error",
@@ -99,14 +107,14 @@ async function getBase64ImageFromUrl(p289) {
               cancelButtonText: "Cancelar",
               showCancelButton: true,
               allowOutsideClick: false
-            }).then(async p294 => {
-              if (p294.isConfirmed) {
+            }).then(async result => {
+              if (result.isConfirmed) {
                 await emptyCookie();
                 location.reload();
               }
             });
           }
-          if (v378 === "956") {
+          if (liveStatus === "956") {
             $(document).trigger("956");
             Swal.fire({
               icon: "error",
@@ -117,8 +125,8 @@ async function getBase64ImageFromUrl(p289) {
               cancelButtonText: "Cancelar",
               showCancelButton: true,
               allowOutsideClick: false
-            }).then(async p295 => {
-              if (p295.isConfirmed) {
+            }).then(async result => {
+              if (result.isConfirmed) {
                 await emptyCookie();
                 location.reload();
               }
@@ -128,53 +136,53 @@ async function getBase64ImageFromUrl(p289) {
           $("#gridLoading").addClass("d-none");
           $("body").addClass("data-loaded");
           try {
-            clearInterval(v377);
-          } catch (e61) {
-            console.log(e61);
+            clearInterval(sessionIntervalId);
+          } catch (err) {
+            console.log(err);
           }
         }
       };
-      v377 = setInterval(async () => {
-        await vF11();
+      sessionIntervalId = setInterval(async () => {
+        await checkSession();
       }, 5000);
-      await vF11();
-      if (v365 === "via") {
-        let vLS8 = "";
-        v368.forEach(p296 => {
-          vLS8 += "\n                        <div class=\"d-flex\">\n                            <div class=\"me-3 pt-2\">\n                                <span class=\"badge text-bg-success\">v" + p296.version + "</span>\n                                <small class=\"d-block mt-2 text-nowrap\">" + p296.date.split("T")[0] + "</small>\n                            </div>\n                            <div class=\"alert alert-light w-100\" role=\"alert\">" + p296.note + "</div>\n                        </div>\n                    ";
+      await checkSession();
+      if (appPage === "via") {
+        let versionChangelogHtml = "";
+        updatesJson.forEach(update => {
+          versionChangelogHtml += "\n                        <div class=\"d-flex\">\n                            <div class=\"me-3 pt-2\">\n                                <span class=\"badge text-bg-success\">v" + update.version + "</span>\n                                <small class=\"d-block mt-2 text-nowrap\">" + update.date.split("T")[0] + "</small>\n                            </div>\n                            <div class=\"alert alert-light w-100\" role=\"alert\">" + update.note + "</div>\n                        </div>\n                    ";
         });
-        $("#versions").html(vLS8);
+        $("#versions").html(versionChangelogHtml);
       }
-      const vF12 = async () => {
+      const initUserSession = async () => {
         await fb.init();
-        let vLS9 = "";
-        let vLS10 = "";
+        let appealButtonHtml = "";
+        let qualityBadgeHtml = "";
         try {
-          const v379 = await fb.getAccountQuality();
-          vLS10 = "<a href=\"https://www.facebook.com/business-support-home/" + fb.uid + "\" target=\"_BLANK\" class=\"text-decoration-none badge text-bg-" + v379.color + " mb-1\" style=\"font-size: 12px;\">" + v379.status + "</a>";
-          $("#quality").html(vLS10);
-          if (vLS10.status === "XMDT Checkpoint") {
-            vLS9 = "<button id=\"xmdt\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar</button>";
+          const accountQuality = await fb.getAccountQuality();
+          qualityBadgeHtml = "<a href=\"https://www.facebook.com/business-support-home/" + fb.uid + "\" target=\"_BLANK\" class=\"text-decoration-none badge text-bg-" + accountQuality.color + " mb-1\" style=\"font-size: 12px;\">" + accountQuality.status + "</a>";
+          $("#quality").html(qualityBadgeHtml);
+          if (qualityBadgeHtml.status === "XMDT Checkpoint") {
+            appealButtonHtml = "<button id=\"xmdt\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar</button>";
           }
-          if (vLS10.status === "HCQC 902 Rechazado - Volver a XMDT 273" || vLS10.status === "Apelando 902" || vLS10.status === "Restricción 902 XMDT" || vLS10.status === "HCQC 902 Pendiente") {
-            vLS9 = "<button id=\"k902\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar 902</button>";
+          if (qualityBadgeHtml.status === "HCQC 902 Rechazado - Volver a XMDT 273" || qualityBadgeHtml.status === "Apelando 902" || qualityBadgeHtml.status === "Restricción 902 XMDT" || qualityBadgeHtml.status === "HCQC 902 Pendiente") {
+            appealButtonHtml = "<button id=\"k902\" type=\"button\" class=\"position-absolute end-0 btn btn-success btn-sm\"><i class=\"ri-shield-check-line me-1\"></i>Apelar 902</button>";
           }
-        } catch (e62) {
-          console.log(e62);
+        } catch (err) {
+          console.log(err);
         }
-        $("#userInfo").html("\n                    <div class=\"dropdown\">\n                        <div data-bs-toggle=\"dropdown\" data-bs-auto-close=\"outside\" style=\"cursor: pointer\">\n                            <span class=\"d-flex justify-content-between align-items-center border-start ms-3 ps-3\" style=\"width:calc(350px - 1rem);\">\n                                <span class=\"d-flex flex-column\">\n                                    <span class=\"position-relative\">\n                                        " + vLS9 + "\n                                        <span class=\"d-flex align-items-center flex-wrap\">\n                                            <span class=\"rounded-circle overflow-hidden\" style=\"width: 33px;\">\n                                                <img id=\"fbAvatar\" class=\"w-100 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                            </span>\n                                            <span class=\"ps-2\" style=\"width: calc(100% - 33px)\">\n                                                <span class=\"d-block mb-0 fw-bold text-truncate\" style=\"width: 200px;\">" + fb.userInfo.name + "</span>\n                                                <small class=\"d-block\">" + fb.uid + "</small>\n                                            </span>\n                                        </span>\n                                    </span>\n                                </span>\n                                <i class=\"ri-arrow-down-s-fill fs-5 m-0\" style=\"color: #666\"></i>\n                            </span>\n                        </div>\n                        <div class=\"dropdown-menu dropdown-menu-end overflow-hidden p-0 shadow\" style=\"width:calc(350px - 3rem);\">\n                            <div class=\"p-2\" style=\"background: #f0ecf4\">\n                                <div class=\"d-flex align-items-center justify-content-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px; margin-bottom: -35px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                </div>\n                            </div>\n                            <div class=\"p-3 mt-4\">\n                                <div class=\"d-flex flex-column align-items-center\">\n                                    <span class=\"fw-bold fs-5\">" + fb.userInfo.name + "</span>\n                                    <span class=\"mb-2\">" + fb.uid + "</span>\n                                    " + vLS10 + "\n                                </div>\n                            </div>\n                            <ul class=\"p-3 m-0 border-top list-unstyled\">\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-mail-line me-2\"></i> Email: " + fb.userInfo.email + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-calendar-line me-2\"></i> Fecha de nacimiento: " + fb.userInfo.birthday + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-group-line me-2\"></i> Amigos: " + fb.userInfo.friends + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-men-line me-2\"></i> Género: " + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "\n                                    </span>\n                                </li>\n                            </ul>\n                            <ul class=\"border-top p-3 m-0 list-unstyled\">\n                                <li>\n                                    <a href=\"#\" id=\"switch\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-repeat-line me-2\"></i> Cambiar cuenta\n                                    </a>\n                                </li>\n                                <li>\n                                    <a href=\"#\" id=\"logout\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-logout-box-r-line me-2\"></i> Cerrar sesión\n                                    </a>\n                                </li>\n                            </ul>\n                        </div>\n                    </div>\n                ");
-        if (v365 === "via") {
+        $("#userInfo").html("\n                    <div class=\"dropdown\">\n                        <div data-bs-toggle=\"dropdown\" data-bs-auto-close=\"outside\" style=\"cursor: pointer\">\n                            <span class=\"d-flex justify-content-between align-items-center border-start ms-3 ps-3\" style=\"width:calc(350px - 1rem);\">\n                                <span class=\"d-flex flex-column\">\n                                    <span class=\"position-relative\">\n                                        " + appealButtonHtml + "\n                                        <span class=\"d-flex align-items-center flex-wrap\">\n                                            <span class=\"rounded-circle overflow-hidden\" style=\"width: 33px;\">\n                                                <img id=\"fbAvatar\" class=\"w-100 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                            </span>\n                                            <span class=\"ps-2\" style=\"width: calc(100% - 33px)\">\n                                                <span class=\"d-block mb-0 fw-bold text-truncate\" style=\"width: 200px;\">" + fb.userInfo.name + "</span>\n                                                <small class=\"d-block\">" + fb.uid + "</small>\n                                            </span>\n                                        </span>\n                                    </span>\n                                </span>\n                                <i class=\"ri-arrow-down-s-fill fs-5 m-0\" style=\"color: #666\"></i>\n                            </span>\n                        </div>\n                        <div class=\"dropdown-menu dropdown-menu-end overflow-hidden p-0 shadow\" style=\"width:calc(350px - 3rem);\">\n                            <div class=\"p-2\" style=\"background: #f0ecf4\">\n                                <div class=\"d-flex align-items-center justify-content-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px; margin-bottom: -35px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                </div>\n                            </div>\n                            <div class=\"p-3 mt-4\">\n                                <div class=\"d-flex flex-column align-items-center\">\n                                    <span class=\"fw-bold fs-5\">" + fb.userInfo.name + "</span>\n                                    <span class=\"mb-2\">" + fb.uid + "</span>\n                                    " + qualityBadgeHtml + "\n                                </div>\n                            </div>\n                            <ul class=\"p-3 m-0 border-top list-unstyled\">\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-mail-line me-2\"></i> Email: " + fb.userInfo.email + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-calendar-line me-2\"></i> Fecha de nacimiento: " + fb.userInfo.birthday + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-group-line me-2\"></i> Amigos: " + fb.userInfo.friends + "\n                                    </span>\n                                </li>\n                                <li>\n                                    <span class=\"py-1 d-block fw-medium\">\n                                        <i class=\"ri-men-line me-2\"></i> Género: " + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "\n                                    </span>\n                                </li>\n                            </ul>\n                            <ul class=\"border-top p-3 m-0 list-unstyled\">\n                                <li>\n                                    <a href=\"#\" id=\"switch\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-repeat-line me-2\"></i> Cambiar cuenta\n                                    </a>\n                                </li>\n                                <li>\n                                    <a href=\"#\" id=\"logout\" class=\"text-decoration-none py-1 d-block fw-medium text-black\">\n                                        <i class=\"ri-logout-box-r-line me-2\"></i> Cerrar sesión\n                                    </a>\n                                </li>\n                            </ul>\n                        </div>\n                    </div>\n                ");
+        if (appPage === "via") {
           $("#viaInfo").html("\n                        <div class=\"card border-0 rounded-4 shadow-sm mb-4 p-4\" style=\"background: #013b3b \">\n                            <div class=\"d-flex align-items-center justify-content-between\">\n                                <div class=\"d-flex align-items-center\">\n                                    <div class=\"rounded-circle overflow-hidden shadow bg-white\" style=\"width: 70px;\">\n                                        <img class=\"w-100 p-1 rounded-circle\" src=\"" + fb.userInfo.picture.data.url + "\">\n                                    </div>\n                                    <div class=\"ms-3\">\n                                        <span class=\"text-white fs-4 fw-medium d-block mb-0\">" + fb.userInfo.name + "</span>\n                                        <span class=\"text-white d-block\"><i class=\"ri-user-line\"></i> " + fb.uid + "</span>\n                                        <span class=\"text-white\"><i class=\"ri-mail-line\"></i> " + fb.userInfo.email + "</span>\n                                    </div>\n                                </div>\n                                <div class=\"rounded-4 p-3\" style=\"background-color: #ffffff1c; width: 500px;\">\n                                    <div class=\"row flex-grow-1\">\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex flex-wrap align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-calendar-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div style=\"width: calc(100% - 30px);\">\n                                                    <div class=\"ms-3\">\n                                                        <strong class=\"d-block text-white text-truncate\">" + fb.userInfo.birthday + "</strong>\n                                                        <span class=\"text-white-50 fw-medium\">Fecha de nacimiento</span>\n                                                    </div>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4 border-end\" style=\"border-color: #ffffff1c !important;\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-user-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + fb.userInfo.friends + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Amigos</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                        <div class=\"col-4\">\n                                            <div class=\"d-flex align-items-center\">\n                                                <div class=\"d-flex justify-content-center align-items-center rounded-circle\" style=\"width: 30px; height: 30px; background-color: #00000030;\">\n                                                    <i class=\"ri-men-line fs-5 text-white\"></i>\n                                                </div>\n                                                <div class=\"ms-3\">\n                                                    <strong class=\"d-block text-white\">" + (fb.userInfo.gender === "male" ? "Masculino" : "Femenino") + "</strong>\n                                                    <span class=\"text-white-50 fw-medium\">Género</span>\n                                                </div>\n                                            </div>\n                                        </div>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                    ");
         }
         try {
-          if (v365 === "bm") {
-            const v380 = await getLocalStorage("loadBm");
-            const v381 = await getLocalStorage("dataBm_" + fb.uid);
-            if (v380) {
+          if (appPage === "bm") {
+            const shouldLoadBm = await getLocalStorage("loadBm");
+            const cachedBmData = await getLocalStorage("dataBm_" + fb.uid);
+            if (shouldLoadBm) {
               await removeLocalStorage("loadBm");
               await removeLocalStorage("dataBm_" + fb.uid);
               await fb.loadBm();
-            } else if (v381) {
+            } else if (cachedBmData) {
               await fb.loadBm();
             } else {
               Swal.fire({
@@ -184,8 +192,8 @@ async function getBase64ImageFromUrl(p289) {
                 showCancelButton: true,
                 confirmButtonText: "Cargar datos",
                 cancelButtonText: "Cancelar"
-              }).then(async p297 => {
-                if (p297.isConfirmed) {
+              }).then(async result => {
+                if (result.isConfirmed) {
                   try {
                     // Verificar que fb esté disponible antes de cargar
                     if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
@@ -224,14 +232,14 @@ async function getBase64ImageFromUrl(p289) {
               });
             }
           }
-          if (v365 === "page") {
-            const v382 = await getLocalStorage("loadPage");
-            const v383 = await getLocalStorage("dataPage_" + fb.uid);
-            if (v382) {
+          if (appPage === "page") {
+            const shouldLoadPage = await getLocalStorage("loadPage");
+            const cachedPageData = await getLocalStorage("dataPage_" + fb.uid);
+            if (shouldLoadPage) {
               await removeLocalStorage("loadPage");
               await removeLocalStorage("dataPage_" + fb.uid);
               await fb.loadPage();
-            } else if (v383) {
+            } else if (cachedPageData) {
               await fb.loadPage();
             } else {
               Swal.fire({
@@ -241,13 +249,11 @@ async function getBase64ImageFromUrl(p289) {
                 showCancelButton: true,
                 confirmButtonText: "Load data",
                 cancelButtonText: "Cancel"
-              }).then(async p298 => {
-                if (p298.isConfirmed) {
+              }).then(async result => {
+                if (result.isConfirmed) {
                   try {
-                    // Verificar que fb esté disponible antes de cargar
                     if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
                       await setLocalStorage("loadPage", true);
-                      // Mostrar indicador de carga
                       Swal.fire({
                         title: 'Loading data...',
                         text: 'Please wait while Page data is being loaded',
@@ -258,22 +264,16 @@ async function getBase64ImageFromUrl(p289) {
                           Swal.showLoading();
                         }
                       });
-                      
-                      // Cargar datos directamente sin recargar la página
                       await window.fb.loadPage();
-                      
-                      // Cerrar el modal de carga después de un breve delay
                       setTimeout(() => {
                         Swal.close();
                       }, 1000);
                     } else {
-                      // Si fb no está disponible, recargar la página
                       await setLocalStorage("loadPage", true);
                       location.reload();
                     }
                   } catch (e) {
                     console.error('Error loading Page data:', e);
-                    // En caso de error, recargar la página como fallback
                     await setLocalStorage("loadPage", true);
                     location.reload();
                   }
@@ -281,14 +281,14 @@ async function getBase64ImageFromUrl(p289) {
               });
             }
           }
-          if (v365 === "ads") {
-            const v384 = await getLocalStorage("loadAds");
-            const v385 = await getLocalStorage("dataAds_" + fb.uid);
-            if (v384) {
+          if (appPage === "ads") {
+            const shouldLoadAds = await getLocalStorage("loadAds");
+            const cachedAdsData = await getLocalStorage("dataAds_" + fb.uid);
+            if (shouldLoadAds) {
               await removeLocalStorage("loadAds");
               await removeLocalStorage("dataAds_" + fb.uid);
               await fb.loadAds();
-            } else if (v385) {
+            } else if (cachedAdsData) {
               await fb.loadAds();
             } else {
               Swal.fire({
@@ -298,8 +298,8 @@ async function getBase64ImageFromUrl(p289) {
                 showCancelButton: true,
                 confirmButtonText: "Load data",
                 cancelButtonText: "Cancel"
-              }).then(async p299 => {
-                if (p299.isConfirmed) {
+              }).then(async swalResult => {
+                if (swalResult.isConfirmed) {
                   try {
                     // Verificar que fb esté disponible antes de cargar
                     if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
@@ -345,42 +345,41 @@ async function getBase64ImageFromUrl(p289) {
           loadSetting();
         }
       };
-      vF12();
+      initUserSession();
     }
   });
-  function resolveCaptcha(p301, p302, p303) {
-    return new Promise(async (p304, p305) => {
+  function resolveCaptcha(settings, siteKey, siteUrl) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v390 = p301.general.captchaServiceKey.value;
-        if (p301.general.captchaService.value === "1stcaptcha") {
-          p304(await resolveCaptcha1st(v390, p302, p303));
+        const apiKey = settings.general.captchaServiceKey.value;
+        if (settings.general.captchaService.value === "1stcaptcha") {
+          resolve(await resolveCaptcha1st(apiKey, siteKey, siteUrl));
         }
-        if (p301.general.captchaService.value === "2captcha") {
-          p304(await resolve2Captcha(v390, p302, p303));
+        if (settings.general.captchaService.value === "2captcha") {
+          resolve(await resolve2Captcha(apiKey, siteKey, siteUrl));
         }
-        if (p301.general.captchaService.value === "capmonster") {
-          p304(await resolveCaptchaCapMonster(v390, p302, p303));
+        if (settings.general.captchaService.value === "capmonster") {
+          resolve(await resolveCaptchaCapMonster(apiKey, siteKey, siteUrl));
         }
-        if (p301.general.captchaService.value === "ezcaptcha") {
-          p304(await resolveCaptchaEz(v390, p302, p303));
+        if (settings.general.captchaService.value === "ezcaptcha") {
+          resolve(await resolveCaptchaEz(apiKey, siteKey, siteUrl));
         }
-        if (p301.general.captchaService.value === "omocaptcha.com") {
-          p304(await resolveCaptchaOmo(v390, p302, p303));
+        if (settings.general.captchaService.value === "omocaptcha.com") {
+          resolve(await resolveCaptchaOmo(apiKey, siteKey, siteUrl));
         }
-        if (p301.general.captchaService.value === "anticaptcha") {
-          p304(await resolveCaptchaAntiCaptcha(v390, p302, p303));
+        if (settings.general.captchaService.value === "anticaptcha") {
+          resolve(await resolveCaptchaAntiCaptcha(apiKey, siteKey, siteUrl));
         }
-      } catch (e63) {
-        p305(e63);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function resolveCaptchaImage(p306, p307) {
-    return new Promise(async (p308, p309) => {
+  function resolveCaptchaImage(settings, imageBase64) {
+    return new Promise(async (resolve, reject) => {
       try {
-        // Validar que p306 tenga la estructura correcta
-        if (!p306 || !p306.general || !p306.general.captchaServiceKey || !p306.general.captchaService) {
-          // Mostrar modal de configuración si no está configurado
+        // Validar que settings tenga la estructura correcta
+        if (!settings || !settings.general || !settings.general.captchaServiceKey || !settings.general.captchaService) {
           Swal.fire({
             icon: 'warning',
             title: '⚙️ Configuración de Captcha Requerida',
@@ -411,15 +410,13 @@ async function getBase64ImageFromUrl(p289) {
               window.open('setting.html', '_blank');
             }
           });
-          
           throw new Error("Configuración de captcha no válida. Por favor, configura el servicio de captcha en la configuración general.");
         }
         
-        const v391 = p306.general.captchaServiceKey.value;
-        const captchaService = p306.general.captchaService.value;
+        const apiKey = settings.general.captchaServiceKey.value;
+        const captchaService = settings.general.captchaService.value;
         
-        // Validar que los valores no estén vacíos
-        if (!v391) {
+        if (!apiKey) {
           Swal.fire({
             icon: 'error',
             title: 'API Key Requerida',
@@ -444,915 +441,898 @@ async function getBase64ImageFromUrl(p289) {
         }
         
         if (captchaService === "omocaptcha.com") {
-          p308(await resolveCaptchaOmoImage(v391, p307));
+          resolve(await resolveCaptchaOmoImage(apiKey, imageBase64));
         } else if (captchaService === "anticaptcha") {
-          p308(await resolveCaptchaAntiCaptchaImage(v391, p307));
+          resolve(await resolveCaptchaAntiCaptchaImage(apiKey, imageBase64));
         } else if (captchaService === "2captcha") {
-          p308(await resolveCaptcha2CaptchaImage(v391, p307));
+          resolve(await resolveCaptcha2CaptchaImage(apiKey, imageBase64));
         } else {
           throw new Error("Servicio de captcha no soportado: " + captchaService);
         }
-      } catch (e64) {
-        console.error("Error en resolveCaptchaImage:", e64);
-        p309(e64);
+      } catch (err) {
+        console.error("Error en resolveCaptchaImage:", err);
+        reject(err);
       }
     });
   }
-  function resolveCaptchaAntiCaptchaImage(p310, p311) {
-    return new Promise(async (p312, p313) => {
+  function resolveCaptchaAntiCaptchaImage(apiKey, imageBase64) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const vO41 = {
-          apikey: p310,
-          img: p311,
+        const requestBody = {
+          apikey: apiKey,
+          img: imageBase64,
           type: 6
         };
-        const v392 = await fetch2("https://anticaptcha.top/api/captcha", {
+        const response = await fetch2("https://anticaptcha.top/api/captcha", {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           method: "POST",
-          body: JSON.stringify(vO41)
+          body: JSON.stringify(requestBody)
         });
-        const v393 = v392.json;
-        if (v393.success) {
-          p312(v393.captcha);
+        const result = response.json;
+        if (result.success) {
+          resolve(result.captcha);
         } else {
-          p313(v393.message);
+          reject(result.message);
         }
-      } catch (e65) {
-        p313("No se pudo resolver el captcha");
+      } catch (err) {
+        reject("No se pudo resolver el captcha");
       }
     });
   }
-  function resolveCaptcha1st(p314, p315, p316) {
-    return new Promise(async (p317, p318) => {
+  function resolveCaptcha1st(apiKey, siteKey, siteUrl) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v394 = await fetch2("https://api.1stcaptcha.com/recaptchav2_enterprise?apikey=" + p314 + "&sitekey=" + p315 + "&siteurl=" + p316);
-        const v395 = v394.json;
-        if (v395.Code === 0) {
-          const v396 = +v395.TaskId;
-          let v397;
-          for (let vLN025 = 0; vLN025 < 10; vLN025++) {
+        const createTaskResponse = await fetch2("https://api.1stcaptcha.com/recaptchav2_enterprise?apikey=" + apiKey + "&sitekey=" + siteKey + "&siteurl=" + siteUrl);
+        const createTaskJson = createTaskResponse.json;
+        if (createTaskJson.Code === 0) {
+          const taskId = +createTaskJson.TaskId;
+          let captchaToken;
+          for (let attempt = 0; attempt < 10; attempt++) {
             try {
-              const v398 = await fetch2("https://api.1stcaptcha.com/getresult?apikey=" + p314 + "&taskid=" + v396);
-              const v399 = v398.json;
-              if (v399.Status === "SUCCESS") {
-                v397 = v399.Data.Token;
+              const resultResponse = await fetch2("https://api.1stcaptcha.com/getresult?apikey=" + apiKey + "&taskid=" + taskId);
+              const resultJson = resultResponse.json;
+              if (resultJson.Status === "SUCCESS") {
+                captchaToken = resultJson.Data.Token;
                 break;
-              } else if (v399.Status === "ERROR") {
+              } else if (resultJson.Status === "ERROR") {
                 break;
               }
             } catch {}
             await delayTime(5000);
           }
-          if (v397) {
-            p317(v397);
+          if (captchaToken) {
+            resolve(captchaToken);
           } else {
-            p318("No se pudo resolver el captcha");
+            reject("No se pudo resolver el captcha");
           }
         } else {
-          p318(v395.Message);
+          reject(createTaskJson.Message);
         }
-      } catch (e66) {
-        p318("No se pudo resolver el captcha");
+      } catch (err) {
+        reject("No se pudo resolver el captcha");
       }
     });
   }
-  function resolveCaptchaOmo(p319, p320, p321) {
-    return new Promise(async (p322, p323) => {
+  function resolveCaptchaOmo(apiKey, siteKey, siteUrl) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const vO43 = {
-          api_token: p319,
+        const createJobBody = {
+          api_token: apiKey,
           data: {
             type_job_id: "2"
           }
         };
-        const v400 = await fetch2("https://omocaptcha.com/api/createJob", {
+        const createJobResponse = await fetch2("https://omocaptcha.com/api/createJob", {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           method: "POST",
-          body: JSON.stringify(vO43)
+          body: JSON.stringify(createJobBody)
         });
-        const v401 = v400.json;
-        if (v401.success) {
-          const v402 = v401.job_id;
-          let v403;
-          for (let vLN026 = 0; vLN026 < 10; vLN026++) {
+        const createJobJson = createJobResponse.json;
+        if (createJobJson.success) {
+          const jobId = createJobJson.job_id;
+          let captchaToken;
+          for (let attempt = 0; attempt < 10; attempt++) {
             try {
-              const vO45 = {
-                api_token: p319,
-                job_id: v402
+              const getResultBody = {
+                api_token: apiKey,
+                job_id: jobId
               };
-              const v404 = await fetch2("https://omocaptcha.com/api/getJobResult", {
+              const resultResponse = await fetch2("https://omocaptcha.com/api/getJobResult", {
                 headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json"
                 },
                 method: "POST",
-                body: JSON.stringify(vO45)
+                body: JSON.stringify(getResultBody)
               });
-              const v405 = v404.json;
-              if (v405.status === "success") {
-                v403 = v405.result;
+              const resultJson = resultResponse.json;
+              if (resultJson.status === "success") {
+                captchaToken = resultJson.result;
                 break;
-              } else if (v405.Status === "fail") {
+              } else if (resultJson.Status === "fail") {
                 break;
               }
             } catch {}
             await delayTime(5000);
           }
-          if (v403) {
-            p322(v403);
+          if (captchaToken) {
+            resolve(captchaToken);
           } else {
-            p323("No se pudo resolver el captcha");
+            reject("No se pudo resolver el captcha");
           }
         } else {
-          p323(v401.message);
+          reject(createJobJson.message);
         }
-      } catch (e67) {
-        p323("No se pudo resolver el captcha");
+      } catch (err) {
+        reject("No se pudo resolver el captcha");
       }
     });
   }
-  function resolveCaptchaOmoImage(p324, p325) {
-    return new Promise(async (p326, p327) => {
+  function resolveCaptchaOmoImage(apiKey, imageBase64) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const vO46 = {
+        const jobData = {
           type_job_id: "30",
-          image_base64: p325
+          image_base64: imageBase64
         };
-        const vO47 = {
-          api_token: p324,
-          data: vO46
+        const createJobBody = {
+          api_token: apiKey,
+          data: jobData
         };
-        const v406 = await fetch2("https://omocaptcha.com/api/createJob", {
+        const createJobResponse = await fetch2("https://omocaptcha.com/api/createJob", {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           method: "POST",
-          body: JSON.stringify(vO47)
+          body: JSON.stringify(createJobBody)
         });
-        const v407 = v406.json;
-        if (v407.success) {
-          const v408 = v407.job_id;
-          let v409;
-          for (let vLN027 = 0; vLN027 < 10; vLN027++) {
+        const createJobJson = createJobResponse.json;
+        if (createJobJson.success) {
+          const jobId = createJobJson.job_id;
+          let captchaText;
+          for (let attempt = 0; attempt < 10; attempt++) {
             try {
-              const vO48 = {
-                api_token: p324,
-                job_id: v408
+              const getResultBody = {
+                api_token: apiKey,
+                job_id: jobId
               };
-              const v410 = await fetch2("https://omocaptcha.com/api/getJobResult", {
+              const resultResponse = await fetch2("https://omocaptcha.com/api/getJobResult", {
                 headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json"
                 },
                 method: "POST",
-                body: JSON.stringify(vO48)
+                body: JSON.stringify(getResultBody)
               });
-              const v411 = v410.json;
-              if (v411.status === "success") {
-                v409 = v411.result;
+              const resultJson = resultResponse.json;
+              if (resultJson.status === "success") {
+                captchaText = resultJson.result;
                 break;
-              } else if (v411.Status === "fail") {
+              } else if (resultJson.Status === "fail") {
                 break;
               }
             } catch {}
             await delayTime(5000);
           }
-          if (v409) {
-            p326(v409);
+          if (captchaText) {
+            resolve(captchaText);
           } else {
-            p327("No se pudo resolver el captcha");
+            reject("No se pudo resolver el captcha");
           }
         } else {
-          p327(v407.message);
+          reject(createJobJson.message);
         }
-      } catch (e68) {
-        p327("No se pudo resolver el captcha");
+      } catch (err) {
+        reject("No se pudo resolver el captcha");
       }
     });
   }
-  function resolveCaptcha2CaptchaImage(p328, p329) {
-    return new Promise(async (p330, p331) => {
+  function resolveCaptcha2CaptchaImage(apiKey, imageBase64) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v412 = await fetch2("https://api.2captcha.com/createTask", {
+        const createTaskResponse = await fetch2("https://api.2captcha.com/createTask", {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           method: "POST",
           body: JSON.stringify({
-            clientKey: p328,
+            clientKey: apiKey,
             task: {
               type: "ImageToTextTask",
-              body: p329
+              body: imageBase64
             }
           })
         });
-        const v413 = v412.json;
-        if (v413.taskId) {
-          const v414 = +v413.taskId;
-          let v415;
-          for (let vLN028 = 0; vLN028 < 30; vLN028++) {
+        const createTaskJson = createTaskResponse.json;
+        if (createTaskJson.taskId) {
+          const taskId = +createTaskJson.taskId;
+          let captchaText;
+          for (let attempt = 0; attempt < 30; attempt++) {
             try {
-              const vO50 = {
-                clientKey: p328,
-                taskId: v414
+              const getResultBody = {
+                clientKey: apiKey,
+                taskId: taskId
               };
-              const v416 = await fetch2("https://api.2captcha.com/getTaskResult", {
+              const resultResponse = await fetch2("https://api.2captcha.com/getTaskResult", {
                 headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json"
                 },
                 method: "POST",
-                body: JSON.stringify(vO50)
+                body: JSON.stringify(getResultBody)
               });
-              const v417 = v416.json;
-              if (v417.status === "ready") {
-                v415 = v417.solution.text;
+              const resultJson = resultResponse.json;
+              if (resultJson.status === "ready") {
+                captchaText = resultJson.solution.text;
                 break;
-              } else if (v417.errorId != 0) {
+              } else if (resultJson.errorId != 0) {
                 break;
               }
             } catch {}
             await delayTime(5000);
           }
-          if (v415) {
-            p330(v415);
+          if (captchaText) {
+            resolve(captchaText);
           } else {
-            p331("No se pudo resolver el captcha");
+            reject("No se pudo resolver el captcha");
           }
         } else {
-          p331(v413.Message);
+          reject(createTaskJson.Message);
         }
-      } catch (e69) {
-        console.log(e69);
-        p331("No se pudo resolver el captcha");
+      } catch (err) {
+        console.log(err);
+        reject("No se pudo resolver el captcha");
       }
     });
   }
-  function resolveCaptchaCapMonster(p332, p333, p334) {
-    return new Promise(async (p335, p336) => {
+  function resolveCaptchaCapMonster(apiKey, siteKey, siteUrl) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v418 = await fetch2("https://api.capmonster.cloud/createTask", {
+        const createTaskResponse = await fetch2("https://api.capmonster.cloud/createTask", {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           method: "POST",
           body: JSON.stringify({
-            clientKey: p332,
+            clientKey: apiKey,
             task: {
               type: "RecaptchaV2EnterpriseTaskProxyless",
-              websiteURL: p334,
-              websiteKey: p333
+              websiteURL: siteUrl,
+              websiteKey: siteKey
             }
           })
         });
-        const v419 = v418.json;
-        if (v419.taskId) {
-          const v420 = +v419.taskId;
-          let v421;
-          for (let vLN029 = 0; vLN029 < 10; vLN029++) {
+        const createTaskJson = createTaskResponse.json;
+        if (createTaskJson.taskId) {
+          const taskId = +createTaskJson.taskId;
+          let captchaToken;
+          for (let attempt = 0; attempt < 10; attempt++) {
             try {
-              const vO51 = {
-                clientKey: p332,
-                taskId: v420
+              const getResultBody = {
+                clientKey: apiKey,
+                taskId: taskId
               };
-              const v422 = await fetch2("https://api.capmonster.cloud/getTaskResult", {
+              const resultResponse = await fetch2("https://api.capmonster.cloud/getTaskResult", {
                 headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json"
                 },
                 method: "POST",
-                body: JSON.stringify(vO51)
+                body: JSON.stringify(getResultBody)
               });
-              const v423 = v422.json;
-              if (v423.status === "ready") {
-                v421 = v423.solution.gRecaptchaResponse;
+              const resultJson = resultResponse.json;
+              if (resultJson.status === "ready") {
+                captchaToken = resultJson.solution.gRecaptchaResponse;
                 break;
-              } else if (v423.errorCode != 0 && v423.status !== "processing") {
+              } else if (resultJson.errorCode != 0 && resultJson.status !== "processing") {
                 break;
               }
             } catch {}
             await delayTime(5000);
           }
-          if (v421) {
-            p335(v421);
+          if (captchaToken) {
+            resolve(captchaToken);
           } else {
-            p336("No se pudo resolver el captcha");
+            reject("No se pudo resolver el captcha");
           }
         } else {
-          p336(v419.Message);
+          reject(createTaskJson.Message);
         }
-      } catch (e70) {
-        p336("No se pudo resolver el captcha");
+      } catch (err) {
+        reject("No se pudo resolver el captcha");
       }
     });
   }
-  function resolve2Captcha(p337, p338, p339) {
-    return new Promise(async (p340, p341) => {
+  function resolve2Captcha(apiKey, siteKey, siteUrl) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v424 = await fetch2("https://api.2captcha.com/createTask", {
+        const createTaskResponse = await fetch2("https://api.2captcha.com/createTask", {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           method: "POST",
           body: JSON.stringify({
-            clientKey: p337,
+            clientKey: apiKey,
             task: {
               type: "RecaptchaV2EnterpriseTaskProxyless",
-              websiteURL: p339,
-              websiteKey: p338
+              websiteURL: siteUrl,
+              websiteKey: siteKey
             }
           })
         });
-        const v425 = v424.json;
-        if (v425.taskId) {
-          const v426 = +v425.taskId;
-          let v427;
-          for (let vLN030 = 0; vLN030 < 30; vLN030++) {
+        const createTaskJson = createTaskResponse.json;
+        if (createTaskJson.taskId) {
+          const taskId = +createTaskJson.taskId;
+          let captchaToken;
+          for (let attempt = 0; attempt < 30; attempt++) {
             try {
-              const vO52 = {
-                clientKey: p337,
-                taskId: v426
+              const getResultBody = {
+                clientKey: apiKey,
+                taskId: taskId
               };
-              const v428 = await fetch2("https://api.2captcha.com/getTaskResult", {
+              const resultResponse = await fetch2("https://api.2captcha.com/getTaskResult", {
                 headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json"
                 },
                 method: "POST",
-                body: JSON.stringify(vO52)
+                body: JSON.stringify(getResultBody)
               });
-              const v429 = v428.json;
-              if (v429.status === "ready") {
-                v427 = v429.solution.gRecaptchaResponse;
+              const resultJson = resultResponse.json;
+              if (resultJson.status === "ready") {
+                captchaToken = resultJson.solution.gRecaptchaResponse;
                 break;
-              } else if (v429.errorId != 0) {
+              } else if (resultJson.errorId != 0) {
                 break;
               }
             } catch {}
             await delayTime(5000);
           }
-          if (v427) {
-            p340(v427);
+          if (captchaToken) {
+            resolve(captchaToken);
           } else {
-            p341("No se pudo resolver el captcha");
+            reject("No se pudo resolver el captcha");
           }
         } else {
-          p341(v425.Message);
+          reject(createTaskJson.Message);
         }
-      } catch (e71) {
-        console.log(e71);
-        p341("No se pudo resolver el captcha");
+      } catch (err) {
+        console.log(err);
+        reject("No se pudo resolver el captcha");
       }
     });
   }
-  function resolveCaptchaEz(p342, p343, p344) {
-    return new Promise(async (p345, p346) => {
+  function resolveCaptchaEz(apiKey, siteKey, siteUrl) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v430 = await fetch2("https://api.ez-captcha.com/createTask", {
+        const createTaskResponse = await fetch2("https://api.ez-captcha.com/createTask", {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           method: "POST",
           body: JSON.stringify({
-            clientKey: p342,
+            clientKey: apiKey,
             task: {
               type: "RecaptchaV2EnterpriseTaskProxyless",
-              websiteURL: p344,
-              websiteKey: p343
+              websiteURL: siteUrl,
+              websiteKey: siteKey
             }
           })
         });
-        const v431 = v430.json;
-        if (v431.taskId) {
-          const v432 = v431.taskId;
-          let v433;
-          for (let vLN031 = 0; vLN031 < 10; vLN031++) {
+        const createTaskJson = createTaskResponse.json;
+        if (createTaskJson.taskId) {
+          const taskId = createTaskJson.taskId;
+          let captchaToken;
+          for (let attempt = 0; attempt < 10; attempt++) {
             try {
-              const vO54 = {
-                clientKey: p342,
-                taskId: v432
+              const getResultBody = {
+                clientKey: apiKey,
+                taskId: taskId
               };
-              const v434 = await fetch2("https://api.ez-captcha.com/getTaskResult", {
+              const resultResponse = await fetch2("https://api.ez-captcha.com/getTaskResult", {
                 headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json"
                 },
                 method: "POST",
-                body: JSON.stringify(vO54)
+                body: JSON.stringify(getResultBody)
               });
-              const v435 = v434.json;
-              console.log(v435);
-              if (v435.status === "ready") {
-                v433 = v435.solution.gRecaptchaResponse;
+              const resultJson = resultResponse.json;
+              console.log(resultJson);
+              if (resultJson.status === "ready") {
+                captchaToken = resultJson.solution.gRecaptchaResponse;
                 break;
-              } else if (v435.errorId != 0) {
+              } else if (resultJson.errorId != 0) {
                 break;
               }
             } catch {}
             await delayTime(5000);
           }
-          if (v433) {
-            p345(v433);
+          if (captchaToken) {
+            resolve(captchaToken);
           } else {
-            p346("No se pudo resolver el captcha");
+            reject("No se pudo resolver el captcha");
           }
         } else {
-          p346(v431.Message);
+          reject(createTaskJson.Message);
         }
-      } catch (e72) {
-        console.log(e72);
-        p346("No se pudo resolver el captcha");
+      } catch (err) {
+        console.log(err);
+        reject("No se pudo resolver el captcha");
       }
     });
   }
-  function getPhone(p347, p348, p349 = "facebook") {
-    return new Promise(async (p350, p351) => {
+  function getPhone(phoneService, apiKey, app = "facebook") {
+    return new Promise(async (resolve, reject) => {
       try {
         console.log(`🔍 [getPhone] Iniciando obtención de número`);
-        console.log(`📋 Servicio: ${p347}, API Key: ${p348 ? p348.substring(0, 10) + '...' : 'No definida'}, App: ${p349}`);
+        console.log(`📋 Servicio: ${phoneService}, API Key: ${apiKey ? apiKey.substring(0, 10) + '...' : 'No definida'}, App: ${app}`);
         
         // Validar parámetros
-        if (!p347 || p347 === "none") {
+        if (!phoneService || phoneService === "none") {
           throw new Error("Servicio de teléfono no seleccionado");
         }
         
-        if (!p348) {
+        if (!apiKey) {
           throw new Error("API Key no proporcionada");
         }
         
         let result = null;
         
         try {
-          console.log(`🚀 Llamando al servicio ${p347}...`);
+          console.log(`🚀 Llamando al servicio ${phoneService}...`);
           
-          if (p347 === "chothuesimcode") {
-            result = await getPhoneChoThueSimCode(p348, p349);
-          } else if (p347 === "viotp") {
-            result = await getPhoneViOtp(p348, p349);
-          } else if (p347 === "xotp") {
-            result = await getPhoneXotp(p348, p349);
-          } else if (p347 === "otponline") {
-            result = await getPhoneOtpOnline(p348, p349);
-          } else if (p347 === "sim24") {
-            result = await getPhoneSim24(p348, p349);
-          } else if (p347 === "233io9") {
-            result = await getPhone233(p348, p349);
-          } else if (p347 === "simotp") {
-            result = await getPhoneSimOtp(p348, p349);
-          } else if (p347 === "codesim") {
-            result = await getPhoneCodeSim(p348, p349);
-          } else if (p347 === "template") {
+          if (phoneService === "chothuesimcode") {
+            result = await getPhoneChoThueSimCode(apiKey, app);
+          } else if (phoneService === "viotp") {
+            result = await getPhoneViOtp(apiKey, app);
+          } else if (phoneService === "xotp") {
+            result = await getPhoneXotp(apiKey, app);
+          } else if (phoneService === "otponline") {
+            result = await getPhoneOtpOnline(apiKey, app);
+          } else if (phoneService === "sim24") {
+            result = await getPhoneSim24(apiKey, app);
+          } else if (phoneService === "233io9") {
+            result = await getPhone233(apiKey, app);
+          } else if (phoneService === "simotp") {
+            result = await getPhoneSimOtp(apiKey, app);
+          } else if (phoneService === "codesim") {
+            result = await getPhoneCodeSim(apiKey, app);
+          } else if (phoneService === "template") {
             result = await getPhoneTemplate();
           } else {
-            throw new Error(`Servicio no soportado: ${p347}`);
+            throw new Error(`Servicio no soportado: ${phoneService}`);
           }
           
           if (result && result.number && result.id) {
             console.log(`✅ [getPhone] Número obtenido exitosamente`);
             console.log(`📞 Número: ${result.number}, ID: ${result.id}`);
-            p350(result);
+            resolve(result);
           } else {
             throw new Error("Respuesta inválida del servicio (sin número o ID)");
           }
           
         } catch (serviceError) {
-          console.error(`❌ [getPhone] Error del servicio ${p347}:`, serviceError);
+          console.error(`❌ [getPhone] Error del servicio ${phoneService}:`, serviceError);
           throw serviceError;
         }
         
       } catch (error) {
         console.error(`❌ [getPhone] Error general:`, error);
-        p351(error);
+        reject(error);
       }
     });
   }
-  function getPhoneCode(p352, p353, p354) {
-    return new Promise(async (p355, p356) => {
+  function getPhoneCode(phoneService, apiKey, phoneId) {
+    return new Promise(async (resolve, reject) => {
       try {
         console.log(`🔍 [getPhoneCode] Iniciando obtención de código`);
-        console.log(`📋 Servicio: ${p352}, API Key: ${p353 ? p353.substring(0, 10) + '...' : 'No definida'}, ID: ${p354}`);
+        console.log(`📋 Servicio: ${phoneService}, API Key: ${apiKey ? apiKey.substring(0, 10) + '...' : 'No definida'}, ID: ${phoneId}`);
         
-        // Validar parámetros
-        if (!p352 || p352 === "none") {
+        if (!phoneService || phoneService === "none") {
           throw new Error("Servicio de teléfono no seleccionado");
         }
         
-        if (!p353) {
+        if (!apiKey) {
           throw new Error("API Key no proporcionada");
         }
         
-        if (!p354) {
+        if (!phoneId) {
           throw new Error("ID de número no válido");
         }
         
-        const v436 = await saveSetting();
-        const v437 = (v436.general && v436.general.getCodeNumber && v436.general.getCodeNumber.value) || 10;
-        const vLN50 = 10; // Reducido de 50 a 10 segundos para ser más eficiente
+        const settings = await saveSetting();
+        const maxAttempts = (settings.general && settings.general.getCodeNumber && settings.general.getCodeNumber.value) || 10;
+        const waitPerAttemptMs = 10; // 10s (reducido de 50 para mayor eficiencia)
         
-        console.log(`⏱️ Configuración: ${v437} intentos, ${vLN50}s de espera entre intentos`);
+        console.log(`⏱️ Configuración: ${maxAttempts} intentos, ${waitPerAttemptMs}s de espera entre intentos`);
         
         let result = null;
         
         try {
-          console.log(`🚀 Obteniendo código del servicio ${p352}...`);
+          console.log(`🚀 Obteniendo código del servicio ${phoneService}...`);
           
-          if (p352 === "chothuesimcode") {
-            result = await getPhoneCodeChoThueSimCode(p353, p354, v437, vLN50);
-          } else if (p352 === "viotp") {
-            result = await getPhoneCodeViOtp(p353, p354, v437, vLN50);
-          } else if (p352 === "xotp") {
-            result = await getPhoneCodeXotp(p353, p354, v437, vLN50);
-          } else if (p352 === "otponline") {
-            result = await getPhoneCodeOnlineOtp(p353, p354, v437, vLN50);
-          } else if (p352 === "sim24") {
-            result = await getPhoneCodeSim24(p353, p354, v437, vLN50);
-          } else if (p352 === "233io9") {
-            result = await getPhoneCode233(p353, p354, v437, vLN50);
-          } else if (p352 === "simotp") {
-            result = await getPhoneCodeSimOtp(p353, p354, v437, vLN50);
-          } else if (p352 === "codesim") {
-            result = await getPhoneCodeCodeSim(p353, p354, v437, vLN50);
-          } else if (p352 === "template") {
-            result = await getPhoneCodeTemplate(p354, v437, vLN50);
+          if (phoneService === "chothuesimcode") {
+            result = await getPhoneCodeChoThueSimCode(apiKey, phoneId, maxAttempts, waitPerAttemptMs);
+          } else if (phoneService === "viotp") {
+            result = await getPhoneCodeViOtp(apiKey, phoneId, maxAttempts, waitPerAttemptMs);
+          } else if (phoneService === "xotp") {
+            result = await getPhoneCodeXotp(apiKey, phoneId, maxAttempts, waitPerAttemptMs);
+          } else if (phoneService === "otponline") {
+            result = await getPhoneCodeOnlineOtp(apiKey, phoneId, maxAttempts, waitPerAttemptMs);
+          } else if (phoneService === "sim24") {
+            result = await getPhoneCodeSim24(apiKey, phoneId, maxAttempts, waitPerAttemptMs);
+          } else if (phoneService === "233io9") {
+            result = await getPhoneCode233(apiKey, phoneId, maxAttempts, waitPerAttemptMs);
+          } else if (phoneService === "simotp") {
+            result = await getPhoneCodeSimOtp(apiKey, phoneId, maxAttempts, waitPerAttemptMs);
+          } else if (phoneService === "codesim") {
+            result = await getPhoneCodeCodeSim(apiKey, phoneId, maxAttempts, waitPerAttemptMs);
+          } else if (phoneService === "template") {
+            result = await getPhoneCodeTemplate(phoneId, maxAttempts, waitPerAttemptMs);
           } else {
-            throw new Error(`Servicio no soportado: ${p352}`);
+            throw new Error(`Servicio no soportado: ${phoneService}`);
           }
           
           if (result) {
             console.log(`✅ [getPhoneCode] Código obtenido exitosamente: ${result}`);
-            p355(result);
+            resolve(result);
           } else {
             throw new Error("No se pudo obtener el código de verificación");
           }
           
         } catch (serviceError) {
-          console.error(`❌ [getPhoneCode] Error del servicio ${p352}:`, serviceError);
+          console.error(`❌ [getPhoneCode] Error del servicio ${phoneService}:`, serviceError);
           throw serviceError;
         }
         
       } catch (error) {
         console.error(`❌ [getPhoneCode] Error general:`, error);
-        p356(error);
+        reject(error);
       }
     });
   }
-  function getObjPath(p357, p358, p359) {
-    if (typeof p358 == "string") {
-      return getObjPath(p357, p358.split("."), p359);
-    } else if (p358.length == 1 && p359 !== undefined) {
-      return p357[p358[0]] = p359;
-    } else if (p358.length == 0) {
-      return p357;
+  function getObjPath(obj, path, value) {
+    if (typeof path == "string") {
+      return getObjPath(obj, path.split("."), value);
+    } else if (path.length == 1 && value !== undefined) {
+      return obj[path[0]] = value;
+    } else if (path.length == 0) {
+      return obj;
     } else {
-      return getObjPath(p357[p358[0]], p358.slice(1), p359);
+      return getObjPath(obj[path[0]], path.slice(1), value);
     }
   }
   function getPhoneTemplate() {
-    return new Promise(async (p360, p361) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v438 = await saveSetting();
-        const v439 = v438.general.customPhone.value;
-        const v440 = (await getLocalStorage("serviceData")) || [];
-        const v441 = await v440.filter(p362 => p362.id == v439)[0];
-        const v442 = await fetch2(v441.apiGetPhone);
-        const v443 = v442.json;
-        const vGetObjPath = getObjPath(v443, v441.phoneValue);
-        const vGetObjPath2 = getObjPath(v443, v441.idValue);
-        const v444 = v441.phonePrefix ?? "";
-        if (vGetObjPath && vGetObjPath2) {
-          if (v441.phoneDelay) {
-            await delayTime(v441.phoneDelay * 100);
+        const settings = await saveSetting();
+        const customPhoneId = settings.general.customPhone.value;
+        const serviceDataList = (await getLocalStorage("serviceData")) || [];
+        const serviceEntry = await serviceDataList.filter(item => item.id == customPhoneId)[0];
+        const apiResponse = await fetch2(serviceEntry.apiGetPhone);
+        const responseJson = apiResponse.json;
+        const phoneValue = getObjPath(responseJson, serviceEntry.phoneValue);
+        const idValue = getObjPath(responseJson, serviceEntry.idValue);
+        const phonePrefix = serviceEntry.phonePrefix ?? "";
+        if (phoneValue && idValue) {
+          if (serviceEntry.phoneDelay) {
+            await delayTime(serviceEntry.phoneDelay * 100);
           }
-          p360({
-            number: v444 + vGetObjPath,
-            id: vGetObjPath2
+          resolve({
+            number: phonePrefix + phoneValue,
+            id: idValue
           });
         } else {
-          p361("No se pudo obtener el número de teléfono");
+          reject("No se pudo obtener el número de teléfono");
         }
-      } catch (e75) {
-        console.log(e75);
-        p361("No se pudo obtener el número de teléfono");
+      } catch (err) {
+        console.log(err);
+        reject("No se pudo obtener el número de teléfono");
       }
     });
   }
-  function getPhoneCodeTemplate(p363, p364, p365) {
-    return new Promise(async (p366, p367) => {
+  function getPhoneCodeTemplate(phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v445 = await saveSetting();
-        const v446 = v445.general.customPhone.value;
-        const v447 = (await getLocalStorage("serviceData")) || [];
-        const v448 = await v447.filter(p368 => p368.id == v446)[0];
-        let v449 = false;
-        for (let vLN033 = 0; vLN033 < p364; vLN033++) {
-          await delayTime(p365 * 100);
+        const settings = await saveSetting();
+        const customPhoneId = settings.general.customPhone.value;
+        const serviceDataList = (await getLocalStorage("serviceData")) || [];
+        const serviceEntry = await serviceDataList.filter(item => item.id == customPhoneId)[0];
+        let otpCode = false;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          await delayTime(waitMs * 100);
           try {
-            const v450 = await fetch2(v448.apiGetCode.replace("{id}", p363));
-            const v451 = v450.json;
-            v449 = getObjPath(v451, v448.codeValue).match(/\d+/)[0];
-            if (v449 && v449 != "00000") {
-              p366(v449);
+            const apiResponse = await fetch2(serviceEntry.apiGetCode.replace("{id}", phoneId));
+            const responseJson = apiResponse.json;
+            otpCode = getObjPath(responseJson, serviceEntry.codeValue).match(/\d+/)[0];
+            if (otpCode && otpCode != "00000") {
+              resolve(otpCode);
               break;
             }
-          } catch (e76) {}
+          } catch (err) {}
         }
-        if (!v449) {
-          p367();
+        if (!otpCode) {
+          reject();
         }
-      } catch (e77) {
-        console.log(e77);
-        p367();
+      } catch (err) {
+        console.log(err);
+        reject();
       }
     });
   }
-  function getPhoneCodeSim(p369, p370 = "facebook") {
-    return new Promise(async (p371, p372) => {
+  function getPhoneCodeSim(apiKey, app = "facebook") {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v452 = await fetch2("https://apisim.codesim.net/sim/get_sim?service_id=1&api_key=" + p369);
-        const v453 = v452.json;
-        if (v453.status === 200) {
-          const vO55 = {
-            number: v453.data.phone,
-            id: v453.data.otpId
+        const response = await fetch2("https://apisim.codesim.net/sim/get_sim?service_id=1&api_key=" + apiKey);
+        const responseJson = response.json;
+        if (responseJson.status === 200) {
+          const phoneData = {
+            number: responseJson.data.phone,
+            id: responseJson.data.otpId
           };
-          p371(vO55);
+          resolve(phoneData);
         } else {
-          p372(v453.message);
+          reject(responseJson.message);
         }
-      } catch (e78) {
-        p372("No se pudo obtener el número de teléfono");
+      } catch (err) {
+        reject("No se pudo obtener el número de teléfono");
       }
     });
   }
-  function getPhoneCodeCodeSim(p373, p374, p375, p376) {
-    return new Promise(async (p377, p378) => {
+  function getPhoneCodeCodeSim(apiKey, phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
       try {
-        let v454 = null;
-        for (let vLN034 = 0; vLN034 < p375; vLN034++) {
-          await delayTime(p376 * 100);
-          const v455 = await fetch2("https://apisim.codesim.net/otp/get_otp_by_phone_api_key?otp_id=" + p374 + "&api_key=" + p373);
-          const v456 = v455.json;
-          if (v456.status === 200) {
-            v454 = v456.data.code;
-            if (v454) {
-              p377(v454);
+        let otpCode = null;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          await delayTime(waitMs * 100);
+          const response = await fetch2("https://apisim.codesim.net/otp/get_otp_by_phone_api_key?otp_id=" + phoneId + "&api_key=" + apiKey);
+          const responseJson = response.json;
+          if (responseJson.status === 200) {
+            otpCode = responseJson.data.code;
+            if (otpCode) {
+              resolve(otpCode);
               break;
             }
           }
         }
-        if (!v454) {
-          p378();
+        if (!otpCode) {
+          reject();
         }
-      } catch (e79) {
-        p378(e79);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneSimOtp(p379, p380 = "facebook") {
-    return new Promise(async (p381, p382) => {
-      let vLN15 = 15;
-      if (p380 === "instagram") {
-        vLN15 = 29;
+  function getPhoneSimOtp(apiKey, app = "facebook") {
+    return new Promise(async (resolve, reject) => {
+      let serviceId = 15;
+      if (app === "instagram") {
+        serviceId = 29;
       }
       try {
-        const vO56 = {
-          service: vLN15
+        const requestBody = {
+          service: serviceId
         };
-        const v457 = await fetch2("https://simotp.net/api/v1/order", {
+        const response = await fetch2("https://simotp.net/api/v1/order", {
           method: "POST",
           headers: {
-            Authorization: "OTP " + p379,
+            Authorization: "OTP " + apiKey,
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(vO56)
+          body: JSON.stringify(requestBody)
         });
-        const v458 = v457.json;
-        if (v458.data) {
-          p381({
-            number: "84" + v458.data.phoneNumber,
-            id: v458.data.id
+        const responseJson = response.json;
+        if (responseJson.data) {
+          resolve({
+            number: "84" + responseJson.data.phoneNumber,
+            id: responseJson.data.id
           });
         } else {
-          p382(v458.error.message);
+          reject(responseJson.error.message);
         }
-      } catch (e80) {
-        p382("No se pudo obtener el número de teléfono");
+      } catch (err) {
+        reject("No se pudo obtener el número de teléfono");
       }
     });
   }
-  function getPhoneCodeSimOtp(p383, p384, p385, p386) {
-    return new Promise(async (p387, p388) => {
-      const vF13 = p389 => {
-        let v459 = p389.match(/\b\d{6}\b/);
-        return v459 && v459[0];
+  function getPhoneCodeSimOtp(apiKey, phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
+      const extractCode = smsContent => {
+        let match = smsContent.match(/\b\d{6}\b/);
+        return match && match[0];
       };
       try {
-        let v460 = null;
-        for (let vLN035 = 0; vLN035 < p385; vLN035++) {
-          await delayTime(p386 * 100);
-          const v461 = await fetch2("https://simotp.net/api/v1/order/" + p384, {
+        let otpCode = null;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          await delayTime(waitMs * 100);
+          const response = await fetch2("https://simotp.net/api/v1/order/" + phoneId, {
             headers: {
-              Authorization: "OTP " + p383
+              Authorization: "OTP " + apiKey
             }
           });
-          const v462 = v461.json;
-          if (v462.data) {
-            v460 = vF13(v462.data.content);
-            if (v460) {
-              p387(v460);
+          const responseJson = response.json;
+          if (responseJson.data) {
+            otpCode = extractCode(responseJson.data.content);
+            if (otpCode) {
+              resolve(otpCode);
               break;
             }
           }
         }
-        if (!v460) {
-          p388();
+        if (!otpCode) {
+          reject();
         }
-      } catch (e81) {
-        p388(e81);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhone233(p390, p391 = "facebook") {
-    return new Promise(async (p392, p393) => {
-      let vLN9 = 9;
-      if (p391 === "instagram") {
-        vLN9 = 15;
+  function getPhone233(apiKey, app = "facebook") {
+    return new Promise(async (resolve, reject) => {
+      let appId = 9;
+      if (app === "instagram") {
+        appId = 15;
       }
       try {
-        const v463 = await fetch2("https://api.233io9.info/api/dangkysim?api_key=" + p390 + "&appId=" + vLN9);
-        const v464 = v463.json;
-        if (v464.ResponseCode == 200) {
-          p392({
-            number: "84" + v464.Result.number,
-            id: v464.Result.id
+        const response = await fetch2("https://api.233io9.info/api/dangkysim?api_key=" + apiKey + "&appId=" + appId);
+        const responseJson = response.json;
+        if (responseJson.ResponseCode == 200) {
+          resolve({
+            number: "84" + responseJson.Result.number,
+            id: responseJson.Result.id
           });
         } else {
-          p393(v464.Msg);
+          reject(responseJson.Msg);
         }
-      } catch (e82) {
-        p393(e82);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneCode233(p394, p395, p396, p397) {
-    return new Promise(async (p398, p399) => {
+  function getPhoneCode233(apiKey, phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
       try {
-        let v465 = null;
-        for (let vLN036 = 0; vLN036 < p396; vLN036++) {
-          await delayTime(p397 * 100);
-          const v466 = await fetch2("https://api.233io9.info/api/layotpByID?api_key=" + p394 + "&id=" + p395);
-          const v467 = v466.json;
-          if (v467.ResponseCode == 200) {
-            v465 = v467.Result[0].otp;
-            p398(v465);
+        let otpCode = null;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          await delayTime(waitMs * 100);
+          const response = await fetch2("https://api.233io9.info/api/layotpByID?api_key=" + apiKey + "&id=" + phoneId);
+          const responseJson = response.json;
+          if (responseJson.ResponseCode == 200) {
+            otpCode = responseJson.Result[0].otp;
+            resolve(otpCode);
             break;
           }
         }
-        if (!v465) {
-          p399();
+        if (!otpCode) {
+          reject();
         }
-      } catch (e83) {
-        p399(e83);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneSim24(p400, p401 = "facebook") {
-    return new Promise(async (p402, p403) => {
+  function getPhoneSim24(apiKey, app = "facebook") {
+    return new Promise(async (resolve, reject) => {
       try {
         console.log(`🔍 [getPhoneSim24] Iniciando obtención de número`);
-        console.log(`📋 Parámetros: API Key: ${p400 ? p400.substring(0, 10) + '...' : 'No definida'}, Servicio: ${p401}`);
+        console.log(`📋 Parámetros: API Key: ${apiKey ? apiKey.substring(0, 10) + '...' : 'No definida'}, Servicio: ${app}`);
         
-        const apiUrl = `https://sim24.cc/api?action=number&service=${p401}&apikey=${p400}`;
-        console.log(`🌐 [getPhoneSim24] Llamando API: ${apiUrl.replace(p400, p400.substring(0, 5) + '...')}`);
+        const apiUrl = `https://sim24.cc/api?action=number&service=${app}&apikey=${apiKey}`;
+        console.log(`🌐 [getPhoneSim24] Llamando API: ${apiUrl.replace(apiKey, apiKey.substring(0, 5) + '...')}`);
         
-        const v468 = await fetch2(apiUrl);
-        const v469 = v468.json;
+        const response = await fetch2(apiUrl);
+        const responseJson = response.json;
         
-        console.log(`📋 [getPhoneSim24] Respuesta del servidor:`, v469);
+        console.log(`📋 [getPhoneSim24] Respuesta del servidor:`, responseJson);
         
-        if (v469 && v469.ResponseCode !== undefined) {
-          if (v469.ResponseCode == 0) {
-            if (v469.Result && v469.Result.number && v469.Result.id) {
-              const vO57 = {
-                number: v469.Result.number,
-                id: v469.Result.id
+        if (responseJson && responseJson.ResponseCode !== undefined) {
+          if (responseJson.ResponseCode == 0) {
+            if (responseJson.Result && responseJson.Result.number && responseJson.Result.id) {
+              const phoneData = {
+                number: responseJson.Result.number,
+                id: responseJson.Result.id
               };
-              console.log(`✅ [getPhoneSim24] Número obtenido exitosamente: ${vO57.number}, ID: ${vO57.id}`);
-              p402(vO57);
+              console.log(`✅ [getPhoneSim24] Número obtenido exitosamente: ${phoneData.number}, ID: ${phoneData.id}`);
+              resolve(phoneData);
             } else {
-              const errorMsg = `ResponseCode 0 pero datos inválidos en Result: ${JSON.stringify(v469.Result)}`;
+              const errorMsg = `ResponseCode 0 pero datos inválidos en Result: ${JSON.stringify(responseJson.Result)}`;
               console.log(`❌ [getPhoneSim24] ${errorMsg}`);
-              p403(new Error(errorMsg));
+              reject(new Error(errorMsg));
             }
           } else {
-            // Error en la respuesta
-            const errorMsg = `Error del servidor - ResponseCode: ${v469.ResponseCode}`;
+            const errorMsg = `Error del servidor - ResponseCode: ${responseJson.ResponseCode}`;
             console.log(`❌ [getPhoneSim24] ${errorMsg}`);
-            if (v469.Message) {
-              console.log(`📝 [getPhoneSim24] Mensaje del servidor: ${v469.Message}`);
+            if (responseJson.Message) {
+              console.log(`📝 [getPhoneSim24] Mensaje del servidor: ${responseJson.Message}`);
             }
-            p403(new Error(`${errorMsg}${v469.Message ? ': ' + v469.Message : ''}`));
+            reject(new Error(`${errorMsg}${responseJson.Message ? ': ' + responseJson.Message : ''}`));
           }
         } else {
-          const errorMsg = `Respuesta inválida del servidor (sin ResponseCode): ${JSON.stringify(v469)}`;
+          const errorMsg = `Respuesta inválida del servidor (sin ResponseCode): ${JSON.stringify(responseJson)}`;
           console.log(`❌ [getPhoneSim24] ${errorMsg}`);
-          p403(new Error(errorMsg));
+          reject(new Error(errorMsg));
         }
-      } catch (e84) {
-        console.error(`❌ [getPhoneSim24] Error general:`, e84);
-        p403(e84);
+      } catch (err) {
+        console.error(`❌ [getPhoneSim24] Error general:`, err);
+        reject(err);
       }
     });
   }
-  function getPhoneCodeSim24(p404, p405, p406, p407) {
-    return new Promise(async (p408, p409) => {
+  function getPhoneCodeSim24(apiKey, phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
       try {
-        console.log(`🔍 [getPhoneCodeSim24] Iniciando obtención de código para ID: ${p405}`);
-        console.log(`📋 Parámetros: API Key: ${p404 ? p404.substring(0, 10) + '...' : 'No definida'}, Intentos: ${p406}, Delay: ${p407}s`);
+        console.log(`🔍 [getPhoneCodeSim24] Iniciando obtención de código para ID: ${phoneId}`);
+        console.log(`📋 Parámetros: API Key: ${apiKey ? apiKey.substring(0, 10) + '...' : 'No definida'}, Intentos: ${maxAttempts}, Delay: ${waitMs}s`);
         
-        let v470 = null;
+        let otpCode = null;
         let lastResponse = null;
         
-        for (let vLN037 = 0; vLN037 < p406; vLN037++) {
-          console.log(`🔄 [getPhoneCodeSim24] Intento ${vLN037 + 1}/${p406}...`);
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          console.log(`🔄 [getPhoneCodeSim24] Intento ${attempt + 1}/${maxAttempts}...`);
           
-          if (vLN037 > 0) {
-            console.log(`⏳ Esperando ${p407} segundos antes del siguiente intento...`);
-            await delayTime(p407 * 1000);
+          if (attempt > 0) {
+            console.log(`⏳ Esperando ${waitMs} segundos antes del siguiente intento...`);
+            await delayTime(waitMs * 1000);
           }
           
           try {
-            const apiUrl = `https://sim24.cc/api?action=code&id=${p405}&apikey=${p404}`;
-            console.log(`🌐 [getPhoneCodeSim24] Llamando API: ${apiUrl.replace(p404, p404.substring(0, 5) + '...')}`);
+            const apiUrl = `https://sim24.cc/api?action=code&id=${phoneId}&apikey=${apiKey}`;
+            console.log(`🌐 [getPhoneCodeSim24] Llamando API: ${apiUrl.replace(apiKey, apiKey.substring(0, 5) + '...')}`);
             
-            const v471 = await fetch2(apiUrl);
-            const v472 = v471.json;
-            lastResponse = v472;
+            const response = await fetch2(apiUrl);
+            const responseJson = response.json;
+            lastResponse = responseJson;
             
-            console.log(`📋 [getPhoneCodeSim24] Respuesta del servidor:`, v472);
+            console.log(`📋 [getPhoneCodeSim24] Respuesta del servidor:`, responseJson);
             
-            if (v472 && v472.ResponseCode !== undefined) {
-              if (v472.ResponseCode == 0) {
-                // Código exitoso
-                if (v472.Result && v472.Result.otp) {
-                  v470 = v472.Result.otp;
-                  console.log(`✅ [getPhoneCodeSim24] Código obtenido exitosamente: ${v470}`);
+            if (responseJson && responseJson.ResponseCode !== undefined) {
+              if (responseJson.ResponseCode == 0) {
+                if (responseJson.Result && responseJson.Result.otp) {
+                  otpCode = responseJson.Result.otp;
+                  console.log(`✅ [getPhoneCodeSim24] Código obtenido exitosamente: ${otpCode}`);
                   break;
                 } else {
-                  console.log(`⚠️ [getPhoneCodeSim24] ResponseCode 0 pero sin OTP en Result:`, v472.Result);
+                  console.log(`⚠️ [getPhoneCodeSim24] ResponseCode 0 pero sin OTP en Result:`, responseJson.Result);
                 }
               } else {
-                // Error en la respuesta
                 let errorDescription = '';
-                switch(v472.ResponseCode) {
-                  case 1:
-                    errorDescription = 'No hay código disponible aún (esperando SMS)';
-                    break;
-                  case 2:
-                    errorDescription = 'Número expirado o cancelado';
-                    break;
-                  case 3:
-                    errorDescription = 'Error de API o parámetros inválidos';
-                    break;
-                  case 4:
-                    errorDescription = 'Número ya usado o no válido';
-                    break;
-                  case 5:
-                    errorDescription = 'Saldo insuficiente';
-                    break;
-                  default:
-                    errorDescription = 'Error desconocido';
+                switch(responseJson.ResponseCode) {
+                  case 1: errorDescription = 'No hay código disponible aún (esperando SMS)'; break;
+                  case 2: errorDescription = 'Número expirado o cancelado'; break;
+                  case 3: errorDescription = 'Error de API o parámetros inválidos'; break;
+                  case 4: errorDescription = 'Número ya usado o no válido'; break;
+                  case 5: errorDescription = 'Saldo insuficiente'; break;
+                  default: errorDescription = 'Error desconocido';
                 }
                 
-                console.log(`❌ [getPhoneCodeSim24] Error del servidor - ResponseCode: ${v472.ResponseCode} (${errorDescription})`);
-                if (v472.Message) {
-                  console.log(`📝 [getPhoneCodeSim24] Mensaje del servidor: ${v472.Message}`);
+                console.log(`❌ [getPhoneCodeSim24] Error del servidor - ResponseCode: ${responseJson.ResponseCode} (${errorDescription})`);
+                if (responseJson.Message) {
+                  console.log(`📝 [getPhoneCodeSim24] Mensaje del servidor: ${responseJson.Message}`);
                 }
                 
-                // Algunos códigos de error indican que debemos parar inmediatamente
-                if (v472.ResponseCode == 2 || v472.ResponseCode == 3 || v472.ResponseCode == 4 || v472.ResponseCode == 5) {
+                if (responseJson.ResponseCode == 2 || responseJson.ResponseCode == 3 || responseJson.ResponseCode == 4 || responseJson.ResponseCode == 5) {
                   console.log(`🛑 [getPhoneCodeSim24] Código de error terminal (${errorDescription}), deteniendo intentos`);
                   break;
                 }
                 
-                // ResponseCode 1 significa "esperando", así que continuamos
-                if (v472.ResponseCode == 1) {
+                if (responseJson.ResponseCode == 1) {
                   console.log(`⏳ [getPhoneCodeSim24] Continuando intentos... (${errorDescription})`);
                 }
               }
             } else {
-              console.log(`❌ [getPhoneCodeSim24] Respuesta inválida del servidor (sin ResponseCode):`, v472);
+              console.log(`❌ [getPhoneCodeSim24] Respuesta inválida del servidor (sin ResponseCode):`, responseJson);
             }
             
           } catch (requestError) {
@@ -1361,277 +1341,272 @@ async function getBase64ImageFromUrl(p289) {
           }
         }
         
-        if (v470) {
-          console.log(`🎉 [getPhoneCodeSim24] Proceso completado exitosamente con código: ${v470}`);
-          p408(v470);
+        if (otpCode) {
+          console.log(`🎉 [getPhoneCodeSim24] Proceso completado exitosamente con código: ${otpCode}`);
+          resolve(otpCode);
         } else {
-          const errorMsg = `No se pudo obtener código después de ${p406} intentos. Última respuesta: ${JSON.stringify(lastResponse)}`;
+          const errorMsg = `No se pudo obtener código después de ${maxAttempts} intentos. Última respuesta: ${JSON.stringify(lastResponse)}`;
           console.log(`❌ [getPhoneCodeSim24] ${errorMsg}`);
-          p409(new Error(errorMsg));
+          reject(new Error(errorMsg));
         }
-      } catch (e85) {
-        console.error(`❌ [getPhoneCodeSim24] Error general:`, e85);
-        p409(e85);
+      } catch (err) {
+        console.error(`❌ [getPhoneCodeSim24] Error general:`, err);
+        reject(err);
       }
     });
   }
-  function getPhoneChoThueSimCode(p410, p411) {
-    return new Promise(async (p412, p413) => {
+  function getPhoneChoThueSimCode(apiKey, app) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v473 = await getLocalStorage("setting");
-        const v474 = v473.general.carrier.value;
-        let vLS1001 = "1001";
-        let vLS13 = "";
-        if (p411 === "instagram") {
-          vLS1001 = "1010";
-          vLS13 = "84";
+        const settings = await getLocalStorage("setting");
+        const carrier = settings.general.carrier.value;
+        let appId = "1001";
+        let phonePrefix = "";
+        if (app === "instagram") {
+          appId = "1010";
+          phonePrefix = "84";
         }
-        const v475 = await fetch2("https://chaycodeso3.com/api?act=number&apik=" + p410 + "&appId=" + vLS1001 + "&carrier=" + v474);
-        const v476 = v475.json;
-        if (v476.ResponseCode == 0) {
-          const vO58 = {
-            number: vLS13 + v476.Result.Number,
-            id: v476.Result.Id
+        const response = await fetch2("https://chaycodeso3.com/api?act=number&apik=" + apiKey + "&appId=" + appId + "&carrier=" + carrier);
+        const responseJson = response.json;
+        if (responseJson.ResponseCode == 0) {
+          const phoneData = {
+            number: phonePrefix + responseJson.Result.Number,
+            id: responseJson.Result.Id
           };
-          p412(vO58);
+          resolve(phoneData);
         } else {
-          p413();
+          reject();
         }
-      } catch (e86) {
-        p413(e86);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneCodeChoThueSimCode(p414, p415, p416, p417) {
-    return new Promise(async (p418, p419) => {
+  function getPhoneCodeChoThueSimCode(apiKey, phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
       try {
-        let v477 = null;
-        for (let vLN038 = 0; vLN038 < p416; vLN038++) {
-          await delayTime(p417 * 100);
-          const v478 = await fetch2("https://chaycodeso3.com/api?act=code&apik=" + p414 + "&id=" + p415);
-          const v479 = v478.json;
-          if (v479.ResponseCode == 0) {
-            v477 = v479.Result.Code;
+        let otpCode = null;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          await delayTime(waitMs * 100);
+          const response = await fetch2("https://chaycodeso3.com/api?act=code&apik=" + apiKey + "&id=" + phoneId);
+          const responseJson = response.json;
+          if (responseJson.ResponseCode == 0) {
+            otpCode = responseJson.Result.Code;
             break;
           }
         }
-        if (v477) {
-          p418(v477);
+        if (otpCode) {
+          resolve(otpCode);
         } else {
-          await fetch2("https://chaycodeso3.com/api?act=expired&apik=" + p414 + "&id=" + p415);
-          p419();
+          await fetch2("https://chaycodeso3.com/api?act=expired&apik=" + apiKey + "&id=" + phoneId);
+          reject();
         }
-      } catch (e87) {
-        p419(e87);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneOtpOnline(p420) {
-    return new Promise(async (p421, p422) => {
+  function getPhoneOtpOnline(apiKey) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v480 = await fetch2("https://api.server-otponline.xyz/api/public/user/sim/buy/v2?appId=34&apiKey=" + p420);
-        const v481 = v480.json;
-        if (v481.isSuccessed) {
-          const vO59 = {
-            number: v481.resultObj.value.number,
-            id: v481.resultObj.value.id
+        const response = await fetch2("https://api.server-otponline.xyz/api/public/user/sim/buy/v2?appId=34&apiKey=" + apiKey);
+        const responseJson = response.json;
+        if (responseJson.isSuccessed) {
+          const phoneData = {
+            number: responseJson.resultObj.value.number,
+            id: responseJson.resultObj.value.id
           };
-          p421(vO59);
+          resolve(phoneData);
         } else {
-          p422(v481.message);
+          reject(responseJson.message);
         }
-      } catch (e88) {
-        p422(e88);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneCodeOnlineOtp(p423, p424, p425, p426) {
-    return new Promise(async (p427, p428) => {
+  function getPhoneCodeOnlineOtp(apiKey, phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
       try {
-        let v482 = null;
-        for (let vLN039 = 0; vLN039 < p425; vLN039++) {
-          await delayTime(p426 * 100);
-          const v483 = await fetch2("https://api.server-otponline.xyz/api/public/user/sim/v2?orderId=" + p424 + "&apiKey=" + p423);
-          const v484 = v483.json;
-          if (v484.isSuccessed && v484.resultObj.status == "2") {
-            v482 = v484.resultObj.code;
+        let otpCode = null;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          await delayTime(waitMs * 100);
+          const response = await fetch2("https://api.server-otponline.xyz/api/public/user/sim/v2?orderId=" + phoneId + "&apiKey=" + apiKey);
+          const responseJson = response.json;
+          if (responseJson.isSuccessed && responseJson.resultObj.status == "2") {
+            otpCode = responseJson.resultObj.code;
             break;
           }
-          if (v484.resultObj.status == "3" || v484.resultObj.status == "4") {
+          if (responseJson.resultObj.status == "3" || responseJson.resultObj.status == "4") {
             break;
           }
         }
-        if (v482) {
-          p427(v482);
+        if (otpCode) {
+          resolve(otpCode);
         } else {
-          p428();
+          reject();
         }
-      } catch (e89) {
-        p428(e89);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneViOtp(p429, p430 = "facebook") {
-    return new Promise(async (p431, p432) => {
-      let vLN7 = 7;
-      if (p430 === "microsoft") {
-        vLN7 = 5;
+  function getPhoneViOtp(apiKey, app = "facebook") {
+    return new Promise(async (resolve, reject) => {
+      let serviceId = 7;
+      if (app === "microsoft") {
+        serviceId = 5;
       }
-      if (p430 === "instagram") {
-        vLN7 = 36;
+      if (app === "instagram") {
+        serviceId = 36;
       }
       try {
-        const v485 = await fetch2("https://api.viotp.com/request/getv2?token=" + p429 + "&serviceId=" + vLN7);
-        const v486 = v485.json;
-        if (v486.success) {
-          const vO60 = {
-            number: v486.data.phone_number,
-            id: v486.data.request_id
+        const response = await fetch2("https://api.viotp.com/request/getv2?token=" + apiKey + "&serviceId=" + serviceId);
+        const responseJson = response.json;
+        if (responseJson.success) {
+          const phoneData = {
+            number: responseJson.data.phone_number,
+            id: responseJson.data.request_id
           };
-          p431(vO60);
+          resolve(phoneData);
         } else {
-          p432(v486.message);
+          reject(responseJson.message);
         }
-      } catch (e90) {
-        p432(e90);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneCodeViOtp(p433, p434, p435, p436) {
-    return new Promise(async (p437, p438) => {
+  function getPhoneCodeViOtp(apiKey, phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
       try {
-        let v487 = null;
-        for (let vLN040 = 0; vLN040 < p435; vLN040++) {
-          await delayTime(p436 * 100);
-          const v488 = await fetch2("https://api.viotp.com/session/getv2?requestId=" + p434 + "&token=" + p433);
-          const v489 = v488.json;
-          if (v489.success) {
-            if (v489.data.Code !== null) {
-              v487 = v489.data.Code;
-              p437(v487);
+        let otpCode = null;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          await delayTime(waitMs * 100);
+          const response = await fetch2("https://api.viotp.com/session/getv2?requestId=" + phoneId + "&token=" + apiKey);
+          const responseJson = response.json;
+          if (responseJson.success) {
+            if (responseJson.data.Code !== null) {
+              otpCode = responseJson.data.Code;
+              resolve(otpCode);
             }
           } else {
-            p438(v489.message);
+            reject(responseJson.message);
           }
         }
-        if (!v487) {
-          p438();
+        if (!otpCode) {
+          reject();
         }
-      } catch (e91) {
-        p438(e91);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneXotp(p439, p440 = "facebook") {
-    return new Promise(async (p441, p442) => {
+  function getPhoneXotp(apiKey, app = "facebook") {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v490 = await fetch2("https://xotp.pro/api/v1/create-request?apikey=" + p439 + "&service=" + p440);
-        const v491 = v490.json;
-        if (!v491.error) {
-          const vO61 = {
-            number: v491.phone,
-            id: v491.id
+        const response = await fetch2("https://xotp.pro/api/v1/create-request?apikey=" + apiKey + "&service=" + app);
+        const responseJson = response.json;
+        if (!responseJson.error) {
+          const phoneData = {
+            number: responseJson.phone,
+            id: responseJson.id
           };
-          p441(vO61);
+          resolve(phoneData);
         } else {
-          p442(v491.error);
+          reject(responseJson.error);
         }
-      } catch (e92) {
-        p442(e92);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getPhoneCodeXotp(p443, p444, p445, p446) {
-    return new Promise(async (p447, p448) => {
+  function getPhoneCodeXotp(apiKey, phoneId, maxAttempts, waitMs) {
+    return new Promise(async (resolve, reject) => {
       try {
-        let v492 = null;
-        for (let vLN041 = 0; vLN041 < p446; vLN041++) {
-          await delayTime(p446 * 100);
-          const v493 = await fetch2("https://xotp.pro/api/v1/get-request?apikey=" + p443 + "&id=" + p444);
-          const v494 = v493.json;
-          if (v494.code) {
-            v492 = v494.code;
+        let otpCode = null;
+        for (let attempt = 0; attempt < waitMs; attempt++) {
+          await delayTime(waitMs * 100);
+          const response = await fetch2("https://xotp.pro/api/v1/get-request?apikey=" + apiKey + "&id=" + phoneId);
+          const responseJson = response.json;
+          if (responseJson.code) {
+            otpCode = responseJson.code;
             break;
           }
         }
-        if (v492) {
-          p447(v492);
+        if (otpCode) {
+          resolve(otpCode);
         } else {
-          await fetch2("https://xotp.pro/api/v1/cancel-request?apikey=" + p443 + "&id=" + p444);
-          p448();
+          await fetch2("https://xotp.pro/api/v1/cancel-request?apikey=" + apiKey + "&id=" + phoneId);
+          reject();
         }
-      } catch (e93) {
-        p448(e93);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function getBase64Image(p449) {
-    return fetch2(p449).then(p450 => p450.blob()).then(p451 => new Promise(p452 => {
-      let v495 = new FileReader();
-      v495.onload = function () {
-        p452(this.result);
+  function getBase64Image(url) {
+    return fetch2(url).then(response => response.blob()).then(blob => new Promise(resolve => {
+      let reader = new FileReader();
+      reader.onload = function () {
+        resolve(this.result);
       };
-      v495.readAsDataURL(p451);
+      reader.readAsDataURL(blob);
     }));
   }
-  function makeid(p453) {
-    let vLS14 = "";
-    const vLSAbcdefghijklmnopqrst = "abcdefghijklmnopqrstuvwxyz0123456789";
-    const v496 = vLSAbcdefghijklmnopqrst.length;
-    let vLN042 = 0;
-    while (vLN042 < p453) {
-      vLS14 += vLSAbcdefghijklmnopqrst.charAt(Math.floor(Math.random() * v496));
-      vLN042 += 1;
+  function makeid(length) {
+    let result = "";
+    const charset = "abcdefghijklmnopqrstuvwxyz0123456789";
+    const charsetLength = charset.length;
+    let i = 0;
+    while (i < length) {
+      result += charset.charAt(Math.floor(Math.random() * charsetLength));
+      i += 1;
     }
-    return vLS14;
+    return result;
   }
   function getNewEmail() {
-    return new Promise(async (p454, p455) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        // Crear nuevo email temporal usando Mailicioso API v2
-        const v498 = await fetch2("https://mailicioso.com/api/v2/email", {
+        const response = await fetch2("https://mailicioso.com/api/v2/email", {
           headers: {
             "content-type": "application/json"
           },
           method: "POST"
         });
-        const v499 = v498.json;
+        const responseJson = response.json;
         
-        if (v499.status === "success" && v499.data && v499.data.email) {
-          // Formato compatible con el sistema existente
+        if (responseJson.status === "success" && responseJson.data && responseJson.data.email) {
           const emailData = {
             success: true,
-            id: v499.data.email.split("@")[0], // Usar la parte local como ID
-            email: v499.data.email,
-            expires_at: v499.data.expires_at,
-            messages_endpoint: v499.data.messages_endpoint
+            id: responseJson.data.email.split("@")[0],
+            email: responseJson.data.email,
+            expires_at: responseJson.data.expires_at,
+            messages_endpoint: responseJson.data.messages_endpoint
           };
           console.log("✅ Nuevo email temporal creado:", emailData.email);
-          p454(emailData);
+          resolve(emailData);
         } else {
-          console.error("❌ Error al crear email temporal:", v499);
-          p455("No se pudo crear email temporal");
+          console.error("❌ Error al crear email temporal:", responseJson);
+          reject("No se pudo crear email temporal");
         }
       } catch (error) {
         console.error("❌ Error en getNewEmail:", error);
-        p455("Error de conexión al crear email");
+        reject("Error de conexión al crear email");
       }
     });
   }
-  function getEmailInbox(p456, p457) {
-    return new Promise(async (p458, p459) => {
+  function getEmailInbox(emailId, emailAddress) {
+    return new Promise(async (resolve, reject) => {
       try {
-        // Obtener mensajes usando Mailicioso API v2
-        // p456 = id (no usado en nueva API), p457 = email
-        const encodedEmail = encodeURIComponent(p457);
-        const v501 = await fetch2(`https://mailicioso.com/api/v2/messages/${encodedEmail}`, {
+        const encodedEmail = encodeURIComponent(emailAddress);
+        const response = await fetch2(`https://mailicioso.com/api/v2/messages/${encodedEmail}`, {
           method: "GET"
         });
-        const v502 = v501.json;
+        const responseJson = response.json;
         
-        if (v502.status === "success" && v502.data && v502.data.messages) {
-          // Transformar el formato de Mailicioso al formato esperado por el sistema
-          const transformedMessages = v502.data.messages.map(msg => ({
+        if (responseJson.status === "success" && responseJson.data && responseJson.data.messages) {
+          const transformedMessages = responseJson.data.messages.map(msg => ({
             id: msg.id,
             email: msg.from_email,
             from: msg.from,
@@ -1642,85 +1617,83 @@ async function getBase64ImageFromUrl(p289) {
             attachments: msg.attachments || []
           }));
           
-          console.log(`📧 Encontrados ${transformedMessages.length} mensajes para ${p457}`);
-          p458(transformedMessages);
-        } else if (v502.status === "success" && v502.data && v502.data.messages.length === 0) {
-          // No hay mensajes, pero la respuesta es válida
-          console.log(`📧 No hay mensajes para ${p457}`);
-          p458([]);
+          console.log(`📧 Encontrados ${transformedMessages.length} mensajes para ${emailAddress}`);
+          resolve(transformedMessages);
+        } else if (responseJson.status === "success" && responseJson.data && responseJson.data.messages.length === 0) {
+          console.log(`📧 No hay mensajes para ${emailAddress}`);
+          resolve([]);
         } else {
-          console.error("❌ Error al obtener inbox:", v502);
-          p459("No se pudieron obtener los mensajes");
+          console.error("❌ Error al obtener inbox:", responseJson);
+          reject("No se pudieron obtener los mensajes");
         }
       } catch (error) {
         console.error("❌ Error en getEmailInbox:", error);
-        p459("Error de conexión al obtener mensajes");
+        reject("Error de conexión al obtener mensajes");
       }
     });
   }
-  function deleteEmail(p460) {
-    return new Promise(async (p461, p462) => {
+  function deleteEmail(emailAddress) {
+    return new Promise(async (resolve, reject) => {
       try {
-        // Eliminar email usando Mailicioso API v2
-        const encodedEmail = encodeURIComponent(p460);
+        const encodedEmail = encodeURIComponent(emailAddress);
         const response = await fetch2(`https://mailicioso.com/api/v2/email/${encodedEmail}`, {
           method: "DELETE"
         });
         const result = response.json;
         
         if (result.status === "success") {
-          console.log("✅ Email eliminado:", p460);
-          p461(true);
+          console.log("✅ Email eliminado:", emailAddress);
+          resolve(true);
         } else {
           console.warn("⚠️ No se pudo eliminar email:", result);
-          p462("No se pudo eliminar el email");
+          reject("No se pudo eliminar el email");
         }
       } catch (error) {
         console.error("❌ Error al eliminar email:", error);
-        p462("Error de conexión al eliminar email");
+        reject("Error de conexión al eliminar email");
       }
     });
   }
 
-  function randomNumberRange(p460, p461) {
-    return Math.floor(Math.random() * (p461 - p460) + p460);
+  function randomNumberRange(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
   }
-  function checkLive(p462) {
-    return new Promise(async (p463, p464) => {
+  function checkLive(userId) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v503 = await fetch2("https://graph2.facebook.com/v3.3/" + p462 + "/picture?redirect=0");
-        const v504 = v503.json;
-        if (v504.data.width && v504.data.height) {
-          p463(v504.data.url);
+        const response = await fetch2("https://graph2.facebook.com/v3.3/" + userId + "/picture?redirect=0");
+        const responseJson = response.json;
+        if (responseJson.data.width && responseJson.data.height) {
+          resolve(responseJson.data.url);
         } else {
-          p464();
+          reject();
         }
       } catch {
-        p464();
+        reject();
       }
     });
   }
-  function runVia(p465, p466) {
-    return new Promise(async (p467, p468) => {
-      if (p465.via.getLinkXmdt.value) {
-        p466({
+  function runVia(settings, progressCallback) {
+    return new Promise(async (resolve, reject) => {
+      if (settings.via.getLinkXmdt.value) {
+        progressCallback({
           action: "message",
           msg: "Obteniendo link XMDT..."
         });
         try {
-          const v505 = await fb.getLinkAn();
-          p466({
+          const linkAn = await fb.getLinkAn();
+          progressCallback({
             action: "message",
-            msg: "https://www.facebook.com/checkpoint/1501092823525282/" + v505
+            msg: "https://www.facebook.com/checkpoint/1501092823525282/" + linkAn
           });
         } catch {
-          p466({
+          progressCallback({
             action: "message",
             msg: "Error al obtener el link XMDT"
           });
         }
       }
-      p467();
+      resolve();
     });
   }
 

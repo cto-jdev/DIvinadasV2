@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark" class="dark-mode">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard — DivinAds</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/glass.css" rel="stylesheet">
+    <link href="css/remixicon.css" rel="stylesheet">
+    <link rel="shortcut icon" href="img/favicon.png">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+        }
+        .topbar { padding:16px 24px; border-bottom:1px solid rgba(255,255,255,0.08);
+            display:flex; align-items:center; justify-content:space-between; }
+        .nav-links a { color:#cbd5e1; margin-right:20px; text-decoration:none; font-size:14px; }
+        .nav-links a.active { color:#fff; font-weight:600; }
+        .account-select, .range-select {
+            background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+            color:#e2e8f0; padding:8px 12px; border-radius:6px; font-size:13px;
+        }
+        .account-select { min-width:200px; }
+        .range-select { min-width:140px; }
+        .container-dash { padding:24px; }
+        .kpi-grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:24px; }
+        .kpi-card {
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:20px;
+        }
+        .kpi-label { font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px; }
+        .kpi-value { font-size:28px; font-weight:700; color:#fff; }
+        .kpi-sub { font-size:12px; color:#94a3b8; margin-top:6px; }
+        .section {
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:20px;
+            margin-bottom:20px;
+        }
+        .section h5 { font-size:15px; margin:0 0 16px; color:#cbd5e1; }
+        .bar-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+        .bar-label { flex:0 0 180px; font-size:13px; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .bar-track { flex:1; height:22px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; position:relative; }
+        .bar-fill { height:100%; background:linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius:4px; transition:width .4s; }
+        .bar-value { position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:11px; font-weight:600; color:#fff; }
+        .loading { text-align:center; padding:40px; color:#94a3b8; }
+        .empty { text-align:center; padding:40px; color:#94a3b8; }
+        .chart-wrap { position:relative; height:280px; }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="d-flex align-items-center">
+        <img src="img/logo-divinads.png" alt="DivinAds" height="24" class="me-3">
+        <nav class="nav-links">
+            <a href="dashboard.oauth.html" class="active">Dashboard</a>
+            <a href="bm.oauth.html">BM</a>
+            <a href="ads.oauth.html">Ads</a>
+            <a href="page.oauth.html">Páginas</a>
+            <a href="pixel.oauth.html">Pixel</a>
+            <a href="connect.html">Cuentas</a>
+        </nav>
+    </div>
+    <div class="d-flex gap-2">
+        <select id="account-select" class="account-select">
+            <option value="">Cuenta…</option>
+        </select>
+        <select id="range-select" class="range-select">
+            <option value="last_7d">Últimos 7 días</option>
+            <option value="last_30d" selected>Últimos 30 días</option>
+            <option value="last_90d">Últimos 90 días</option>
+            <option value="this_month">Este mes</option>
+            <option value="last_month">Mes anterior</option>
+        </select>
+    </div>
+</div>
+
+<div class="container-dash">
+    <div id="kpis" class="kpi-grid">
+        <div class="loading">Cargando métricas…</div>
+    </div>
+
+    <div class="section">
+        <h5>Rendimiento por Ad Account</h5>
+        <div id="by-account">
+            <div class="loading">Cargando…</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h5>Gasto diario</h5>
+        <div id="time-series" class="chart-wrap">
+            <div class="loading">Cargando…</div>
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery.js"></script>
+<script src="js/dashboard.oauth.js"></script>
+</body>
+</html>

@@ -42,34 +42,34 @@ const columnDefs = [{
     field: "status",
     headerName: "Estado",
     filter: "agSetColumnFilter", 
-    cellRenderer: p5 => {
-      let vLS = "";
-      if (p5.data.status === 1) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">HCVV</strong></span>";
+    cellRenderer: params => {
+      let statusHtml = "";
+      if (params.data.status === 1) {
+        statusHtml = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">HCVV</strong></span>";
       }
-      if (p5.data.status === 2) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Necesita Apelación</strong></span>";
+      if (params.data.status === 2) {
+        statusHtml = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">Necesita Apelación</strong></span>";
       }
-      if (p5.data.status === 3) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">En Apelación</strong></span>";
+      if (params.data.status === 3) {
+        statusHtml = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">En Apelación</strong></span>";
       }
-      if (p5.data.status === 4) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">Activo</strong></span>";
+      if (params.data.status === 4) {
+        statusHtml = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">Activo</strong></span>";
       }
-      if (p5.data.status === 5) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-primary rounded-circle me-2\"></span><strong class=\"text-primary\">XMDT</strong></span>";
+      if (params.data.status === 5) {
+        statusHtml = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-primary rounded-circle me-2\"></span><strong class=\"text-primary\">XMDT</strong></span>";
       }
-      if (p5.data.status === 6) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-secondary\">Página en Apelación</strong></span>";
+      if (params.data.status === 6) {
+        statusHtml = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-secondary\">Página en Apelación</strong></span>";
       }
-      return vLS;
+      return statusHtml;
     }
   }, {
     field: "name",
     headerName: "Nombre",
     minWidth: 250,
-    cellRenderer: p6 => {
-      return "\n                <div class=\"d-flex align-items-center\">\n                    <img src=\"" + p6.data.avatar + "\" height=\"30\" class=\"rounded-circle\">\n                    <a href=\"https://www.facebook.com/profile.php?id=" + p6.data.pageId + "\" target=\"_BLANK\" class=\"ps-3 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + p6.data.name + "</strong>\n                        <span>" + p6.data.pageId + "</span>\n                    </a>\n                </div>\n            ";
+    cellRenderer: params => {
+      return "\n                <div class=\"d-flex align-items-center\">\n                    <img src=\"" + params.data.avatar + "\" height=\"30\" class=\"rounded-circle\">\n                    <a href=\"https://www.facebook.com/profile.php?id=" + params.data.pageId + "\" target=\"_BLANK\" class=\"ps-3 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + params.data.name + "</strong>\n                        <span>" + params.data.pageId + "</span>\n                    </a>\n                </div>\n            ";
     }
   }, {
     field: "id",
@@ -80,11 +80,11 @@ const columnDefs = [{
   }, {
     field: "process",
     headerName: "Proceso",
-    cellRenderer: p7 => {
-      if (p7.data.process === "RUNNING") {
+    cellRenderer: params => {
+      if (params.data.process === "RUNNING") {
         return "<span class=\"badge text-bg-warning\" style=\"font-size: 10px\">EN PROCESO</span>";
       }
-      if (p7.data.process === "FINISHED") {
+      if (params.data.process === "FINISHED") {
         return "<span class=\"badge text-bg-success\" style=\"font-size: 10px\">FINALIZADO</span>";
       }
     }
@@ -135,99 +135,48 @@ const columnDefs = [{
     localeText: {
       noRowsToShow: ""
     },
-    /**
-     * getRowId
-     * Descripción: Retorna el identificador único de una fila para agGrid.
-     * Parámetros: p8 (objeto con propiedad data)
-     * Retorna: id de la fila
-     */
-    getRowId: function (p8) {
-      return p8.data.id;
+    getRowId: function (params) {
+      return params.data.id;
     },
-    /**
-     * onFirstDataRendered
-     * Descripción: Llama a countStatus cuando los datos se renderizan por primera vez en la grilla.
-     * Parámetros: p9 (evento de agGrid)
-     */
-    onFirstDataRendered: function (p9) {
-      countStatus(p9, 0);
+    onFirstDataRendered: function (event) {
+      countStatus(event, 0);
     },
-    /**
-     * onRangeSelectionChanged
-     * Descripción: Actualiza el contador de filas seleccionadas en un rango.
-     * Parámetros: p10 (evento de selección de rango de agGrid)
-     */
-    onRangeSelectionChanged: function (p10) {
-      const v12 = p10.api.getCellRanges();
-      if (v12.length) {
-        let vLN02 = 0;
-        if (v12[0].startRow.rowIndex < v12[0].endRow.rowIndex) {
-          vLN02 = v12[0].endRow.rowIndex - (v12[0].startRow.rowIndex - 1);
+    onRangeSelectionChanged: function (event) {
+      const cellRanges = event.api.getCellRanges();
+      if (cellRanges.length) {
+        let rangeCount = 0;
+        if (cellRanges[0].startRow.rowIndex < cellRanges[0].endRow.rowIndex) {
+          rangeCount = cellRanges[0].endRow.rowIndex - (cellRanges[0].startRow.rowIndex - 1);
         } else {
-          vLN02 = v12[0].startRow.rowIndex - (v12[0].endRow.rowIndex - 1);
+          rangeCount = cellRanges[0].startRow.rowIndex - (cellRanges[0].endRow.rowIndex - 1);
         }
-        $("#boiden").text(vLN02);
+        $("#boiden").text(rangeCount);
       } else {
         $("#boiden").text(0);
       }
     },
-    /**
-     * onSelectionChanged
-     * Descripción: Actualiza el contador de filas seleccionadas.
-     * Parámetros: p11 (evento de selección de agGrid)
-     */
-    onSelectionChanged: function (p11) {
-      const v13 = p11.api.getSelectedRows();
-      $("#dachon").text(v13.length);
+    onSelectionChanged: function (event) {
+      const selectedRows = event.api.getSelectedRows();
+      $("#dachon").text(selectedRows.length);
     },
-    /**
-     * onRowDataUpdated
-     * Descripción: Actualiza el contador total de filas mostradas en la grilla.
-     * Parámetros: p12 (evento de actualización de datos de agGrid)
-     */
-    onRowDataUpdated: function (p12) {
-      $("#tong").text(p12.api.getDisplayedRowCount());
+    onRowDataUpdated: function (event) {
+      $("#tong").text(event.api.getDisplayedRowCount());
     },
-    /**
-     * onFilterChanged
-     * Descripción: Actualiza el contador total de filas mostradas tras aplicar un filtro.
-     * Parámetros: p13 (evento de filtrado de agGrid)
-     */
-    onFilterChanged: function (p13) {
-      $("#tong").text(p13.api.getDisplayedRowCount());
+    onFilterChanged: function (event) {
+      $("#tong").text(event.api.getDisplayedRowCount());
     },
     rowClassRules: {
-      /**
-       * running
-       * Descripción: Devuelve true si el estado de la fila es "RUNNING" para aplicar una clase CSS.
-       * Parámetros: p14 (objeto con propiedad data)
-       */
-      running: function (p14) {
-        return p14.data.status === "RUNNING";
+      running: function (params) {
+        return params.data.status === "RUNNING";
       },
-      /**
-       * finished
-       * Descripción: Devuelve true si el estado de la fila es "FINISHED" para aplicar una clase CSS.
-       * Parámetros: p15 (objeto con propiedad data)
-       */
-      finished: function (p15) {
-        return p15.data.status === "FINISHED";
+      finished: function (params) {
+        return params.data.status === "FINISHED";
       }
     },
-    /**
-     * onBodyScroll
-     * Descripción: Marca la variable global 'scrolling' como true cuando se detecta scroll en la tabla.
-     * Parámetros: p16 (evento de scroll)
-     */
-    onBodyScroll: function (p16) {
+    onBodyScroll: function (event) {
       scrolling = true;
     },
-    /**
-     * onBodyScrollEnd
-     * Descripción: Marca la variable global 'scrolling' como false cuando termina el scroll en la tabla.
-     * Parámetros: p17 (evento de fin de scroll)
-     */
-    onBodyScrollEnd: function (p17) {
+    onBodyScrollEnd: function (event) {
       scrolling = false;
     },
     /**
@@ -274,20 +223,20 @@ const columnDefs = [{
    * Descripción: Inicializa la grilla de páginas, carga datos desde localStorage y configura eventos.
    */
   $(document).ready(async function () {
-    const v14 = document.querySelector("#accounts");
-    new agGrid.Grid(v14, accountGrid);
-    const v15 = (await getLocalStorage("statePage")) || [];
-    const vO13 = {
-      state: v15,
+    const gridContainer = document.querySelector("#accounts");
+    new agGrid.Grid(gridContainer, accountGrid);
+    const savedColumnState = (await getLocalStorage("statePage")) || [];
+    const columnStateConfig = {
+      state: savedColumnState,
       applyOrder: true
     };
-    accountGrid.columnApi.applyColumnState(vO13);
-    const v16 = new URL(location.href);
-    const v17 = v16.searchParams.get("id");
-    if (v17) {
-      const v18 = await getLocalStorage("dataPage_" + v17);
-      $("#count").text(v18.length);
-      accountGrid.api.setRowData(v18);
+    accountGrid.columnApi.applyColumnState(columnStateConfig);
+    const pageUrl = new URL(location.href);
+    const urlUserId = pageUrl.searchParams.get("id");
+    if (urlUserId) {
+      const savedData = (await getLocalStorage("dataPage_" + urlUserId)) || [];
+      $("#count").text(savedData.length);
+      accountGrid.api.setRowData(savedData);
     } else {
       // setInterval(async () => {
       //   if ($("body").hasClass("setting-loaded")) {
@@ -303,90 +252,91 @@ const columnDefs = [{
    * Evento loadSavedPage
    * Descripción: Carga páginas guardadas y las muestra en la grilla.
    */
-  $(document).on("loadSavedPage", function (p21, p22) {
-    p22 = p22.map(p23 => {
-      p23.process = "";
-      return p23;
+  $(document).on("loadSavedPage", function (event, pageList) {
+    pageList = pageList.map(page => {
+      page.process = "";
+      return page;
     });
-    accountGrid.api.setRowData(p22);
+    accountGrid.api.setRowData(pageList);
   });
   const pageMap = [];
   /**
    * Evento loadPageSuccess
    * Descripción: Procesa y muestra páginas tras una carga exitosa, asignando IDs y mapeando páginas.
    */
-  $(document).on("loadPageSuccess", function (p24, p25) {
-    let vLN1 = 1;
-    p25 = p25.map(p26 => {
-      const vO14 = {
-        id: vLN1,
-        pageId: p26.id
+  $(document).on("loadPageSuccess", function (event, pagesData) {
+    let rowIndex = 1;
+    pagesData = pagesData.map(page => {
+      const mapEntry = {
+        id: rowIndex,
+        pageId: page.id
       };
-      pageMap.push(vO14);
-      p26 = {
-        id: vLN1,
-        name: p26.name,
-        createdDate: moment(p26.page_created_time).format("DD/MM/YYYY"),
-        like: p26.likes,
-        pageId: p26.id,
-        pageId2: p26.additional_profile_id,
-        follow: p26.followers_count,
-        role: p26.perms.includes("ADMINISTER") ? "ADMIN" : "NORMAL",
-        bm: p26.business?.id || "",
-        avatar: "http://graph.facebook.com/" + p26.id + "/picture"
+      pageMap.push(mapEntry);
+      page = {
+        id: rowIndex,
+        name: page.name,
+        createdDate: moment(page.page_created_time).format("DD/MM/YYYY"),
+        like: page.likes,
+        pageId: page.id,
+        pageId2: page.additional_profile_id,
+        follow: page.followers_count,
+        role: page.perms.includes("ADMINISTER") ? "ADMIN" : "NORMAL",
+        bm: page.business?.id || "",
+        avatar: "http://graph.facebook.com/" + page.id + "/picture"
       };
-      vLN1++;
-      return p26;
+      rowIndex++;
+      return page;
     });
-    accountGrid.api.setRowData(p25);
+    accountGrid.api.setRowData(pagesData);
   });
   /**
    * Evento updatePageStatus
    * Descripción: Actualiza el estado de una página específica en la grilla.
    */
-  $(document).on("updatePageStatus", function (p27, p28) {
-    const v20 = pageMap.filter(p29 => p29.pageId == p28.id)[0].id;
-    console.log(v20);
-    accountGrid.api.getRowNode(v20).setDataValue("status", p28.status);
+  $(document).on("updatePageStatus", function (event, statusData) {
+    const mapEntry = pageMap.filter(entry => entry.pageId == statusData.id)[0];
+    if (!mapEntry) return;
+    const rowId = mapEntry.id;
+    accountGrid.api.getRowNode(rowId)?.setDataValue("status", statusData.status);
   });
   /**
    * countStatus
    * Descripción: Cuenta la cantidad de páginas por cada estado y actualiza los contadores en la interfaz.
-   * Parámetros: p30 (objeto agGrid), p31 (no usado)
+   * Parámetros: gridEvent (objeto agGrid), filterArg (no usado)
    */
-  function countStatus(p30, p31) {
-    let vLN03 = 0;
-    let vLN04 = 0;
-    let vLN05 = 0;
-    let vLN06 = 0;
-    let vLN07 = 0;
-    let vLN08 = 0;
-    p30.api.forEachNode(p32 => {
-      if (p32.data.status === 1) {
-        vLN03++;
+  function countStatus(gridEvent, filterArg) {
+    let hcvvCount = 0;
+    let needsAppealCount = 0;
+    let inAppealCount = 0;
+    let activeCount = 0;
+    let xmdtCount = 0;
+    let pageInAppealCount = 0;
+    gridEvent.api.forEachNode(node => {
+      if (node.data.status === 1) {
+        hcvvCount++;
       }
-      if (p32.data.status === 2) {
-        vLN04++;
+      if (node.data.status === 2) {
+        needsAppealCount++;
       }
-      if (p32.data.status === 3) {
-        vLN05++;
+      if (node.data.status === 3) {
+        inAppealCount++;
       }
-      if (p32.data.status === 4) {
-        vLN06++;
+      if (node.data.status === 4) {
+        activeCount++;
       }
-      if (p32.data.status === 5) {
-        vLN07++;
+      if (node.data.status === 5) {
+        xmdtCount++;
       }
-      if (p32.data.status === 6) {
-        vLN08++;
+      if (node.data.status === 6) {
+        pageInAppealCount++;
       }
     });
-    $(".status1Count").text(vLN03);
-    $(".status2Count").text(vLN04);
-    $(".status3Count").text(vLN05);
-    $(".status4Count").text(vLN06);
-    $(".status5Count").text(vLN07);
-    $(".status6Count").text(vLN08);
+    $(".status1Count").text(hcvvCount);
+    $(".status2Count").text(needsAppealCount);
+    $(".status3Count").text(inAppealCount);
+    $(".status4Count").text(activeCount);
+    $(".status5Count").text(xmdtCount);
+    $(".status6Count").text(pageInAppealCount);
   }
 
 // =============================================================================

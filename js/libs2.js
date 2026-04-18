@@ -698,651 +698,650 @@ function getLinkXmdtAds(adAccountId) {
       }
     });
   }
-function  createBm(p240, p241) {
-    return new Promise(async (p242, p243) => {
-      let v257 = false;
+function  createBm(createMode, bmName) {
+    return new Promise(async (resolve, reject) => {
+      let createdSuccessfully = false;
       try {
-        if (p240 === "350") {
-          const v258 = await fetch2("https://business.facebook.com/api/graphql/", {
+        if (createMode === "350") {
+          const response350 = await fetch2("https://business.facebook.com/api/graphql/", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "av=" + this.uid + "&__usid=6-Trf0mkxer7rg4%3APrf0mkv1xg9ie7%3A0-Arf0mkxurlzsp-RV%3D6%3AF%3D&__user=" + this.uid + "&__a=1&__dyn=7xeUmwkHgmwn8K2WnFwn84a2i5U4e1Fx-ewSyo9Euxa0z8S2S7o760Boe8hwem0nCq1ewcG0KEswaq1xwEwlU-0nSUS1vwnEfU7e2l0Fwwwi85W1ywnEfogwh85qfK6E28xe3C16wlo5a2W2K1HwywnEhwxwuUvwbW1fxW4UpwSyES0gq5o2DwiU8UdUco&__csr=&__req=s&__hs=19187.BP%3Abizweb_pkg.2.0.0.0.0&dpr=1&__ccg=GOOD&__rev=1005843971&__s=xpxflz%3A1mkqgj%3Avof03o&__hsi=7120240829090214250&__comet_req=0&fb_dtsg=" + this.dtsg + "&jazoest=25414&lsd=8VpPvx4KH5-Ydq-I0JMQcK&__spin_r=1005843971&__spin_b=trunk&__spin_t=mftool&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=FBEGeoBMCreation_CreateBusinessMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%226%22%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22business_name%22%3A%22" + encodeURIComponent(p241) + "%22%7D%7D&server_timestamps=true&doc_id=5232196050177866"
+            body: "av=" + this.uid + "&__usid=6-Trf0mkxer7rg4%3APrf0mkv1xg9ie7%3A0-Arf0mkxurlzsp-RV%3D6%3AF%3D&__user=" + this.uid + "&__a=1&__dyn=7xeUmwkHgmwn8K2WnFwn84a2i5U4e1Fx-ewSyo9Euxa0z8S2S7o760Boe8hwem0nCq1ewcG0KEswaq1xwEwlU-0nSUS1vwnEfU7e2l0Fwwwi85W1ywnEfogwh85qfK6E28xe3C16wlo5a2W2K1HwywnEhwxwuUvwbW1fxW4UpwSyES0gq5o2DwiU8UdUco&__csr=&__req=s&__hs=19187.BP%3Abizweb_pkg.2.0.0.0.0&dpr=1&__ccg=GOOD&__rev=1005843971&__s=xpxflz%3A1mkqgj%3Avof03o&__hsi=7120240829090214250&__comet_req=0&fb_dtsg=" + this.dtsg + "&jazoest=25414&lsd=8VpPvx4KH5-Ydq-I0JMQcK&__spin_r=1005843971&__spin_b=trunk&__spin_t=mftool&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=FBEGeoBMCreation_CreateBusinessMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%226%22%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22business_name%22%3A%22" + encodeURIComponent(bmName) + "%22%7D%7D&server_timestamps=true&doc_id=5232196050177866"
           });
-          const v259 = v258.text;
-          if (v259.includes("{\"data\":{\"fbe_create_business\":{\"id\":\"")) {
-            v257 = true;
+          const responseText350 = response350.text;
+          if (responseText350.includes("{\"data\":{\"fbe_create_business\":{\"id\":\"")) {
+            createdSuccessfully = true;
           }
         }
-        if (p240 === "50") {
-          const v260 = await fetch2("https://business.facebook.com/api/graphql/", {
+        if (createMode === "50") {
+          const response50 = await fetch2("https://business.facebook.com/api/graphql/", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "fb_dtsg=" + this.dtsg + "&variables={\"input\":{\"client_mutation_id\":\"4\",\"actor_id\":\"" + this.uid + "\",\"business_name\":\"" + encodeURIComponent(p241) + "\",\"user_first_name\":\"Tool\",\"user_last_name\":\"FB%20" + randomNumberRange(111111, 99999) + "\",\"user_email\":\"toolfb" + randomNumberRange(111111, 99999) + "@gmail.com\",\"creation_source\":\"MBS_BUSINESS_CREATION_PROMINENT_HOME_CARD\"}}&server_timestamps=true&doc_id=7183377418404152"
+            body: "fb_dtsg=" + this.dtsg + "&variables={\"input\":{\"client_mutation_id\":\"4\",\"actor_id\":\"" + this.uid + "\",\"business_name\":\"" + encodeURIComponent(bmName) + "\",\"user_first_name\":\"Tool\",\"user_last_name\":\"FB%20" + randomNumberRange(111111, 99999) + "\",\"user_email\":\"toolfb" + randomNumberRange(111111, 99999) + "@gmail.com\",\"creation_source\":\"MBS_BUSINESS_CREATION_PROMINENT_HOME_CARD\"}}&server_timestamps=true&doc_id=7183377418404152"
           });
-          const v261 = v260.text;
-          if (v261.includes("{\"data\":{\"bizkit_create_business\":{\"id\":\"")) {
-            v257 = true;
+          const responseText50 = response50.text;
+          if (responseText50.includes("{\"data\":{\"bizkit_create_business\":{\"id\":\"")) {
+            createdSuccessfully = true;
           }
         }
-        if (p240 === "over") {
-          const v262 = await fetch2("https://business.facebook.com/business/create_account/?brand_name=" + encodeURIComponent(p241) + "&first_name=" + encodeURIComponent(p241) + "&last_name=FB%20" + randomNumberRange(111111, 99999) + "&email=toolfb" + randomNumberRange(111111, 99999) + "@gmail.com&timezone_id=132&business_category=OTHER", {
+        if (createMode === "over") {
+          const responseOver = await fetch2("https://business.facebook.com/business/create_account/?brand_name=" + encodeURIComponent(bmName) + "&first_name=" + encodeURIComponent(bmName) + "&last_name=FB%20" + randomNumberRange(111111, 99999) + "&email=toolfb" + randomNumberRange(111111, 99999) + "@gmail.com&timezone_id=132&business_category=OTHER", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
             body: "__user=" + this.uid + "&__a=1&__dyn=7xeUmwkHg7ebwKBWo5O12wAxu13wqovzEdEc8uw9-dwJwCw4sxG4o2vwho1upE4W0OE2WxO0FE662y0umUS1vwnE2Pwk8884y1uwc63S482rwKxe0y83mwkE5G0zE5W0HUvw5rwSyES0gq0Lo6-1FwbO&__csr=&__req=1b&__hs=19300.BP:brands_pkg.2.0.0.0.0&dpr=1&__ccg=EXCELLENT&__rev=1006542795&__s=fx337t:hidf4p:qkhu11&__hsi=7162041770829218151&__comet_req=0&fb_dtsg=" + this.dtsg + "&jazoest=25796&lsd=7qUeMnkz4xy0phFCtNnkTI&__aaid=523818549297438&__spin_r=1006542795&__spin_b=trunk&__spin_t=1667542795&__jssesw=1"
           });
-          const v263 = v262.text;
-          if (v263.includes("\"payload\":\"https:")) {
-            v257 = true;
+          const responseTextOver = responseOver.text;
+          if (responseTextOver.includes("\"payload\":\"https:")) {
+            createdSuccessfully = true;
           }
         }
-      } catch (e46) {
-        console.log(e46);
+      } catch (err) {
+        console.log(err);
       }
-      if (v257) {
-        p242();
+      if (createdSuccessfully) {
+        resolve();
       } else {
-        p243();
+        reject();
       }
     });
   }
-function  createPage(p244) {
-    return new Promise(async (p245, p246) => {
+function  createPage(pageName) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v264 = await fetch2("https://www.facebook.com/api/graphql/", {
+        const response = await fetch2("https://www.facebook.com/api/graphql/", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
           method: "POST",
-          body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1v&__hs=19694.HYP%3Acomet_pkg.2.1..2.1&dpr=1&__ccg=EXCELLENT&__rev=1010174206&__s=zgpvzb%3A8cqk4o%3A8gvuf9&__hsi=7308188588785296006&__dyn=7AzHK4HzE4e5Q1ryaxG4Vp62-m1xDwAxu13wFwhUngS3q5UObwNwnof8boG0x8bo6u3y4o2Gwn82nwb-q7oc81xoswIK1Rwwwg8a8465o-cwfG12wOx62G5Usw9m1YwBgK7o884y0Mo4G1hx-3m1mzXw8W58jwGzE8FU5e7oqBwJK2W5olwUwOzEjUlDw-wUwxwjFovUy2a1ywtUuBwFKq2-azqwqo4i223908O3216xi4UdUcojxK2B0oobo8oC1hxB0qo4e16wWw-zXDzU&__csr=gacagBmDE9hthJN4jQB6NT5Os_6Av7nR4IZft4RSAXAjeGOrRtmKmhHQkDWWVBhdeQhd9pumfJ2J4_gyfGymiKHKj-W8rDK-QicCy6mnh995zfZ1iiEHDWyt4JpaCAG2WehemGG8hECudmcxt5z8gBCByk9zEuDJ4hHhA48yh5WDwCxh6xe6uUGGz4EyEaoKuFUkCy9eaLCwywMUnhp9FQm3GA6VU8oix-q26kwhwVyo5Hy8oQi4obpV8cEgzFGwge3yexpzEtwm8gwNxa1RwCyVoS0PU8U1krwfm0he0A83EwbO0Eyw4sw8-16whqg31yaQ1aw8Si0gF0Yw28j06gwrU0Fa0nu020i030m0cZU0now0ac-08kDyo1j84Nk1koyeo1p80AC0h-04Z80uug0za08ew3pE5u2e2mnEM1yA1Rw2Co1vHw2sogw1hm4S13zEao0H603xC0ty4oiwiFE21w15W08nwn8EUeC5UPDw2zu16w&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25563&lsd=R1sWlP5eu_-q_qVd0jpuf1&__aaid=0&__spin_r=1010174206&__spin_b=trunk&__spin_t=1701570253&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AdditionalProfilePlusCreationMutation&variables=%7B%22input%22%3A%7B%22bio%22%3A%22%22%2C%22categories%22%3A%5B%222705%22%5D%2C%22creation_source%22%3A%22comet%22%2C%22name%22%3A%22" + encodeURIComponent(p244) + "%22%2C%22page_referrer%22%3A%22launch_point%22%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22client_mutation_id%22%3A%223%22%7D%7D&server_timestamps=true&doc_id=5296879960418435"
+          body: "av=" + this.uid + "&__user=" + this.uid + "&__a=1&__req=1v&__hs=19694.HYP%3Acomet_pkg.2.1..2.1&dpr=1&__ccg=EXCELLENT&__rev=1010174206&__s=zgpvzb%3A8cqk4o%3A8gvuf9&__hsi=7308188588785296006&__dyn=7AzHK4HzE4e5Q1ryaxG4Vp62-m1xDwAxu13wFwhUngS3q5UObwNwnof8boG0x8bo6u3y4o2Gwn82nwb-q7oc81xoswIK1Rwwwg8a8465o-cwfG12wOx62G5Usw9m1YwBgK7o884y0Mo4G1hx-3m1mzXw8W58jwGzE8FU5e7oqBwJK2W5olwUwOzEjUlDw-wUwxwjFovUy2a1ywtUuBwFKq2-azqwqo4i223908O3216xi4UdUcojxK2B0oobo8oC1hxB0qo4e16wWw-zXDzU&__csr=gacagBmDE9hthJN4jQB6NT5Os_6Av7nR4IZft4RSAXAjeGOrRtmKmhHQkDWWVBhdeQhd9pumfJ2J4_gyfGymiKHKj-W8rDK-QicCy6mnh995zfZ1iiEHDWyt4JpaCAG2WehemGG8hECudmcxt5z8gBCByk9zEuDJ4hHhA48yh5WDwCxh6xe6uUGGz4EyEaoKuFUkCy9eaLCwywMUnhp9FQm3GA6VU8oix-q26kwhwVyo5Hy8oQi4obpV8cEgzFGwge3yexpzEtwm8gwNxa1RwCyVoS0PU8U1krwfm0he0A83EwbO0Eyw4sw8-16whqg31yaQ1aw8Si0gF0Yw28j06gwrU0Fa0nu020i030m0cZU0now0ac-08kDyo1j84Nk1koyeo1p80AC0h-04Z80uug0za08ew3pE5u2e2mnEM1yA1Rw2Co1vHw2sogw1hm4S13zEao0H603xC0ty4oiwiFE21w15W08nwn8EUeC5UPDw2zu16w&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25563&lsd=R1sWlP5eu_-q_qVd0jpuf1&__aaid=0&__spin_r=1010174206&__spin_b=trunk&__spin_t=1701570253&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AdditionalProfilePlusCreationMutation&variables=%7B%22input%22%3A%7B%22bio%22%3A%22%22%2C%22categories%22%3A%5B%222705%22%5D%2C%22creation_source%22%3A%22comet%22%2C%22name%22%3A%22" + encodeURIComponent(pageName) + "%22%2C%22page_referrer%22%3A%22launch_point%22%2C%22actor_id%22%3A%22" + this.uid + "%22%2C%22client_mutation_id%22%3A%223%22%7D%7D&server_timestamps=true&doc_id=5296879960418435"
         });
-        const v265 = v264.text;
-        if (v265.includes("\"page\":{\"id\":\"")) {
-          const v266 = JSON.parse(v264);
-          p245(v266.data.additional_profile_plus_create.page.id);
+        const responseText = response.text;
+        if (responseText.includes("\"page\":{\"id\":\"")) {
+          const responseJson = JSON.parse(response);
+          resolve(responseJson.data.additional_profile_plus_create.page.id);
         } else {
-          p246("cccc");
+          reject("cccc");
         }
-      } catch (e47) {
-        p246(e47);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-function  getSiteKey(p247) {
-    return new Promise(async (p248, p249) => {
+function  getSiteKey(captchaUrl) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v267 = await fetch2(p247);
-        const v268 = v267.text;
-        const v269 = new DOMParser();
-        const v270 = v269.parseFromString(v268, "text/html");
-        p248($(v270).find(".g-recaptcha").attr("data-sitekey"));
+        const response = await fetch2(captchaUrl);
+        const htmlText = response.text;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, "text/html");
+        resolve($(doc).find(".g-recaptcha").attr("data-sitekey"));
       } catch {
-        p249();
+        reject();
       }
     });
   }
-  function khang902Api2(p250, p251 = "", p252 = {}) {
-    return new Promise(async (p253, p254) => {
-      const v271 = fb.dtsg;
-      const vLS5FnEglTcQSfqnuBkn03g = "5FnEglTcQSfqnuBkn03g";
-      const v272 = fb.accessToken;
-      const vLS902 = "902";
-      const v273 = fb.uid;
-      let vV273 = v273;
-      let vLN5 = 5;
-      if (p251) {
-        vV273 = p251;
-        vLN5 = 3;
+  function khang902Api2(onProgress, targetUid = "", settings = {}) {
+    return new Promise(async (resolve, reject) => {
+      const dtsg = fb.dtsg;
+      const lsdToken = "5FnEglTcQSfqnuBkn03g";
+      const accessToken = fb.accessToken;
+      const appealType = "902";
+      const uid = fb.uid;
+      let entityUid = uid;
+      let entityType = 5;
+      if (targetUid) {
+        entityUid = targetUid;
+        entityType = 3;
       }
       try {
-        const vA16 = ["policy", "unauthorized_use", "other"];
-        const v274 = vA16[Math.floor(Math.random() * vA16.length)];
-        const v275 = p252.bm.chooseLine.value === "random" ? v274 : p252.bm.chooseLine.value;
-        const v276 = p252.bm.chooseLine.value === "other" ? encodeURIComponent(p252.bm.noiDungKhang.value) : encodeURIComponent("I think there was unauthorized use of my Facebook account.");
-        const vVO25 = {
+        const appealLineOptions = ["policy", "unauthorized_use", "other"];
+        const randomLine = appealLineOptions[Math.floor(Math.random() * appealLineOptions.length)];
+        const chosenLine = settings.bm.chooseLine.value === "random" ? randomLine : settings.bm.chooseLine.value;
+        const appealComment = settings.bm.chooseLine.value === "other" ? encodeURIComponent(settings.bm.noiDungKhang.value) : encodeURIComponent("I think there was unauthorized use of my Facebook account.");
+        const appealLineMap = {
           policy: 1,
           unauthorized_use: 2,
           other: 3
         };
-        const v277 = vVO25[v275];
-        if (vLS902 !== "902" && vLS902 !== "902_line") {
-          return p254("No se puede apelar 902");
+        const appealLineId = appealLineMap[chosenLine];
+        if (appealType !== "902" && appealType !== "902_line") {
+          return reject("No se puede apelar 902");
         }
-        const v278 = await fetch2("https://www.facebook.com/api/graphql/", {
+        const restrictionInfoResponse = await fetch2("https://www.facebook.com/api/graphql/", {
           headers: {
             "content-type": "multipart/form-data; boundary=----WebKitFormBoundaryOMix6XnzisxiE316"
           },
           method: "POST",
-          body: "------WebKitFormBoundaryOMix6XnzisxiE316\r\nContent-Disposition:form-data;name=\"fb_dtsg\"\r\n\r\n" + v271 + "\r\n------WebKitFormBoundaryOMix6XnzisxiE316\r\nContent-Disposition:form-data;name=\"lsd\"\r\n\r\n" + vLS5FnEglTcQSfqnuBkn03g + "\r\n------WebKitFormBoundaryOMix6XnzisxiE316\r\nContent-Disposition:form-data;name=\"variables\"\r\n\r\n{\"assetOwnerId\":\"" + vV273 + "\"}\r\n------WebKitFormBoundaryOMix6XnzisxiE316\r\nContent-Disposition:form-data;name=\"doc_id\"\r\n\r\n5816699831746699\r\n------WebKitFormBoundaryOMix6XnzisxiE316--\r\n"
+          body: "------WebKitFormBoundaryOMix6XnzisxiE316\r\nContent-Disposition:form-data;name=\"fb_dtsg\"\r\n\r\n" + dtsg + "\r\n------WebKitFormBoundaryOMix6XnzisxiE316\r\nContent-Disposition:form-data;name=\"lsd\"\r\n\r\n" + lsdToken + "\r\n------WebKitFormBoundaryOMix6XnzisxiE316\r\nContent-Disposition:form-data;name=\"variables\"\r\n\r\n{\"assetOwnerId\":\"" + entityUid + "\"}\r\n------WebKitFormBoundaryOMix6XnzisxiE316\r\nContent-Disposition:form-data;name=\"doc_id\"\r\n\r\n5816699831746699\r\n------WebKitFormBoundaryOMix6XnzisxiE316--\r\n"
         });
-        const v279 = v278.json;
-        const v280 = v279.data.assetOwnerData.advertising_restriction_info.ids_issue_ent_id;
-        if (p252.bm.chooseLineOnly?.value || this.quality === "902_line") {
-          p250("Seleccionando línea");
-          const v281 = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=2423", {
+        const restrictionInfoJson = restrictionInfoResponse.json;
+        const idsIssueEntId = restrictionInfoJson.data.assetOwnerData.advertising_restriction_info.ids_issue_ent_id;
+        if (settings.bm.chooseLineOnly?.value || this.quality === "902_line") {
+          onProgress("Seleccionando línea");
+          const chooseLine902Response = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=2423", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "av=" + v273 + "&__usid=6-Ts62bj38e5dcl%3APs62bqs19mjhs3%3A0-As62bhb1qhfddh-RV%3D6%3AF%3D&session_id=26399276ba0973c5&__user=" + v273 + "&__a=1&__req=w&__hs=19713.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010574604&__s=pyhonq%3Azkdiwa%3A6yn1u0&__hsi=7315356470129303763&__dyn=7xeUmxa2C5rgydwCwRyU8EKmhG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx60C9EcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyQ6U-4Ea8mwoEru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzweau0Jo6-4e1mAKm221bzFHwCwNwDwjouxK2i2y1sDw9-&__csr=&fb_dtsg=" + v271 + "&jazoest=25180&lsd=5FnEglTcQSfqnuBkn03g8c&__aaid=0&__bid=212827131149567&__spin_r=1010574604&__spin_b=trunk&__spin_t=1703239154&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useALEBanhammerAppealMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%22" + v277 + "%22%2C%22actor_id%22%3A%22100050444678752%22%2C%22entity_id%22%3A%22" + vV273 + "%22%2C%22ids_issue_ent_id%22%3A%22" + v280 + "%22%2C%22appeal_comment%22%3A%22" + encodeURIComponent(v276) + "%22%2C%22callsite%22%3A%22ACCOUNT_QUALITY%22%7D%7D&server_timestamps=true&doc_id=6816769481667605"
+            body: "av=" + uid + "&__usid=6-Ts62bj38e5dcl%3APs62bqs19mjhs3%3A0-As62bhb1qhfddh-RV%3D6%3AF%3D&session_id=26399276ba0973c5&__user=" + uid + "&__a=1&__req=w&__hs=19713.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010574604&__s=pyhonq%3Azkdiwa%3A6yn1u0&__hsi=7315356470129303763&__dyn=7xeUmxa2C5rgydwCwRyU8EKmhG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx60C9EcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyQ6U-4Ea8mwoEru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzweau0Jo6-4e1mAKm221bzFHwCwNwDwjouxK2i2y1sDw9-&__csr=&fb_dtsg=" + dtsg + "&jazoest=25180&lsd=5FnEglTcQSfqnuBkn03g8c&__aaid=0&__bid=212827131149567&__spin_r=1010574604&__spin_b=trunk&__spin_t=1703239154&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useALEBanhammerAppealMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%22" + appealLineId + "%22%2C%22actor_id%22%3A%22100050444678752%22%2C%22entity_id%22%3A%22" + entityUid + "%22%2C%22ids_issue_ent_id%22%3A%22" + idsIssueEntId + "%22%2C%22appeal_comment%22%3A%22" + encodeURIComponent(appealComment) + "%22%2C%22callsite%22%3A%22ACCOUNT_QUALITY%22%7D%7D&server_timestamps=true&doc_id=6816769481667605"
           });
-          const v282 = v281.text;
-          if (v282.includes("\"success\":true")) {
-            return p253();
+          const chooseLine902Text = chooseLine902Response.text;
+          if (chooseLine902Text.includes("\"success\":true")) {
+            return resolve();
           } else {
-            return p254();
+            return reject();
           }
         }
-        const v283 = v279.data.assetOwnerData.advertising_restriction_info.additional_parameters.friction_decision_id;
-        const v284 = await fetch2("https://www.facebook.com/accountquality/ufac/?decision_id=" + v283 + "&ids_issue_id=" + v280 + "&entity_type=" + vLN5 + "&entity_id=" + vV273 + "&_flowletID=2169", {
+        const frictionDecisionId = restrictionInfoJson.data.assetOwnerData.advertising_restriction_info.additional_parameters.friction_decision_id;
+        const ufacResponse = await fetch2("https://www.facebook.com/accountquality/ufac/?decision_id=" + frictionDecisionId + "&ids_issue_id=" + idsIssueEntId + "&entity_type=" + entityType + "&entity_id=" + entityUid + "&_flowletID=2169", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
           method: "POST",
-          body: "__usid=6-Ts32udfp2ieqb%3APs32udrqbzoxh%3A0-As32ud2p8mux0-RV%3D6%3AF%3D&session_id=2478ab408501cdea&__user=" + v273 + "&__a=1&__req=u&__hs=19655.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1009465523&__s=417qpb%3Alchip2%3Ayq4pb1&__hsi=7293818531390316856&__dyn=7xeUmxa2C5rgydwCwRyU8EKnFG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx611wlFEcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyUszUiwExq1yxJUpx2aK2a4p8y26U8U-UbE4S7VEjCx6Etwj84-3ifzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzwi82pDwbm15wFx3wlFbBwwwiUWqU9Eco9U4S7ErwAwEwn9U2vw&__csr=&fb_dtsg=" + v271 + "&jazoest=25548&lsd=A-HDfPRVoR7YG2zHwlCDBx&__aaid=0&__spin_r=1009465523&__spin_b=trunk&__spin_t=1698224463"
+          body: "__usid=6-Ts32udfp2ieqb%3APs32udrqbzoxh%3A0-As32ud2p8mux0-RV%3D6%3AF%3D&session_id=2478ab408501cdea&__user=" + uid + "&__a=1&__req=u&__hs=19655.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1009465523&__s=417qpb%3Alchip2%3Ayq4pb1&__hsi=7293818531390316856&__dyn=7xeUmxa2C5rgydwCwRyU8EKnFG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx611wlFEcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyUszUiwExq1yxJUpx2aK2a4p8y26U8U-UbE4S7VEjCx6Etwj84-3ifzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzwi82pDwbm15wFx3wlFbBwwwiUWqU9Eco9U4S7ErwAwEwn9U2vw&__csr=&fb_dtsg=" + dtsg + "&jazoest=25548&lsd=A-HDfPRVoR7YG2zHwlCDBx&__aaid=0&__spin_r=1009465523&__spin_b=trunk&__spin_t=1698224463"
         });
-        const v285 = JSON.parse(v284.text.replace("for (;;);", ""));
-        const v286 = v285.payload.enrollment_id;
-        const vF10 = () => {
-          return new Promise(async (p255, p256) => {
+        const ufacJson = JSON.parse(ufacResponse.text.replace("for (;;);", ""));
+        const enrollmentId = ufacJson.payload.enrollment_id;
+        const getUfacState = () => {
+          return new Promise(async (resolveState, rejectState) => {
             try {
-              const v287 = await fetch2("https://www.facebook.com/api/graphql/?_flowletID=2667", {
+              const stateResponse = await fetch2("https://www.facebook.com/api/graphql/?_flowletID=2667", {
                 headers: {
                   "content-type": "application/x-www-form-urlencoded"
                 },
                 method: "POST",
-                body: "av=" + v273 + "&__usid=6-Ts32uok1y9xfvn:Ps32uol13ql4xy:0-As32unzppjifr-RV=6:F=&session_id=39a4ef7cb4471bc7&__user=" + v273 + "&__a=1&__req=v&__hs=19655.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1009465523&__s=66oim1:rc1h95:79wmnc&__hsi=7293820200761279392&__dyn=7xeUmxa2C5rgydwCwRyU8EKnFG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx611wlFEcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyUszUiwExq1yxJUpx2aK2a4p8y26U8U-UbE4S7VEjCx6Etwj84-3ifzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzwi82pDwbm15wFx3wlFbBwwwiUWqU9Eco9U4S7ErwAwEwn9U2vw&__csr=&fb_dtsg=" + v271 + "&jazoest=25374&lsd=gxYcaWGy-YhTSvBKDhInoq&__aaid=0&__spin_r=1009465523&__spin_b=trunk&__spin_t=1698224851&__jssesw=247&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=UFACAppQuery&variables={\"enrollmentID\":" + v286 + ",\"scale\":1}&server_timestamps=true&doc_id=7089047377805579"
+                body: "av=" + uid + "&__usid=6-Ts32uok1y9xfvn:Ps32uol13ql4xy:0-As32unzppjifr-RV=6:F=&session_id=39a4ef7cb4471bc7&__user=" + uid + "&__a=1&__req=v&__hs=19655.BP:DEFAULT.2.0..0.0&dpr=1&__ccg=GOOD&__rev=1009465523&__s=66oim1:rc1h95:79wmnc&__hsi=7293820200761279392&__dyn=7xeUmxa2C5rgydwCwRyU8EKnFG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx611wlFEcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyUszUiwExq1yxJUpx2aK2a4p8y26U8U-UbE4S7VEjCx6Etwj84-3ifzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzwi82pDwbm15wFx3wlFbBwwwiUWqU9Eco9U4S7ErwAwEwn9U2vw&__csr=&fb_dtsg=" + dtsg + "&jazoest=25374&lsd=gxYcaWGy-YhTSvBKDhInoq&__aaid=0&__spin_r=1009465523&__spin_b=trunk&__spin_t=1698224851&__jssesw=247&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=UFACAppQuery&variables={\"enrollmentID\":" + enrollmentId + ",\"scale\":1}&server_timestamps=true&doc_id=7089047377805579"
               });
-              const v288 = v287.json;
-              p255(v288.data.ufac_client.state);
+              const stateJson = stateResponse.json;
+              resolveState(stateJson.data.ufac_client.state);
             } catch {
-              p256();
+              rejectState();
             }
           });
         };
-        let v289 = await vF10();
-        const v290 = v289.__typename === "UFACBotCaptchaState";
-        if (v290) {
-          p250("Resolviendo captcha");
-          const v291 = await fetch2("https://www.facebook.com/business-support-home/" + v273);
-          const v292 = v291.text;
-          const v293 = v289.captcha_persist_data;
-          const v294 = v292.match(/(?<=\"consent_param\":\")[^\"]*/g)[0];
-          const v295 = v292.match(/(?<=\"code\":\")[^\"]*/g)[0];
-          const v296 = "https://www.fbsbx.com/captcha/recaptcha/iframe/?referer=https%253A%252F%252Fwww.facebook.com&locale=" + v295 + "&__cci=" + encodeURIComponent(v294);
-          const v297 = await fb.getSiteKey(v296);
-          let v298 = false;
-          for (let vLN018 = 0; vLN018 < 3; vLN018++) {
-            if (vLN018 > 0) {
-              p250("Intentando resolver captcha nuevamente");
+        let ufacState = await getUfacState();
+        const isCaptchaState = ufacState.__typename === "UFACBotCaptchaState";
+        if (isCaptchaState) {
+          onProgress("Resolviendo captcha");
+          const bshPageResponse = await fetch2("https://www.facebook.com/business-support-home/" + uid);
+          const bshPageText = bshPageResponse.text;
+          const captchaPersistData = ufacState.captcha_persist_data;
+          const consentParam = bshPageText.match(/(?<="consent_param":")[^"]*/g)[0];
+          const localeCode = bshPageText.match(/(?<="code":")[^"]*/g)[0];
+          const captchaIframeUrl = "https://www.fbsbx.com/captcha/recaptcha/iframe/?referer=https%253A%252F%252Fwww.facebook.com&locale=" + localeCode + "&__cci=" + encodeURIComponent(consentParam);
+          const siteKey = await fb.getSiteKey(captchaIframeUrl);
+          let captchaSolved = false;
+          for (let captchaAttempt = 0; captchaAttempt < 3; captchaAttempt++) {
+            if (captchaAttempt > 0) {
+              onProgress("Intentando resolver captcha nuevamente");
             }
             try {
-              const v299 = await resolveCaptcha(p252, v297, v296);
-              const v300 = await fetch2("https://www.facebook.com/api/graphql/", {
+              const captchaToken = await resolveCaptcha(settings, siteKey, captchaIframeUrl);
+              const submitCaptchaResponse = await fetch2("https://www.facebook.com/api/graphql/", {
                 headers: {
                   "content-type": "application/x-www-form-urlencoded"
                 },
                 method: "POST",
-                body: "av=" + v273 + "&__user=" + v273 + "&__a=1&__req=6&__hs=19608.HYP:comet_pkg.2.1..2.1&dpr=1&__ccg=GOOD&__rev=1008510432&__s=wixma6:3lwxjd:w1cvvj&__hsi=7276285233254120568&__dyn=7xeXxa2C2O5U5O8G6EjBWo2nDwAxu13w8CewSwAyUco2qwJyEiw9-1DwUx60GE3Qwb-q1ew65xO2OU7m0yE465o-cw5Mx62G3i0Bo7O2l0Fwqo31w9O7Udo5qfK0zEkxe2Gew9O22362W5olw8Xxm16wa-7U1boarCwLyESE6S0B40z8c86-1Fwmk1xwmo6O1Fw9O2y&__csr=gQNdJ-OCcBGBG8WB-F4GHHCjFZqAS8LKaAyqhVHBGAACJde48jiKqqqGy4bK8zmbxi5onGfgiw9Si1uBwJwFw9N2oaEW3m1pwKwr835wywaG0vK0u-ewCwbS01aPw0d9O05uo4Wcwp8cJAx6U21w1420kKdxCQ063U12U0QK0midgsw1mR00H9w5VxS9DAw0gCvw0Opw&__comet_req=15&fb_dtsg=" + v271 + "&jazoest=25277&lsd=" + vLS5FnEglTcQSfqnuBkn03g + "&__spin_r=1008510432&__spin_b=trunk&__spin_t=1694142174&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"2\",\"actor_id\":\"" + v273 + "\",\"action\":\"SUBMIT_BOT_CAPTCHA_RESPONSE\",\"bot_captcha_persist_data\":\"" + v293 + "\",\"bot_captcha_response\":\"" + v299 + "\",\"enrollment_id\":\"" + v286 + "\"},\"scale\":1}&server_timestamps=true&doc_id=6495927930504828"
+                body: "av=" + uid + "&__user=" + uid + "&__a=1&__req=6&__hs=19608.HYP:comet_pkg.2.1..2.1&dpr=1&__ccg=GOOD&__rev=1008510432&__s=wixma6:3lwxjd:w1cvvj&__hsi=7276285233254120568&__dyn=7xeXxa2C2O5U5O8G6EjBWo2nDwAxu13w8CewSwAyUco2qwJyEiw9-1DwUx60GE3Qwb-q1ew65xO2OU7m0yE465o-cw5Mx62G3i0Bo7O2l0Fwqo31w9O7Udo5qfK0zEkxe2Gew9O22362W5olw8Xxm16wa-7U1boarCwLyESE6S0B40z8c86-1Fwmk1xwmo6O1Fw9O2y&__csr=gQNdJ-OCcBGBG8WB-F4GHHCjFZqAS8LKaAyqhVHBGAACJde48jiKqqqGy4bK8zmbxi5onGfgiw9Si1uBwJwFw9N2oaEW3m1pwKwr835wywaG0vK0u-ewCwbS01aPw0d9O05uo4Wcwp8cJAx6U21w1420kKdxCQ063U12U0QK0midgsw1mR00H9w5VxS9DAw0gCvw0Opw&__comet_req=15&fb_dtsg=" + dtsg + "&jazoest=25277&lsd=" + lsdToken + "&__spin_r=1008510432&__spin_b=trunk&__spin_t=1694142174&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"2\",\"actor_id\":\"" + uid + "\",\"action\":\"SUBMIT_BOT_CAPTCHA_RESPONSE\",\"bot_captcha_persist_data\":\"" + captchaPersistData + "\",\"bot_captcha_response\":\"" + captchaToken + "\",\"enrollment_id\":\"" + enrollmentId + "\"},\"scale\":1}&server_timestamps=true&doc_id=6495927930504828"
               });
-              if (v300.text.includes("body_text")) {
-                v298 = true;
+              if (submitCaptchaResponse.text.includes("body_text")) {
+                captchaSolved = true;
                 break;
               }
             } catch {}
           }
-          if (v298) {
-            v289 = await vF10();
-            p250("Captcha resuelto con éxito");
+          if (captchaSolved) {
+            ufacState = await getUfacState();
+            onProgress("Captcha resuelto con éxito");
           } else {
-            return p254("Captcha fallado");
+            return reject("Captcha fallado");
           }
         }
-        const v301 = v289.__typename === "UFACContactPointChallengeSubmitCodeState";
-        if (v301) {
-          p250("Eliminando número de teléfono antiguo");
-          const v302 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6844", {
+        const isOldPhoneCodeState = ufacState.__typename === "UFACContactPointChallengeSubmitCodeState";
+        if (isOldPhoneCodeState) {
+          onProgress("Eliminando número de teléfono antiguo");
+          const unsetPhoneResponse = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6844", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "av=" + v273 + "&__usid=6-Ts32wgfj93yg8:Ps32wghqo2o2z:0-As32wgf5csdw0-RV=6:F=&session_id=3b23e41ba7202d8a&__user=" + v273 + "&__a=1&__req=2e&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=hveynz:5ecvmf:ccuxta&__hsi=7293830080792611326&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwDzElx63Si2-fzobK4UGaxa2h2pqK6UCQubxu3ydDxG3WaUjxy-dxiFAm9KcyrBwGLg-3e8ByoF1a58gx6bCyVUCuQFEpy9pEHCAG224EdomBAwrVAvAwvoaFoK3Cd868g-cwNxaHjxa4Uak48-eCK5u8BwNU9oboS4ouK5Qq6KeykuWg-26q6oyu5osAGeyK5okyEC8w&__csr=&__comet_req=25&fb_dtsg=" + v271 + "&jazoest=25640&lsd=6Ne_nXUdqyapLuYMHYV87_&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698227152&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"2\",\"actor_id\":\"" + v273 + "\",\"action\":\"UNSET_CONTACT_POINT\",\"enrollment_id\":\"" + v286 + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
+            body: "av=" + uid + "&__usid=6-Ts32wgfj93yg8:Ps32wghqo2o2z:0-As32wgf5csdw0-RV=6:F=&session_id=3b23e41ba7202d8a&__user=" + uid + "&__a=1&__req=2e&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=hveynz:5ecvmf:ccuxta&__hsi=7293830080792611326&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwDzElx63Si2-fzobK4UGaxa2h2pqK6UCQubxu3ydDxG3WaUjxy-dxiFAm9KcyrBwGLg-3e8ByoF1a58gx6bCyVUCuQFEpy9pEHCAG224EdomBAwrVAvAwvoaFoK3Cd868g-cwNxaHjxa4Uak48-eCK5u8BwNU9oboS4ouK5Qq6KeykuWg-26q6oyu5osAGeyK5okyEC8w&__csr=&__comet_req=25&fb_dtsg=" + dtsg + "&jazoest=25640&lsd=6Ne_nXUdqyapLuYMHYV87_&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698227152&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"2\",\"actor_id\":\"" + uid + "\",\"action\":\"UNSET_CONTACT_POINT\",\"enrollment_id\":\"" + enrollmentId + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
           });
-          if (v302.text.includes("REVERIFY_PHONE_NUMBER_WITH_NEW_ADDED_PHONE_AND_WHATSAPP")) {
-            v289 = await vF10();
+          if (unsetPhoneResponse.text.includes("REVERIFY_PHONE_NUMBER_WITH_NEW_ADDED_PHONE_AND_WHATSAPP")) {
+            ufacState = await getUfacState();
           } else {
-            return p254("No se puede eliminar el número de teléfono antiguo");
+            return reject("No se puede eliminar el número de teléfono antiguo");
           }
         }
-        const v303 = v289.__typename === "UFACContactPointChallengeSetContactPointState";
-        if (v303) {
-          let v304 = false;
-          for (let vLN019 = 0; vLN019 < 6; vLN019++) {
-            let v305 = false;
-            let v306 = false;
-            let v307 = false;
-            for (let vLN020 = 0; vLN020 < 6; vLN020++) {
-              v289 = await vF10();
-              const v308 = v289.__typename === "UFACContactPointChallengeSetContactPointState";
-              if (v308) {
-                if (vLN020 > 0) {
-                  p250("Intentando obtener otro número de teléfono");
+        const isSetPhoneState = ufacState.__typename === "UFACContactPointChallengeSetContactPointState";
+        if (isSetPhoneState) {
+          let phoneAdded = false;
+          for (let phoneAttempt = 0; phoneAttempt < 6; phoneAttempt++) {
+            let phoneNumber = false;
+            let phoneNumberSet = false;
+            let codeVerified = false;
+            for (let numberRetry = 0; numberRetry < 6; numberRetry++) {
+              ufacState = await getUfacState();
+              const stillInSetPhoneState = ufacState.__typename === "UFACContactPointChallengeSetContactPointState";
+              if (stillInSetPhoneState) {
+                if (numberRetry > 0) {
+                  onProgress("Intentando obtener otro número de teléfono");
                 } else {
-                  p250("Obteniendo número de teléfono");
+                  onProgress("Obteniendo número de teléfono");
                 }
                 try {
-                  v305 = await getPhone(p252.general.phoneService.value, p252.general.phoneServiceKey.value);
-                  p250("Añadiendo número de teléfono");
-                  const v309 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=5799", {
+                  phoneNumber = await getPhone(settings.general.phoneService.value, settings.general.phoneServiceKey.value);
+                  onProgress("Añadiendo número de teléfono");
+                  const setPhoneResponse = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=5799", {
                     headers: {
                       "content-type": "application/x-www-form-urlencoded"
                     },
                     method: "POST",
-                    body: "av=" + v273 + "&__usid=6-Ts32vzy5lbbnm:Ps32w00w7ep8k:0-As32vzy8nfhuf-RV=6:F=&session_id=392d588c9fe08fb9&__user=" + v273 + "&__a=1&__req=2a&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=v3r9g5:6bpvyp:rynm6b&__hsi=7293827532840545377&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwDzElx63Si2-fzobK4UGaxa2h2pqK6UCQubxu3ydDxG3WaUjxy-dxiFAm9KcyrBwGLg-3e8ByoF1a58gx6bCyVUCuQFEpy9pEHCAG224EdomBAwrVAvAwvoaFoK3Cd868g-cwNxaHjxa4Uak48-eCK5u8BwNU9oboS4ouK5Qq6KeykuWg-26q6oyu5osAGeyK5okyEC8w&__csr=&__comet_req=25&fb_dtsg=" + v271 + "&jazoest=25259&lsd=_m2P87owOD8j6w2xxN6rHw&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698226559&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"1\",\"actor_id\":\"" + v273 + "\",\"action\":\"SET_CONTACT_POINT\",\"contactpoint\":\"" + v305.number + "\",\"country_code\":\"VN\",\"enrollment_id\":\"" + v286 + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
+                    body: "av=" + uid + "&__usid=6-Ts32vzy5lbbnm:Ps32w00w7ep8k:0-As32vzy8nfhuf-RV=6:F=&session_id=392d588c9fe08fb9&__user=" + uid + "&__a=1&__req=2a&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=v3r9g5:6bpvyp:rynm6b&__hsi=7293827532840545377&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwDzElx63Si2-fzobK4UGaxa2h2pqK6UCQubxu3ydDxG3WaUjxy-dxiFAm9KcyrBwGLg-3e8ByoF1a58gx6bCyVUCuQFEpy9pEHCAG224EdomBAwrVAvAwvoaFoK3Cd868g-cwNxaHjxa4Uak48-eCK5u8BwNU9oboS4ouK5Qq6KeykuWg-26q6oyu5osAGeyK5okyEC8w&__csr=&__comet_req=25&fb_dtsg=" + dtsg + "&jazoest=25259&lsd=_m2P87owOD8j6w2xxN6rHw&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698226559&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"1\",\"actor_id\":\"" + uid + "\",\"action\":\"SET_CONTACT_POINT\",\"contactpoint\":\"" + phoneNumber.number + "\",\"country_code\":\"VN\",\"enrollment_id\":\"" + enrollmentId + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
                   });
-                  const v310 = v309.json;
-                  if (!v310.errors) {
-                    v306 = true;
+                  const setPhoneJson = setPhoneResponse.json;
+                  if (!setPhoneJson.errors) {
+                    phoneNumberSet = true;
                     break;
                   } else {
-                    p250(v310.errors[0].summary);
+                    onProgress(setPhoneJson.errors[0].summary);
                   }
-                } catch (e48) {
-                  console.log(e48);
+                } catch (err) {
+                  console.log(err);
                 }
               } else {
-                return p254();
+                return reject();
               }
             }
-            if (v306 && v305) {
-              v289 = await vF10();
-              const v311 = v289.__typename === "UFACContactPointChallengeSubmitCodeState";
-              if (v311) {
-                p250("Esperando código de activación");
+            if (phoneNumberSet && phoneNumber) {
+              ufacState = await getUfacState();
+              const isSubmitCodeState = ufacState.__typename === "UFACContactPointChallengeSubmitCodeState";
+              if (isSubmitCodeState) {
+                onProgress("Esperando código de activación");
                 try {
-                  const v312 = await getPhoneCode(p252.general.phoneService.value, p252.general.phoneServiceKey.value, v305.id);
-                  p250("Ingresando código de activación");
-                  const v313 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6114", {
+                  const activationCode = await getPhoneCode(settings.general.phoneService.value, settings.general.phoneServiceKey.value, phoneNumber.id);
+                  onProgress("Ingresando código de activación");
+                  const submitCodeResponse = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6114", {
                     headers: {
                       "content-type": "application/x-www-form-urlencoded"
                     },
                     method: "POST",
-                    body: "av=" + v273 + "&__usid=6-Ts32wgfj93yg8:Ps32wghqo2o2z:0-As32wgf5csdw0-RV=6:F=&session_id=3b23e41ba7202d8a&__user=" + v273 + "&__a=1&__req=2a&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=bi5lni:5ecvmf:ccuxta&__hsi=7293830080792611326&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwDzElx63Si2-fzobK4UGaxa2h2pqK6UCQubxu3ydDxG3WaUjxy-dxiFAm9KcyrBwGLg-3e8ByoF1a58gx6bCyVUCuQFEpy9pEHCAG224EdomBAwrVAvAwvoaFoK3Cd868g-cwNxaHjxa4Uak48-eCK5u8BwNU9oboS4ouK5Qq6KeykuWg-26q6oyu5osAGeyK5okyEC8w&__csr=&__comet_req=25&fb_dtsg=" + v271 + "&jazoest=25640&lsd=6Ne_nXUdqyapLuYMHYV87_&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698227152&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"1\",\"actor_id\":\"" + v273 + "\",\"action\":\"SUBMIT_CODE\",\"code\":\"" + v312 + "\",\"enrollment_id\":\"" + v286 + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
+                    body: "av=" + uid + "&__usid=6-Ts32wgfj93yg8:Ps32wghqo2o2z:0-As32wgf5csdw0-RV=6:F=&session_id=3b23e41ba7202d8a&__user=" + uid + "&__a=1&__req=2a&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=bi5lni:5ecvmf:ccuxta&__hsi=7293830080792611326&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwDzElx63Si2-fzobK4UGaxa2h2pqK6UCQubxu3ydDxG3WaUjxy-dxiFAm9KcyrBwGLg-3e8ByoF1a58gx6bCyVUCuQFEpy9pEHCAG224EdomBAwrVAvAwvoaFoK3Cd868g-cwNxaHjxa4Uak48-eCK5u8BwNU9oboS4ouK5Qq6KeykuWg-26q6oyu5osAGeyK5okyEC8w&__csr=&__comet_req=25&fb_dtsg=" + dtsg + "&jazoest=25640&lsd=6Ne_nXUdqyapLuYMHYV87_&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698227152&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"1\",\"actor_id\":\"" + uid + "\",\"action\":\"SUBMIT_CODE\",\"code\":\"" + activationCode + "\",\"enrollment_id\":\"" + enrollmentId + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
                   });
-                  const v314 = v313.text;
-                  if (v314.includes("\"ufac_client\":{\"id\"")) {
-                    p250("Añadiendo número de teléfono con éxito");
-                    v307 = true;
+                  const submitCodeText = submitCodeResponse.text;
+                  if (submitCodeText.includes("\"ufac_client\":{\"id\"")) {
+                    onProgress("Añadiendo número de teléfono con éxito");
+                    codeVerified = true;
                   }
-                  if (v314.includes("UFACOutroState")) {
-                    v289.__typename = "UFACAwaitingReviewState";
+                  if (submitCodeText.includes("UFACOutroState")) {
+                    ufacState.__typename = "UFACAwaitingReviewState";
                   }
-                } catch (e49) {
-                  console.log(e49);
+                } catch (err) {
+                  console.log(err);
                 }
-                if (v307) {
-                  v304 = true;
+                if (codeVerified) {
+                  phoneAdded = true;
                   break;
                 } else {
-                  p250("Eliminando número de teléfono antiguo");
-                  const v315 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6844", {
+                  onProgress("Eliminando número de teléfono antiguo");
+                  const unsetAfterFailResponse = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6844", {
                     headers: {
                       "content-type": "application/x-www-form-urlencoded"
                     },
                     method: "POST",
-                    body: "av=" + v273 + "&__usid=6-Ts32wgfj93yg8:Ps32wghqo2o2z:0-As32wgf5csdw0-RV=6:F=&session_id=3b23e41ba7202d8a&__user=" + v273 + "&__a=1&__req=2e&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=hveynz:5ecvmf:ccuxta&__hsi=7293830080792611326&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwDzElx63Si2-fzobK4UGaxa2h2pqK6UCQubxu3ydDxG3WaUjxy-dxiFAm9KcyrBwGLg-3e8ByoF1a58gx6bCyVUCuQFEpy9pEHCAG224EdomBAwrVAvAwvoaFoK3Cd868g-cwNxaHjxa4Uak48-eCK5u8BwNU9oboS4ouK5Qq6KeykuWg-26q6oyu5osAGeyK5okyEC8w&__csr=&__comet_req=25&fb_dtsg=" + v271 + "&jazoest=25640&lsd=6Ne_nXUdqyapLuYMHYV87_&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698227152&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"2\",\"actor_id\":\"" + v273 + "\",\"action\":\"UNSET_CONTACT_POINT\",\"enrollment_id\":\"" + v286 + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
+                    body: "av=" + uid + "&__usid=6-Ts32wgfj93yg8:Ps32wghqo2o2z:0-As32wgf5csdw0-RV=6:F=&session_id=3b23e41ba7202d8a&__user=" + uid + "&__a=1&__req=2e&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=hveynz:5ecvmf:ccuxta&__hsi=7293830080792611326&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwDzElx63Si2-fzobK4UGaxa2h2pqK6UCQubxu3ydDxG3WaUjxy-dxiFAm9KcyrBwGLg-3e8ByoF1a58gx6bCyVUCuQFEpy9pEHCAG224EdomBAwrVAvAwvoaFoK3Cd868g-cwNxaHjxa4Uak48-eCK5u8BwNU9oboS4ouK5Qq6KeykuWg-26q6oyu5osAGeyK5okyEC8w&__csr=&__comet_req=25&fb_dtsg=" + dtsg + "&jazoest=25640&lsd=6Ne_nXUdqyapLuYMHYV87_&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698227152&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"2\",\"actor_id\":\"" + uid + "\",\"action\":\"UNSET_CONTACT_POINT\",\"enrollment_id\":\"" + enrollmentId + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
                   });
-                  if (v315.text.includes("REVERIFY_PHONE_NUMBER_WITH_NEW_ADDED_PHONE_AND_WHATSAPP")) {
-                    v289 = await vF10();
+                  if (unsetAfterFailResponse.text.includes("REVERIFY_PHONE_NUMBER_WITH_NEW_ADDED_PHONE_AND_WHATSAPP")) {
+                    ufacState = await getUfacState();
                   } else {
-                    return p254("No se puede eliminar el número de teléfono antiguo");
+                    return reject("No se puede eliminar el número de teléfono antiguo");
                   }
                 }
               }
             }
           }
-          if (v304) {
+          if (phoneAdded) {
             try {
-              v289 = await vF10();
+              ufacState = await getUfacState();
             } catch {}
           } else {
-            return p254();
+            return reject();
           }
         }
-        const v316 = v289.__typename === "UFACImageUploadChallengeState";
-        if (v316) {
-          p250("Creando imagen");
-          const v317 = p252.bm.phoiId.value;
-          const v318 = await getLocalStorage("userInfo_" + this.uid);
-          const v319 = await getLocalStorage(v317);
-          const vO27 = {
-            firstName: v318.first_name,
-            lastName: v318.last_name,
-            fullName: v318.name,
-            birthday: v318.birthday,
-            gender: v318.gender
+        const isImageUploadState = ufacState.__typename === "UFACImageUploadChallengeState";
+        if (isImageUploadState) {
+          onProgress("Creando imagen");
+          const idPhotoTemplateId = settings.bm.phoiId.value;
+          const userInfo = await getLocalStorage("userInfo_" + this.uid);
+          const idPhotoTemplate = await getLocalStorage(idPhotoTemplateId);
+          const idPhotoUserData = {
+            firstName: userInfo.first_name,
+            lastName: userInfo.last_name,
+            fullName: userInfo.name,
+            birthday: userInfo.birthday,
+            gender: userInfo.gender
           };
-          const vVO27 = vO27;
-          const vO28 = {
-            data: vVO27,
-            template: v319
+          const idPhotoPayload = {
+            data: idPhotoUserData,
+            template: idPhotoTemplate
           };
-          const v320 = await fetch2("https://app.divinads.com/phoi", {
+          const idPhotoResponse = await fetch2("https://app.divinads.com/phoi", {
             headers: {
               "content-type": "application/json"
             },
             method: "POST",
-            body: JSON.stringify(vO28)
+            body: JSON.stringify(idPhotoPayload)
           });
-          const v321 = await v320.blob();
-          p250("Subiendo imagen");
-          let v322 = new XMLHttpRequest();
-          v322.withCredentials = true;
-          v322.open("POST", "https://rupload.facebook.com/checkpoint_1501092823525282_media_upload/a06d268a-bad7-49d7-b553-24d6f07c64ba?__usid=6-Tsc6xzrdp0tcu%3APsc78vt5c5znb%3A0-Asc78484bm17t-RV%3D6%3AF%3D&session_id=1f53971e4d475672&__aaid=0&__bid=" + p251 + "&__user=" + fb.uid + "&__a=1&__req=15&__hs=19832.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012908546&__s=j9683f%3Abgcl6p%3Avjr471&__hsi=7359625851859447619&__dyn=7xeXxa4EaolJ28S2q3m8G2abBAjxu59o9EeEb8nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2SaAxq4U5i48swj8qyoyazoO4o2oCyE9UixWq3i2q5E884a2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOXwAxm3G4UhwXxW9wgo9oO1Wxu0zoO12ypUuyUd88EeAUpK19xmu2C2l0FggzE8U98doJ1Kfxa2y5E6a6TxC48G2q4p8y26U8U-UbE4S4oSq4VEhG7o4O1fwwxefzobElxm4E5yeDyUnwUzpErw-z8c8-5aDwQwKG13y85i4oKqbDyoOFEa9EHyU8U3xhU24wMwrU6CiVo88ak22eCK2q362u1dxW6U98a85Ou3u1Dxeu1owtU&__csr=&fb_dtsg=" + fb.dtsg + "&jazoest=25676&lsd=6qUyi5kQucC-XaTIr34bGR&__spin_r=1012908546&__spin_b=trunk&__spin_t=1713546424&__jssesw=1&_callFlowletID=3740&_triggerFlowletID=2359");
-          v322.setRequestHeader("accept", "*/*");
-          v322.setRequestHeader("accept-language", "vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5");
-          v322.setRequestHeader("offset", "0");
-          v322.setRequestHeader("priority", "u=1, i");
-          v322.setRequestHeader("x-entity-length", v320.headers.get("content-length"));
-          v322.setRequestHeader("x-entity-name", "phoi.png");
-          v322.setRequestHeader("x-entity-type", "image/png");
-          v322.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-          v322.onload = async function () {
-            const v323 = JSON.parse(v322.response);
-            if (v323.h) {
-              p250("Imagen subida con éxito");
-              const v324 = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6162", {
+          const idPhotoBlob = await idPhotoResponse.blob();
+          onProgress("Subiendo imagen");
+          let xhr = new XMLHttpRequest();
+          xhr.withCredentials = true;
+          xhr.open("POST", "https://rupload.facebook.com/checkpoint_1501092823525282_media_upload/a06d268a-bad7-49d7-b553-24d6f07c64ba?__usid=6-Tsc6xzrdp0tcu%3APsc78vt5c5znb%3A0-Asc78484bm17t-RV%3D6%3AF%3D&session_id=1f53971e4d475672&__aaid=0&__bid=" + targetUid + "&__user=" + fb.uid + "&__a=1&__req=15&__hs=19832.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012908546&__s=j9683f%3Abgcl6p%3Avjr471&__hsi=7359625851859447619&__dyn=7xeXxa4EaolJ28S2q3m8G2abBAjxu59o9EeEb8nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2SaAxq4U5i48swj8qyoyazoO4o2oCyE9UixWq3i2q5E884a2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOXwAxm3G4UhwXxW9wgo9oO1Wxu0zoO12ypUuyUd88EeAUpK19xmu2C2l0FggzE8U98doJ1Kfxa2y5E6a6TxC48G2q4p8y26U8U-UbE4S4oSq4VEhG7o4O1fwwxefzobElxm4E5yeDyUnwUzpErw-z8c8-5aDwQwKG13y85i4oKqbDyoOFEa9EHyU8U3xhU24wMwrU6CiVo88ak22eCK2q362u1dxW6U98a85Ou3u1Dxeu1owtU&__csr=&fb_dtsg=" + fb.dtsg + "&jazoest=25676&lsd=6qUyi5kQucC-XaTIr34bGR&__spin_r=1012908546&__spin_b=trunk&__spin_t=1713546424&__jssesw=1&_callFlowletID=3740&_triggerFlowletID=2359");
+          xhr.setRequestHeader("accept", "*/*");
+          xhr.setRequestHeader("accept-language", "vi-VN,vi;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5");
+          xhr.setRequestHeader("offset", "0");
+          xhr.setRequestHeader("priority", "u=1, i");
+          xhr.setRequestHeader("x-entity-length", idPhotoResponse.headers.get("content-length"));
+          xhr.setRequestHeader("x-entity-name", "phoi.png");
+          xhr.setRequestHeader("x-entity-type", "image/png");
+          xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+          xhr.onload = async function () {
+            const uploadResult = JSON.parse(xhr.response);
+            if (uploadResult.h) {
+              onProgress("Imagen subida con éxito");
+              const uploadImageResponse = await fetch2("https://adsmanager.facebook.com/api/graphql/?_flowletID=6162", {
                 headers: {
                   "content-type": "application/x-www-form-urlencoded"
                 },
                 method: "POST",
-                body: "av=" + v273 + "&__usid=6-Ts32xbmx9zp07:Ps32xbo1dw875c:0-As32xbmnpvjk8-RV=6:F=&session_id=31c62e5eed2d0ee6&__user=" + v273 + "&__a=1&__req=2a&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=rnpwbw:po0pjn:3801to&__hsi=7293834906630568386&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwSxm4ofp8bU-dwKUjyEG4E949BGUryrhUK5Ue8Su6EfEHxe6bUS5aChoCUO9Km2GZ3UcUym9yA4Ekx24oKqbDypXiCxC8BCyKqiE88iwRxqmi1LCh-i1ZwGByUeoQwox3UO364GJe4EjwFggzUWqUlUym37wBwJzohxWUnhEqUW9hXF3U8pEpy9UlxOiEWaUlxiayoy&__csr=&__comet_req=25&fb_dtsg=" + v271 + "&jazoest=25539&lsd=rJwxW05TW9fxOrWZ5HZ2UF&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698228276&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"1\",\"actor_id\":\"" + v273 + "\",\"action\":\"UPLOAD_IMAGE\",\"image_upload_handle\":\"" + v323.h + "\",\"enrollment_id\":\"" + v286 + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
+                body: "av=" + uid + "&__usid=6-Ts32xbmx9zp07:Ps32xbo1dw875c:0-As32xbmnpvjk8-RV=6:F=&session_id=31c62e5eed2d0ee6&__user=" + uid + "&__a=1&__req=2a&__hs=19655.BP:ads_manager_pkg.2.0..0.0&dpr=1&__ccg=UNKNOWN&__rev=1009466057&__s=rnpwbw:po0pjn:3801to&__hsi=7293834906630568386&__dyn=7AgSXghF3Gxd2um5rpUR0Bxpxa9yaxGuml4WqxuUgBwCwWhE99oWFGCxiEjCyJz9FGwwxmm4V9AUC37GiidBCBXxWE-7E9UmxaczESbwxKqibC-mdwTxOESegHyo4a5HyoyazoO4oK7EmDgjAKcxa49EB7x6dxaezWK4o8A2mh1222qdz8oDxKaCwgUGWBBKdUrjyrQ2PKGypVRg8Rpo8ESibKegK26bwr8sxep3bLAzECi9lpubwIxecAwXzogyo465ubUO9ws8nxaFo5a7EN1O74q9DByUObAzE89osDwOAxCUdoapVGxebxa4AbxR2V8W2e6Ex0RyUSUGfwXx6i2Sq7oV1JyAfx2aK48OimbAy8tKU-4U-UG7F8a898OidCxeq4qz8gwSxm4ofp8bU-dwKUjyEG4E949BGUryrhUK5Ue8Su6EfEHxe6bUS5aChoCUO9Km2GZ3UcUym9yA4Ekx24oKqbDypXiCxC8BCyKqiE88iwRxqmi1LCh-i1ZwGByUeoQwox3UO364GJe4EjwFggzUWqUlUym37wBwJzohxWUnhEqUW9hXF3U8pEpy9UlxOiEWaUlxiayoy&__csr=&__comet_req=25&fb_dtsg=" + dtsg + "&jazoest=25539&lsd=rJwxW05TW9fxOrWZ5HZ2UF&__aaid=3545839135664163&__spin_r=1009466057&__spin_b=trunk&__spin_t=1698228276&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useUFACSubmitActionMutation&variables={\"input\":{\"client_mutation_id\":\"1\",\"actor_id\":\"" + uid + "\",\"action\":\"UPLOAD_IMAGE\",\"image_upload_handle\":\"" + uploadResult.h + "\",\"enrollment_id\":\"" + enrollmentId + "\"},\"scale\":1}&server_timestamps=true&doc_id=6856852124361122"
               });
-              if (v324.text.includes("UFACAwaitingReviewState")) {
-                p250("Imagen subida con éxito");
-                v289 = await vF10();
+              if (uploadImageResponse.text.includes("UFACAwaitingReviewState")) {
+                onProgress("Imagen subida con éxito");
+                ufacState = await getUfacState();
               } else {
-                return p254("No se puede subir la imagen");
+                return reject("No se puede subir la imagen");
               }
             } else {
-              return p254("No se puede subir la imagen");
+              return reject("No se puede subir la imagen");
             }
           };
-          v322.send(v321);
-          v289 = await getState();
+          xhr.send(idPhotoBlob);
+          ufacState = await getState();
         }
-        const v325 = v289.__typename === "UFACAwaitingReviewState";
-        if (v325) {
-          p250("Seleccionando línea");
-          const v326 = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=2423", {
+        const isAwaitingReviewState = ufacState.__typename === "UFACAwaitingReviewState";
+        if (isAwaitingReviewState) {
+          onProgress("Seleccionando línea");
+          const finalAppealResponse = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=2423", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "av=" + v273 + "&__usid=6-Ts62bj38e5dcl%3APs62bqs19mjhs3%3A0-As62bhb1qhfddh-RV%3D6%3AF%3D&session_id=26399276ba0973c5&__user=" + v273 + "&__a=1&__req=w&__hs=19713.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010574604&__s=pyhonq%3Azkdiwa%3A6yn1u0&__hsi=7315356470129303763&__dyn=7xeUmxa2C5rgydwCwRyU8EKmhG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx60C9EcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyQ6U-4Ea8mwoEru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzweau0Jo6-4e1mAKm221bzFHwCwNwDwjouxK2i2y1sDw9-&__csr=&fb_dtsg=" + v271 + "&jazoest=25180&lsd=5FnEglTcQSfqnuBkn03g8c&__aaid=0&__bid=212827131149567&__spin_r=1010574604&__spin_b=trunk&__spin_t=1703239154&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useALEBanhammerAppealMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%22" + v277 + "%22%2C%22actor_id%22%3A%22100050444678752%22%2C%22entity_id%22%3A%22" + vV273 + "%22%2C%22ids_issue_ent_id%22%3A%22" + v280 + "%22%2C%22appeal_comment%22%3A%22" + encodeURIComponent(v276) + "%22%2C%22callsite%22%3A%22ACCOUNT_QUALITY%22%7D%7D&server_timestamps=true&doc_id=6816769481667605"
+            body: "av=" + uid + "&__usid=6-Ts62bj38e5dcl%3APs62bqs19mjhs3%3A0-As62bhb1qhfddh-RV%3D6%3AF%3D&session_id=26399276ba0973c5&__user=" + uid + "&__a=1&__req=w&__hs=19713.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010574604&__s=pyhonq%3Azkdiwa%3A6yn1u0&__hsi=7315356470129303763&__dyn=7xeUmxa2C5rgydwCwRyU8EKmhG5UkBwCwgE98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx60C9EcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo465udz87G5U2dz84a9DxW10wywWjxCU4C5pUao9k2B12ewzwAwRyQ6U-4Ea8mwoEru6ogyHwyx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sp1G3WcwMzUkGum2ym2WE4e8wl8hyVEKu9zawLCyKbwzweau0Jo6-4e1mAKm221bzFHwCwNwDwjouxK2i2y1sDw9-&__csr=&fb_dtsg=" + dtsg + "&jazoest=25180&lsd=5FnEglTcQSfqnuBkn03g8c&__aaid=0&__bid=212827131149567&__spin_r=1010574604&__spin_b=trunk&__spin_t=1703239154&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useALEBanhammerAppealMutation&variables=%7B%22input%22%3A%7B%22client_mutation_id%22%3A%22" + appealLineId + "%22%2C%22actor_id%22%3A%22100050444678752%22%2C%22entity_id%22%3A%22" + entityUid + "%22%2C%22ids_issue_ent_id%22%3A%22" + idsIssueEntId + "%22%2C%22appeal_comment%22%3A%22" + encodeURIComponent(appealComment) + "%22%2C%22callsite%22%3A%22ACCOUNT_QUALITY%22%7D%7D&server_timestamps=true&doc_id=6816769481667605"
           });
-          if (v326.text.includes("\"success\":true")) {
-            p253();
+          if (finalAppealResponse.text.includes("\"success\":true")) {
+            resolve();
           } else {
-            p254();
+            reject();
           }
         }
-      } catch (e50) {
-        p254();
+      } catch (err) {
+        reject();
       }
     });
   }
-  function  shareDoiTacBm(p257, p258, p259) {
-    return new Promise(async (p260, p261) => {
-      console.log(p257, p258, p259);
+  function  shareDoiTacBm(bmId, adAccountId, targetBmId) {
+    return new Promise(async (resolve, reject) => {
+      console.log(bmId, adAccountId, targetBmId);
       try {
-        const v327 = await fetch2("https://graph.facebook.com/v17.0/act_" + p258 + "/agencies?access_token=" + this.accessToken + "&_callFlowletID=21473&_triggerFlowletID=21459", {
+        const response = await fetch2("https://graph.facebook.com/v17.0/act_" + adAccountId + "/agencies?access_token=" + this.accessToken + "&_callFlowletID=21473&_triggerFlowletID=21459", {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
-          body: "__activeScenarioIDs=%5B%5D&__activeScenarios=%5B%5D&__interactionsMetadata=%5B%5D&_reqName=adaccount%2Fagencies&_reqSrc=BrandAgencyActions.brands&accountId=" + p258 + "&acting_brand_id=" + p257 + "&business=" + p259 + "&locale=vi_VN&method=post&permitted_tasks=%5B%22ADVERTISE%22%2C%22ANALYZE%22%2C%22DRAFT%22%2C%22MANAGE%22%5D&pretty=0&suppress_http_code=1&xref=f7186d9b4189f5231",
+          body: "__activeScenarioIDs=%5B%5D&__activeScenarios=%5B%5D&__interactionsMetadata=%5B%5D&_reqName=adaccount%2Fagencies&_reqSrc=BrandAgencyActions.brands&accountId=" + adAccountId + "&acting_brand_id=" + bmId + "&business=" + targetBmId + "&locale=vi_VN&method=post&permitted_tasks=%5B%22ADVERTISE%22%2C%22ANALYZE%22%2C%22DRAFT%22%2C%22MANAGE%22%5D&pretty=0&suppress_http_code=1&xref=f7186d9b4189f5231",
           method: "POST"
         });
-        const v328 = v327.json;
-        if (v328.success) {
-          p260();
+        const responseJson = response.json;
+        if (responseJson.success) {
+          resolve();
         } else {
-          p261();
+          reject();
         }
-      } catch (e51) {
-        console.log(e51);
-        p261(e51);
+      } catch (err) {
+        console.log(err);
+        reject(err);
       }
     });
   }
   function getGroup() {
-    return new Promise(async (p262, p263) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        let vA17 = [];
-        const v329 = await fetch2("https://graph.facebook.com/v22.0/'+this.uid+'/groups?debug=all&fields=administrator%2Cname%2Cid%2Cmember_count%2Cprivacy%2Cpicture&limit=10&access_token=" + this.accessToken);
-        const v330 = v329.json;
-        v330.data.forEach(p264 => {
-          vA17.push(p264);
+        let groups = [];
+        const firstPageResponse = await fetch2("https://graph.facebook.com/v22.0/'+this.uid+'/groups?debug=all&fields=administrator%2Cname%2Cid%2Cmember_count%2Cprivacy%2Cpicture&limit=10&access_token=" + this.accessToken);
+        const firstPageJson = firstPageResponse.json;
+        firstPageJson.data.forEach(group => {
+          groups.push(group);
         });
-        if (v330.paging.next) {
-          let v331 = v330.paging.next;
-          for (let vLN021 = 0; vLN021 < 9999; vLN021++) {
+        if (firstPageJson.paging.next) {
+          let nextUrl = firstPageJson.paging.next;
+          for (let pageIndex = 0; pageIndex < 9999; pageIndex++) {
             await delayTime(1000);
-            const v332 = await fetch2(v331);
-            const v333 = v332.json;
-            v333.data.forEach(p265 => {
-              vA17.push(p265);
+            const pageResponse = await fetch2(nextUrl);
+            const pageJson = pageResponse.json;
+            pageJson.data.forEach(group => {
+              groups.push(group);
             });
-            if (v333.paging.next) {
-              v331 = v333.paging.next;
+            if (pageJson.paging.next) {
+              nextUrl = pageJson.paging.next;
             } else {
               break;
             }
           }
         }
-        p262(vA17.map(p266 => {
-          const vO31 = {
-            groupId: p266.id,
-            name: p266.name,
-            avatar: p266.picture.data.url,
-            role: p266.administrator ? "ADMIN" : "MEMBER",
-            members: p266.member_count,
-            status: p266.privacy
+        resolve(groups.map(group => {
+          const groupData = {
+            groupId: group.id,
+            name: group.name,
+            avatar: group.picture.data.url,
+            role: group.administrator ? "ADMIN" : "MEMBER",
+            members: group.member_count,
+            status: group.privacy
           };
-          return vO31;
+          return groupData;
         }));
-      } catch (e52) {
-        p263(e52);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function searchGroup(p267, p268, p269) {
-    return new Promise(async (p270, p271) => {
+  function searchGroup(searchQuery, maxResults, onResults) {
+    return new Promise(async (resolve, reject) => {
       try {
-        let vLN022 = 0;
-        const vA18 = [];
-        const v334 = await fetch2("https://www.facebook.com/api/graphql/", {
+        let resultCount = 0;
+        const results = [];
+        const firstSearchResponse = await fetch2("https://www.facebook.com/api/graphql/", {
           headers: {
             accept: "*/*",
             "content-type": "application/x-www-form-urlencoded"
           },
-          body: "av=" + this.uid + "&__aaid=0&__user=" + this.uid + "&__a=1&__req=6f&__hs=20135.HYP%3Acomet_pkg.2.1...1&dpr=1&__ccg=EXCELLENT&__rev=1020156942&__s=9lelic%3A16clb1%3Alb0vmg&__hsi=7472025301829894075&__dyn=7xeXzWK1ixt0mUyEqxemh0noeEb8nwgUao4ubyQdwSwAyUco5S3O2Saw8i2S1DwUx60GE5O0BU2_CxS320qa2OU7m221Fwgo9oO0-E4a3a4oaEnxO0Bo7O2l2Utwqo31wiE567Udo5qfK0zEkxe2GewyDwkUe9obrwh8lwUwgojUlDw-wUwxwjFovUuz86a1TxW2-awLyESE2KwwwOg2cwMwhEkxebwHwKG4UrwFg2fwxyo566k1FwgUjwOwWzUfHDzUiBG2OUqwjVqwLwHwa211xq19wVw&__csr=gekYh3kcsaMN2Df3kYYr5mwH2IlkBbs8ivcBlOLsBqnRcgZtZb8B9iTiHncIkWlEDHsQGkDsGbOjq9ipeJfV5ldOqQBbnibIzFbmHnjhaABlQDAQmhcO8h5j8RQDBBhmQXBAipaQFFa-lrpaGjWBHmjFtyuqVayy4F4FF3uYEW8G9GdGnjVZ7BQKdyHh9miW4nVQm8KjijCCWgLmil4zWAjADVoWibGijz5i-F5UGVJ2UyhDKiAuhFGmiAFVGBUmykqUCiFKmucCBAFBK8GJ95GvxiazpQiqhurh9Vt2u9xm8FoBK5V8yjSqicF1fzppufy-q68sgGmmdCAyEZe8J2FoO32i2eahQaxB2lyopHwFyo9EmBRGhbzeqbBVoKmeh8Gm6UKaw_AUsxa9-bwyye1hUtwnEpwQwzzUy1nwBla4qo4x0HwjUf4by610GQiaoOq0SE9Hzy1ecgTwgo5a0xA9g3mDQG-1jx14xOawooPxyqETxCHggijUK4y0hAVoGJapwfR0ooK4E8E98DhWzVU8U3DU9EnU2IEK9HogwlooKbK0CUy1AwqE4yha263mmblyUgxmGm2itpIU5WEggKFaosK444XxO4XiTc0gi10w0wGy80mhyo18E4y9w1I-1cw2qU0Vu01UOw3580VG2-03Kp0UwbW15wfFa4A5sPG0Ko3fyk0DsZwedxCu0nWpk09kg4t6Dg11o5i1tg763q0tC0z4u0BmiiUEi12w7rwi8429xy1TwKwlU-0wpZw8y8xO9wey2J6wbJ0ro1Ro0MC0HQ09_g0hLy84i048pE0Fa0kl0p82DwLojK1Gg0glOw7Zw9SEK0_Q0D80pew6FwfJ0cy2J0tU0A-07Ey02WAqt2oTBDgG2q1lw21A588U3hCBi86YMBcpoXQEiglF0&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25564&lsd=OrfNVF3SWNkvM6lhAjXbWo&__spin_r=1020156942&__spin_b=trunk&__spin_t=1739716460&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=SearchCometResultsPaginatedResultsQuery&variables=%7B%22allow_streaming%22%3Afalse%2C%22args%22%3A%7B%22callsite%22%3A%22COMET_GLOBAL_SEARCH%22%2C%22config%22%3A%7B%22exact_match%22%3Afalse%2C%22high_confidence_config%22%3Anull%2C%22intercept_config%22%3Anull%2C%22sts_disambiguation%22%3Anull%2C%22watch_config%22%3Anull%7D%2C%22context%22%3A%7B%22bsid%22%3A%22b02d2974-5915-4d36-a5ff-cb21cac9e6fa%22%2C%22tsid%22%3A%220.0406180842980719%22%7D%2C%22experience%22%3A%7B%22client_defined_experiences%22%3A%5B%22ADS_PARALLEL_FETCH%22%5D%2C%22encoded_server_defined_params%22%3Anull%2C%22fbid%22%3Anull%2C%22type%22%3A%22GROUPS_TAB%22%7D%2C%22filters%22%3A%5B%5D%2C%22text%22%3A%22" + encodeURIComponent(p267) + "%22%7D%2C%22feedLocation%22%3A%22SEARCH%22%2C%22feedbackSource%22%3A23%2C%22fetch_filters%22%3Atrue%2C%22focusCommentID%22%3Anull%2C%22locale%22%3Anull%2C%22privacySelectorRenderLocation%22%3A%22COMET_STREAM%22%2C%22renderLocation%22%3A%22search_results_page%22%2C%22scale%22%3A1%2C%22stream_initial_count%22%3A0%2C%22useDefaultActor%22%3Afalse%2C%22__relay_internal__pv__GHLShouldChangeAdIdFieldNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__GHLShouldChangeSponsoredDataFieldNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__IsWorkUserrelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometFeedStoryDynamicResolutionPhotoAttachmentRenderer_experimentWidthrelayprovider%22%3A600%2C%22__relay_internal__pv__CometImmersivePhotoCanUserDisable3DMotionrelayprovider%22%3Afalse%2C%22__relay_internal__pv__WorkCometIsEmployeeGKProviderrelayprovider%22%3Afalse%2C%22__relay_internal__pv__IsMergQAPollsrelayprovider%22%3Afalse%2C%22__relay_internal__pv__FBReelsMediaFooter_comet_enable_reels_ads_gkrelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometUFIReactionsEnableShortNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometUFIShareActionMigrationrelayprovider%22%3Atrue%2C%22__relay_internal__pv__StoriesArmadilloReplyEnabledrelayprovider%22%3Atrue%2C%22__relay_internal__pv__EventCometCardImage_prefetchEventImagerelayprovider%22%3Afalse%7D&server_timestamps=true&doc_id=8537102933057513",
+          body: "av=" + this.uid + "&__aaid=0&__user=" + this.uid + "&__a=1&__req=6f&__hs=20135.HYP%3Acomet_pkg.2.1...1&dpr=1&__ccg=EXCELLENT&__rev=1020156942&__s=9lelic%3A16clb1%3Alb0vmg&__hsi=7472025301829894075&__dyn=7xeXzWK1ixt0mUyEqxemh0noeEb8nwgUao4ubyQdwSwAyUco5S3O2Saw8i2S1DwUx60GE5O0BU2_CxS320qa2OU7m221Fwgo9oO0-E4a3a4oaEnxO0Bo7O2l2Utwqo31wiE567Udo5qfK0zEkxe2GewyDwkUe9obrwh8lwUwgojUlDw-wUwxwjFovUuz86a1TxW2-awLyESE2KwwwOg2cwMwhEkxebwHwKG4UrwFg2fwxyo566k1FwgUjwOwWzUfHDzUiBG2OUqwjVqwLwHwa211xq19wVw&__csr=gekYh3kcsaMN2Df3kYYr5mwH2IlkBbs8ivcBlOLsBqnRcgZtZb8B9iTiHncIkWlEDHsQGkDsGbOjq9ipeJfV5ldOqQBbnibIzFbmHnjhaABlQDAQmhcO8h5j8RQDBBhmQXBAipaQFFa-lrpaGjWBHmjFtyuqVayy4F4FF3uYEW8G9GdGnjVZ7BQKdyHh9miW4nVQm8KjijCCWgLmil4zWAjADVoWibGijz5i-F5UGVJ2UyhDKiAuhFGmiAFVGBUmykqUCiFKmucCBAFBK8GJ95GvxiazpQiqhurh9Vt2u9xm8FoBK5V8yjSqicF1fzppufy-q68sgGmmdCAyEZe8J2FoO32i2eahQaxB2lyopHwFyo9EmBRGhbzeqbBVoKmeh8Gm6UKaw_AUsxa9-bwyye1hUtwnEpwQwzzUy1nwBla4qo4x0HwjUf4by610GQiaoOq0SE9Hzy1ecgTwgo5a0xA9g3mDQG-1jx14xOawooPxyqETxCHggijUK4y0hAVoGJapwfR0ooK4E8E98DhWzVU8U3DU9EnU2IEK9HogwlooKbK0CUy1AwqE4yha263mmblyUgxmGm2itpIU5WEggKFaosK444XxO4XiTc0gi10w0wGy80mhyo18E4y9w1I-1cw2qU0Vu01UOw3580VG2-03Kp0UwbW15wfFa4A5sPG0Ko3fyk0DsZwedxCu0nWpk09kg4t6Dg11o5i1tg763q0tC0z4u0BmiiUEi12w7rwi8429xy1TwKwlU-0wpZw8y8xO9wey2J6wbJ0ro1Ro0MC0HQ09_g0hLy84i048pE0Fa0kl0p82DwLojK1Gg0glOw7Zw9SEK0_Q0D80pew6FwfJ0cy2J0tU0A-07Ey02WAqt2oTBDgG2q1lw21A588U3hCBi86YMBcpoXQEiglF0&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25564&lsd=OrfNVF3SWNkvM6lhAjXbWo&__spin_r=1020156942&__spin_b=trunk&__spin_t=1739716460&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=SearchCometResultsPaginatedResultsQuery&variables=%7B%22allow_streaming%22%3Afalse%2C%22args%22%3A%7B%22callsite%22%3A%22COMET_GLOBAL_SEARCH%22%2C%22config%22%3A%7B%22exact_match%22%3Afalse%2C%22high_confidence_config%22%3Anull%2C%22intercept_config%22%3Anull%2C%22sts_disambiguation%22%3Anull%2C%22watch_config%22%3Anull%7D%2C%22context%22%3A%7B%22bsid%22%3A%22b02d2974-5915-4d36-a5ff-cb21cac9e6fa%22%2C%22tsid%22%3A%220.0406180842980719%22%7D%2C%22experience%22%3A%7B%22client_defined_experiences%22%3A%5B%22ADS_PARALLEL_FETCH%22%5D%2C%22encoded_server_defined_params%22%3Anull%2C%22fbid%22%3Anull%2C%22type%22%3A%22GROUPS_TAB%22%7D%2C%22filters%22%3A%5B%5D%2C%22text%22%3A%22" + encodeURIComponent(searchQuery) + "%22%7D%2C%22feedLocation%22%3A%22SEARCH%22%2C%22feedbackSource%22%3A23%2C%22fetch_filters%22%3Atrue%2C%22focusCommentID%22%3Anull%2C%22locale%22%3Anull%2C%22privacySelectorRenderLocation%22%3A%22COMET_STREAM%22%2C%22renderLocation%22%3A%22search_results_page%22%2C%22scale%22%3A1%2C%22stream_initial_count%22%3A0%2C%22useDefaultActor%22%3Afalse%2C%22__relay_internal__pv__GHLShouldChangeAdIdFieldNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__GHLShouldChangeSponsoredDataFieldNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__IsWorkUserrelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometFeedStoryDynamicResolutionPhotoAttachmentRenderer_experimentWidthrelayprovider%22%3A600%2C%22__relay_internal__pv__CometImmersivePhotoCanUserDisable3DMotionrelayprovider%22%3Afalse%2C%22__relay_internal__pv__WorkCometIsEmployeeGKProviderrelayprovider%22%3Afalse%2C%22__relay_internal__pv__IsMergQAPollsrelayprovider%22%3Afalse%2C%22__relay_internal__pv__FBReelsMediaFooter_comet_enable_reels_ads_gkrelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometUFIReactionsEnableShortNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometUFIShareActionMigrationrelayprovider%22%3Atrue%2C%22__relay_internal__pv__StoriesArmadilloReplyEnabledrelayprovider%22%3Atrue%2C%22__relay_internal__pv__EventCometCardImage_prefetchEventImagerelayprovider%22%3Afalse%7D&server_timestamps=true&doc_id=8537102933057513",
           method: "POST"
         });
-        const v335 = v334.json;
-        v335.data.serpResponse.results.edges.forEach(p272 => {
+        const firstSearchJson = firstSearchResponse.json;
+        firstSearchJson.data.serpResponse.results.edges.forEach(edge => {
           try {
-            if (p272.rendering_strategy.view_model.ctas.primary[0].profile.viewer_join_state === "CAN_JOIN" && vLN022 < p268 && !this.groupMap.includes(p272.rendering_strategy.view_model.profile.id)) {
-              this.groupMap.push(p272.rendering_strategy.view_model.profile.id);
-              vA18.push({
-                name: p272.rendering_strategy.view_model.profile_name_with_possible_nickname,
-                question: p272.rendering_strategy.view_model.ctas.primary[0].profile.has_membership_questions ? "Si" : "No",
-                groupId: p272.rendering_strategy.view_model.profile.id,
-                avatar: p272.rendering_strategy.view_model.profile.profile_picture.uri,
-                status: p272.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[0],
-                members: p272.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[1],
-                posts: p272.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[2],
-                source: p267
+            if (edge.rendering_strategy.view_model.ctas.primary[0].profile.viewer_join_state === "CAN_JOIN" && resultCount < maxResults && !this.groupMap.includes(edge.rendering_strategy.view_model.profile.id)) {
+              this.groupMap.push(edge.rendering_strategy.view_model.profile.id);
+              results.push({
+                name: edge.rendering_strategy.view_model.profile_name_with_possible_nickname,
+                question: edge.rendering_strategy.view_model.ctas.primary[0].profile.has_membership_questions ? "Si" : "No",
+                groupId: edge.rendering_strategy.view_model.profile.id,
+                avatar: edge.rendering_strategy.view_model.profile.profile_picture.uri,
+                status: edge.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[0],
+                members: edge.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[1],
+                posts: edge.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[2],
+                source: searchQuery
               });
-              vLN022++;
+              resultCount++;
             }
-          } catch (e53) {}
+          } catch (err) {}
         });
-        p269(vA18);
-        if (v335.data.serpResponse.results.page_info.has_next_page && vLN022 < p268) {
-          let v336 = v335.data.serpResponse.results.page_info.end_cursor;
-          for (let vLN023 = 0; vLN023 < 9999; vLN023++) {
+        onResults(results);
+        if (firstSearchJson.data.serpResponse.results.page_info.has_next_page && resultCount < maxResults) {
+          let nextCursor = firstSearchJson.data.serpResponse.results.page_info.end_cursor;
+          for (let pageNum = 0; pageNum < 9999; pageNum++) {
             await delayTime(1000);
-            const v337 = await fetch2("https://www.facebook.com/api/graphql/", {
+            const pageSearchResponse = await fetch2("https://www.facebook.com/api/graphql/", {
               headers: {
                 accept: "*/*",
                 "content-type": "application/x-www-form-urlencoded"
               },
-              body: "av=" + this.uid + "&__aaid=0&__user=" + this.uid + "&__a=1&__req=6f&__hs=20135.HYP%3Acomet_pkg.2.1...1&dpr=1&__ccg=EXCELLENT&__rev=1020156942&__s=9lelic%3A16clb1%3Alb0vmg&__hsi=7472025301829894075&__dyn=7xeXzWK1ixt0mUyEqxemh0noeEb8nwgUao4ubyQdwSwAyUco5S3O2Saw8i2S1DwUx60GE5O0BU2_CxS320qa2OU7m221Fwgo9oO0-E4a3a4oaEnxO0Bo7O2l2Utwqo31wiE567Udo5qfK0zEkxe2GewyDwkUe9obrwh8lwUwgojUlDw-wUwxwjFovUuz86a1TxW2-awLyESE2KwwwOg2cwMwhEkxebwHwKG4UrwFg2fwxyo566k1FwgUjwOwWzUfHDzUiBG2OUqwjVqwLwHwa211xq19wVw&__csr=gekYh3kcsaMN2Df3kYYr5mwH2IlkBbs8ivcBlOLsBqnRcgZtZb8B9iTiHncIkWlEDHsQGkDsGbOjq9ipeJfV5ldOqQBbnibIzFbmHnjhaABlQDAQmhcO8h5j8RQDBBhmQXBAipaQFFa-lrpaGjWBHmjFtyuqVayy4F4FF3uYEW8G9GdGnjVZ7BQKdyHh9miW4nVQm8KjijCCWgLmil4zWAjADVoWibGijz5i-F5UGVJ2UyhDKiAuhFGmiAFVGBUmykqUCiFKmucCBAFBK8GJ95GvxiazpQiqhurh9Vt2u9xm8FoBK5V8yjSqicF1fzppufy-q68sgGmmdCAyEZe8J2FoO32i2eahQaxB2lyopHwFyo9EmBRGhbzeqbBVoKmeh8Gm6UKaw_AUsxa9-bwyye1hUtwnEpwQwzzUy1nwBla4qo4x0HwjUf4by610GQiaoOq0SE9Hzy1ecgTwgo5a0xA9g3mDQG-1jx14xOawooPxyqETxCHggijUK4y0hAVoGJapwfR0ooK4E8E98DhWzVU8U3DU9EnU2IEK9HogwlooKbK0CUy1AwqE4yha263mmblyUgxmGm2itpIU5WEggKFaosK444XxO4XiTc0gi10w0wGy80mhyo18E4y9w1I-1cw2qU0Vu01UOw3580VG2-03Kp0UwbW15wfFa4A5sPG0Ko3fyk0DsZwedxCu0nWpk09kg4t6Dg11o5i1tg763q0tC0z4u0BmiiUEi12w7rwi8429xy1TwKwlU-0wpZw8y8xO9wey2J6wbJ0ro1Ro0MC0HQ09_g0hLy84i048pE0Fa0kl0p82DwLojK1Gg0glOw7Zw9SEK0_Q0D80pew6FwfJ0cy2J0tU0A-07Ey02WAqt2oTBDgG2q1lw21A588U3hCBi86YMBcpoXQEiglF0&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25564&lsd=OrfNVF3SWNkvM6lhAjXbWo&__spin_r=1020156942&__spin_b=trunk&__spin_t=1739716460&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=SearchCometResultsPaginatedResultsQuery&variables=%7B%22allow_streaming%22%3Afalse%2C%22args%22%3A%7B%22callsite%22%3A%22COMET_GLOBAL_SEARCH%22%2C%22config%22%3A%7B%22exact_match%22%3Afalse%2C%22high_confidence_config%22%3Anull%2C%22intercept_config%22%3Anull%2C%22sts_disambiguation%22%3Anull%2C%22watch_config%22%3Anull%7D%2C%22context%22%3A%7B%22bsid%22%3A%22b02d2974-5915-4d36-a5ff-cb21cac9e6fa%22%2C%22tsid%22%3A%220.0406180842980719%22%7D%2C%22experience%22%3A%7B%22client_defined_experiences%22%3A%5B%22ADS_PARALLEL_FETCH%22%5D%2C%22encoded_server_defined_params%22%3Anull%2C%22fbid%22%3Anull%2C%22type%22%3A%22GROUPS_TAB%22%7D%2C%22filters%22%3A%5B%5D%2C%22text%22%3A%22" + encodeURIComponent(p267) + "s%22%7D%2C%22feedLocation%22%3A%22SEARCH%22%2C%22feedbackSource%22%3A23%2C%22fetch_filters%22%3Atrue%2C%22focusCommentID%22%3Anull%2C%22locale%22%3Anull%2C%22privacySelectorRenderLocation%22%3A%22COMET_STREAM%22%2C%22renderLocation%22%3A%22search_results_page%22%2C%22scale%22%3A1%2C%22stream_initial_count%22%3A0%2C%22useDefaultActor%22%3Afalse%2C%22__relay_internal__pv__GHLShouldChangeAdIdFieldNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__GHLShouldChangeSponsoredDataFieldNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__IsWorkUserrelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometFeedStoryDynamicResolutionPhotoAttachmentRenderer_experimentWidthrelayprovider%22%3A600%2C%22__relay_internal__pv__CometImmersivePhotoCanUserDisable3DMotionrelayprovider%22%3Afalse%2C%22__relay_internal__pv__WorkCometIsEmployeeGKProviderrelayprovider%22%3Afalse%2C%22__relay_internal__pv__IsMergQAPollsrelayprovider%22%3Afalse%2C%22__relay_internal__pv__FBReelsMediaFooter_comet_enable_reels_ads_gkrelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometUFIReactionsEnableShortNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometUFIShareActionMigrationrelayprovider%22%3Atrue%2C%22__relay_internal__pv__StoriesArmadilloReplyEnabledrelayprovider%22%3Atrue%2C%22__relay_internal__pv__EventCometCardImage_prefetchEventImagerelayprovider%22%3Afalse%2C%22cursor%22%3A%22" + v336 + "%22%7D&server_timestamps=true&doc_id=8537102933057513",
+              body: "av=" + this.uid + "&__aaid=0&__user=" + this.uid + "&__a=1&__req=6f&__hs=20135.HYP%3Acomet_pkg.2.1...1&dpr=1&__ccg=EXCELLENT&__rev=1020156942&__s=9lelic%3A16clb1%3Alb0vmg&__hsi=7472025301829894075&__dyn=7xeXzWK1ixt0mUyEqxemh0noeEb8nwgUao4ubyQdwSwAyUco5S3O2Saw8i2S1DwUx60GE5O0BU2_CxS320qa2OU7m221Fwgo9oO0-E4a3a4oaEnxO0Bo7O2l2Utwqo31wiE567Udo5qfK0zEkxe2GewyDwkUe9obrwh8lwUwgojUlDw-wUwxwjFovUuz86a1TxW2-awLyESE2KwwwOg2cwMwhEkxebwHwKG4UrwFg2fwxyo566k1FwgUjwOwWzUfHDzUiBG2OUqwjVqwLwHwa211xq19wVw&__csr=gekYh3kcsaMN2Df3kYYr5mwH2IlkBbs8ivcBlOLsBqnRcgZtZb8B9iTiHncIkWlEDHsQGkDsGbOjq9ipeJfV5ldOqQBbnibIzFbmHnjhaABlQDAQmhcO8h5j8RQDBBhmQXBAipaQFFa-lrpaGjWBHmjFtyuqVayy4F4FF3uYEW8G9GdGnjVZ7BQKdyHh9miW4nVQm8KjijCCWgLmil4zWAjADVoWibGijz5i-F5UGVJ2UyhDKiAuhFGmiAFVGBUmykqUCiFKmucCBAFBK8GJ95GvxiazpQiqhurh9Vt2u9xm8FoBK5V8yjSqicF1fzppufy-q68sgGmmdCAyEZe8J2FoO32i2eahQaxB2lyopHwFyo9EmBRGhbzeqbBVoKmeh8Gm6UKaw_AUsxa9-bwyye1hUtwnEpwQwzzUy1nwBla4qo4x0HwjUf4by610GQiaoOq0SE9Hzy1ecgTwgo5a0xA9g3mDQG-1jx14xOawooPxyqETxCHggijUK4y0hAVoGJapwfR0ooK4E8E98DhWzVU8U3DU9EnU2IEK9HogwlooKbK0CUy1AwqE4yha263mmblyUgxmGm2itpIU5WEggKFaosK444XxO4XiTc0gi10w0wGy80mhyo18E4y9w1I-1cw2qU0Vu01UOw3580VG2-03Kp0UwbW15wfFa4A5sPG0Ko3fyk0DsZwedxCu0nWpk09kg4t6Dg11o5i1tg763q0tC0z4u0BmiiUEi12w7rwi8429xy1TwKwlU-0wpZw8y8xO9wey2J6wbJ0ro1Ro0MC0HQ09_g0hLy84i048pE0Fa0kl0p82DwLojK1Gg0glOw7Zw9SEK0_Q0D80pew6FwfJ0cy2J0tU0A-07Ey02WAqt2oTBDgG2q1lw21A588U3hCBi86YMBcpoXQEiglF0&__comet_req=15&fb_dtsg=" + this.dtsg + "&jazoest=25564&lsd=OrfNVF3SWNkvM6lhAjXbWo&__spin_r=1020156942&__spin_b=trunk&__spin_t=1739716460&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=SearchCometResultsPaginatedResultsQuery&variables=%7B%22allow_streaming%22%3Afalse%2C%22args%22%3A%7B%22callsite%22%3A%22COMET_GLOBAL_SEARCH%22%2C%22config%22%3A%7B%22exact_match%22%3Afalse%2C%22high_confidence_config%22%3Anull%2C%22intercept_config%22%3Anull%2C%22sts_disambiguation%22%3Anull%2C%22watch_config%22%3Anull%7D%2C%22context%22%3A%7B%22bsid%22%3A%22b02d2974-5915-4d36-a5ff-cb21cac9e6fa%22%2C%22tsid%22%3A%220.0406180842980719%22%7D%2C%22experience%22%3A%7B%22client_defined_experiences%22%3A%5B%22ADS_PARALLEL_FETCH%22%5D%2C%22encoded_server_defined_params%22%3Anull%2C%22fbid%22%3Anull%2C%22type%22%3A%22GROUPS_TAB%22%7D%2C%22filters%22%3A%5B%5D%2C%22text%22%3A%22" + encodeURIComponent(searchQuery) + "s%22%7D%2C%22feedLocation%22%3A%22SEARCH%22%2C%22feedbackSource%22%3A23%2C%22fetch_filters%22%3Atrue%2C%22focusCommentID%22%3Anull%2C%22locale%22%3Anull%2C%22privacySelectorRenderLocation%22%3A%22COMET_STREAM%22%2C%22renderLocation%22%3A%22search_results_page%22%2C%22scale%22%3A1%2C%22stream_initial_count%22%3A0%2C%22useDefaultActor%22%3Afalse%2C%22__relay_internal__pv__GHLShouldChangeAdIdFieldNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__GHLShouldChangeSponsoredDataFieldNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__IsWorkUserrelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometFeedStoryDynamicResolutionPhotoAttachmentRenderer_experimentWidthrelayprovider%22%3A600%2C%22__relay_internal__pv__CometImmersivePhotoCanUserDisable3DMotionrelayprovider%22%3Afalse%2C%22__relay_internal__pv__WorkCometIsEmployeeGKProviderrelayprovider%22%3Afalse%2C%22__relay_internal__pv__IsMergQAPollsrelayprovider%22%3Afalse%2C%22__relay_internal__pv__FBReelsMediaFooter_comet_enable_reels_ads_gkrelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometUFIReactionsEnableShortNamerelayprovider%22%3Afalse%2C%22__relay_internal__pv__CometUFIShareActionMigrationrelayprovider%22%3Atrue%2C%22__relay_internal__pv__StoriesArmadilloReplyEnabledrelayprovider%22%3Atrue%2C%22__relay_internal__pv__EventCometCardImage_prefetchEventImagerelayprovider%22%3Afalse%2C%22cursor%22%3A%22" + nextCursor + "%22%7D&server_timestamps=true&doc_id=8537102933057513",
               method: "POST"
             });
-            const v338 = v337.json;
-            const vA19 = [];
-            v338.data.serpResponse.results.edges.forEach(p273 => {
+            const pageSearchJson = pageSearchResponse.json;
+            const pageResults = [];
+            pageSearchJson.data.serpResponse.results.edges.forEach(edge => {
               try {
-                if (p273.rendering_strategy.view_model.ctas.primary[0].profile.viewer_join_state === "CAN_JOIN" && vLN022 < p268 && !this.groupMap.includes(p273.rendering_strategy.view_model.profile.id)) {
-                  this.groupMap.push(p273.rendering_strategy.view_model.profile.id);
-                  vA19.push({
-                    name: p273.rendering_strategy.view_model.profile_name_with_possible_nickname,
-                    question: p273.rendering_strategy.view_model.ctas.primary[0].profile.has_membership_questions ? "Si" : "No",
-                    groupId: p273.rendering_strategy.view_model.profile.id,
-                    avatar: p273.rendering_strategy.view_model.profile.profile_picture.uri,
-                    status: p273.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[0],
-                    members: p273.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[1],
-                    posts: p273.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[2],
-                    source: p267
+                if (edge.rendering_strategy.view_model.ctas.primary[0].profile.viewer_join_state === "CAN_JOIN" && resultCount < maxResults && !this.groupMap.includes(edge.rendering_strategy.view_model.profile.id)) {
+                  this.groupMap.push(edge.rendering_strategy.view_model.profile.id);
+                  pageResults.push({
+                    name: edge.rendering_strategy.view_model.profile_name_with_possible_nickname,
+                    question: edge.rendering_strategy.view_model.ctas.primary[0].profile.has_membership_questions ? "Si" : "No",
+                    groupId: edge.rendering_strategy.view_model.profile.id,
+                    avatar: edge.rendering_strategy.view_model.profile.profile_picture.uri,
+                    status: edge.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[0],
+                    members: edge.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[1],
+                    posts: edge.rendering_strategy.view_model.primary_snippet_text_with_entities.text.split(" · ")[2],
+                    source: searchQuery
                   });
-                  vLN022++;
+                  resultCount++;
                 }
-              } catch (e54) {}
+              } catch (err) {}
             });
-            p269(vA19);
-            if (vLN022 === p268) {
+            onResults(pageResults);
+            if (resultCount === maxResults) {
               break;
             }
-            if (v338.data.serpResponse.results.page_info.has_next_page) {
-              v336 = v338.data.serpResponse.results.page_info.end_cursor;
+            if (pageSearchJson.data.serpResponse.results.page_info.has_next_page) {
+              nextCursor = pageSearchJson.data.serpResponse.results.page_info.end_cursor;
             } else {
               break;
             }
           }
         }
-        p270(true);
-      } catch (e55) {
-        p271(e55);
+        resolve(true);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function searchByUid(p274, p275, p276) {
-    return new Promise(async (p277, p278) => {
+  function searchByUid(uidToSearch, maxGroups, onResults) {
+    return new Promise(async (resolve, reject) => {
       try {
-        const v339 = await fetch2("https://graph.facebook.com/graphql", {
+        const response = await fetch2("https://graph.facebook.com/graphql", {
           method: "POST",
           headers: {
             accept: "application/json, text/plain, */*",
             "content-type": "multipart/form-data; boundary=----WebKitFormBoundarydMoMY9fpXzuyAiLb"
           },
-          body: "------WebKitFormBoundarydMoMY9fpXzuyAiLb\nContent-Disposition: form-data; name=\"q\"\n\nnodes(" + p274 + "){groups{nodes{id,name,viewer_post_status,visibility,group_member_profiles{count}}}}\n------WebKitFormBoundarydMoMY9fpXzuyAiLb\nContent-Disposition: form-data; name=\"access_token\"\n\n" + this.accessToken + "\n------WebKitFormBoundarydMoMY9fpXzuyAiLb--\n"
+          body: "------WebKitFormBoundarydMoMY9fpXzuyAiLb\nContent-Disposition: form-data; name=\"q\"\n\nnodes(" + uidToSearch + "){groups{nodes{id,name,viewer_post_status,visibility,group_member_profiles{count}}}}\n------WebKitFormBoundarydMoMY9fpXzuyAiLb\nContent-Disposition: form-data; name=\"access_token\"\n\n" + this.accessToken + "\n------WebKitFormBoundarydMoMY9fpXzuyAiLb--\n"
         });
-        const v340 = v339.json;
-        p276(v340[p274].groups.nodes.map(p279 => {
+        const responseJson = response.json;
+        onResults(responseJson[uidToSearch].groups.nodes.map(group => {
           return {
-            name: p279.name,
-            question: p279.viewer_post_status === "CAN_POST_AFTER_APPROVAL" ? "Si" : "No",
-            groupId: p279.id,
+            name: group.name,
+            question: group.viewer_post_status === "CAN_POST_AFTER_APPROVAL" ? "Si" : "No",
+            groupId: group.id,
             avatar: "",
-            status: p279.visibility === "OPEN" ? "Público" : "Privado",
-            members: p279.group_member_profiles.count,
+            status: group.visibility === "OPEN" ? "Público" : "Privado",
+            members: group.group_member_profiles.count,
             posts: "",
-            source: p274
+            source: uidToSearch
           };
-        }).slice(0, p275));
-        p277(true);
-      } catch (e56) {
-        p278(e56);
+        }).slice(0, maxGroups));
+        resolve(true);
+      } catch (err) {
+        reject(err);
       }
     });
   }
-  function  getLinkkhangBm(p280, p281) {
-    return new Promise(async (p282, p283) => {
-      let v341 = false;
-      let v342 = false;
+  function  getLinkkhangBm(bmId, onProgress) {
+    return new Promise(async (resolve, reject) => {
+      let linkFound = false;
+      let enrollmentId = false;
       try {
-        p281("Obteniendo enlace de apelación BM");
-        const v343 = await fetch2("https://www.facebook.com/business-support-home/" + p280);
-        const v344 = v343.text;
-        if (v344.includes("idesEnforcementInstanceID")) {
-          const v345 = v344.match(/(?<=\"idesEnforcementInstanceID\":\")[^\"]*/g)[0];
-          const v346 = await fetch2("https://business.facebook.com/api/graphql/?_callFlowletID=0&_triggerFlowletID=1661", {
+        onProgress("Obteniendo enlace de apelación BM");
+        const bshResponse = await fetch2("https://www.facebook.com/business-support-home/" + bmId);
+        const bshText = bshResponse.text;
+        if (bshText.includes("idesEnforcementInstanceID")) {
+          const enforcementInstanceId = bshText.match(/(?<="idesEnforcementInstanceID":")[^"]*/g)[0];
+          const createAppealResponse = await fetch2("https://business.facebook.com/api/graphql/?_callFlowletID=0&_triggerFlowletID=1661", {
             method: "POST",
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
-            body: "av=" + this.uid + "&session_id=17e613b789f86fcc&__aaid=0&__bid=" + p280 + "&__user=" + this.uid + "&__a=1&__req=j&__hs=20151.BP:DEFAULT.2.0...0&dpr=1&__ccg=GOOD&__rev=1020564878&__s=dr1ti4:103eex:hjfkpz&__hsi=7477848285631838275&__dyn=7xeUmxa3-Q5E9EdoK2Wmhe2Om2q1Dxuq3O1Fx-ewSxum4Euxa0z8S2S2q1Ex20zEyaxG4o2oCwho5G0O85mqbwgEbUy742ppU467U8o2lxe68a8522m3K7EC1Dw4WwgEhxW10wnEtwoVUao9k2B0q85W1bxq1-orx2ewyx6i2GU8U-UbE4S2q4UoG7o2swh8S1qxa1ozEjwnE2Lxi3-1RwrUux616yES2e0UFU2RwrU6CiU9E4KeyE9Eco9U6O6U4R0mVU1587u1rwc6227o&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25737&lsd=" + this.lsd + "&__spin_r=1020564878&__spin_b=trunk&__spin_t=1741072229&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useBSHGAMEOpenXFACAppealActionMutation&variables={\"input\":{\"client_mutation_id\":\"2\",\"actor_id\":\"" + this.uid + "\",\"enforcement_instance\":\"" + v345 + "\"}}&server_timestamps=true&doc_id=8036119906495815"
+            body: "av=" + this.uid + "&session_id=17e613b789f86fcc&__aaid=0&__bid=" + bmId + "&__user=" + this.uid + "&__a=1&__req=j&__hs=20151.BP:DEFAULT.2.0...0&dpr=1&__ccg=GOOD&__rev=1020564878&__s=dr1ti4:103eex:hjfkpz&__hsi=7477848285631838275&__dyn=7xeUmxa3-Q5E9EdoK2Wmhe2Om2q1Dxuq3O1Fx-ewSxum4Euxa0z8S2S2q1Ex20zEyaxG4o2oCwho5G0O85mqbwgEbUy742ppU467U8o2lxe68a8522m3K7EC1Dw4WwgEhxW10wnEtwoVUao9k2B0q85W1bxq1-orx2ewyx6i2GU8U-UbE4S2q4UoG7o2swh8S1qxa1ozEjwnE2Lxi3-1RwrUux616yES2e0UFU2RwrU6CiU9E4KeyE9Eco9U6O6U4R0mVU1587u1rwc6227o&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25737&lsd=" + this.lsd + "&__spin_r=1020564878&__spin_b=trunk&__spin_t=1741072229&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=useBSHGAMEOpenXFACAppealActionMutation&variables={\"input\":{\"client_mutation_id\":\"2\",\"actor_id\":\"" + this.uid + "\",\"enforcement_instance\":\"" + enforcementInstanceId + "\"}}&server_timestamps=true&doc_id=8036119906495815"
           });
-          const v347 = await v346.json;
-          const v348 = v347.data.xfb_XFACGraphQLAppealManagerFetchOrCreateAppeal.xfac_appeal_id;
-          const v349 = await fetch2("https://business.facebook.com/api/graphql/?_callFlowletID=0&_triggerFlowletID=1420", {
+          const createAppealJson = await createAppealResponse.json;
+          const xfacAppealId = createAppealJson.data.xfb_XFACGraphQLAppealManagerFetchOrCreateAppeal.xfac_appeal_id;
+          const triggerAppealResponse = await fetch2("https://business.facebook.com/api/graphql/?_callFlowletID=0&_triggerFlowletID=1420", {
             method: "POST",
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
-            body: "av=" + this.uid + "&session_id=1b39647eb945a644&__aaid=0&__bid=" + p280 + "&__user=" + this.uid + "&__a=1&__req=i&__hs=20151.BP:DEFAULT.2.0...0&dpr=1&__ccg=GOOD&__rev=1020564878&__s=g139k8:103eex:hwphka&__hsi=7477845871681707178&__dyn=7xeUmxa3-Q5E9EdoK2Wmhe2Om2q1Dxuq3O1Fx-ewSxum4Euxa0z8S2S2q1Ex20zEyaxG4o2oCwho5G0O85mqbwgEbUy742ppU467U8o2lxe68a8522m3K7EC1Dw4WwgEhxW10wnEtwoVUao9k2B0q85W1bxq1-orx2ewyx6i2GU8U-UbE4S2q4UoG7o2swh8S1qxa1ozEjwnE2Lxi3-1RwrUux616yES2e0UFU2RwrU6CiU9E4KeyE9Eco9U6O6U4R0mVU1587u1rwc6227o&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25762&lsd=" + this.lsd + "&__spin_r=1020564878&__spin_b=trunk&__spin_t=1741071667&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometIXTFacebookXfacActorAppealTriggerRootQuery&variables={\"input\":{\"trigger_event_type\":\"XFAC_ACTOR_APPEAL_ENTRY\",\"ufac_design_system\":\"GEODESIC\",\"xfac_id\":\"" + v348 + "\",\"nt_context\":null,\"trigger_session_id\":\"d289e01d-ffc9-43ef-905b-0ee4a5807fd5\"},\"scale\":1}&server_timestamps=true&doc_id=29439169672340596"
+            body: "av=" + this.uid + "&session_id=1b39647eb945a644&__aaid=0&__bid=" + bmId + "&__user=" + this.uid + "&__a=1&__req=i&__hs=20151.BP:DEFAULT.2.0...0&dpr=1&__ccg=GOOD&__rev=1020564878&__s=g139k8:103eex:hwphka&__hsi=7477845871681707178&__dyn=7xeUmxa3-Q5E9EdoK2Wmhe2Om2q1Dxuq3O1Fx-ewSxum4Euxa0z8S2S2q1Ex20zEyaxG4o2oCwho5G0O85mqbwgEbUy742ppU467U8o2lxe68a8522m3K7EC1Dw4WwgEhxW10wnEtwoVUao9k2B0q85W1bxq1-orx2ewyx6i2GU8U-UbE4S2q4UoG7o2swh8S1qxa1ozEjwnE2Lxi3-1RwrUux616yES2e0UFU2RwrU6CiU9E4KeyE9Eco9U6O6U4R0mVU1587u1rwc6227o&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25762&lsd=" + this.lsd + "&__spin_r=1020564878&__spin_b=trunk&__spin_t=1741071667&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=CometIXTFacebookXfacActorAppealTriggerRootQuery&variables={\"input\":{\"trigger_event_type\":\"XFAC_ACTOR_APPEAL_ENTRY\",\"ufac_design_system\":\"GEODESIC\",\"xfac_id\":\"" + xfacAppealId + "\",\"nt_context\":null,\"trigger_session_id\":\"d289e01d-ffc9-43ef-905b-0ee4a5807fd5\"},\"scale\":1}&server_timestamps=true&doc_id=29439169672340596"
           });
-          const v350 = v349.json.data.ixt_xfac_actor_appeal_trigger.screen.view_model.enrollment_id;
-          if (v350) {
-            p281(p280 + "|https://www.facebook.com/checkpoint/1501092823525282/" + v350);
-            v341 = true;
-            v342 = v350;
+          const fetchedEnrollmentId = triggerAppealResponse.json.data.ixt_xfac_actor_appeal_trigger.screen.view_model.enrollment_id;
+          if (fetchedEnrollmentId) {
+            onProgress(bmId + "|https://www.facebook.com/checkpoint/1501092823525282/" + fetchedEnrollmentId);
+            linkFound = true;
+            enrollmentId = fetchedEnrollmentId;
           }
         } else {
-          const v351 = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=1", {
+          const assetOwnerResponse = await fetch2("https://business.facebook.com/api/graphql/?_flowletID=1", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: "av=" + this.uid + "&__usid=6-Ts626y2arz8fg%3APs626xy1mafk6f%3A0-As626x5t9hdw-RV%3D6%3AF%3D&session_id=3f06e26e24310de8&__user=" + this.uid + "&__a=1&__req=1&__hs=19713.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010574318&__s=bgx31o%3A93y1un%3Aj1i0y0&__hsi=7315329750708113449&__dyn=7xeUmxa2C5ryoS1syU8EKmhG5UkBwqo98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczEeU-5Ejwl8gwqoqyojzoO4o2oCwOxa7FEd89EmwoU9FE4Wqmm2ZedUbpqG6kE8RoeUKUfo7y78qgOUa8lwWxe4oeUuyo465o-0xUnw8ScwgECu7E422a3Gi6rwiolDwjQ2C4oW2e1qyQ6U-4Ea8mwoEru6ogyHwyx6i8wxK3eUbE4S7VEjCx6Etwj84-224U-dwKwHxa1ozFUK1gzpErw-z8c89aDwKBwKG13y85i4oKqbDyoOEbVEHyU8U3yDwbm1Lx3wlF8C221bzFHwCwNwDwjouxK2i2y1sDw9-&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25595&lsd=XBGCglH3K63SPddlSyNKgf&__aaid=0&__bid=745415083846542&__spin_r=1010574318&__spin_b=trunk&__spin_t=1703232934&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetOwnerViewQuery&variables=%7B%22assetOwnerId%22%3A%22" + p280 + "%22%7D&server_timestamps=true&doc_id=24196151083363204"
+            body: "av=" + this.uid + "&__usid=6-Ts626y2arz8fg%3APs626xy1mafk6f%3A0-As626x5t9hdw-RV%3D6%3AF%3D&session_id=3f06e26e24310de8&__user=" + this.uid + "&__a=1&__req=1&__hs=19713.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1010574318&__s=bgx31o%3A93y1un%3Aj1i0y0&__hsi=7315329750708113449&__dyn=7xeUmxa2C5ryoS1syU8EKmhG5UkBwqo98nCG6UmCyEgwjojyUW3qi4FoixWE-1txaczEeU-5Ejwl8gwqoqyojzoO4o2oCwOxa7FEd89EmwoU9FE4Wqmm2ZedUbpqG6kE8RoeUKUfo7y78qgOUa8lwWxe4oeUuyo465o-0xUnw8ScwgECu7E422a3Gi6rwiolDwjQ2C4oW2e1qyQ6U-4Ea8mwoEru6ogyHwyx6i8wxK3eUbE4S7VEjCx6Etwj84-224U-dwKwHxa1ozFUK1gzpErw-z8c89aDwKBwKG13y85i4oKqbDyoOEbVEHyU8U3yDwbm1Lx3wlF8C221bzFHwCwNwDwjouxK2i2y1sDw9-&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25595&lsd=XBGCglH3K63SPddlSyNKgf&__aaid=0&__bid=745415083846542&__spin_r=1010574318&__spin_b=trunk&__spin_t=1703232934&__jssesw=1&fb_api_caller_class=RelayModern&fb_api_req_friendly_name=AccountQualityHubAssetOwnerViewQuery&variables=%7B%22assetOwnerId%22%3A%22" + bmId + "%22%7D&server_timestamps=true&doc_id=24196151083363204"
           });
-          const v352 = await v351.json;
-          const v353 = v352.data.assetOwnerData.advertising_restriction_info.additional_parameters.paid_actor_root_appeal_container_id;
-          const v354 = v352.data.assetOwnerData.advertising_restriction_info.restriction_type;
-          const v355 = await fetch2("https://business.facebook.com/accountquality/ufac/?entity_id=" + p280 + "&paid_actor_root_appeal_container_id=" + v353 + "&entity_type=3&_callFlowletID=2181&_triggerFlowletID=2181", {
+          const assetOwnerJson = await assetOwnerResponse.json;
+          const appealContainerId = assetOwnerJson.data.assetOwnerData.advertising_restriction_info.additional_parameters.paid_actor_root_appeal_container_id;
+          const restrictionType = assetOwnerJson.data.assetOwnerData.advertising_restriction_info.restriction_type;
+          const ufacInitResponse = await fetch2("https://business.facebook.com/accountquality/ufac/?entity_id=" + bmId + "&paid_actor_root_appeal_container_id=" + appealContainerId + "&entity_type=3&_callFlowletID=2181&_triggerFlowletID=2181", {
             headers: {
               "content-type": "application/x-www-form-urlencoded"
             },
-            body: "__usid=6-Tsc6xu718a07sn%3APsc6xui6pgn2f%3A0-Asc6xtp1nh4rnc-RV%3D6%3AF%3D&session_id=15e5a69ec0978238&__aaid=0&__bid=" + p280 + "&__user=" + this.uid + "&__a=1&__req=u&__hs=19832.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012906458&__s=9ubr7j%3Arv9koe%3Ads4ihh&__hsi=7359564425697670285&__dyn=7xeUmxa2C5rgydwCwRyU8EKmhe5UkBwCwpUnCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx60C9EcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo462mcwuEnw8ScwgECu7E422a3Fe6rwiolDwFwBgak48W2e2i3mbgrzUiwExq1yxJUpx2awCx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e0UFU2RwrU6CiVo884KeCK2q362u1dxW6U98a85Ou0DU7i1Tw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25352&lsd=MPaEvH-IKd3rimyUrjtr5C&__spin_r=1012906458&__spin_b=trunk&__spin_t=1713532122&__jssesw=1",
+            body: "__usid=6-Tsc6xu718a07sn%3APsc6xui6pgn2f%3A0-Asc6xtp1nh4rnc-RV%3D6%3AF%3D&session_id=15e5a69ec0978238&__aaid=0&__bid=" + bmId + "&__user=" + this.uid + "&__a=1&__req=u&__hs=19832.BP%3ADEFAULT.2.0..0.0&dpr=1&__ccg=EXCELLENT&__rev=1012906458&__s=9ubr7j%3Arv9koe%3Ads4ihh&__hsi=7359564425697670285&__dyn=7xeUmxa2C5rgydwCwRyU8EKmhe5UkBwCwpUnCG6UmCyEgwjojyUW3qi4FoixWE-1txaczES2Sfxq4U5i486C6EC8yEScx60C9EcEixWq3i2q5E6e2qq1eCBBwLjzu2SmGxBa2dmm3mbK6U8o7y78jCgOUa8lwWxe4oeUuyo462mcwuEnw8ScwgECu7E422a3Fe6rwiolDwFwBgak48W2e2i3mbgrzUiwExq1yxJUpx2awCx6i8wxK2efK2W1dx-q4VEhG7o4O1fwwxefzobEaUiwm8Wubwk8Sq6UfEO32fxiFUd8bGwgUy1kx6bCyVUCcG2-qaUK2e0UFU2RwrU6CiVo884KeCK2q362u1dxW6U98a85Ou0DU7i1Tw&__csr=&fb_dtsg=" + this.dtsg + "&jazoest=25352&lsd=MPaEvH-IKd3rimyUrjtr5C&__spin_r=1012906458&__spin_b=trunk&__spin_t=1713532122&__jssesw=1",
             method: "POST"
           });
-          const v356 = JSON.parse(v355.text.replace("for (;;);", ""));
-          const v357 = v356.payload.enrollment_id;
-          if (v357) {
-            p281(p280 + "|https://www.facebook.com/checkpoint/1501092823525282/" + v357 + "|Tipo de Restricción: " + v354);
-            v341 = true;
-            v342 = v357;
+          const ufacInitJson = JSON.parse(ufacInitResponse.text.replace("for (;;);", ""));
+          const fetchedEnrollmentId = ufacInitJson.payload.enrollment_id;
+          if (fetchedEnrollmentId) {
+            onProgress(bmId + "|https://www.facebook.com/checkpoint/1501092823525282/" + fetchedEnrollmentId + "|Tipo de Restricción: " + restrictionType);
+            linkFound = true;
+            enrollmentId = fetchedEnrollmentId;
           }
         }
-      } catch (e57) {
-        console.log(e57);
+      } catch (err) {
+        console.log(err);
       }
-      if (!v341) {
-        p281("Error al obtener enlace de apelación BM");
+      if (!linkFound) {
+        onProgress("Error al obtener enlace de apelación BM");
       }
-      p282(v342);
+      resolve(enrollmentId);
     });
   }
   async function init() {
-    return new Promise(async (p284, p285) => {
-      for (let vLN024 = 0; vLN024 < 3; vLN024++) {
+    return new Promise(async (resolve, reject) => {
+      for (let attempt = 0; attempt < 3; attempt++) {
         try {
           this.accessToken = await getLocalStorage("accessToken");
           this.accessToken2 = await getLocalStorage("accessToken2");
@@ -1350,21 +1349,21 @@ function  getSiteKey(p247) {
           this.dtsg2 = await getLocalStorage("dtsg2");
           try {
             this.userInfo = await this.getUserInfo();
-          } catch (e58) {
+          } catch (err) {
             this.accessToken = false;
             await removeLocalStorage("accessToken");
             await removeLocalStorage("accessToken2");
           }
           if (!this.accessToken || !this.dtsg) {
-            const v358 = await this.getAccessToken();
-            this.accessToken = v358.accessToken;
+            const tokenData = await this.getAccessToken();
+            this.accessToken = tokenData.accessToken;
             this.accessToken2 = "";
             try {
               this.accessToken2 = await this.getAccessToken2();
             } catch {}
             this.userInfo = await this.getUserInfo();
-            this.dtsg = v358.dtsg;
-            this.dtsg2 = v358.dtsg2;
+            this.dtsg = tokenData.dtsg;
+            this.dtsg2 = tokenData.dtsg2;
             await setLocalStorage("accessToken", this.accessToken);
             await setLocalStorage("accessToken2", this.accessToken2);
             await setLocalStorage("dtsg", this.dtsg);
@@ -1372,42 +1371,42 @@ function  getSiteKey(p247) {
           }
           this.uid = this.userInfo.id;
           break;
-        } catch (e59) {}
+        } catch (err) {}
       }
       if (this.accessToken && this.dtsg && this.userInfo) {
-        p284();
+        resolve();
       } else {
-        p285();
+        reject();
       }
     });
   }
 
 
 function getCurrentUser() {
-  return new Promise(async (p286, p287) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const v359 = await getLocalStorage("uid");
-      const v360 = await getLocalStorage("dataClone");
-      const v361 = v360.filter(p288 => p288.uid === v359)[0];
-      p286(v361);
-    } catch (e60) {
-      p287(e60);
+      const uid = await getLocalStorage("uid");
+      const cloneData = await getLocalStorage("dataClone");
+      const currentUser = cloneData.filter(user => user.uid === uid)[0];
+      resolve(currentUser);
+    } catch (err) {
+      reject(err);
     }
   });
 }
 
-async function getBase64ImageFromUrl(p289) {
-  const v362 = await fetch(p289);
-  const v363 = await v362.blob();
-  return new Promise((p290, p291) => {
-    const v364 = new FileReader();
-    v364.addEventListener("load", function () {
-      p290(v364.result);
+async function getBase64ImageFromUrl(imageUrl) {
+  const response = await fetch(imageUrl);
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", function () {
+      resolve(reader.result);
     }, false);
-    v364.onerror = () => {
-      return p291(this);
+    reader.onerror = () => {
+      return reject(this);
     };
-    v364.readAsDataURL(v363);
+    reader.readAsDataURL(blob);
   });
 }
 

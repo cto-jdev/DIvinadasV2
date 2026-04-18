@@ -46,22 +46,22 @@ const columnDefs = [{
     field: "status",
     headerName: "Estado",
     filter: "agSetColumnFilter",
-    cellRenderer: p5 => {
-      let vLS = "";
-      if (p5.data.status === 0) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">LIVE</strong></span>";
+    cellRenderer: params => {
+      let statusHtml = "";
+      if (params.data.status === 0) {
+        statusHtml = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">LIVE</strong></span>";
       }
-      if (p5.data.status === 1) {
-        vLS = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE</strong></span>";
+      if (params.data.status === 1) {
+        statusHtml = "<span class=\"d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE</strong></span>";
       }
-      return vLS;
+      return statusHtml;
     }
   }, {
     field: "name",
     headerName: "Cuenta",
     minWidth: 250,
-    cellRenderer: p6 => {
-      return "\n                <div class=\"d-flex align-items-center\">\n                    <img class=\"rounded-circle\" src=\"" + (p6.data.avatar ? p6.data.avatar : "../img/avatar.jpg") + "\" height=\"30\">\n                    <a href=\"https://facebook.com/profile.php?id=" + p6.data.uid + "\" target=\"_BLANK\" class=\"ps-3 flex-grow-1 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + (p6.data.name ? p6.data.name : "Unknown") + "</strong>\n                        <span>" + p6.data.uid + "</span>\n                    </a>\n                </div>\n            ";
+    cellRenderer: params => {
+      return "\n                <div class=\"d-flex align-items-center\">\n                    <img class=\"rounded-circle\" src=\"" + (params.data.avatar ? params.data.avatar : "../img/avatar.jpg") + "\" height=\"30\">\n                    <a href=\"https://facebook.com/profile.php?id=" + params.data.uid + "\" target=\"_BLANK\" class=\"ps-3 flex-grow-1 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + (params.data.name ? params.data.name : "Unknown") + "</strong>\n                        <span>" + params.data.uid + "</span>\n                    </a>\n                </div>\n            ";
     }
   }, {
     field: "account",
@@ -96,32 +96,32 @@ const columnDefs = [{
   }, {
     field: "bm",
     headerName: "BM",
-    cellRenderer: p7 => {
-      let vLS2 = "";
-      if (p7.data.bm && p7.data.bm != 0) {
-        vLS2 = "\n                    <button type=\"button\" data-type=\"viewBm\" data-id=\"" + p7.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-briefcase-line me-1\"></i><strong>BM: <span class=\"count\">" + p7.data.bm + "</span></strong></button>\n                ";
+    cellRenderer: params => {
+      let bmHtml = "";
+      if (params.data.bm && params.data.bm != 0) {
+        bmHtml = "\n                    <button type=\"button\" data-type=\"viewBm\" data-id=\"" + params.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-briefcase-line me-1\"></i><strong>BM: <span class=\"count\">" + params.data.bm + "</span></strong></button>\n                ";
       }
-      return vLS2;
+      return bmHtml;
     }
   }, {
     field: "tkqc",
     headerName: "Cuenta Ads",
-    cellRenderer: p8 => {
-      let vLS3 = "";
-      if (p8.data.tkqc && p8.data.tkqc != 0) {
-        vLS3 = "\n                    <button type=\"button\" data-type=\"viewAds\" data-id=\"" + p8.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-megaphone-line me-1\"></i><strong>Cuenta Ads: <span class=\"count\">" + p8.data.tkqc + "</span></strong></button>\n                ";
+    cellRenderer: params => {
+      let tkqcHtml = "";
+      if (params.data.tkqc && params.data.tkqc != 0) {
+        tkqcHtml = "\n                    <button type=\"button\" data-type=\"viewAds\" data-id=\"" + params.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-megaphone-line me-1\"></i><strong>Cuenta Ads: <span class=\"count\">" + params.data.tkqc + "</span></strong></button>\n                ";
       }
-      return vLS3;
+      return tkqcHtml;
     }
   }, {
     field: "page",
     headerName: "Página",
-    cellRenderer: p9 => {
-      let vLS4 = "";
-      if (p9.data.page && p9.data.page != 0) {
-        vLS4 = "\n                    <button type=\"button\" data-type=\"viewPage\" data-id=\"" + p9.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-flag-line me-1\"></i><strong>Página: <span class=\"count\">" + p9.data.page + "</span></strong></button>\n                ";
+    cellRenderer: params => {
+      let pageHtml = "";
+      if (params.data.page && params.data.page != 0) {
+        pageHtml = "\n                    <button type=\"button\" data-type=\"viewPage\" data-id=\"" + params.data.uid + "\" class=\"viewDataButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-flag-line me-1\"></i><strong>Página: <span class=\"count\">" + params.data.page + "</span></strong></button>\n                ";
       }
-      return vLS4;
+      return pageHtml;
     }
   }, {
     field: "dob",
@@ -129,14 +129,14 @@ const columnDefs = [{
   }, {
     field: "gender",
     headerName: "Género",
-    cellRenderer: p10 => {
-      let vLS5 = "";
-      if (p10.data.gender === "male") {
-        vLS5 = "Hombre";
-      } else if (p10.data.gender === "female") {
-        vLS5 = "Mujer";
+    cellRenderer: params => {
+      let genderHtml = "";
+      if (params.data.gender === "male") {
+        genderHtml = "Hombre";
+      } else if (params.data.gender === "female") {
+        genderHtml = "Mujer";
       }
-      return vLS5;
+      return genderHtml;
     }
   }, {
     field: "friends",
@@ -145,14 +145,14 @@ const columnDefs = [{
     field: "action",
     headerName: "Acción",
     minWidth: 200,
-    cellRenderer: p11 => {
-      let vLS6 = "";
-      if (p11.data.action === "active") {
-        vLS6 = "\n                    <button type=\"button\" class=\"btn btn-success btn-sm p-0 px-2\"><i class=\"ri-checkbox-blank-circle-fill me-1\"></i>Activo</button>\n                    <button type=\"button\" id=\"logoutBtn\" class=\"ms-1 btn bg-dark-subtle btn-sm p-0 px-1\"><i class=\"ri-logout-box-r-line\"></i>\n                    </button>\n                ";
+    cellRenderer: params => {
+      let actionHtml = "";
+      if (params.data.action === "active") {
+        actionHtml = "\n                    <button type=\"button\" class=\"btn btn-success btn-sm p-0 px-2\"><i class=\"ri-checkbox-blank-circle-fill me-1\"></i>Activo</button>\n                    <button type=\"button\" id=\"logoutBtn\" class=\"ms-1 btn bg-dark-subtle btn-sm p-0 px-1\"><i class=\"ri-logout-box-r-line\"></i>\n                    </button>\n                ";
       } else {
-        vLS6 = "\n                    <button type=\"button\" data-id=\"" + p11.data.id + "\" class=\"loginButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-lock-line me-1\"></i>Iniciar sesión</button>\n                ";
+        actionHtml = "\n                    <button type=\"button\" data-id=\"" + params.data.id + "\" class=\"loginButton btn btn-secondary btn-sm p-0 px-2\"><i class=\"ri-lock-line me-1\"></i>Iniciar sesión</button>\n                ";
       }
-      return vLS6;
+      return actionHtml;
     }
   }];
   const accountGrid = {
@@ -185,109 +185,64 @@ const columnDefs = [{
      * Parámetros: p12 (objeto con propiedad data)
      * Retorna: id de la fila
      */
-    getRowId: function (p12) {
-      return p12.data.id;
+    getRowId: function (params) {
+      return params.data.id;
     },
-    /**
-     * onFirstDataRendered
-     * Descripción: Llama a countStatus cuando los datos se renderizan por primera vez en la grilla.
-     * Parámetros: p13 (evento de agGrid)
-     */
-    onFirstDataRendered: function (p13) {
-      countStatus(p13);
+    onFirstDataRendered: function (event) {
+      countStatus(event);
     },
-    /**
-     * onRangeSelectionChanged
-     * Descripción: Actualiza el contador de filas seleccionadas en un rango.
-     * Parámetros: p14 (evento de selección de rango de agGrid)
-     */
-    onRangeSelectionChanged: function (p14) {
-      const v12 = p14.api.getCellRanges();
-      if (v12.length) {
-        let vLN02 = 0;
-        if (v12[0].startRow.rowIndex < v12[0].endRow.rowIndex) {
-          vLN02 = v12[0].endRow.rowIndex - (v12[0].startRow.rowIndex - 1);
+    onRangeSelectionChanged: function (event) {
+      const cellRanges = event.api.getCellRanges();
+      if (cellRanges.length) {
+        let rangeCount = 0;
+        if (cellRanges[0].startRow.rowIndex < cellRanges[0].endRow.rowIndex) {
+          rangeCount = cellRanges[0].endRow.rowIndex - (cellRanges[0].startRow.rowIndex - 1);
         } else {
-          vLN02 = v12[0].startRow.rowIndex - (v12[0].endRow.rowIndex - 1);
+          rangeCount = cellRanges[0].startRow.rowIndex - (cellRanges[0].endRow.rowIndex - 1);
         }
-        $("#boiden").text(vLN02);
+        $("#boiden").text(rangeCount);
       } else {
         $("#boiden").text(0);
       }
     },
-    /**
-     * onSelectionChanged
-     * Descripción: Actualiza el contador de filas seleccionadas.
-     * Parámetros: p15 (evento de selección de agGrid)
-     */
-    onSelectionChanged: function (p15) {
-      const v13 = p15.api.getSelectedRows();
-      $("#dachon").text(v13.length);
+    onSelectionChanged: function (event) {
+      const selectedRows = event.api.getSelectedRows();
+      $("#dachon").text(selectedRows.length);
     },
-    /**
-     * onRowDataUpdated
-     * Descripción: Actualiza el contador total de filas mostradas en la grilla.
-     * Parámetros: p16 (evento de actualización de datos de agGrid)
-     */
-    onRowDataUpdated: function (p16) {
-      $("#tong").text(p16.api.getDisplayedRowCount());
+    onRowDataUpdated: function (event) {
+      $("#tong").text(event.api.getDisplayedRowCount());
     },
-    /**
-     * onFilterChanged
-     * Descripción: Actualiza el contador total de filas mostradas tras aplicar un filtro.
-     * Parámetros: p17 (evento de filtrado de agGrid)
-     */
-    onFilterChanged: function (p17) {
-      $("#tong").text(p17.api.getDisplayedRowCount());
+    onFilterChanged: function (event) {
+      $("#tong").text(event.api.getDisplayedRowCount());
     },
     rowClassRules: {
-      /**
-       * running
-       * Descripción: Devuelve true si el estado de la fila es "RUNNING" para aplicar una clase CSS.
-       * Parámetros: p18 (objeto con propiedad data)
-       */
-      running: function (p18) {
-        return p18.data.status === "RUNNING";
+      running: function (params) {
+        return params.data.status === "RUNNING";
       },
-      /**
-       * finished
-       * Descripción: Devuelve true si el estado de la fila es "FINISHED" para aplicar una clase CSS.
-       * Parámetros: p19 (objeto con propiedad data)
-       */
-      finished: function (p19) {
-        return p19.data.status === "FINISHED";
+      finished: function (params) {
+        return params.data.status === "FINISHED";
       }
     },
-    /**
-     * onBodyScroll
-     * Descripción: Marca la variable global 'scrolling' como true cuando se detecta scroll en la tabla.
-     * Parámetros: p20 (evento de scroll)
-     */
-    onBodyScroll: function (p20) {
+    onBodyScroll: function (event) {
       scrolling = true;
     },
-    /**
-     * onBodyScrollEnd
-     * Descripción: Marca la variable global 'scrolling' como false cuando termina el scroll en la tabla.
-     * Parámetros: p21 (evento de fin de scroll)
-     */
-    onBodyScrollEnd: function (p21) {
+    onBodyScrollEnd: function (event) {
       scrolling = false;
     }
   };
-  $("#accounts").on("contextmenu", function (p22) {
-    p22.preventDefault();
-    const vParseInt = parseInt($("#contextMenu > ul").outerHeight());
-    const vParseInt2 = parseInt($("body").outerHeight());
-    if (p22.pageY + vParseInt > vParseInt2) {
+  $("#accounts").on("contextmenu", function (event) {
+    event.preventDefault();
+    const menuHeight = parseInt($("#contextMenu > ul").outerHeight());
+    const bodyHeight = parseInt($("body").outerHeight());
+    if (event.pageY + menuHeight > bodyHeight) {
       $("#contextMenu").addClass("open").css({
-        top: p22.pageY - vParseInt + "px",
-        left: p22.pageX + "px"
+        top: event.pageY - menuHeight + "px",
+        left: event.pageX + "px"
       });
     } else {
       $("#contextMenu").addClass("open").css({
-        top: p22.pageY + "px",
-        left: p22.pageX + "px"
+        top: event.pageY + "px",
+        left: event.pageX + "px"
       });
     }
   });
@@ -302,69 +257,73 @@ const columnDefs = [{
    * Descripción: Inicializa la grilla de clones, carga datos desde localStorage, configura eventos y sincronización periódica.
    */
   $(document).ready(async function () {
-    const v14 = document.querySelector("#accounts");
-    new agGrid.Grid(v14, accountGrid);
-    const v15 = (await getLocalStorage("stateClone")) || [];
-    const vO15 = {
-      state: v15,
+    const gridContainer = document.querySelector("#accounts");
+    new agGrid.Grid(gridContainer, accountGrid);
+    const savedColumnState = (await getLocalStorage("stateClone")) || [];
+    const columnStateConfig = {
+      state: savedColumnState,
       applyOrder: true
     };
-    accountGrid.columnApi.applyColumnState(vO15);
-    for (let vLN03 = 0; vLN03 < 9999999; vLN03++) {
+    accountGrid.columnApi.applyColumnState(columnStateConfig);
+    const maxWaitMs = 30000;
+    const pollMs = 500;
+    const startTime = Date.now();
+    while (Date.now() - startTime < maxWaitMs) {
       try {
         if ($("body").hasClass("data-loaded")) {
-          const vA2 = [];
-          const v16 = (await getLocalStorage("dataClone")) || [];
-          for (let vLN04 = 0; vLN04 < v16.length; vLN04++) {
-            const v17 = v16[vLN04];
-            v17.action = false;
-            const v18 = await getCookie();
-            let vLS7 = "";
+          const rowDataArray = [];
+          const cloneList = (await getLocalStorage("dataClone")) || [];
+          for (let i = 0; i < cloneList.length; i++) {
+            const clone = cloneList[i];
+            clone.action = false;
+            const cookie = await getCookie();
+            let currentUserId = "";
             try {
-              vLS7 = v18.split("c_user=")[1].split(";")[0];
+              const cUserMatch = cookie.match(/c_user=([^;]+)/);
+              currentUserId = cUserMatch ? cUserMatch[1] : "";
             } catch {}
-            const v19 = await getLocalStorage("userInfo_" + v17.uid);
-            const v20 = (await getLocalStorage("dataAds_" + v17.uid)) || "";
-            const v21 = (await getLocalStorage("dataBm_" + v17.uid)) || "";
-            const v22 = (await getLocalStorage("dataPage_" + v17.uid)) || "";
-            v17.tkqc = v20.length;
-            v17.bm = v21.length;
-            v17.page = v22.length;
-            if (v17.uid === vLS7) {
-              v17.action = "active";
+            const userInfo = await getLocalStorage("userInfo_" + clone.uid);
+            const adsData = (await getLocalStorage("dataAds_" + clone.uid)) || [];
+            const bmData = (await getLocalStorage("dataBm_" + clone.uid)) || [];
+            const pageData = (await getLocalStorage("dataPage_" + clone.uid)) || [];
+            clone.tkqc = Array.isArray(adsData) ? adsData.length : 0;
+            clone.bm = Array.isArray(bmData) ? bmData.length : 0;
+            clone.page = Array.isArray(pageData) ? pageData.length : 0;
+            if (clone.uid === currentUserId) {
+              clone.action = "active";
             }
-            if (v19 && v17.uid === v19.id) {
-              v17.dob = v19.birthday;
-              v17.gender = v19.gender;
-              v17.friends = v19.friends;
-              v17.name = v19.name;
-              v17.avatar = v19.picture.data.url;
+            if (userInfo && clone.uid === userInfo.id) {
+              clone.dob = userInfo.birthday;
+              clone.gender = userInfo.gender;
+              clone.friends = userInfo.friends;
+              clone.name = userInfo.name;
+              clone.avatar = userInfo.picture?.data?.url || "";
             }
-            vA2.push(v17);
+            rowDataArray.push(clone);
           }
-          accountGrid.api.setRowData(vA2);
+          accountGrid.api.setRowData(rowDataArray);
           accountGrid.columnApi.autoSizeColumns(["name", "action", "bm", "tkqc", "page"]);
           break;
         }
-      } catch (e2) {
-        console.log(e2);
+      } catch (err) {
+        console.log(err);
       }
-      await delayTime(500);
+      await delayTime(pollMs);
     }
     setInterval(async () => {
       if ($("body").hasClass("setting-loaded")) {
         saveSetting();
       }
       if ($("body").hasClass("data-loaded")) {
-        const vA3 = [];
-        accountGrid.api.forEachNode(function (p23) {
-          vA3.push(p23.data);
+        const allNodes = [];
+        accountGrid.api.forEachNode(function (node) {
+          allNodes.push(node.data);
         });
-        if (vA3.length > 0) {
-          await setLocalStorage("dataClone", vA3);
+        if (allNodes.length > 0) {
+          await setLocalStorage("dataClone", allNodes);
         }
-        const v23 = accountGrid.columnApi.getColumnState();
-        await setLocalStorage("stateClone", v23);
+        const currentColumnState = accountGrid.columnApi.getColumnState();
+        await setLocalStorage("stateClone", currentColumnState);
       }
     }, 2000);
   });
@@ -373,19 +332,19 @@ const columnDefs = [{
    * Descripción: Cuenta la cantidad de clones por cada estado y actualiza los contadores en la interfaz.
    * Parámetros: p24 (objeto agGrid)
    */
-  function countStatus(p24) {
-    let vLN05 = 0;
-    let vLN06 = 0;
-    p24.api.forEachNode(p25 => {
-      if (p25.data.status === 0) {
-        vLN05++;
+  function countStatus(gridEvent) {
+    let liveCount = 0;
+    let dieCount = 0;
+    gridEvent.api.forEachNode(node => {
+      if (node.data.status === 0) {
+        liveCount++;
       }
-      if (p25.data.status === 1) {
-        vLN06++;
+      if (node.data.status === 1) {
+        dieCount++;
       }
     });
-    $(".status0Count").text(vLN05);
-    $(".status1Count").text(vLN06);
+    $(".status0Count").text(liveCount);
+    $(".status1Count").text(dieCount);
   }
   /**
    * Evento click viewDataButton
@@ -412,25 +371,25 @@ const columnDefs = [{
       confirmButtonColor: "#dc3545",
       confirmButtonText: "Eliminar",
       cancelButtonText: "Cancelar"
-    }).then(async p26 => {
-      if (p26.isConfirmed) {
-        const vGetSelectedRows = getSelectedRows();
-        const v28 = accountGrid.api.getRenderedNodes();
-        if (vGetSelectedRows.length === v28.length) {
+    }).then(async result => {
+      if (result.isConfirmed) {
+        const selectedRows = getSelectedRows();
+        const renderedNodes = accountGrid.api.getRenderedNodes();
+        if (selectedRows.length === renderedNodes.length) {
           await removeLocalStorage("dataClone");
           await clearLocalStorage();
         }
-        for (let vLN07 = 0; vLN07 < vGetSelectedRows.length; vLN07++) {
-          const v29 = vGetSelectedRows[vLN07];
-          await removeLocalStorage("dataAds_" + v29.uid);
-          await removeLocalStorage("dataBm_" + v29.uid);
-          await removeLocalStorage("dataPage_" + v29.uid);
-          await removeLocalStorage("userInfo_" + v29.uid);
+        for (let i = 0; i < selectedRows.length; i++) {
+          const row = selectedRows[i];
+          await removeLocalStorage("dataAds_" + row.uid);
+          await removeLocalStorage("dataBm_" + row.uid);
+          await removeLocalStorage("dataPage_" + row.uid);
+          await removeLocalStorage("userInfo_" + row.uid);
         }
-        const vO17 = {
-          remove: vGetSelectedRows
+        const transaction = {
+          remove: selectedRows
         };
-        accountGrid.api.applyTransaction(vO17);
+        accountGrid.api.applyTransaction(transaction);
       }
     });
   });
@@ -464,108 +423,108 @@ const columnDefs = [{
    * Descripción: Procesa y agrega datos de clones desde un texto pegado o importado.
    * Parámetros: p28 (string con datos de clones)
    */
-  function pasteData(p28) {
-    if (p28.length > 0) {
+  function pasteData(rawData) {
+    if (rawData.length > 0) {
       accountGrid.api.clearRangeSelection();
-      const v31 = p28.split(/\r?\n|\r|\n/g);
-      const vA4 = [];
-      const vA5 = [];
-      const vA6 = [];
-      let vLN08 = 0;
-      accountGrid.api.forEachNode(p29 => {
-        vA4.push(p29.data);
-        vLN08++;
+      const lines = rawData.split(/\r?\n|\r|\n/g);
+      const existingRows = [];
+      const newRows = [];
+      const duplicateRows = [];
+      let nextId = 0;
+      accountGrid.api.forEachNode(node => {
+        existingRows.push(node.data);
+        nextId++;
       });
-      for (let vLN09 = 0; vLN09 < v31.length; vLN09++) {
-        let v32 = v31[vLN09];
-        if (v32.includes("c_user") && !v32.includes("|")) {
-          const v33 = v32.split(";").filter(p30 => {
-            return p30.includes("c_user");
-          }).map(p31 => {
-            return p31.trim().replace("c_user=", "");
+      for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+        let line = lines[lineIndex];
+        if (line.includes("c_user") && !line.includes("|")) {
+          const cUserParts = line.split(";").filter(part => {
+            return part.includes("c_user");
+          }).map(part => {
+            return part.trim().replace("c_user=", "");
           });
-          v32 = v33[0] + "||||" + v32;
+          line = cUserParts[0] + "||||" + line;
         }
-        if (v32.includes("csrftoken") && !v32.includes("|")) {
-          v32 = "|||" + v32;
+        if (line.includes("csrftoken") && !line.includes("|")) {
+          line = "|||" + line;
         }
-        const v34 = v32.split("|");
-        if (v34.length > 1) {
-          let vLS8 = "";
-          let vLS9 = "";
-          let vLS10 = "";
-          let vLS11 = "";
-          let vLS12 = "";
-          let vLS13 = "";
-          let vLS14 = "";
-          let v35 = v34.findIndex(p32 => {
-            return p32.includes("c_user=");
+        const fields = line.split("|");
+        if (fields.length > 1) {
+          let cookieField = "";
+          let emailField = "";
+          let emailPassField = "";
+          let recoverEmailField = "";
+          let tokenField = "";
+          let twoFaField = "";
+          let emailComboField = "";
+          let cookieIdx = fields.findIndex(part => {
+            return part.includes("c_user=");
           });
-          let v36 = v34.findIndex(p33 => {
-            return p33.match(/@outlook|@hotmail|@gmail|@yahoo/g);
+          let mailIdx = fields.findIndex(part => {
+            return part.match(/@outlook|@hotmail|@gmail|@yahoo/g);
           });
-          let v37 = v34.findIndex(p34 => {
-            return p34.match(/@getnada.com|@abyssmail.com|@dropjar.com|@getairmail.com|@givmail.com|@inboxbear.com|@robot-mail.com|@tafmail.com|@vomoto.com|fviainboxes.com|fviadropinbox.com|fviamail.work|dropinboxes.com/g);
+          let tempMailIdx = fields.findIndex(part => {
+            return part.match(/@getnada.com|@abyssmail.com|@dropjar.com|@getairmail.com|@givmail.com|@inboxbear.com|@robot-mail.com|@tafmail.com|@vomoto.com|fviainboxes.com|fviadropinbox.com|fviamail.work|dropinboxes.com/g);
           });
-          const v38 = v34.findIndex(p35 => {
-            return p35.replace(/\s/g, "").length === 32 && !p35.includes("@");
+          const twoFaIdx = fields.findIndex(part => {
+            return part.replace(/\s/g, "").length === 32 && !part.includes("@");
           });
-          if (v38 !== -1) {
-            vLS14 = v34[v38];
+          if (twoFaIdx !== -1) {
+            twoFaField = fields[twoFaIdx];
           }
-          const v39 = v34.findIndex(p36 => {
-            return p36.startsWith("EAA");
+          const tokenIdx = fields.findIndex(part => {
+            return part.startsWith("EAA");
           });
-          if (v35 !== -1) {
-            vLS8 = v34[v35];
+          if (cookieIdx !== -1) {
+            cookieField = fields[cookieIdx];
           }
-          if (v36 !== -1) {
-            vLS10 = v34[v36 + 1];
-            vLS9 = v34[v36];
+          if (mailIdx !== -1) {
+            emailPassField = fields[mailIdx + 1];
+            emailField = fields[mailIdx];
           }
-          if (v37 !== -1) {
-            vLS11 = v34[v37];
+          if (tempMailIdx !== -1) {
+            recoverEmailField = fields[tempMailIdx];
           }
-          if (v39 !== -1) {
-            vLS12 = v34[v39];
+          if (tokenIdx !== -1) {
+            tokenField = fields[tokenIdx];
           }
-          if (vLS9 && vLS10) {
-            vLS13 = vLS9 + "|" + vLS10;
+          if (emailField && emailPassField) {
+            emailComboField = emailField + "|" + emailPassField;
           }
-          const vO18 = {
-            id: vLN08,
-            account: v32,
-            uid: v34[0],
-            password: v34[1],
-            twofa: vLS14,
-            oldEmail: vLS13,
-            token: vLS12,
-            cookie: vLS8,
-            email: vLS9,
-            passMail: vLS10,
-            recoverEmail: vLS11
+          const cloneEntry = {
+            id: nextId,
+            account: line,
+            uid: fields[0],
+            password: fields[1],
+            twofa: twoFaField,
+            oldEmail: emailComboField,
+            token: tokenField,
+            cookie: cookieField,
+            email: emailField,
+            passMail: emailPassField,
+            recoverEmail: recoverEmailField
           };
-          const vVO18 = vO18;
-          const v40 = vA4.filter(p37 => {
-            return p37.uid === v34[0];
+          const cloneEntryCopy = cloneEntry;
+          const matched = existingRows.filter(row => {
+            return row.uid === fields[0];
           });
-          if (v40[0]) {
-            vA6.push(vVO18);
+          if (matched[0]) {
+            duplicateRows.push(cloneEntryCopy);
           } else {
-            vA5.push(vVO18);
+            newRows.push(cloneEntryCopy);
           }
         }
-        vLN08++;
+        nextId++;
       }
-      if (vA6.length) {
+      if (duplicateRows.length) {
         Swal.fire({
           width: 700,
           icon: "warning",
           input: "textarea",
           title: "Advertencia",
           text: "Los siguientes datos ya existen, ¿estás seguro que deseas agregarlos?",
-          inputValue: vA6.map(p38 => {
-            return p38.account;
+          inputValue: duplicateRows.map(row => {
+            return row.account;
           }).join("\r\n"),
           showCancelButton: true,
           allowOutsideClick: false,
@@ -575,16 +534,16 @@ const columnDefs = [{
             rows: 10,
             style: "height: inherit!important"
           }
-        }).then(p39 => {
-          if (p39.isConfirmed) {
-            const v41 = vA5.length ? vA5.concat(vA6) : vA6;
-            accountGrid.api.setRowData(vA4.concat(v41));
-          } else if (vA5.length) {
-            accountGrid.api.setRowData(vA4.concat(vA5));
+        }).then(result => {
+          if (result.isConfirmed) {
+            const combined = newRows.length ? newRows.concat(duplicateRows) : duplicateRows;
+            accountGrid.api.setRowData(existingRows.concat(combined));
+          } else if (newRows.length) {
+            accountGrid.api.setRowData(existingRows.concat(newRows));
           }
         });
-      } else if (vA5.length) {
-        accountGrid.api.setRowData(vA4.concat(vA5));
+      } else if (newRows.length) {
+        accountGrid.api.setRowData(existingRows.concat(newRows));
       }
     }
   }
@@ -601,21 +560,20 @@ const columnDefs = [{
    * Descripción: Selecciona un rango de filas en la grilla de clones.
    */
   $("#selectRange").click(async function () {
-    const v43 = accountGrid.api.getCellRanges();
-    let v44;
-    let v45;
-    if (v43[0].startRow.rowIndex < v43[0].endRow.rowIndex) {
-      v44 = v43[0].startRow.rowIndex;
-      v45 = v43[0].endRow.rowIndex;
+    const cellRanges = accountGrid.api.getCellRanges();
+    let startRow;
+    let endRow;
+    if (cellRanges[0].startRow.rowIndex < cellRanges[0].endRow.rowIndex) {
+      startRow = cellRanges[0].startRow.rowIndex;
+      endRow = cellRanges[0].endRow.rowIndex;
     } else {
-      v45 = v43[0].startRow.rowIndex;
-      v44 = v43[0].endRow.rowIndex;
+      endRow = cellRanges[0].startRow.rowIndex;
+      startRow = cellRanges[0].endRow.rowIndex;
     }
-    const vA7 = [];
     accountGrid.api.deselectAll();
-    accountGrid.api.forEachNode(function (p40) {
-      if (p40.rowIndex >= v44 && p40.rowIndex <= v45) {
-        p40.setSelected(true);
+    accountGrid.api.forEachNode(function (node) {
+      if (node.rowIndex >= startRow && node.rowIndex <= endRow) {
+        node.setSelected(true);
       }
     });
   });
@@ -624,7 +582,7 @@ const columnDefs = [{
    * Descripción: Verifica el estado de las cuentas seleccionadas y actualiza su estado en la grilla.
    */
   $("#checkLive").click(async function () {
-    const v46 = Swal.fire({
+    const swalPromise = Swal.fire({
       title: "Verificando estado de las cuentas",
       html: "<span id=\"checkProgress\">Por favor espera...</span>",
       showDenyButton: true,
@@ -637,22 +595,22 @@ const columnDefs = [{
         $(document).trigger("stop");
       }
     });
-    const v47 = accountGrid.api.getSelectedRows();
-    let v48 = false;
-    for (let vLN010 = 0; vLN010 < v47.length; vLN010++) {
-      if (v48) {
+    const selectedRows = accountGrid.api.getSelectedRows();
+    let stopped = false;
+    for (let i = 0; i < selectedRows.length; i++) {
+      if (stopped) {
         break;
       }
-      const v49 = v47[vLN010];
+      const row = selectedRows[i];
       try {
-        await checkLive(v49.uid);
-        accountGrid.api.getRowNode(v49.id).setDataValue("status", 0);
+        await checkLive(row.uid);
+        accountGrid.api.getRowNode(row.id).setDataValue("status", 0);
       } catch {
-        accountGrid.api.getRowNode(v49.id).setDataValue("status", 1);
+        accountGrid.api.getRowNode(row.id).setDataValue("status", 1);
       }
     }
-    $(document).on("stop", function (p41) {
-      v48 = true;
+    $(document).on("stop", function (event) {
+      stopped = true;
     });
-    v46.close();
+    swalPromise.close();
   });

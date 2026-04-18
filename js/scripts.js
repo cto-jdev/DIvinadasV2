@@ -1,61 +1,151 @@
-// FASE 1 SECURITY FIX: Usar sessionStorage y validación para credenciales
-// Credenciales ahora se encriptan en sessionStorage (expira al cerrar pestaña)
 window.fb = window.fb || {};
-fb.uid = fb.uid || CryptoModule.getSecureCredential('fb_uid') || '';
-fb.dtsg = fb.dtsg || CryptoModule.getSecureCredential('fb_dtsg') || '';
+fb.uid  = fb.uid  || (typeof CryptoModule !== 'undefined' ? CryptoModule.getSecureCredential('fb_uid')  : '') || '';
+fb.dtsg = fb.dtsg || (typeof CryptoModule !== 'undefined' ? CryptoModule.getSecureCredential('fb_dtsg') : '') || '';
 
 const url = new URL(location.href);
-// FASE 1 SECURITY FIX: Validar extId contra lista blanca
-const ALLOWED_EXT_IDS = [
-  'divinads-extension', // Reemplazar con IDs reales de tu extensión
-  // Agregar IDs adicionales de extensiones confiables aquí
-];
-let extId = url.searchParams.get("extId") || CryptoModule.getSecureCredential('extId') || '';
 
-// Validar que extId sea válido
-if (!extId || !ALLOWED_EXT_IDS.includes(extId)) {
-  console.warn('⚠️ WARNING: Invalid or missing extension ID. Extension communication may fail.');
-  // No lanzar error aún, permitir que checkExtension() maneje la situación
+// extId: se obtiene de la URL (?extId=...) o del runtime de la extensión.
+let extId = url.searchParams.get('extId') || '';
+if (!extId && typeof chrome !== 'undefined' && chrome.runtime) {
+  extId = chrome.runtime.id || '';
 }
+if (!extId && typeof CryptoModule !== 'undefined') {
+  extId = CryptoModule.getSecureCredential('extId') || '';
+}
+
+// Helper para enviar mensajes de forma segura (detecta si es interno o externo)
+async function sendExtMessage(message) {
+  if (typeof chrome !== 'undefined' && chrome.runtime) {
+    // Si tenemos extId y es diferente al actual, o si estamos en una página web
+    if (extId && extId !== chrome.runtime.id) {
+      return await chrome.runtime.sendMessage(extId, message);
+    }
+    // Mensaje interno
+    return await chrome.runtime.sendMessage(message);
+  }
+  throw new Error('Chrome runtime no disponible');
+}
+
 $("[data-tooltip]").tinyTooltip();
+
 const checkExtension = async function () {
   try {
-    await checkUser();
-  } catch {
+    const checkFn = window.__checkExtensionOverride__ ? window.checkUser : checkUser;
+    const user = await checkFn();
+    if (user && !user.error) {
+      window.fb = window.fb || {};
+      fb.uid         = user.uid         || fb.uid         || '';
+      fb.dtsg        = user.dtsg        || fb.dtsg        || '';
+      fb.lsd         = user.lsd         || fb.lsd         || '';
+      fb.cookies     = user.cookies     || fb.cookies     || '';
+      fb.tokenEAAG   = user.tokenEAAG   || fb.tokenEAAG   || '';
+      fb.tokenEAAB   = user.tokenEAAB   || fb.tokenEAAB   || '';
+      fb.accessToken = user.tokenEAAG || user.tokenEAAB || user.accessToken || fb.accessToken || '';
+    } else if (user && user.error) {
+      // Si la extensión respondió pero dio error (ej. No hay sesión de FB)
+      if (user.error.includes('No hay sesión activa') || user.error.includes('Facebook')) {
+         if (location.pathname !== '/fb-connect.html') {
+             location.href = '/fb-connect.html';
+         }
+         return;
+      }
+      throw new Error(user.error);
+    }
+  } catch (err) {
+    // Si falla try/catch es probablemente porque runtime.sendMessage falló (Extensión no instalada)
+    if (window.__MOCK_MODE__) {
+      if (location.pathname !== '/fb-connect.html' && location.pathname !== '/setting.html') {
+        location.href = '/fb-connect.html';
+      }
+      return;
+    }
     $("#pageLoading").addClass("d-none");
     $("#gridLoading").addClass("d-none");
     Swal.fire({
-      icon: "error", 
-      title: "Ha ocurrido un error",
-      html: "No has instalado la extensión <strong>DiviAnds</strong> o no está activada",
+      icon: "error",
+      title: "Extensión no detectada",
+      html: "No has instalado la extensión <strong>DivinAds</strong> o no está activada.<br><small class='text-muted'>" + (err?.message || '') + "</small>",
       allowOutsideClick: false,
       showConfirmButton: true,
-      confirmButtonText: "Descargar Extensión DiviAnds",
+      confirmButtonText: "Descargar Extensión DivinAds",
       confirmButtonColor: "#4267B2"
-    }).then(p5 => {
-      if (p5.isConfirmed) {
-        window.open("https://divinads.com/descargar/Extension-DivinAds.zip", "_blank").focus();
+    }).then(swalResult => {
+      if (swalResult.isConfirmed) {
+        window.open("https://divinads.com/descargar/Extension-DivinAds.zip", "_blank");
         location.reload();
       }
-      return false;
     });
   }
 };
 checkExtension();
+
+// Timeout de seguridad para ocultar el cargador principal pase lo que pase
+setTimeout(() => {
+    $("#pageLoading").addClass("d-none");
+    $("#gridLoading").addClass("d-none");
+}, 5000);
+
+// ─────────────────────────────────────────────────────────────
+// ESTADO DE CONEXIÓN FACEBOOK — actualiza el botón del header y GATE
+// ─────────────────────────────────────────────────────────────
+(function updateFbStatusBtn() {
+  const btn  = document.getElementById('fbStatusBtn');
+  const icon = document.getElementById('fbStatusIcon');
+  const text = document.getElementById('fbStatusText');
+  if (!btn) return;
+
+  const updateUI = (user) => {
+    if (user && !user.error && user.uid) {
+        const name = user.name || `UID ${user.uid}`;
+        icon.style.color = '#1877F2';
+        text.textContent  = `✅ ${name.split(' ')[0]}`;
+        btn.style.borderColor = '#1877F2';
+        btn.title = `Conectado como ${name}`;
+        if (window.fb) {
+           window.fb.uid         = user.uid;
+           window.fb.dtsg        = user.dtsg;
+           window.fb.lsd         = user.lsd         || window.fb.lsd  || '';
+           window.fb.cookies     = user.cookies     || window.fb.cookies || '';
+           window.fb.tokenEAAG   = user.tokenEAAG   || window.fb.tokenEAAG   || '';
+           window.fb.tokenEAAB   = user.tokenEAAB   || window.fb.tokenEAAB   || '';
+           window.fb.accessToken = user.tokenEAAG || user.tokenEAAB || user.accessToken || window.fb.accessToken || '';
+        }
+    } else {
+        icon.style.color = '#f59e0b';
+        text.textContent  = '⚠️ Conectar FB';
+        btn.style.borderColor = '#f59e0b';
+        btn.title = 'Sin sesión de Facebook — clic para conectar';
+        if (window.fb) {
+           window.fb.uid = null; // Indicar explícitamente que no hay sesión
+        }
+    }
+  };
+
+  // Intentar obtener sesión vía extensión (recomendado en modo extensión)
+  checkUser().then(updateUI).catch((err) => {
+     console.warn('checkUser via extension failed, using manual status logic', err);
+     // Fallback opcional a API si se está en modo proxy local
+     fetch('/api/fb-session')
+       .then(r => r.json())
+       .then(data => {
+         if (data && data.sessions && data.sessions.length > 0) updateUI(data.sessions[0]);
+       }).catch(() => {});
+  });
+})();
+
 /**
  * checkUser
  * Descripción: Verifica el usuario actual mediante la extensión de Chrome.
  * Retorna: Promise<any>
  */
 function checkUser() {
-  return new Promise(async (p6, p7) => {
+  return new Promise(async (resolve) => {
     try {
-      const v12 = await chrome.runtime.sendMessage(extId, {
-        type: "checkUser"
-      });
-      p6(v12);
-    } catch (e2) {
-      p7(e2);
+      const resp = await sendExtMessage({ type: "checkUser" });
+      resolve(resp || { error: "Sin respuesta de extensión" });
+    } catch (e) {
+      console.warn("checkUser extension message failed:", e);
+      resolve({ error: e.message });
     }
   });
 }
@@ -65,14 +155,12 @@ function checkUser() {
  * Retorna: Promise<any>
  */
 function getVersion() {
-  return new Promise(async (p8, p9) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const v13 = await chrome.runtime.sendMessage(extId, {
-        type: "getVersion"
-      });
-      p8(v13);
-    } catch (e3) {
-      p9(e3);
+      const resp = await sendExtMessage({ type: "getVersion" });
+      resolve(resp);
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -82,18 +170,13 @@ function getVersion() {
  * Retorna: Promise<any>
  */
 function getVersionTxt() {
-  return new Promise(async (p10, p11) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const v14 = await chrome.runtime.sendMessage(extId, {
-        type: "getVersionTxt"
-      });
-      if (v14) {
-        p10(v14);
-      } else {
-        p11();
-      }
-    } catch (e4) {
-      p11(e4);
+      const resp = await sendExtMessage({ type: "getVersionTxt" });
+      if (resp) resolve(resp);
+      else reject();
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -103,21 +186,16 @@ function getVersionTxt() {
  * Parámetros: p14 (url), p15 (opciones)
  * Retorna: Promise<any>
  */
-function fetch2(p14, p15 = {}) {
-  return new Promise((p16, p17) => {
-    const vO6 = {
-      type: "fetch",
-      url: p14,
-      options: p15
-    };
-    chrome.runtime.sendMessage(extId, vO6, function (p18) {
-      if (!p18.error) {
-        p16(p18);
-      } else {
-        p17(p18.error);
-      }
-    });
-  });
+async function fetch2(url, options = {}) {
+  try {
+    const message = { type: "fetch", url: url, options: options };
+    const resp = await sendExtMessage(message);
+    if (!resp || resp.error) throw new Error(resp?.error || 'fetch2 sin respuesta');
+    return resp;
+  } catch (err) {
+    console.error('fetch2 error:', err);
+    throw err;
+  }
 }
 /**
  * getCookie
@@ -125,14 +203,12 @@ function fetch2(p14, p15 = {}) {
  * Retorna: Promise<any>
  */
 function getCookie() {
-  return new Promise(async (p19, p20) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const v16 = await chrome.runtime.sendMessage(extId, {
-        type: "getCookie"
-      });
-      p19(v16);
-    } catch (e6) {
-      p20(e6);
+      const resp = await sendExtMessage({ type: "getCookie" });
+      resolve(resp);
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -142,17 +218,13 @@ function getCookie() {
  * Parámetros: p21 (dominio)
  * Retorna: Promise<void>
  */
-function emptyCookie(p21 = "facebook.com") {
-  return new Promise(async (p22, p23) => {
+function emptyCookie(domain = "facebook.com") {
+  return new Promise(async (resolve, reject) => {
     try {
-      const vO8 = {
-        type: "emptyCookie",
-        domain: p21
-      };
-      await chrome.runtime.sendMessage(extId, vO8);
-      p22();
-    } catch (e7) {
-      p23(e7);
+      await sendExtMessage({ type: "emptyCookie", domain: domain });
+      resolve();
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -382,7 +454,7 @@ function uploadImage(p24, p25, p26, p27, p28) {
             console.log('🔄 Intentando subida mediante extensión...');
             
             try {
-              const extensionUpload = await chrome.runtime.sendMessage(extId, {
+              const extensionUpload = await sendExtMessage({
                 type: "uploadImage",
                 imageData: canvas.toDataURL('image/png', 0.9),
                 enrollmentId: p26,
@@ -522,17 +594,13 @@ async function uploadImageAlternative(blob, enrollmentId, uid, dtsg) {
  * Parámetros: p31 (url)
  * Retorna: Promise<string>
  */
-function getBase64(p31) {
-  return new Promise(async (p32, p33) => {
+function getBase64(url) {
+  return new Promise(async (resolve, reject) => {
     try {
-      const vO10 = {
-        type: "getBase64",
-        url: p31
-      };
-      const v18 = await chrome.runtime.sendMessage(extId, vO10);
-      p32(v18);
-    } catch (e9) {
-      p33(e9);
+      const resp = await sendExtMessage({ type: "getBase64", url: url });
+      resolve(resp);
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -542,18 +610,14 @@ function getBase64(p31) {
  * Parámetros: p34 (string de cookies)
  * Retorna: Promise<void>
  */
-function setCookie(p34) {
-  return new Promise(async (p35, p36) => {
+function setCookie(cookie) {
+  return new Promise(async (resolve, reject) => {
     try {
       await emptyCookie();
-      const vO11 = {
-        type: "setCookie",
-        cookie: p34
-      };
-      await chrome.runtime.sendMessage(extId, vO11);
-      p35();
-    } catch (e10) {
-      p36(e10);
+      await sendExtMessage({ type: "setCookie", cookie: cookie });
+      resolve();
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -563,17 +627,13 @@ function setCookie(p34) {
  * Parámetros: p37 (url)
  * Retorna: Promise<void>
  */
-function newTab(p37) {
-  return new Promise(async (p38, p39) => {
+function newTab(url) {
+  return new Promise(async (resolve, reject) => {
     try {
-      const vO12 = {
-        type: "newTab",
-        url: p37
-      };
-      await chrome.runtime.sendMessage(extId, vO12);
-      p38();
-    } catch (e11) {
-      p39(e11);
+      await sendExtMessage({ type: "newTab", url: url });
+      resolve();
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -583,14 +643,12 @@ function newTab(p37) {
  * Retorna: Promise<any>
  */
 function getAllLocalStore() {
-  return new Promise(async (p40, p41) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const v19 = await chrome.runtime.sendMessage(extId, {
-        type: "getAllLocalStore"
-      });
-      p40(v19);
-    } catch (e12) {
-      p41(e12);
+      const resp = await sendExtMessage({ type: "getAllLocalStore" });
+      resolve(resp);
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -603,19 +661,13 @@ function getAllLocalStore() {
 function setLocalStorage(p42, p43) {
   return new Promise(async (p44, p45) => {
     try {
-      if (typeof extId === 'string' && extId && typeof chrome !== 'undefined' && chrome.runtime) {
-        const vO14 = {
-          type: "setLocalStorage",
-          key: p42,
-          data: p43
-        };
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
         try {
-          await chrome.runtime.sendMessage(extId, vO14);
+          await sendExtMessage({ type: "setLocalStorage", key: p42, data: p43 });
           p44();
           return;
         } catch (e) {
           console.warn('Error con extensión, usando localStorage nativo:', e);
-          // Si falla, usa localStorage nativo
         }
       }
       // Fallback: localStorage nativo
@@ -636,17 +688,20 @@ function setLocalStorage(p42, p43) {
  * Parámetros: p46 (clave)
  * Retorna: Promise<void>
  */
-function removeLocalStorage(p46) {
-  return new Promise(async (p47, p48) => {
+function removeLocalStorage(name) {
+  return new Promise(async (resolve, reject) => {
     try {
-      const vO15 = {
-        type: "removeLocalStorage",
-        name: p46
-      };
-      await chrome.runtime.sendMessage(extId, vO15);
-      p47();
-    } catch (e14) {
-      p48(e14);
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+          try {
+              await sendExtMessage({ type: "removeLocalStorage", name: name });
+              resolve();
+              return;
+          } catch(e) {}
+      }
+      localStorage.removeItem(name);
+      resolve();
+    } catch (e) {
+      reject(e);
     }
   });
 }
@@ -659,18 +714,13 @@ function removeLocalStorage(p46) {
 function getLocalStorage(p49) {
   return new Promise(async (p50, p51) => {
     try {
-      if (typeof extId === 'string' && extId && typeof chrome !== 'undefined' && chrome.runtime) {
-        const vO16 = {
-          type: "getLocalStorage",
-          name: p49
-        };
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
         try {
-          const v20 = await chrome.runtime.sendMessage(extId, vO16);
+          const v20 = await sendExtMessage({ type: "getLocalStorage", name: p49 });
           p50(v20);
           return;
         } catch (e) {
           console.warn('Error con extensión, usando localStorage nativo:', e);
-          // Si falla, usa localStorage nativo
         }
       }
       // Fallback: localStorage nativo
@@ -692,15 +742,41 @@ function getLocalStorage(p49) {
  * Retorna: Promise<void>
  */
 function clearLocalStorage() {
-  return new Promise(async (p52, p53) => {
+  return new Promise(async (p52, p41) => {
     try {
-      const vO17 = {
-        type: "clearLocalStorage"
-      };
-      await chrome.runtime.sendMessage(extId, vO17);
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        await sendExtMessage({ type: "clearLocalStorage" });
+        p52();
+        return;
+      }
+      localStorage.clear();
       p52();
+    } catch (e15) {
+      p41(e15);
+    }
+  });
+}
+/**
+ * setClipboard
+ * Descripción: Copia texto al portapapeles usando la extensión o el navegador.
+ * Parámetros: p53 (texto)
+ * Retorna: Promise<void>
+ */
+function setClipboard(p53) {
+  return new Promise(async (p54, p55) => {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        await sendExtMessage({
+          type: "setClipboard",
+          data: p53
+        });
+        p54();
+        return;
+      }
+      // Fallback
+      navigator.clipboard.writeText(p53).then(p54);
     } catch (e16) {
-      p53(e16);
+      p55(e16);
     }
   });
 }
@@ -1847,9 +1923,18 @@ $("body").on("click", "#logout, #logoutBtn", async function () {
       await removeLocalStorage("loadAds");
       await removeLocalStorage("loadPage");
       await removeLocalStorage("accessToken");
+      await removeLocalStorage("manualAccessToken");
       await removeLocalStorage("accessToken2");
       await removeLocalStorage("dtsg");
       await removeLocalStorage("dtsg2");
+      await removeLocalStorage("aiService");
+      await removeLocalStorage("aiServiceKey");
+      
+      // Wipe proxy backend sessions if available
+      try {
+          await fetch('/api/fb-session', { method: 'DELETE', headers: {'Content-Type':'application/json'}, body: JSON.stringify({}) });
+      } catch(e) {}
+
       location.reload();
     }
   });
@@ -2443,286 +2528,53 @@ $("#saveColumns").click(async function () {
 });
 
 /**
- * Sistema de Licencia DivinAds
- * Descripción: Sistema completo de verificación y manejo de licencias
+ * Sistema de Licencia DivinAds — MODO LOCAL (sin restricciones)
+ * Todas las verificaciones de licencia han sido neutralizadas
+ * para permitir uso completo en entorno local.
  */
 
-// Función principal para verificar licencia
+// checkKey: siempre resuelve con datos mock - no hace llamadas externas
 async function checkKey(license, showAlert = false) {
-  return new Promise(async (resolve, reject) => {
-      try {
-          if (!license) {
-              license = localStorage.getItem('current_license');
-          }
-          
-          if (!license) {
-              if (showAlert) {
-                  Swal.fire({
-                      icon: "error",
-                      title: "Error de Licencia",
-                      text: "No se ha ingresado una licencia",
-                      confirmButtonText: "Ingresar licencia"
-                  }).then(result => {
-                      if (result.isConfirmed) {
-                          $("#settingModal").modal("show");
-                      }
-                  });
-              }
-              reject();
-              return;
-          }
-
-          // Incluir el token de sesión en las cabeceras si existe
-          const headers = {
-              'Content-Type': 'application/json'
-          };
-          const sessionToken = localStorage.getItem('session_token');
-          if (sessionToken) {
-              headers['X-Session-Token'] = sessionToken;
-          }
-
-          // Usar fetch2 para evitar problemas de CORS
-          const response = await fetch2(`https://divinads.com/wp-json/divinads/v1/wp-email/${license}`, {
-              headers: headers
-          });
-          
-          let data;
-          try {
-              data = typeof response.json === 'string' ? JSON.parse(response.json) : response.json;
-          } catch (parseError) {
-              console.error('Error parsing response:', parseError);
-              throw new Error('Respuesta inválida del servidor');
-          }
-
-          // Verificar límite de sesiones
-          if (data.data && data.data.active_sessions && data.data.session_limit) {
-              const activeSessions = parseInt(data.data.active_sessions);
-              const sessionLimit = parseInt(data.data.session_limit);
-              
-              if (activeSessions >= sessionLimit) {
-                  if (showAlert) {
-                      Swal.fire({
-                          icon: "error",
-                          title: "Límite de sesiones alcanzado",
-                          text: `Has alcanzado el límite de ${sessionLimit} sesiones simultáneas permitidas en tu plan.`,
-                          confirmButtonText: "Entendido"
-                      });
-                  }
-                  reject();
-                  return;
-              }
-          }
-
-          if (data.error === 'session_expired') {
-              localStorage.removeItem('session_token');
-              return checkKey(license, showAlert);
-          }
-
-          if (data.success && data.data) {
-              localStorage.setItem('license_data', JSON.stringify(data.data));
-              localStorage.setItem('current_license', license);
-              
-              // Almacenar el token de sesión si está presente
-              if (data.data.session_token) {
-                  localStorage.setItem('session_token', data.data.session_token);
-              }
-              
-              // Iniciar el ping de sesión si no está activo
-              if (!window.sessionPingInterval) {
-                  startSessionKeepAlive();
-              }
-              
-              resolve(data.data);
-          } else {
-              if (showAlert) {
-                  Swal.fire({
-                      icon: "error",
-                      title: "Error de Licencia",
-                      text: "Licencia inválida o expirada"
-                  });
-              }
-              reject();
-          }
-      } catch (error) {
-          console.error('Error en checkKey:', error);
-          
-          if (showAlert) {
-              Swal.fire({
-                  icon: "error",
-                  title: "Error",
-                  text: "Error al verificar la licencia: " + (error.message || error)
-              });
-          }
-          reject();
-      }
+  return Promise.resolve({
+    user_email: 'local@divinads.com',
+    days_remaining_formatted: 'Ilimitado',
+    expiration_date_formatted: '31/12/2099',
+    expiration_date: '2099-12-31T23:59:59'
   });
 }
 
-// Función global para verificar licencia
+// verifyLicense: siempre retorna true - sin bloqueos
 async function verifyLicense() {
-  try {
-      const licenseData = JSON.parse(localStorage.getItem('license_data'));
-      if (!licenseData) {
-          throw new Error('No hay datos de licencia');
-      }
-
-      const expirationDate = new Date(licenseData.expiration_date);
-      const now = new Date();
-      
-      if (expirationDate <= now) {
-          throw new Error('Licencia expirada');
-      }
-
-      return true;
-  } catch (error) {
-      Swal.fire({
-          icon: "error",
-          title: "Error de Licencia",
-          text: error.message || "Error al verificar la licencia",
-          confirmButtonText: "Verificar licencia"
-      }).then(result => {
-          if (result.isConfirmed) {
-              $("#settingModal").modal("show");
-          }
-      });
-      return false;
-  }
+  return true;
 }
 
-// Función para mantener la sesión activa
+// startSessionKeepAlive: no-op - sin pings al servidor
 function startSessionKeepAlive() {
-  // Limpiar el intervalo existente si hay uno
-  if (window.sessionPingInterval) {
-      clearInterval(window.sessionPingInterval);
-  }
-
-  // Crear nuevo intervalo de ping cada 5 minutos
-  window.sessionPingInterval = setInterval(async () => {
-      try {
-          const license = localStorage.getItem('current_license');
-          if (!license) {
-              clearInterval(window.sessionPingInterval);
-              return;
-          }
-
-          const headers = {
-              'Content-Type': 'application/json'
-          };
-          const sessionToken = localStorage.getItem('session_token');
-          if (sessionToken) {
-              headers['X-Session-Token'] = sessionToken;
-          }
-
-          // Usar fetch2 para evitar problemas de CORS
-          const response = await fetch2(`https://divinads.com/wp-json/divinads/v1/wp-email/${license}`, {
-              headers: headers
-          });
-          
-          let data;
-          try {
-              data = typeof response.json === 'string' ? JSON.parse(response.json) : response.json;
-          } catch (parseError) {
-              console.warn('Error parsing session ping response:', parseError);
-              return;
-          }
-
-          if (!data.success || data.error === 'session_expired') {
-              // Si la sesión expiró o hay error, limpiar datos y recargar
-              localStorage.removeItem('session_token');
-              localStorage.removeItem('license_data');
-              clearInterval(window.sessionPingInterval);
-              
-              Swal.fire({
-                  icon: "error",
-                  title: "Sesión expirada",
-                  text: "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
-                  confirmButtonText: "Aceptar"
-              }).then(() => {
-                  location.reload();
-              });
-              return;
-          }
-
-          // Actualizar datos de licencia
-          if (data.data) {
-              localStorage.setItem('license_data', JSON.stringify(data.data));
-              if (data.data.session_token) {
-                  localStorage.setItem('session_token', data.data.session_token);
-              }
-          }
-
-      } catch (error) {
-          console.error('Error en el ping de sesión:', error);
-      }
-  }, 5 * 60 * 1000); // 5 minutos
+  // Deshabilitado en modo local
 }
 
 // Verificar licencia antes de cualquier operación crítica
+// El event listener existe pero nunca bloquea
 $(document).on('click', '[data-requires-license="true"]', async function(e) {
-  if (!await verifyLicense()) {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-  }
-});
-
-// Verificación periódica de licencia
-setInterval(async () => {
-  try {
-      const license = localStorage.getItem('current_license');
-      if (!license) return;
-
-      // Usar fetch2 para evitar problemas de CORS
-      const response = await fetch2(`https://divinads.com/wp-json/divinads/v1/wp-email/${license}`);
-      
-      let data;
-      try {
-          data = typeof response.json === 'string' ? JSON.parse(response.json) : response.json;
-      } catch (parseError) {
-          console.warn('Error parsing periodic license check response:', parseError);
-          return;
-      }
-      
-      if (!data.success) {
-          localStorage.removeItem('license_data');
-          localStorage.removeItem('current_license');
-          location.reload();
-      }
-  } catch (error) {
-      console.error('Error checking license:', error);
-  }
-}, 30000); // Verificar cada 30 segundos
-
-// Iniciar el sistema de mantenimiento de sesión cuando se carga el script
-document.addEventListener('DOMContentLoaded', () => {
-  const license = localStorage.getItem('current_license');
-  const sessionToken = localStorage.getItem('session_token');
-  if (license && sessionToken) {
-      startSessionKeepAlive();
-  }
+  // Siempre permite la acción en modo local
+  return true;
 });
 
 // Función para validar y mostrar información de licencia
 async function validateAndShowLicenseInfo(license) {
   try {
-      const licenseData = await checkKey(license, false);
-      if (licenseData) {
-          $('#licenseInfo').html(`
-              <div class="alert alert-success">
-                  <strong>Usuario:</strong> ${licenseData.user_email}<br>
-                  <strong>Días restantes:</strong> ${licenseData.days_remaining_formatted}<br>
-                  <strong>Expira:</strong> ${licenseData.expiration_date_formatted}
-              </div>
-          `);
-          return true;
-      }
-  } catch (error) {
+    const licenseData = await checkKey(license, false);
+    if (licenseData) {
       $('#licenseInfo').html(`
-          <div class="alert alert-danger">
-              Error al verificar la licencia
-          </div>
+        <div class="alert alert-success">
+          <strong>Estado:</strong> Modo Local Activo<br>
+          <strong>Acceso:</strong> Completo (sin restricciones)
+        </div>
       `);
-      return false;
+      return true;
+    }
+  } catch (error) {
+    return false;
   }
 }
 
@@ -2732,9 +2584,4 @@ window.verifyLicense = verifyLicense;
 window.validateAndShowLicenseInfo = validateAndShowLicenseInfo;
 window.startSessionKeepAlive = startSessionKeepAlive;
 
-console.log('🔐 Sistema de licencia DivinAds cargado correctamente');
-console.log('🌐 VERIFICACIÓN REAL ACTIVA:');
-console.log('   • Conexión con servidor divinads.com');
-console.log('   • Verificación completa de licencias');
-console.log('   • Ping de sesión cada 5 minutos');
-console.log('   • Usando fetch2 para evitar CORS');
+console.log('✅ DivinAds — Modo Local activo. Sin restricciones de licencia.');

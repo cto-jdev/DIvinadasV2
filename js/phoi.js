@@ -400,11 +400,11 @@ $(document).on('click', '#test', async function() {
     const user = await getLocalStorage('userInfo_'+uid)
 
     const textData = {
-        firstName: user.first_name,
-        lastName: user.last_name,
-        fullName: user.name,
-        birthday: user.birthday,
-        gender: user.gender,
+        firstName: user?.first_name || 'Juan',
+        lastName: user?.last_name || 'Pérez',
+        fullName: user?.name || 'Juan Pérez',
+        birthday: user?.birthday || '01/01/1990',
+        gender: user?.gender || 'Masculino',
     }
 
     const res = await fetch('/phoi?preview=1', {

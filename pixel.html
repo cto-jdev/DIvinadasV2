@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark" class="dark-mode">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pixel & CAPI Health | DivinAds</title>
+    <link href="css/libs.css" rel="stylesheet">
+    <link href="css/glass.css" rel="stylesheet">
+    <link href="css/animations.css" rel="stylesheet">
+    <link href="css/sidebar.css" rel="stylesheet">
+    <link href="css/dashboard.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <script src="js/jquery.js"></script>
+    <link rel="shortcut icon" href="img/favicon.png">
+</head>
+<body class="folded">
+    <div id="app" data="pixel">
+        <div id="header"><div class="header-top"><div class="row align-items-center h-100"><div class="col-4"><span class="titleBar fw-medium d-flex align-items-center"><img src="img/logo-divinads.png" height="30"></span></div><div class="col-4"></div><div class="col-4 d-flex justify-content-end"><div id="quality"></div></div></div></div></div>
+
+        <div class="app-wrapper rounded overflow-hidden d-flex">
+            <div class="account-wrapper d-flex flex-column overflow-hidden flex-grow-1 position-relative" style="height:100vh">
+                <div class="flex-grow-1 overflow-auto p-4 glass-bg" style="background-color:transparent!important">
+                    <div class="container-fluid">
+
+                        <!-- Header -->
+                        <div class="d-flex align-items-center justify-content-between mb-4 anim-fade-in-up">
+                            <div>
+                                <h4 class="text-white fw-bold mb-1"><i class="ri-radar-line me-2" style="color:#c084fc"></i>Pixel & Conversions API Health</h4>
+                                <p class="text-muted mb-0" style="font-size:13px">Monitoreo de cobertura de señales y calidad del tracking • Meta 2026</p>
+                            </div>
+                            <span class="badge bg-success bg-opacity-25 text-success border border-success py-2 px-3"><span class="dot-live me-2"></span>Recibiendo Eventos</span>
+                        </div>
+
+                        <!-- Gauges Row -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-12">
+                                <div class="chart-container text-center anim-fade-in-up anim-delay-1 d-flex flex-column align-items-center justify-content-center" style="min-height:200px">
+                                    <div class="glass-gauge">
+                                        <svg width="120" height="120" viewBox="0 0 120 120">
+                                            <circle class="gauge-bg" cx="60" cy="60" r="50"/>
+                                            <circle class="gauge-fill" cx="60" cy="60" r="50" stroke="#4ade80" stroke-dasharray="314.16" stroke-dashoffset="62.83" style="transition:stroke-dashoffset 1.5s ease"/>
+                                        </svg>
+                                        <div class="gauge-value" style="color:#4ade80">82%</div>
+                                    </div>
+                                    <div class="mt-3 text-white fw-medium" style="font-size:13px">Event Match Quality</div>
+                                    <div class="text-muted" style="font-size:11px">Score: 8.2 / 10</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-12">
+                                <div class="chart-container text-center anim-fade-in-up anim-delay-2 d-flex flex-column align-items-center justify-content-center" style="min-height:200px">
+                                    <div class="glass-gauge">
+                                        <svg width="120" height="120" viewBox="0 0 120 120">
+                                            <circle class="gauge-bg" cx="60" cy="60" r="50"/>
+                                            <circle class="gauge-fill" cx="60" cy="60" r="50" stroke="#38bdf8" stroke-dasharray="314.16" stroke-dashoffset="94.25"/>
+                                        </svg>
+                                        <div class="gauge-value" style="color:#38bdf8">70%</div>
+                                    </div>
+                                    <div class="mt-3 text-white fw-medium" style="font-size:13px">Cobertura CAPI</div>
+                                    <div class="text-muted" style="font-size:11px">vs Browser Pixel</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-12">
+                                <div class="chart-container text-center anim-fade-in-up anim-delay-3 d-flex flex-column align-items-center justify-content-center" style="min-height:200px">
+                                    <div class="glass-gauge">
+                                        <svg width="120" height="120" viewBox="0 0 120 120">
+                                            <circle class="gauge-bg" cx="60" cy="60" r="50"/>
+                                            <circle class="gauge-fill" cx="60" cy="60" r="50" stroke="#fb923c" stroke-dasharray="314.16" stroke-dashoffset="219.91"/>
+                                        </svg>
+                                        <div class="gauge-value" style="color:#fb923c">30%</div>
+                                    </div>
+                                    <div class="mt-3 text-white fw-medium" style="font-size:13px">Deduplicación</div>
+                                    <div class="text-muted" style="font-size:11px">Eventos redundantes</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-12">
+                                <div class="glass-stat hover-lift anim-fade-in-up anim-delay-4 h-100 d-flex flex-column justify-content-center">
+                                    <div class="stat-label">Eventos Hoy</div>
+                                    <div class="stat-value text-white" id="eventCount">1,247</div>
+                                    <div class="stat-change positive"><i class="ri-arrow-up-s-fill"></i> +22% vs ayer</div>
+                                    <div class="mt-2"><span class="status-pill active"><span class="dot-live me-1" style="width:6px;height:6px"></span> Streaming en vivo</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Events Table -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-lg-7">
+                                <div class="chart-container anim-fade-in-up anim-delay-5 p-0" style="max-height:380px;overflow:hidden">
+                                    <div class="p-3 pb-2">
+                                        <div class="chart-title">Eventos por Tipo</div>
+                                        <div class="chart-subtitle mb-2">Cobertura Pixel Browser vs Conversions API</div>
+                                    </div>
+                                    <div style="overflow-y:auto;max-height:310px">
+                                        <table class="glass-table">
+                                            <thead><tr><th>Evento</th><th>Browser</th><th>CAPI</th><th>Cobertura</th><th>EMQ</th></tr></thead>
+                                            <tbody id="eventsBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="chart-container anim-fade-in-up anim-delay-5" style="min-height:380px">
+                                    <div class="chart-title">Distribución de Eventos</div>
+                                    <div class="chart-subtitle mb-3">Últimas 24 horas</div>
+                                    <div style="position: relative; height: 260px; width: 100%; margin-top: 15px;">
+                                        <canvas id="eventsDonut"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Event Stream -->
+                        <div class="chart-container anim-fade-in-up anim-delay-6 p-0" style="max-height:260px;">
+                            <div class="p-3 pb-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="chart-title d-flex align-items-center gap-2"><span class="dot-live"></span> Stream de Eventos en Vivo</div>
+                                    <div class="chart-subtitle">Últimos eventos recibidos del Pixel y CAPI</div>
+                                </div>
+                                <button class="chart-action-btn" id="pauseStream" title="Pausar"><i class="ri-pause-line"></i></button>
+                            </div>
+                            <div class="px-3 pb-3" style="overflow-y:auto;max-height:170px" id="eventStream"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Copilot -->
+            <div id="copilotPanelWrapper" style="width:340px;min-width:340px;border-left:1px solid rgba(255,255,255,0.05)" class="d-none d-xl-block">
+                <div class="copilot-panel">
+                    <div class="copilot-header"><div class="dot pulse"></div><div><h6 class="m-0 fs-6 fw-bold">Claude Copilot</h6><small class="text-muted text-opacity-75" style="font-size:11px">Pixel & CAPI Advisor</small></div><div class="ms-auto"><i class="ri-magic-line" style="color:#c084fc"></i></div></div>
+                    <div class="copilot-body d-flex flex-column" id="copilotChat"><div class="mt-auto" id="copilotMessages"></div></div>
+                    <div class="p-3 border-top border-light border-opacity-10"><form id="copilotForm" class="position-relative m-0" onsubmit="event.preventDefault();window.mockCopilotSubmit();"><input type="text" id="copilotInput" class="form-control text-white" placeholder="Pídele a Claude..." style="font-size:13px;padding-right:35px;border-radius:20px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1)"><button type="submit" class="btn btn-sm position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent"><i class="ri-send-plane-fill" style="color:#38bdf8"></i></button></form></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="settingModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg"><div class="modal-header"><h1 class="modal-title fs-5">Configuración</h1><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><iframe src="setting.html" width="100%" height="500px"></iframe></div><div class="modal-footer"><button type="button" data-bs-dismiss="modal" class="btn btn-primary">Guardar</button><button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Cerrar</button></div></div></div></div>
+
+    <script src="js/chart.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+
+
+    <script src="js/sidebar.js"></script>
+    <script src="js/pixel-health.js"></script>
+</body>
+</html>

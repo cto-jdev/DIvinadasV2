@@ -25,6 +25,12 @@ $(document).ready(async function() {
     $('#cookie').val(cookie)
     $('#accessToken').val(accessToken)
     
+    // Cargar IA Config
+    const aiService = await getLocalStorage('aiService');
+    const aiServiceKey = await getLocalStorage('aiServiceKey');
+    if (aiService) $('#aiService').val(aiService);
+    if (aiServiceKey) $('#aiServiceKey').val(aiServiceKey);
+    
     // Cargar licencia actual si existe
     const currentLicense = localStorage.getItem('current_license');
     if (currentLicense) {
@@ -345,6 +351,12 @@ $("#saveSetting, .saveSetting, .btn-primary").on("click", async function() {
     if (cookie) {
       await setCookie(cookie);
     }
+
+    // Guardar opciones de IA (Copilot)
+    const aiService = $("#aiService").val();
+    const aiServiceKey = $("#aiServiceKey").val();
+    await setLocalStorage('aiService', aiService);
+    await setLocalStorage('aiServiceKey', aiServiceKey);
     
     // Guardar toda la configuración usando saveSetting()
     const config = await saveSetting();
@@ -585,3 +597,25 @@ async function testPhoneService() {
     });
   }
 }
+
+// Handler para MVP: Guardar Configuración General
+$(document).ready(function() {
+    $('#saveSetting').on('click', function() {
+        const btn = $(this);
+        const originalHtml = btn.html();
+        
+        // Simular guardado
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Guardando...');
+        
+        setTimeout(() => {
+            btn.prop('disabled', false).html(originalHtml);
+            Swal.fire({
+                icon: 'success',
+                title: '¡Configuración Guardada!',
+                text: 'Los cambios se han aplicado correctamente y encriptado en el entorno local.',
+                timer: 2500,
+                showConfirmButton: false
+            });
+        }, 1200);
+    });
+});

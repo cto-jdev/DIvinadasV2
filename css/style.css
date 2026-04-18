@@ -1,4 +1,4 @@
-﻿@font-face {
+@font-face {
   font-family: 'SFProDisplay';
   src: url('../fonts/SFProDisplay-Bold.woff2') format('woff2'),
       url('../fonts/SFProDisplay-Bold.woff') format('woff');
@@ -37,8 +37,12 @@ body {
 }
 
 #app {
-    padding: 45px 10px 10px 10px;
-    background-image: linear-gradient(100deg, #013b3b 0%, #03524c 100%);
+    padding: 0;
+    background: #09090b !important;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
 [class*=ag-theme-] {
@@ -71,13 +75,14 @@ body {
   right: 0;
   bottom: 0;
   z-index: 999999;
-  background-color: #ffffffe8;
+  background-color: rgba(9, 9, 11, 0.85);
+  backdrop-filter: blur(10px);
   cursor: wait;
 }
 
 .account-wrapper {
   width: calc(100% - 350px);
-  height: calc(100vh - 55px);
+  height: calc(100vh - 45px); /* Header is 45px */
 }
 
 #accounts {
@@ -91,7 +96,7 @@ body {
 }
 
 .app-wrapper {
-  background: #fff;
+  background: transparent !important;
 }
 
 .profileItem:hover {
@@ -159,14 +164,13 @@ body {
 }
 
 #header {
-    position: absolute;
+    position: relative;
     top: 0;
     left: 0;
     right: 0;
-    height: 80px;
+    height: 45px;
     color: #fff;
     padding: 0 10px;
-    height: 40px
 }
 
 .header-top a:hover {
@@ -598,7 +602,7 @@ body.hideMenu .account-wrapper, body.hideMenu .header-bottom {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #fff;
+  background-color: transparent;
   z-index: 100;
 }
 

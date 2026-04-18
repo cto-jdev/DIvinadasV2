@@ -42,40 +42,40 @@ const columnDefs = [{
     field: "status",
     headerName: "Estado",
     filter: "agSetColumnFilter",
-    cellRenderer: p5 => {
-      let v27 = "";
-      if (p5.data.status === "BM_XANHVO") {
-        v27 = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">BM XANH VỎ</strong></a>";
+    cellRenderer: params => {
+      let statusHtml = "";
+      if (params.data.status === "BM_XANHVO") {
+        statusHtml = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + params.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">BM XANH VỎ</strong></a>";
       }
-      if (p5.data.status === "BM_KHANG") {
-        v27 = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">BM RESISTENTE VeryID</strong></a>";
+      if (params.data.status === "BM_KHANG") {
+        statusHtml = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + params.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">BM RESISTENTE VeryID</strong></a>";
       }
-      if (p5.data.status === "BM_KHANG_3DONG") {
-        v27 = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">BM RESISTENTE 3 LÍNEAS</strong></a>";
+      if (params.data.status === "BM_KHANG_3DONG") {
+        statusHtml = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + params.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-info rounded-circle me-2\"></span><strong class=\"text-info\">BM RESISTENTE 3 LÍNEAS</strong></a>";
       }
-      if (p5.data.status === "DIE_DK") {
-        v27 = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-secondary\">DIE EN PROCESO</strong></a>";
+      if (params.data.status === "DIE_DK") {
+        statusHtml = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + params.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-secondary rounded-circle me-2\"></span><strong class=\"text-secondary\">DIE EN PROCESO</strong></a>";
       }
-      if (p5.data.status === "LIVE") {
-        v27 = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">LIVE</strong></a>";
+      if (params.data.status === "LIVE") {
+        statusHtml = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + params.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-success rounded-circle me-2\"></span><strong class=\"text-success\">LIVE</strong></a>";
       }
-      if (p5.data.status === "DIE") {
-        v27 = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE VeryID</strong></a>";
+      if (params.data.status === "DIE") {
+        statusHtml = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + params.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE VeryID</strong></a>";
       }
-      if (p5.data.status === "DIE_3DONG") {
-        v27 = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE 3 LÍNEAS</strong></a>";
+      if (params.data.status === "DIE_3DONG") {
+        statusHtml = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + params.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-danger rounded-circle me-2\"></span><strong class=\"text-danger\">DIE 3 LÍNEAS</strong></a>";
       }
-      if (p5.data.status === "DIE_VV") {
-        v27 = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + p5.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">DIE PERMANENTE</strong></a>";
+      if (params.data.status === "DIE_VV") {
+        statusHtml = "<a target=\"_BLANK\" href=\"https://business.facebook.com/business-support-home/" + params.data.bmId + "\" class=\"text-decoration-none d-flex align-items-center\"><span style=\"width: 7px; height: 7px\" class=\"d-flex bg-warning rounded-circle me-2\"></span><strong class=\"text-warning\">DIE PERMANENTE</strong></a>";
       }
-      return v27;
+      return statusHtml;
     }
   }, {
     field: "name",
     headerName: "Cuenta",
     minWidth: 250,
-    cellRenderer: p6 => {
-      return "\n                <div class=\"d-flex align-items-center\">\n                    <span class=\"avatar-letter\" data-letter=\"" + p6.data.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                    <a href=\"https://business.facebook.com/settings/?business_id=" + p6.data.bmId + "\" target=\"_BLANK\" class=\"ps-3 flex-grow-1 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + p6.data.name + "</strong>\n                        <span>" + p6.data.bmId + "</span>\n                    </a>\n                </div>\n            ";
+    cellRenderer: params => {
+      return "\n                <div class=\"d-flex align-items-center\">\n                    <span class=\"avatar-letter\" data-letter=\"" + params.data.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 1).toUpperCase() + "\"></span>\n                    <a href=\"https://business.facebook.com/settings/?business_id=" + params.data.bmId + "\" target=\"_BLANK\" class=\"ps-3 flex-grow-1 d-flex flex-column text-black text-decoration-none\" style=\"width:calc(100% - 30px);line-height: initial\">\n                        <strong style=\"font-size: 14px; margin-bottom: 3px\">" + params.data.name + "</strong>\n                        <span>" + params.data.bmId + "</span>\n                    </a>\n                </div>\n            ";
     }
   }, {
     field: "id",
@@ -141,48 +141,48 @@ const accountGrid = {
     localeText: {
       noRowsToShow: ""
     },
-    getRowId: function (p7) {
-      return p7.data.id;
+    getRowId: function (params) {
+      return params.data.id;
     },
-    onFirstDataRendered: function (p8) {
-      countStatus(p8, 0);
+    onFirstDataRendered: function (event) {
+      countStatus(event, 0);
     },
-    onRangeSelectionChanged: function (p9) {
-      const v30 = p9.api.getCellRanges();
-      if (v30.length) {
-        let v31 = 0;
-        if (v30[0].startRow.rowIndex < v30[0].endRow.rowIndex) {
-          v31 = v30[0].endRow.rowIndex - (v30[0].startRow.rowIndex - 1);
+    onRangeSelectionChanged: function (event) {
+      const cellRanges = event.api.getCellRanges();
+      if (cellRanges.length) {
+        let rangeCount = 0;
+        if (cellRanges[0].startRow.rowIndex < cellRanges[0].endRow.rowIndex) {
+          rangeCount = cellRanges[0].endRow.rowIndex - (cellRanges[0].startRow.rowIndex - 1);
         } else {
-          v31 = v30[0].startRow.rowIndex - (v30[0].endRow.rowIndex - 1);
+          rangeCount = cellRanges[0].startRow.rowIndex - (cellRanges[0].endRow.rowIndex - 1);
         }
-        $("#boiden").text(v31);
+        $("#boiden").text(rangeCount);
       } else {
         $("#boiden").text(0);
       }
     },
-    onSelectionChanged: function (p10) {
-      const v32 = p10.api.getSelectedRows();
-      $("#dachon").text(v32.length);
+    onSelectionChanged: function (event) {
+      const selectedRows = event.api.getSelectedRows();
+      $("#dachon").text(selectedRows.length);
     },
-    onRowDataUpdated: function (p11) {
-      $("#tong").text(p11.api.getDisplayedRowCount());
+    onRowDataUpdated: function (event) {
+      $("#tong").text(event.api.getDisplayedRowCount());
     },
-    onFilterChanged: function (p12) {
-      $("#tong").text(p12.api.getDisplayedRowCount());
+    onFilterChanged: function (event) {
+      $("#tong").text(event.api.getDisplayedRowCount());
     },
     rowClassRules: {
-      running: function (p13) {
-        return p13.data.status === "RUNNING";
+      running: function (params) {
+        return params.data.status === "RUNNING";
       },
-      finished: function (p14) {
-        return p14.data.status === "FINISHED";
+      finished: function (params) {
+        return params.data.status === "FINISHED";
       }
     },
-    onBodyScroll: function (p15) {
+    onBodyScroll: function (event) {
       scrolling = true;
     },
-    onBodyScrollEnd: function (p16) {
+    onBodyScrollEnd: function (event) {
       scrolling = false;
     }
   };
@@ -191,237 +191,242 @@ const accountGrid = {
 const bmMap = [];
 
 // Evento ready principal
-$(document).ready(async function () {
-    const v33 = document.querySelector("#accounts");
-    new agGrid.Grid(v33, accountGrid);
-    const v34 = JSON.parse(localStorage.getItem("stateBm")) || [];
-    const v35 = {
-      state: v34,
+  $(document).ready(async function () {
+    const gridContainer = document.querySelector("#accounts");
+    new agGrid.Grid(gridContainer, accountGrid);
+    const savedColumnState = JSON.parse(localStorage.getItem("stateBm")) || [];
+    const columnStateConfig = {
+      state: savedColumnState,
       applyOrder: true
     };
-    accountGrid.columnApi.applyColumnState(v35);
-    const v36 = new URL(location.href);
-    const v37 = v36.searchParams.get("id");
-    if (v37) {
-      const v38 = await getLocalStorage("dataBm_" + v37);
-      $("#count").text(v38.length);
-      accountGrid.api.setRowData(v38);
+    accountGrid.columnApi.applyColumnState(columnStateConfig);
+    const pageUrl = new URL(location.href);
+    const urlUserId = pageUrl.searchParams.get("id");
+    if (urlUserId) {
+      const savedData = (await getLocalStorage("dataBm_" + urlUserId)) || [];
+      $("#count").text(savedData.length);
+      accountGrid.api.setRowData(savedData);
     } else {
       setInterval(async () => {
         if ($("body").hasClass("setting-loaded")) {
           saveSetting();
         }
         if ($("body").hasClass("data-loaded")) {
-          const v39 = [];
-          accountGrid.api.forEachNode(function (p17) {
-            v39.push(p17.data);
+          const rowDataArray = [];
+          accountGrid.api.forEachNode(function (node) {
+            rowDataArray.push(node.data);
           });
-          if (v39.length > 0) {
-            localStorage.setItem("dataBm", JSON.stringify(v39));
-            await setLocalStorage("dataBm_" + fb.uid, v39);
+          if (rowDataArray.length > 0 && fb.uid) {
+            localStorage.setItem("dataBm", JSON.stringify(rowDataArray));
+            await setLocalStorage("dataBm_" + fb.uid, rowDataArray);
           }
-          const v40 = accountGrid.columnApi.getColumnState();
-          localStorage.setItem("stateBm", JSON.stringify(v40));
+          const currentColumnState = accountGrid.columnApi.getColumnState();
+          localStorage.setItem("stateBm", JSON.stringify(currentColumnState));
         }
       }, 2000);
     }
   });
 
 // Función para contar estados
-function countStatus(p74, p75) {
-    let v74 = 0;
-    let v75 = 0;
-    let v76 = 0;
-    let v77 = 0;
-    let v78 = 0;
-    let v79 = 0;
-    let v80 = 0;
-    p74.api.forEachNode(p76 => {
-      if (p75 > 0) {
-        if (p76.data.status === "LIVE" && p76.data.uid == p75) {
-          v74++;
+function countStatus(gridEvent, filterUid) {
+    let liveCount = 0;
+    let dieCount = 0;
+    let dieVvCount = 0;
+    let die3DongCount = 0;
+    let bmKhang3DongCount = 0;
+    let dieDkCount = 0;
+    let bmKhangCount = 0;
+    gridEvent.api.forEachNode(node => {
+      if (filterUid > 0) {
+        if (node.data.status === "LIVE" && node.data.uid == filterUid) {
+          liveCount++;
         }
-        if (p76.data.status === "DIE" && p76.data.uid == p75) {
-          v75++;
+        if (node.data.status === "DIE" && node.data.uid == filterUid) {
+          dieCount++;
         }
-        if (p76.data.status === "DIE_VV" && p76.data.uid == p75) {
-          v76++;
+        if (node.data.status === "DIE_VV" && node.data.uid == filterUid) {
+          dieVvCount++;
         }
-        if (p76.data.status === "DIE_DK" && p76.data.uid == p75) {
-          v79++;
+        if (node.data.status === "DIE_DK" && node.data.uid == filterUid) {
+          dieDkCount++;
         }
-        if (p76.data.status === "BM_KHANG" && p76.data.uid == p75) {
-          v80++;
+        if (node.data.status === "BM_KHANG" && node.data.uid == filterUid) {
+          bmKhangCount++;
         }
-        if (p76.data.status === "BM_KHANG_3DONG" && p76.data.uid == p75) {
-          v78++;
+        if (node.data.status === "BM_KHANG_3DONG" && node.data.uid == filterUid) {
+          bmKhang3DongCount++;
         }
-        if (p76.data.status === "DIE_3DONG" && p76.data.uid == p75) {
-          v77++;
+        if (node.data.status === "DIE_3DONG" && node.data.uid == filterUid) {
+          die3DongCount++;
         }
       } else {
-        if (p76.data.status === "LIVE") {
-          v74++;
+        if (node.data.status === "LIVE") {
+          liveCount++;
         }
-        if (p76.data.status === "DIE") {
-          v75++;
+        if (node.data.status === "DIE") {
+          dieCount++;
         }
-        if (p76.data.status === "DIE_VV") {
-          v76++;
+        if (node.data.status === "DIE_VV") {
+          dieVvCount++;
         }
-        if (p76.data.status === "DIE_DK") {
-          v79++;
+        if (node.data.status === "DIE_DK") {
+          dieDkCount++;
         }
-        if (p76.data.status === "BM_KHANG") {
-          v80++;
+        if (node.data.status === "BM_KHANG") {
+          bmKhangCount++;
         }
-        if (p76.data.status === "BM_KHANG_3DONG") {
-          v78++;
+        if (node.data.status === "BM_KHANG_3DONG") {
+          bmKhang3DongCount++;
         }
-        if (p76.data.status === "DIE_3DONG") {
-          v77++;
+        if (node.data.status === "DIE_3DONG") {
+          die3DongCount++;
         }
       }
     });
-    $(".status1Count").text(v74);
-    $(".status2Count").text(v75);
-    $(".status3Count").text(v76);
-    $(".status4Count").text(v77);
-    $(".status5Count").text(v78);
-    $(".status101Count").text(v79);
-    $(".status999Count").text(v80);
+    $(".status1Count").text(liveCount);
+    $(".status2Count").text(dieCount);
+    $(".status3Count").text(dieVvCount);
+    $(".status4Count").text(die3DongCount);
+    $(".status5Count").text(bmKhang3DongCount);
+    $(".status101Count").text(dieDkCount);
+    $(".status999Count").text(bmKhangCount);
 }
 
 // Eventos básicos para cargar datos
-$(document).on("loadSavedBm", function (p29, p30) {
-    p30 = p30.map(p31 => {
-      p31.process = "";
-      return p31;
+$(document).on("loadSavedBm", function (event, bmList) {
+    bmList = bmList.map(bm => {
+      bm.process = "";
+      return bm;
     });
-    accountGrid.api.setRowData(p30);
+    accountGrid.api.setRowData(bmList);
 });
 
-$(document).on("loadBmSuccess", function (p35, p36) {
-    let v56 = 1;
-    p36 = p36.map(p37 => {
-      const v57 = {
-        id: v56,
-        bmId: p37.id
+$(document).on("loadBmSuccess", function (event, bmData) {
+    let rowIndex = 1;
+    bmData = bmData.map(bm => {
+      const mapEntry = {
+        id: rowIndex,
+        bmId: bm.id
       };
-      bmMap.push(v57);
-      p37 = {
-        id: v56,
-        status: p37.type,
-        bmId: p37.id,
-        name: p37.name,
-        avatar: p37.avatar
+      bmMap.push(mapEntry);
+      bm = {
+        id: rowIndex,
+        status: bm.type,
+        bmId: bm.id,
+        name: bm.name,
+        avatar: bm.avatar
       };
-      v56++;
-      return p37;
+      rowIndex++;
+      return bm;
     });
-    accountGrid.api.setRowData(p36);
+    accountGrid.api.setRowData(bmData);
 });
 
-$(document).on("loadBmSuccess4", function (p38, p39) {
-    for (let v58 = 0; v58 < p39.length; v58++) {
-      const v59 = bmMap.filter(p40 => p40.bmId == p39[v58].businessID)[0].id;
-      accountGrid.api.getRowNode(v59).setDataValue("bmPage", p39[v58].pageNumber);
+$(document).on("loadBmSuccess4", function (event, pageData) {
+    for (let i = 0; i < pageData.length; i++) {
+      const mapEntry = bmMap.filter(entry => entry.bmId == pageData[i].businessID)[0];
+      if (!mapEntry) continue;
+      accountGrid.api.getRowNode(mapEntry.id)?.setDataValue("bmPage", pageData[i].pageNumber);
     }
 });
 
-$(document).on("loadBmSuccess2", function (p41, p42) {
-    p42.forEach(async (p43) => {
-      const v60 = bmMap.filter(p44 => p44.bmId == p43.id)[0].id;
-      let v61 = "";
-      let v62 = p43.permitted_roles[0];
-      if (p43.sharing_eligibility_status === "enabled") {
-        v61 = "BM350";
+$(document).on("loadBmSuccess2", function (event, bmDetail) {
+    bmDetail.forEach(async (bm) => {
+      const mapEntry = bmMap.filter(entry => entry.bmId == bm.id)[0];
+      if (!mapEntry) return;
+      const rowId = mapEntry.id;
+      let bmTypeId = "";
+      let activeRole = bm.permitted_roles?.[0] || '';
+      if (bm.sharing_eligibility_status === "enabled") {
+        bmTypeId = "BM350";
       }
-      if (p43.sharing_eligibility_status === "disabled_due_to_trust_tier") {
-        v61 = "BM50";
+      if (bm.sharing_eligibility_status === "disabled_due_to_trust_tier") {
+        bmTypeId = "BM50";
       }
-      if (p43.owned_ad_accounts?.data.length) {
-        const v63 = p43.owned_ad_accounts?.data.filter(p45 => p45.account_status == 1);
-        const v64 = p43.owned_ad_accounts?.data.filter(p46 => p46.account_status != 1);
-        accountGrid.api.getRowNode(v60).setDataValue("adAccount", "Total: " + p43.owned_ad_accounts.summary.total_count + " - " + (v63.length ? "Live: " + v63.length + " - " : "") + (v64.length ? "Die: " + v64.length : ""));
-        const v65 = p43.owned_ad_accounts?.data[0].adtrust_dsl;
-        const v66 = p43.owned_ad_accounts?.data[0].currency;
-        accountGrid.api.getRowNode(v60).setDataValue("limit", v65 + " " + v66);
+      if (bm.owned_ad_accounts?.data.length) {
+        const liveAccounts = bm.owned_ad_accounts?.data.filter(acc => acc.account_status == 1);
+        const dieAccounts = bm.owned_ad_accounts?.data.filter(acc => acc.account_status != 1);
+        accountGrid.api.getRowNode(rowId).setDataValue("adAccount", "Total: " + bm.owned_ad_accounts.summary.total_count + " - " + (liveAccounts.length ? "Live: " + liveAccounts.length + " - " : "") + (dieAccounts.length ? "Die: " + dieAccounts.length : ""));
+        const trustLevel = bm.owned_ad_accounts?.data?.[0]?.adtrust_dsl ?? '';
+        const currency = bm.owned_ad_accounts?.data?.[0]?.currency ?? '';
+        accountGrid.api.getRowNode(rowId).setDataValue("limit", trustLevel + " " + currency);
       } else {
-        accountGrid.api.getRowNode(v60).setDataValue("adAccount", 0);
+        accountGrid.api.getRowNode(rowId).setDataValue("adAccount", 0);
       }
-      if (p43.business_users?.data.length) {
-        accountGrid.api.getRowNode(v60).setDataValue("adminAccount", p43.business_users?.data.length);
+      if (bm.business_users?.data.length) {
+        accountGrid.api.getRowNode(rowId).setDataValue("adminAccount", bm.business_users?.data.length);
       } else {
-        accountGrid.api.getRowNode(v60).setDataValue("adminAccount", 0);
+        accountGrid.api.getRowNode(rowId).setDataValue("adminAccount", 0);
       }
-      accountGrid.api.getRowNode(v60).setDataValue("type", v61);
-      accountGrid.api.getRowNode(v60).setDataValue("role", v62);
+      accountGrid.api.getRowNode(rowId).setDataValue("type", bmTypeId);
+      accountGrid.api.getRowNode(rowId).setDataValue("role", activeRole);
       
-      // Cargar número de píxeles para este BM (con delay para evitar sobrecarga)
       setTimeout(async () => {
         try {
-          await loadPixelCountForBM(p43.id, v60);
+          await loadPixelCountForBM(bm.id, rowId);
         } catch (error) {
-          console.warn(`Error cargando píxeles para BM ${p43.id}:`, error);
+          console.warn(`Error cargando píxeles para BM ${bm.id}:`, error);
         }
-      }, Math.random() * 2000 + 1000); // Delay aleatorio entre 1-3 segundos
+      }, Math.random() * 2000 + 1000);
     });
 });
 
-$(document).on("loadInstaSuccess", function (p47, p48) {
-    const v67 = bmMap.filter(p49 => p49.bmId == p48.id)[0].id;
-    accountGrid.api.getRowNode(v67).setDataValue("instaAccount", p48.count);
+$(document).on("loadInstaSuccess", function (event, instaData) {
+    const mapEntry = bmMap.filter(entry => entry.bmId == instaData.id)[0];
+    if (!mapEntry) return;
+    accountGrid.api.getRowNode(mapEntry.id)?.setDataValue("instaAccount", instaData.count);
 });
 
-$(document).on("loadLimitSuccess", function (p50, p51) {
-    const v68 = bmMap.filter(p52 => p52.bmId == p51.id)[0].id;
-    accountGrid.api.getRowNode(v68).setDataValue("bmType", p51.type);
+$(document).on("loadLimitSuccess", function (event, limitData) {
+    const mapEntry = bmMap.filter(entry => entry.bmId == limitData.id)[0];
+    if (!mapEntry) return;
+    accountGrid.api.getRowNode(mapEntry.id)?.setDataValue("bmType", limitData.type);
 });
 
-$(document).on("loadQtvSuccess", function (p53, p54) {
-    const v69 = bmMap.filter(p55 => p55.bmId == p54.id)[0].id;
-    accountGrid.api.getRowNode(v69).setDataValue("adminAccount", p54.count);
+$(document).on("loadQtvSuccess", function (event, qtvData) {
+    const mapEntry = bmMap.filter(entry => entry.bmId == qtvData.id)[0];
+    if (!mapEntry) return;
+    accountGrid.api.getRowNode(mapEntry.id)?.setDataValue("adminAccount", qtvData.count);
 });
 
-$(document).on("updateListBm", function (p56, p57) {
-    $("[name=\"listIdBm\"]").val(p57.join("\r\n"));
-    $("#getBmIdCount").text(p57.length);
+$(document).on("updateListBm", function (event, bmIdList) {
+    $("[name=\"listIdBm\"]").val(bmIdList.join("\r\n"));
+    $("#getBmIdCount").text(bmIdList.length);
 });
 
-$(document).on("updateBackupLink", function (p58, p59) {
-    const v70 = $("[name=\"linkDaNhan\"]").val().split(/\r?\n|\r|\n/g).filter(p60 => p60);
-    v70.push(p59.link);
-    $("[name=\"linkDaNhan\"]").val(v70.join("\r\n"));
-    $("#backupLinkCount1").text(v70.length);
+$(document).on("updateBackupLink", function (event, backupData) {
+    const existingLinks = $("[name=\"linkDaNhan\"]").val().split(/\r?\n|\r|\n/g).filter(line => line);
+    existingLinks.push(backupData.link);
+    $("[name=\"linkDaNhan\"]").val(existingLinks.join("\r\n"));
+    $("#backupLinkCount1").text(existingLinks.length);
 });
 
-$(document).on("updateLinkAll", function (p61, p62) {
-    const v71 = $("[name=\"backupLink\"]").val().split(/\r?\n|\r|\n/g).filter(p63 => p63 && !p62.includes(p63));
-    $("#backupLinkCount").text(v71.length);
-    $("[name=\"backupLink\"]").val(v71.join("\r\n"));
+$(document).on("updateLinkAll", function (event, usedLinks) {
+    const remainingLinks = $("[name=\"backupLink\"]").val().split(/\r?\n|\r|\n/g).filter(line => line && !usedLinks.includes(line));
+    $("#backupLinkCount").text(remainingLinks.length);
+    $("[name=\"backupLink\"]").val(remainingLinks.join("\r\n"));
 });
 
-$(document).on("updateLinkError", function (p64, p65) {
-    const v72 = $("[name=\"backupLinkError\"]").val().split(/\r?\n|\r|\n/g).filter(p66 => p66);
-    p65.forEach(p67 => {
-      v72.push(p67);
+$(document).on("updateLinkError", function (event, errorLinks) {
+    const errorList = $("[name=\"backupLinkError\"]").val().split(/\r?\n|\r|\n/g).filter(line => line);
+    errorLinks.forEach(link => {
+      errorList.push(link);
     });
-    $("#backupLinkErrorCount").text(v72.length);
-    $("[name=\"backupLinkError\"]").val(v72.join("\r\n"));
+    $("#backupLinkErrorCount").text(errorList.length);
+    $("[name=\"backupLinkError\"]").val(errorList.join("\r\n"));
 });
 
-$(document).on("updateLinkSuccess", function (p68, p69) {
-    const v73 = $("[name=\"backupLinkSuccess\"]").val().split(/\r?\n|\r|\n/g).filter(p70 => p70);
-    p69.forEach(p71 => {
-      v73.push(p71);
+$(document).on("updateLinkSuccess", function (event, successLinks) {
+    const successList = $("[name=\"backupLinkSuccess\"]").val().split(/\r?\n|\r|\n/g).filter(line => line);
+    successLinks.forEach(link => {
+      successList.push(link);
     });
-    $("#backupLinkSuccessCount").text(v73.length);
-    $("[name=\"backupLinkSuccess\"]").val(v73.join("\r\n"));
+    $("#backupLinkSuccessCount").text(successList.length);
+    $("[name=\"backupLinkSuccess\"]").val(successList.join("\r\n"));
 });
 
-$(document).on("updateBmName", function (p72, p73) {
-    accountGrid.api.getRowNode(parseInt(p73.id)).setDataValue("name", p73.name);
+$(document).on("updateBmName", function (event, nameData) {
+    accountGrid.api.getRowNode(parseInt(nameData.id)).setDataValue("name", nameData.name);
 });
 
 $(document).on("loadPixelSuccess", function (event, data) {

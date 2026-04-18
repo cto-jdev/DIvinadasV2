@@ -27,6 +27,12 @@ $(document).ready(async function() {
 
     const adData = (data.filter(item => item.adId == id))[0]
 
+    // Guard: si no hay datos, mostrar mensaje amigable y salir
+    if (!adData) {
+        document.getElementById('t1').innerHTML = '<span class="badge text-bg-secondary">Sin datos</span>';
+        return;
+    }
+
     let status = ''
 
     if (adData.status == 101) {

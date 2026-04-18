@@ -105,19 +105,29 @@ $(document).ready(async function () {
     const waitForFacebook = () => {
         return new Promise((resolve, reject) => {
             let attempts = 0;
-            const maxAttempts = 30; // 30 segundos máximo
+            const maxAttempts = 120; // 60 segundos máximo (120 * 500ms)
             
             const checkFb = () => {
                 attempts++;
-                
-                if (typeof window.fb !== 'undefined' && window.fb && window.fb.uid) {
-                    console.log('✅ Facebook SDK disponible');
-                    resolve(window.fb);
+
+                const fb = window.fb;
+
+                // Resolver en cuanto haya uid — accessToken se carga en segundo plano por fb.init()
+                if (fb && fb.uid && fb.uid !== null) {
+                    console.log(`✅ Facebook disponible (uid=${fb.uid}, token=${fb.accessToken ? '✓' : 'pendiente'})`);
+                    resolve(fb);
+                } else if (fb && fb.uid === null) {
+                    // null explícito = sin sesión activa (seteado por scripts.js)
+                    console.warn('❌ Sesión de Facebook no encontrada');
+                    reject(new Error('Sin sesión activa'));
                 } else if (attempts >= maxAttempts) {
                     console.warn('⚠️ Timeout esperando Facebook SDK');
                     reject(new Error('Facebook SDK no disponible'));
                 } else {
-                    setTimeout(checkFb, 1000);
+                    if (attempts % 10 === 0) {
+                        console.log(`⏳ Esperando fb.uid... (${attempts}/${maxAttempts})`);
+                    }
+                    setTimeout(checkFb, 500);
                 }
             };
             
@@ -259,16 +269,13 @@ $(document).ready(async function () {
             displayUserProfile(userInfo);
             
         } catch (error) {
-            console.warn('Error cargando perfil de usuario:', error);
-            
-            // Mostrar información mínima
-            const fallbackUser = {
-                name: 'Usuario',
-                id: 'No conectado',
+            console.warn('⚠️ Perfil de usuario no disponible:', error.message);
+            // Mostrar estado de "No conectado" en la UI de perfil
+            displayUserProfile({
+                name: 'Sin sesión de Facebook',
+                id: null,
                 avatar: null
-            };
-            displayUserProfile(fallbackUser);
-            
+            });
         } finally {
             loadingStates.user = false;
         }
@@ -581,6 +588,20 @@ $(document).ready(async function () {
     const displayAdsData = (adsData) => {
         try {
             $("#countAds").text(adsData.length);
+            
+            // Calcular balance general sugerido (USD o equivalente principal)
+            let totalBalance = 0;
+            let mainCurrency = "$";
+            
+            adsData.forEach(ad => {
+                const bal = parseFloat((ad.balance || '0').toString().replace(/,/g, ''));
+                if (!isNaN(bal)) totalBalance += bal;
+                if (ad.currency && ad.currency.includes('-')) mainCurrency = ad.currency.split('-')[0];
+            });
+            
+            if ($("#balanceValue").length) {
+                $("#balanceValue").html(`<strong class="fs-2 glowing-text text-white">${mainCurrency}${totalBalance.toFixed(2)}</strong>`);
+            }
             
             let adsHtml = "";
             adsData.sort((a, b) => {
@@ -912,13 +933,13 @@ $(document).ready(async function () {
                 await Promise.allSettled(loadPromises);
             }
             
-            console.log('✅ Dashboard inicializado correctamente');
+            console.log('✅ Dashboard inicializado');
             
         } catch (error) {
             console.error('❌ Error inicializando dashboard:', error);
             
-            // Reintentar si no hemos alcanzado el máximo
-            if (retryCount < MAX_RETRIES) {
+            // Reintentar solo si el error no es por falta de sesión
+            if (retryCount < MAX_RETRIES && !error.message.includes('sesión')) {
                 retryCount++;
                 console.log(`🔄 Reintentando inicialización (${retryCount}/${MAX_RETRIES})...`);
                 
@@ -927,6 +948,8 @@ $(document).ready(async function () {
                     initializeDashboard();
                 }, RETRY_DELAY);
             }
+        } finally {
+            showLoading(false); // ASEGURAR que el spinner se oculte siempre
         }
     };
     

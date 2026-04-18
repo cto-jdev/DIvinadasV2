@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conectar Facebook | DivinAds</title>
+    <link href="css/libs.css" rel="stylesheet">
+    <link href="css/glass.css" rel="stylesheet">
+    <link href="css/dashboard.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0d0d1a 0%, #1a1035 50%, #0d0d1a 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: auto;
+            padding: 24px;
+        }
+        .connect-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 680px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+        .logo-area {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .logo-area h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6c63ff, #3bbcf0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 12px 0 4px;
+        }
+        .logo-area p { color: rgba(255,255,255,0.5); font-size: 14px; margin: 0; }
+        .fb-icon { font-size: 48px; color: #1877f2; }
+
+        .status-box {
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid;
+        }
+        .status-box.connected    { background: rgba(27,94,32,0.3); border-color: rgba(76,175,80,0.4); }
+        .status-box.disconnected { background: rgba(33,33,33,0.5); border-color: rgba(255,255,255,0.1); }
+        .status-box.error        { background: rgba(183,28,28,0.2); border-color: rgba(244,67,54,0.4); }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .status-dot.green  { background: #4caf50; box-shadow: 0 0 8px #4caf50; }
+        .status-dot.gray   { background: #757575; }
+        .status-dot.red    { background: #f44336; }
+
+        .instructions {
+            background: rgba(33,150,243,0.08);
+            border: 1px solid rgba(33,150,243,0.2);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+        .instructions h6 {
+            color: #64b5f6;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .instructions ol {
+            color: rgba(255,255,255,0.65);
+            font-size: 13px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+        .instructions code {
+            background: rgba(255,255,255,0.1);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        textarea.cookie-input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1.5px solid rgba(255,193,7,0.4);
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        textarea.cookie-input:focus { border-color: rgba(255,193,7,0.8); }
+        textarea.cookie-input::placeholder { color: rgba(255,255,255,0.25); }
+
+        .label-text {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .warning-text {
+            font-size: 12px;
+            color: #ffa726;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-connect {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1877f2, #0d5fbd);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-connect:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(24,119,242,0.4); }
+        .btn-connect:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); }
+
+        .result-box {
+            display: none;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .result-box.success { background: rgba(27,94,32,0.3); border: 1px solid rgba(76,175,80,0.4); color: #a5d6a7; }
+        .result-box.error   { background: rgba(183,28,28,0.2); border: 1px solid rgba(244,67,54,0.4); color: #ef9a9a; }
+        .result-box.warning { background: rgba(230,81,0,0.2); border: 1px solid rgba(255,152,0,0.4); color: #ffcc02; }
+
+        .sessions-list { margin-top: 24px; }
+        .sessions-list h6 { color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .session-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+        }
+        .session-name { font-size: 14px; font-weight: 600; color: #fff; }
+        .session-meta { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+        .badge-active { background: rgba(76,175,80,0.2); color: #81c784; font-size: 12px; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(76,175,80,0.3); }
+
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+            text-decoration: none;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+        .nav-back:hover { color: rgba(255,255,255,0.8); }
+
+        .spinner-sm {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="connect-card">
+        <a href="index.html" class="nav-back">← Volver al Dashboard</a>
+
+        <div class="logo-area">
+            <div class="fb-icon"><i class="ri-facebook-circle-fill"></i></div>
+            <h1>Conectar Facebook Real</h1>
+            <p>Usa tu cookie de sesión para conectar con tus datos reales de Meta Business</p>
+        </div>
+
+        <!-- Estado de conexión -->
+        <div id="statusBox" class="status-box disconnected">
+            <div id="statusDot" class="status-dot gray"></div>
+            <div>
+                <div id="statusTitle" style="color:#fff;font-size:14px;font-weight:600">Verificando...</div>
+                <div id="statusSub" style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:2px"></div>
+            </div>
+        </div>
+
+        <!-- Opciones dinámicas según el entorno -->
+        <div id="proxyInputArea" style="display:none;">
+            <!-- Instrucciones -->
+            <div class="instructions">
+                <h6><i class="ri-information-line"></i> Modo Proxy Web: Cómo obtener tu cookie de Facebook</h6>
+                <ol>
+                    <li>Abre <strong style="color:#fff">facebook.com</strong> — asegúrate de estar logueado</li>
+                    <li>Presiona <strong style="color:#fff">F12</strong> → pestaña <strong style="color:#fff">Aplicación</strong> (o Application)</li>
+                    <li>Panel izquierdo: <code>Almacenamiento → Cookies → facebook.com</code></li>
+                    <li>Busca: <code>c_user</code>, <code>xs</code>, <code>datr</code>, <code>fr</code></li>
+                    <li>Copia cada valor. Formato final:<br><code>c_user=XXX; xs=YYY; datr=ZZZ; fr=AAA</code></li>
+                </ol>
+            </div>
+
+            <!-- Input cookie -->
+            <div>
+                <label class="label-text">
+                    <i class="ri-lock-password-line" style="color:#ffa726"></i>
+                    Cookie de Sesión de Facebook
+                </label>
+                <textarea id="cookieInput" class="cookie-input" rows="4"
+                    placeholder="c_user=1234567890; xs=AbCdEf:GhIjKl; datr=XXXXXXXX; fr=XXXXXXXXX..."></textarea>
+                <div class="warning-text">
+                    <i class="ri-shield-keyhole-line"></i>
+                    Tu cookie se procesa solo en tu servidor local. Nunca se envía a terceros.
+                </div>
+            </div>
+
+            <button id="btnConnectProxy" class="btn-connect">
+                <i class="ri-facebook-circle-fill"></i>
+                Conectar Proxy con Facebook
+            </button>
+            <button id="btnDisconnectAll" class="btn-secondary">
+                Desconectar todas las sesiones
+            </button>
+        </div>
+
+        <div id="extensionPromptArea" style="display:none; text-align:center; padding: 20px 0;">
+            <div class="instructions" style="background: rgba(76,175,80,0.08); border-color: rgba(76,175,80,0.2);">
+                <h6 style="color: #81c784; font-size: 15px;"><i class="ri-puzzle-line"></i> Modo Extensión Detectado</h6>
+                <p style="color: rgba(255,255,255,0.8); margin-top: 10px; font-size: 14px;">Para usar DivinAds, solamente necesitas iniciar sesión en Facebook de manera normal en otra pestaña. La extensión se encargará del resto de forma automática y segura.</p>
+            </div>
+            <button id="btnOpenFacebook" class="btn-connect" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">
+                <i class="ri-facebook-circle-fill"></i>
+                Iniciar sesión en Facebook
+            </button>
+            <button id="btnReloadDashboard" class="btn-secondary" style="margin-top: 12px;">
+                <i class="ri-refresh-line"></i> Ya inicié sesión (Recargar)
+            </button>
+        </div>
+
+        <div id="resultBox" class="result-box"></div>
+
+        <!-- Lista de sesiones activas -->
+        <div class="sessions-list" id="sessionsList" style="display:none">
+            <h6>Sesiones Activas</h6>
+            <div id="sessionsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Script externo requerido por CSP "script-src 'self'" -->
+    <script src="js/fb-connect.js"></script>
+</body>
+</html>

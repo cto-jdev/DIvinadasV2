@@ -3,7 +3,17 @@
     "allow": [
       "Bash(grep -l \"<script src=\"\"js/scripts.js\"\">\" *.html)",
       "Bash(node -c js/libs1.js)",
-      "Bash(node -c js/libs2.js)"
+      "Bash(node -c js/libs2.js)",
+      "Bash(find \"/d/OneDrive/AAA-Carpeta Trabajo 2026/Divinads/New App/app\" -name \"*.js\" -exec grep -l \"function fetch2\\\\|const fetch2\" {} \\\\;)",
+      "Bash(ls \"D:\\\\OneDrive\\\\AAA-Carpeta Trabajo 2026\\\\Divinads\\\\New App\\\\app\\\\js\\\\sweetalert\"*)",
+      "Bash(ls -1 *.html)",
+      "Bash(node -e \"const m = require\\('./manifest.json'\\); console.log\\('✓ JSON válido'\\)\")",
+      "Bash(python3 -c \"import json; json.load\\(open\\('D:\\\\OneDrive\\\\AAA-Carpeta Trabajo 2026\\\\Divinads\\\\New App\\\\app\\\\manifest.json'\\)\\)\")",
+      "Bash(npm install:*)",
+      "Bash(npm ls:*)",
+      "Bash(node -e ':*)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)"
     ]
   }
 }
