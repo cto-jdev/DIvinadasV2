@@ -94,6 +94,13 @@ async function request(method, endpoint, { accessToken, params, data, headers } 
     const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
     const finalParams = { access_token: accessToken, ...(params || {}) };
 
+    // appsecret_proof: HMAC-SHA256(access_token, APP_SECRET). Meta lo valida
+    // cuando la app tiene "Require App Secret" activado. Lo añadimos si está
+    // el secret disponible — previene uso del token desde otra app.
+    if (process.env.FB_APP_SECRET && !finalParams.appsecret_proof) {
+        finalParams.appsecret_proof = appSecretProof(accessToken, process.env.FB_APP_SECRET);
+    }
+
     let attempt = 0;
     while (true) {
         try {
