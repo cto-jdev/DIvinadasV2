@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     }
 
     const { data: lic } = await supa.from('licenses')
-        .select('plan, status, seats, trial_ends_at, current_period_ends_at, stripe_subscription_id')
+        .select('plan, status, seats, trial_ends_at, current_period_ends_at, hotmart_subscription_code')
         .eq('tenant_id', tenantId).maybeSingle();
 
     if (!lic) return NextResponse.json({ error: 'not_found', reason: 'no_license' }, { status: 404 });
@@ -68,6 +68,6 @@ export async function GET(req: NextRequest) {
         ends_at:            ends,
         days_remaining:     daysRemaining,
         modules:            activeModules,
-        has_subscription:   !!lic.stripe_subscription_id,
+        has_subscription:   !!lic.hotmart_subscription_code,
     });
 }

@@ -118,7 +118,7 @@ create policy tm_admin_write on public.tenant_members
 
 -- =====================================================================
 -- licenses
---  * Lectura: miembros. Escritura: solo service_role (Stripe webhooks).
+--  * Lectura: miembros. Escritura: solo service_role (Hotmart webhooks).
 -- =====================================================================
 drop policy if exists lic_member_select on public.licenses;
 create policy lic_member_select on public.licenses
