@@ -1,0 +1,16 @@
+{
+    "buildCommand": "cd apps/web && pnpm build",
+    "outputDirectory": "apps/web/.next",
+    "installCommand": "pnpm install",
+    "framework": "nextjs",
+    "crons": [
+        {
+            "path": "/api/cron/refresh-tokens",
+            "schedule": "0 3 * * *"
+        },
+        {
+            "path": "/api/cron/purge-expired",
+            "schedule": "0 4 * * 0"
+        }
+    ]
+}

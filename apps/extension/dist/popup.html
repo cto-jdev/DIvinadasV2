@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DivinAds</title>
+<style>
+  :root {
+    --primary: #6B21A8;
+    --accent:  #10B981;
+    --danger:  #DC2626;
+    --muted:   #6B7280;
+    --border:  #E5E7EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 340px; min-height: 200px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px; color: #111;
+    padding: 20px;
+  }
+  .logo { color: var(--primary); font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+  .muted { color: var(--muted); font-size: 12px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 100%; padding: 10px; border-radius: 8px; border: none;
+    cursor: pointer; font-weight: 600; font-size: 14px; margin-top: 8px;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-ghost   { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+  .btn-danger  { background: var(--danger); color: #fff; }
+  .code-input {
+    width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+    text-align: center; font-size: 22px; letter-spacing: 8px;
+    font-family: monospace; margin-top: 8px;
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; margin-right: 6px; }
+  .status-dot.on  { background: var(--accent); }
+  .status-dot.off { background: var(--danger); }
+  .divider { border: 0; border-top: 1px solid var(--border); margin: 14px 0; }
+  #view-connected, #view-pair { display: none; }
+  .err { color: var(--danger); font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="logo">DivinAds</div>
+
+<!-- CONECTADO -->
+<div id="view-connected">
+  <div style="display:flex;align-items:center;margin-bottom:12px">
+    <span class="status-dot on"></span>
+    <span>Conectado</span>
+    <span class="muted" style="margin-left:auto" id="tenant-label"></span>
+  </div>
+  <button class="btn btn-primary" id="btn-panel">Abrir panel web</button>
+  <hr class="divider">
+  <button class="btn btn-ghost" id="btn-disconnect">Desconectar esta extensión</button>
+</div>
+
+<!-- PAREO -->
+<div id="view-pair">
+  <p>Ingresa el código de 6 dígitos que aparece en el panel:</p>
+  <a href="https://app.divinads.com/panel/extension" target="_blank"
+     style="color:var(--primary);font-size:12px">¿Dónde encuentro el código? →</a>
+  <input class="code-input" id="code-input" maxlength="6" placeholder="000000"
+         inputmode="numeric" autocomplete="off">
+  <div class="err" id="pair-err"></div>
+  <button class="btn btn-primary" id="btn-pair">Conectar</button>
+</div>
+
+<!-- CARGANDO -->
+<div id="view-loading"><p class="muted">Cargando…</p></div>
+
+<script src="popup.js"></script>
+</body>
+</html>
