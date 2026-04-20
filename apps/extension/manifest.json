@@ -9,7 +9,13 @@
         "storage",
         "alarms"
     ],
-    "host_permissions": [],
+    "host_permissions": [
+        "https://app.divinads.com/*"
+    ],
+
+    "externally_connectable": {
+        "matches": ["https://app.divinads.com/*"]
+    },
 
     "background": {
         "service_worker": "background.js",
@@ -37,6 +43,6 @@
     },
 
     "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'none';"
+        "extension_pages": "script-src 'self'; connect-src 'self' https://app.divinads.com; object-src 'none';"
     }
 }

@@ -120,22 +120,43 @@ async function handleMessage(msg) {
 }
 
 // -------------------------------------------------------------------
-// Alarma de verificación de sesión (24h)
+// Alarmas
+//   heartbeat  — cada 30 min: verifica que el install sigue activo
+//   session-check — diaria: avisa si el JWT vence en <7d
 // -------------------------------------------------------------------
+chrome.alarms.create('heartbeat',     { periodInMinutes: 30 });
 chrome.alarms.create('session-check', { periodInMinutes: 1440 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-    if (alarm.name !== 'session-check') return;
     const session = await getSession();
     if (!session) return;
-    const exp = session.expires_at ? new Date(session.expires_at).getTime() : 0;
-    if (exp && Date.now() > exp - 7 * 24 * 3600 * 1000) {
-        // Token expira en menos de 7d — notificar al usuario
-        chrome.notifications?.create('token-expiry', {
-            type: 'basic',
-            iconUrl: 'icons/icon48.png',
-            title: 'DivinAds — Sesión próxima a expirar',
-            message: 'Reconecta la extensión desde el panel de DivinAds.',
-        });
+
+    if (alarm.name === 'heartbeat') {
+        const r = await apiFetch('/api/extension/heartbeat', { method: 'POST', body: '{}' });
+        if (r.ok && r.data?.active === false) {
+            // El servidor rechazó el install (revocado o licencia expirada)
+            await clearSession();
+            chrome.notifications?.create('session-revoked', {
+                type: 'basic',
+                iconUrl: 'icons/icon48.png',
+                title: 'DivinAds — Sesión terminada',
+                message: r.data.reason === 'install_revoked'
+                    ? 'Tu sesión fue revocada. Reconecta desde el panel.'
+                    : 'Tu licencia expiró. Renueva desde el panel de DivinAds.',
+            });
+        }
+        return;
+    }
+
+    if (alarm.name === 'session-check') {
+        const exp = session.expires_at ? new Date(session.expires_at).getTime() : 0;
+        if (exp && Date.now() > exp - 7 * 24 * 3600 * 1000) {
+            chrome.notifications?.create('token-expiry', {
+                type: 'basic',
+                iconUrl: 'icons/icon48.png',
+                title: 'DivinAds — Sesión próxima a expirar',
+                message: 'Reconecta la extensión desde el panel de DivinAds.',
+            });
+        }
     }
 });

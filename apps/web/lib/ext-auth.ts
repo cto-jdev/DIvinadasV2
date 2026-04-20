@@ -34,19 +34,30 @@ export async function authenticateExtension(
 
     const supa = getSupabaseService();
 
-    // Comprobar que el install sigue vivo
-    const { data: install } = await supa.from('extension_installs')
-        .select('id, tenant_id, user_id, revoked_at, session_token_hash')
-        .eq('id', claim.install_id).maybeSingle();
+    // Una sola RPC resuelve install + JTI revocado (evita N+1 queries)
+    const { data: ctx } = await supa.rpc('get_install_context', {
+        p_install_id: claim.install_id,
+        p_jti: claim.jti,
+    });
 
-    if (!install || install.revoked_at) return {
+    const install = Array.isArray(ctx) ? ctx[0] : ctx;
+
+    if (!install) return {
+        ok: false,
+        res: NextResponse.json({ error: 'unauthorized', reason: 'install_not_found' }, { status: 401 }),
+    };
+    if (install.revoked) return {
         ok: false,
         res: NextResponse.json({ error: 'unauthorized', reason: 'install_revoked' }, { status: 401 }),
     };
+    if (install.jti_revoked) return {
+        ok: false,
+        res: NextResponse.json({ error: 'unauthorized', reason: 'token_revoked' }, { status: 401 }),
+    };
 
-    // El JWT trae jti; su sha256 debe coincidir con session_token_hash
+    // SHA-256 del JTI debe coincidir con session_token_hash registrado
     const expectedHash = crypto.createHash('sha256').update(claim.jti).digest('hex');
-    if (expectedHash !== install.session_token_hash) {
+    if (expectedHash !== install.token_hash) {
         return {
             ok: false,
             res: NextResponse.json({ error: 'unauthorized', reason: 'token_mismatch' }, { status: 401 }),
@@ -80,17 +91,18 @@ export async function authenticateExtension(
         };
     }
 
-    // Touch last_seen
-    await supa.from('extension_installs')
+    // Touch last_seen (fire-and-forget — no await para no bloquear el handler)
+    supa.from('extension_installs')
         .update({ last_seen_at: new Date().toISOString() })
-        .eq('id', install.id);
+        .eq('id', claim.install_id)
+        .then(() => null);
 
     return {
         ok: true,
         ctx: {
             tenant_id: install.tenant_id,
             user_id: install.user_id,
-            install_id: install.id,
+            install_id: claim.install_id,
             plan: gate.plan,
         },
     };

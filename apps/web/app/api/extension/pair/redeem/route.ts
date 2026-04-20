@@ -6,7 +6,7 @@
  * Contexto: MIGRATION_V2.md §14.
  *
  * Este endpoint es PÚBLICO (sin login) pero:
- *  - rate-limit 20/IP/10min
+ *  - rate-limit 5/IP/1min (detecta brute-force en segundos)
  *  - el código se consume atómicamente (consumed_at IS NULL)
  *  - el JWT se firma con JWT_SECRET y tiene jti + install_id
  */
@@ -20,9 +20,13 @@ import { rateLimit } from '@/lib/ratelimit';
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown';
-    const rl = await rateLimit(`pair:redeem:${ip}`, 20, '10 m');
-    if (!rl.success) return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    // 5 intentos por IP por minuto — brute-force de 6 dígitos = 200 000 min mínimo
+    const rl = await rateLimit(`pair:redeem:${ip}`, 5, '1 m');
+    if (!rl.success) return NextResponse.json({ error: 'rate_limited' }, {
+        status: 429,
+        headers: { 'Retry-After': '60' },
+    });
 
     const body = parseOrThrow(PairingRedeemInput, await req.json());
     const codeHash = crypto.createHash('sha256').update(body.code).digest('hex');

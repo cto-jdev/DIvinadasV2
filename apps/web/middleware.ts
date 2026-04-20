@@ -1,12 +1,21 @@
 /**
  * Next.js middleware — protege /panel/* requiriendo sesión Supabase.
- * Si no hay sesión, redirige a /login.
+ * También refresca la cookie de sesión en cada request (sliding expiry).
+ * Si no hay sesión, redirige a /login preservando la ruta con ?next=
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 export const config = {
-    matcher: ['/panel/:path*'],
+    matcher: [
+        '/panel/:path*',
+        '/admin/:path*',
+        /*
+         * Excluir archivos estáticos y rutas de auth para evitar loops.
+         * El patrón negativo no está disponible en todos los entornos de Edge,
+         * así que se lista explícitamente lo que SÍ se protege.
+         */
+    ],
 };
 
 export async function middleware(req: NextRequest) {
