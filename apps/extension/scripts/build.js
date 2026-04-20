@@ -45,33 +45,14 @@ for (const f of ['popup.js', 'options.js']) {
 
 fs.writeFileSync(path.join(DIST, 'background.js'), bg, 'utf8');
 
-// Generar iconos placeholder SVG → PNG no requerido para load unpacked en dev
-// En producción reemplazar con PNGs reales en icons/
+// Copiar iconos PNG reales
 for (const size of [16, 48, 128]) {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <rect width="${size}" height="${size}" rx="${size * 0.15}" fill="#6B21A8"/>
-  <text x="50%" y="58%" font-family="sans-serif" font-size="${size * 0.5}" font-weight="bold"
-        fill="white" text-anchor="middle" dominant-baseline="middle">D</text>
-</svg>`;
-    // Chrome no acepta SVG como icono; escribimos un PNG 1x1 de fallback para dev.
-    // En producción: reemplazar icons/ con PNGs reales.
-    const placeholder = `icons/icon${size}.png`;
-    if (!fs.existsSync(path.join(ROOT, placeholder))) {
-        // Copiar placeholder vacío (1x1 PNG) solo si no existe el real
-        // Para producción: colocar PNGs correctos en apps/extension/icons/
-        fs.writeFileSync(path.join(DIST, 'icons', `icon${size}.svg`), svg, 'utf8');
-    } else {
-        fs.copyFileSync(path.join(ROOT, placeholder), path.join(DIST, 'icons', `icon${size}.png`));
+    const src = path.join(ROOT, 'icons', `icon${size}.png`);
+    if (!fs.existsSync(src)) {
+        console.error(`ERROR: icons/icon${size}.png not found. Run: node scripts/gen-icons.js`);
+        process.exit(1);
     }
-}
-
-// Actualizar manifest para usar SVG en dev si no hay PNG
-const manifest = JSON.parse(fs.readFileSync(path.join(DIST, 'manifest.json'), 'utf8'));
-if (!fs.existsSync(path.join(ROOT, 'icons/icon16.png'))) {
-    const iconDef = (s) => `icons/icon${s}.svg`;
-    manifest.action.default_icon = { 16: iconDef(16), 48: iconDef(48), 128: iconDef(128) };
-    manifest.icons               = { 16: iconDef(16), 48: iconDef(48), 128: iconDef(128) };
-    fs.writeFileSync(path.join(DIST, 'manifest.json'), JSON.stringify(manifest, null, 2));
+    fs.copyFileSync(src, path.join(DIST, 'icons', `icon${size}.png`));
 }
 
 console.log(`✓ Extension built → dist/  (API: ${API})`);
