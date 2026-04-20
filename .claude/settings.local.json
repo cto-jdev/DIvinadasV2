@@ -29,7 +29,21 @@
       "Bash(mv server.oauth.js server.js)",
       "Bash(mv bm.oauth.html bm.html)",
       "Bash(mv ads.oauth.html ads.html)",
-      "Bash(ls *.html js/*.js)"
+      "Bash(ls *.html js/*.js)",
+      "Bash(npm test:*)",
+      "Bash(ls -la .env*)",
+      "Bash(ls *.md)",
+      "Bash(pandoc --version)",
+      "Bash(python -c \"import docx; print\\('python-docx OK'\\)\")",
+      "Bash(npm audit:*)",
+      "Bash(timeout 5 node server.js)",
+      "Bash(python tools/generate_client_guide.py)",
+      "Bash(wc -l server.js server/oauth.js server/token-store.js server/fb-client.js server/routes/*.js)",
+      "Bash(python tools/generate_migration_exec.py)",
+      "Bash(node scripts/build.js)",
+      "Bash(mkdir -p apps/web/public)",
+      "Bash(cp img/logo-divinads.png apps/web/public/logo.png)",
+      "Bash(cp img/favicon.png apps/web/public/favicon.png)"
     ]
   }
 }

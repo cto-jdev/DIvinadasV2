@@ -1,0 +1,9 @@
+{
+    "name": "@divinads/security",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "description": "Utilidades de seguridad (HMAC, appsecret_proof, rate-limit helpers)"
+}

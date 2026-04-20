@@ -1,7 +1,31 @@
+# Dependencias
 node_modules/
+.pnpm-store/
+
+# Entorno — NUNCA commitear secretos
 .env
+.env.local
+.env.*.local
+apps/web/.env.local
+
+# Build artifacts
+apps/web/.next/
+apps/web/out/
+apps/extension/dist/
+*.zip
+
+# Logs
 *.log
-sessions.json
-tokens.json
+npm-debug.log*
+pnpm-debug.log*
+
+# Sistema
 .DS_Store
 Thumbs.db
+
+# Turbo cache
+.turbo/
+
+# Supabase CLI
+supabase/.branches/
+supabase/.temp/
