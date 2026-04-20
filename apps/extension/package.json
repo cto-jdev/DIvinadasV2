@@ -1,0 +1,13 @@
+{
+    "name": "@divinads/extension",
+    "version": "2.0.0",
+    "private": true,
+    "description": "DivinAds Chrome Extension MV3 — thin client",
+    "scripts": {
+        "build": "node scripts/build.js",
+        "zip": "node scripts/zip.js"
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.0.270"
+    }
+}
