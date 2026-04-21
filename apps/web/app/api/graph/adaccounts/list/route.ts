@@ -37,8 +37,17 @@ export async function GET(req: NextRequest) {
 
         let data: any[] = [];
         if (q.data.bm_id) {
-            const owned  = await graphGet<{ data: any[] }>(`/${q.data.bm_id}/owned_ad_accounts`,  token, { fields: FIELDS, limit: '500' }).catch(() => ({ data: [] }));
-            const client = await graphGet<{ data: any[] }>(`/${q.data.bm_id}/client_ad_accounts`, token, { fields: FIELDS, limit: '500' }).catch(() => ({ data: [] }));
+            // owned_ad_accounts must succeed — if it fails the outer catch returns a 502
+            const owned = await graphGet<{ data: any[] }>(
+                `/${q.data.bm_id}/owned_ad_accounts`, token, { fields: FIELDS, limit: '500' },
+            );
+            // client_ad_accounts is supplemental; not all BMs have client accounts
+            const client = await graphGet<{ data: any[] }>(
+                `/${q.data.bm_id}/client_ad_accounts`, token, { fields: FIELDS, limit: '500' },
+            ).catch((err) => {
+                console.warn('[adaccounts] client_ad_accounts error:', err instanceof GraphError ? err.fbMessage : err);
+                return { data: [] as any[] };
+            });
             data = [
                 ...owned.data.map(a  => ({ ...a, source: 'owned' })),
                 ...client.data.map(a => ({ ...a, source: 'client' })),

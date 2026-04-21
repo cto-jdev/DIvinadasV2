@@ -37,7 +37,10 @@ export async function GET(req: NextRequest) {
             '/me/client_businesses',
             token,
             { fields: 'id,name,verification_status', limit: '200' },
-        ).catch(() => ({ data: [] }));
+        ).catch((err) => {
+            console.warn('[bm/list] client_businesses error:', err instanceof GraphError ? err.fbMessage : err);
+            return { data: [] as BmEdge[] };
+        });
 
         const merged = [
             ...owned.data.map(b => ({ ...b, role: 'owner' })),

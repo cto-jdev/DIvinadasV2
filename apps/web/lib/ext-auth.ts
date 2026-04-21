@@ -95,7 +95,8 @@ export async function authenticateExtension(
     supa.from('extension_installs')
         .update({ last_seen_at: new Date().toISOString() })
         .eq('id', claim.install_id)
-        .then(() => null);
+        .then(() => null)
+        .catch((err) => console.error('[ext-auth] last_seen_at update failed:', err));
 
     return {
         ok: true,

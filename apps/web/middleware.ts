@@ -10,15 +10,27 @@ export const config = {
     matcher: [
         '/panel/:path*',
         '/admin/:path*',
-        /*
-         * Excluir archivos estáticos y rutas de auth para evitar loops.
-         * El patrón negativo no está disponible en todos los entornos de Edge,
-         * así que se lista explícitamente lo que SÍ se protege.
-         */
+        '/api/:path*',
     ],
 };
 
+const MAX_BODY_BYTES = 1 * 1024 * 1024; // 1 MB
+
 export async function middleware(req: NextRequest) {
+    // Reject oversized POST/PUT bodies before they reach route handlers.
+    // Guards against memory exhaustion from malicious large payloads.
+    if (req.method === 'POST' || req.method === 'PUT') {
+        const cl = req.headers.get('content-length');
+        if (cl && parseInt(cl, 10) > MAX_BODY_BYTES) {
+            return NextResponse.json({ error: 'payload_too_large' }, { status: 413 });
+        }
+    }
+
+    // API routes don't need session checks — return early
+    if (req.nextUrl.pathname.startsWith('/api/')) {
+        return NextResponse.next();
+    }
+
     const res = NextResponse.next();
     const supa = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,

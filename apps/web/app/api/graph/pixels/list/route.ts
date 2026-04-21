@@ -36,18 +36,15 @@ export async function GET(req: NextRequest) {
 
         let data: any[] = [];
         if (q.data.bm_id) {
+            // Primary source — let outer catch handle errors (returns 502 to client)
             const r = await graphGet<{ data: any[] }>(
-                `/${q.data.bm_id}/adspixels`,
-                token,
-                { fields: FIELDS, limit: '200' },
-            ).catch(() => ({ data: [] }));
+                `/${q.data.bm_id}/adspixels`, token, { fields: FIELDS, limit: '200' },
+            );
             data = r.data;
         } else {
             const r = await graphGet<{ data: any[] }>(
-                '/me/adspixels',
-                token,
-                { fields: FIELDS, limit: '200' },
-            ).catch(() => ({ data: [] }));
+                '/me/adspixels', token, { fields: FIELDS, limit: '200' },
+            );
             data = r.data;
         }
 
