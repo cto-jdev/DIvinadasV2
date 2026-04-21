@@ -42,8 +42,7 @@ export async function POST(req: NextRequest) {
     supa.from('extension_installs')
         .update({ last_seen_at: new Date().toISOString() })
         .eq('id', install.id)
-        .then(() => null)
-        .catch((err) => console.error('[heartbeat] last_seen_at update failed:', err));
+        .then(null, (err: unknown) => console.error('[heartbeat] last_seen_at update failed:', err));
 
     return NextResponse.json({
         active:    gate.ok,
