@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
     const { data, error } = await supa.rpc('redeem_pair_code', {
         p_code_hash:          codeHash,
         p_session_token_hash: tokenHash,
-        p_label:              body.label ?? null,
-        p_user_agent:         body.user_agent ?? req.headers.get('user-agent') ?? null,
+        p_label:              body.label ?? undefined,
+        p_user_agent:         body.user_agent ?? req.headers.get('user-agent') ?? undefined,
     });
 
     if (error) {
