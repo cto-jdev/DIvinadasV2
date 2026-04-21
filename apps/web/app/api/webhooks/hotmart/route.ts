@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
                 action:       'license.activated',
                 resource_type:'license',
                 resource_id:  tenantId,
-                meta:         { plan, hotmart_event: event, transaction: data.purchase?.transaction },
+                metadata:     { plan, hotmart_event: event, transaction: data.purchase?.transaction },
             });
             break;
         }
@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
                 action:       'license.cancelled',
                 resource_type:'license',
                 resource_id:  tenantId,
-                meta:         { reason: event, transaction: data.purchase?.transaction },
+                metadata:     { reason: event, transaction: data.purchase?.transaction },
             });
             break;
         }
@@ -226,7 +226,7 @@ export async function POST(req: NextRequest) {
                 action:       'license.expired',
                 resource_type:'license',
                 resource_id:  tenantId,
-                meta:         { hotmart_event: event },
+                metadata:     { hotmart_event: event },
             });
             break;
         }
