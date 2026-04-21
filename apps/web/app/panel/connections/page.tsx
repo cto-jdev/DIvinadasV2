@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 type Conn = {
@@ -11,7 +11,7 @@ type Conn = {
     connected_at: string;
 };
 
-export default function ConnectionsPage() {
+function ConnectionsContent() {
     const sp = useSearchParams();
     const tenantId = sp.get('tenant');
     const [conns, setConns] = useState<Conn[] | null>(null);
@@ -81,4 +81,8 @@ export default function ConnectionsPage() {
             ))}
         </>
     );
+}
+
+export default function ConnectionsPage() {
+    return <Suspense><ConnectionsContent /></Suspense>;
 }

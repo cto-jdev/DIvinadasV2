@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 type Member = { user_id: string; role: string; joined_at: string; profiles: { email: string; full_name: string | null } };
@@ -8,7 +8,7 @@ const ROLE_LABELS: Record<string, string> = {
     owner: 'Owner', admin: 'Admin', operator: 'Operador', viewer: 'Visualizador',
 };
 
-export default function TeamPage() {
+function TeamContent() {
     const sp = useSearchParams();
     const tenantId = sp.get('tenant');
     const [members, setMembers] = useState<Member[] | null>(null);
@@ -86,4 +86,8 @@ export default function TeamPage() {
             ))}
         </>
     );
+}
+
+export default function TeamPage() {
+    return <Suspense><TeamContent /></Suspense>;
 }

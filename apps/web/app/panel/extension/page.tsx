@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function ExtensionPairPage() {
+function ExtensionPairContent() {
     const sp = useSearchParams();
     const tenantId = sp.get('tenant');
     const [code, setCode] = useState<string | null>(null);
@@ -55,4 +55,8 @@ export default function ExtensionPairPage() {
             </div>
         </>
     );
+}
+
+export default function ExtensionPairPage() {
+    return <Suspense><ExtensionPairContent /></Suspense>;
 }

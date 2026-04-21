@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
@@ -11,7 +11,7 @@ const ERROR_MESSAGES: Record<string, string> = {
     invalid_credentials:  'Correo o contraseña incorrectos.',
 };
 
-export default function LoginPage() {
+function LoginContent() {
     const router = useRouter();
     const sp = useSearchParams();
     const [email, setEmail] = useState('');
@@ -72,4 +72,8 @@ export default function LoginPage() {
             </div>
         </main>
     );
+}
+
+export default function LoginPage() {
+    return <Suspense><LoginContent /></Suspense>;
 }
