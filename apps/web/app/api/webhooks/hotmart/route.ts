@@ -13,11 +13,9 @@
  * Seguridad: verificación HOTTOK por header x-hotmart-hottok usando
  * timingSafeEqual. Cualquier solicitud sin token válido devuelve 401.
  *
- * Mapeo de plan: el nombre del producto/plan en Hotmart se mapea a
- * los planes internos via HOTMART_PLAN_MAP (configurable por env).
- *
- * Lookup de tenant: se usa el email del comprador para encontrar el
- * usuario en Supabase Auth y obtener su tenant principal.
+ * Idempotencia: payload.id se registra en webhook_events antes de
+ * procesar. Si ya existe (unique violation), se devuelve 200 sin
+ * reprocesar para tolerar reintentos de Hotmart.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
@@ -78,12 +76,14 @@ function resolvePlan(planName?: string): 'starter' | 'pro' | 'enterprise' {
 async function getTenantByEmail(email: string): Promise<string | null> {
     const supa = getSupabaseService();
 
-    // Buscar usuario en auth.users por email
-    const { data: users } = await supa.auth.admin.listUsers();
-    const user = users?.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+    const { data: users, error } = await supa.auth.admin.listUsers();
+    if (error || !users) {
+        console.error('[hotmart-webhook] listUsers failed:', error?.message);
+        return null;
+    }
+    const user = users.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
     if (!user) return null;
 
-    // Obtener primer tenant donde es owner o admin
     const { data: member } = await supa
         .from('tenant_members')
         .select('tenant_id')
@@ -107,7 +107,8 @@ export async function POST(req: NextRequest) {
 
     // Verificar HOTTOK en header (Hotmart v2.0+)
     const receivedToken = req.headers.get('x-hotmart-hottok') ?? '';
-    const valid = receivedToken.length === hottok.length &&
+    const valid = receivedToken.length > 0 &&
+        receivedToken.length === hottok.length &&
         crypto.timingSafeEqual(Buffer.from(receivedToken), Buffer.from(hottok));
 
     if (!valid) {
@@ -121,8 +122,27 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
     }
 
+    if (!payload.id || !payload.event) {
+        return NextResponse.json({ error: 'invalid_payload' }, { status: 400 });
+    }
+
     const { event, data } = payload;
     const supa = getSupabaseService();
+
+    // Idempotency: insert event ID before processing. If the insert fails with
+    // a unique violation (23505), this event was already processed — return 200
+    // so Hotmart stops retrying.
+    const { error: idempErr } = await supa.from('webhook_events').insert({
+        provider: 'hotmart',
+        event_id: payload.id,
+    });
+    if (idempErr) {
+        if ((idempErr as { code?: string }).code === '23505') {
+            return NextResponse.json({ received: true, event, duplicate: true });
+        }
+        // Non-uniqueness error: log but continue (don't block billing on idempotency table issues)
+        console.error('[hotmart-webhook] idempotency insert failed:', idempErr.message);
+    }
 
     try {
         switch (event) {
@@ -134,7 +154,6 @@ export async function POST(req: NextRequest) {
 
             const tenantId = await getTenantByEmail(email);
             if (!tenantId) {
-                // Comprador sin cuenta DivinAds — registrar para soporte
                 console.warn('[hotmart-webhook] No tenant found for buyer:', email);
                 break;
             }
@@ -143,7 +162,6 @@ export async function POST(req: NextRequest) {
             const subCode   = data.subscription?.subscriber?.code ?? null;
             const buyerCode = data.buyer?.code ?? null;
 
-            // Período por defecto: 1 mes (Hotmart envía next billing en recurrence)
             const periodEnd = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString();
 
             await supa.from('licenses').upsert({
@@ -214,13 +232,13 @@ export async function POST(req: NextRequest) {
         }
 
         default:
-            // Ignorar eventos no manejados (PURCHASE_PROTEST, PURCHASE_CHARGEBACK, etc.)
             break;
         }
 
         return NextResponse.json({ received: true, event });
-    } catch (err: any) {
-        console.error('[hotmart-webhook]', event, err?.message);
+    } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error('[hotmart-webhook]', event, msg);
         return NextResponse.json({ error: 'handler_error' }, { status: 500 });
     }
 }

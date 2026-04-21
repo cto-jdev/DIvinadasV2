@@ -29,3 +29,7 @@ Thumbs.db
 # Supabase CLI
 supabase/.branches/
 supabase/.temp/
+
+# Claude Code — settings locales (pueden contener tokens o permisos del dev)
+.claude/settings.local.json
+.claude/worktrees/
