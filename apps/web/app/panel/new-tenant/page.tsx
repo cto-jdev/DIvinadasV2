@@ -2,13 +2,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getSupabaseBrowser } from '@/lib/supabase-browser';
 
 const ERROR_MESSAGES: Record<string, string> = {
     invalid_slug:         'El slug solo puede contener minúsculas, números y guiones (3–48 caracteres).',
     invalid_display_name: 'El nombre debe tener al menos 2 caracteres.',
     not_authenticated:    'Sesión expirada. Vuelve a entrar.',
-    duplicate_key:        'Ese slug ya está en uso. Elige otro.',
+    duplicate_slug:       'Ese slug ya está en uso. Elige otro.',
+    unauthorized:         'Sesión expirada. Vuelve a entrar.',
 };
 
 function slugify(s: string) {
@@ -36,21 +36,19 @@ export default function NewTenantPage() {
     async function submit(e: React.FormEvent) {
         e.preventDefault();
         setErr(null); setLoading(true);
-        const supa = getSupabaseBrowser();
-        const { data, error } = await supa.rpc('create_tenant', {
-            p_slug: slug,
-            p_display_name: displayName,
+        const r = await fetch('/api/tenant/create', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ slug, display_name: displayName }),
         });
+        const j = await r.json();
         setLoading(false);
 
-        if (error) {
-            const key = (error.message.match(/invalid_slug|invalid_display_name|not_authenticated/) || [])[0];
-            if (key) { setErr(ERROR_MESSAGES[key]); return; }
-            if (error.message.includes('duplicate key')) { setErr(ERROR_MESSAGES.duplicate_key); return; }
-            setErr(error.message);
+        if (!r.ok) {
+            setErr(ERROR_MESSAGES[j.error] ?? j.message ?? j.error ?? 'Error al crear tenant.');
             return;
         }
-        router.replace(`/panel/connections?tenant=${data}`);
+        router.replace(`/panel/connections?tenant=${j.tenant_id}`);
     }
 
     return (
