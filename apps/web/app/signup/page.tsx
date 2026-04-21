@@ -1,11 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getSupabaseBrowser } from '@/lib/supabase-browser';
 
 export default function SignupPage() {
-    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
@@ -30,34 +28,58 @@ export default function SignupPage() {
     }
 
     if (sent) return (
-        <main className="shell" style={{ maxWidth: 420 }}>
-            <div className="card">
-                <h2 style={{ color: '#10B981', marginTop: 0 }}>Revisa tu correo</h2>
-                <p>Te enviamos un enlace de confirmación a <strong>{email}</strong>.</p>
+        <main className="shell-narrow fade-in">
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <Link href="/" className="brand" style={{ fontSize: 22 }}>DivinAds</Link>
+            </div>
+            <div className="card card-glow">
+                <div className="pill pill-success" style={{ marginBottom: 12 }}>✓ Cuenta creada</div>
+                <h2 style={{ marginTop: 0 }}>Revisa tu correo</h2>
+                <p>Te enviamos un enlace de confirmación a <strong style={{ color: 'var(--text)' }}>{email}</strong>.</p>
                 <p className="muted">Una vez confirmado podrás entrar en DivinAds.</p>
+                <Link className="btn btn-ghost btn-block" href="/login" style={{ marginTop: 12 }}>
+                    Volver a inicio de sesión
+                </Link>
             </div>
         </main>
     );
 
     return (
-        <main className="shell" style={{ maxWidth: 420 }}>
-            <div className="card">
-                <h2 style={{ marginTop: 0, color: '#6B21A8' }}>Crear cuenta</h2>
-                <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <input type="text" required placeholder="Nombre completo" value={name}
-                           onChange={e => setName(e.target.value)}
-                           style={{ padding: 10, borderRadius: 8, border: '1px solid #E5E7EB' }} />
-                    <input type="email" required placeholder="Correo" value={email}
-                           onChange={e => setEmail(e.target.value)}
-                           style={{ padding: 10, borderRadius: 8, border: '1px solid #E5E7EB' }} />
-                    <input type="password" required minLength={8} placeholder="Contraseña (mín. 8 caracteres)"
-                           value={password} onChange={e => setPassword(e.target.value)}
-                           style={{ padding: 10, borderRadius: 8, border: '1px solid #E5E7EB' }} />
-                    {err && <div style={{ color: '#DC2626', fontSize: 13 }}>{err}</div>}
-                    <button className="btn btn-primary" disabled={loading}>
+        <main className="shell-narrow fade-in">
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <Link href="/" className="brand" style={{ fontSize: 22 }}>DivinAds</Link>
+            </div>
+            <div className="card card-glow">
+                <h2 style={{ marginTop: 0 }} className="text-grad">Crear cuenta</h2>
+                <p className="muted" style={{ marginTop: 0 }}>
+                    Empieza gratis — sin tarjeta de crédito.
+                </p>
+
+                <form onSubmit={submit} className="col" style={{ gap: 14, marginTop: 8 }}>
+                    <div className="field" style={{ marginBottom: 0 }}>
+                        <label className="label">Nombre completo</label>
+                        <input type="text" required value={name}
+                               onChange={e => setName(e.target.value)}
+                               placeholder="Juan Pérez" autoComplete="name" />
+                    </div>
+                    <div className="field" style={{ marginBottom: 0 }}>
+                        <label className="label">Correo</label>
+                        <input type="email" required value={email}
+                               onChange={e => setEmail(e.target.value)}
+                               placeholder="tu@email.com" autoComplete="email" />
+                    </div>
+                    <div className="field" style={{ marginBottom: 0 }}>
+                        <label className="label">Contraseña</label>
+                        <input type="password" required minLength={8} value={password}
+                               onChange={e => setPassword(e.target.value)}
+                               placeholder="Mín. 8 caracteres" autoComplete="new-password" />
+                    </div>
+                    {err && <div className="alert alert-error">{err}</div>}
+                    <button className="btn btn-primary btn-block" disabled={loading}>
                         {loading ? 'Creando cuenta…' : 'Crear cuenta'}
                     </button>
                 </form>
+
                 <p className="muted" style={{ marginTop: 16, textAlign: 'center' }}>
                     ¿Ya tienes cuenta? <Link href="/login">Entrar</Link>
                 </p>

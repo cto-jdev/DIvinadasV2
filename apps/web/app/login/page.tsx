@@ -9,6 +9,7 @@ const ERROR_MESSAGES: Record<string, string> = {
     access_denied:        'Acceso denegado por Google.',
     expired_token:        'El enlace expiró. Solicita uno nuevo.',
     invalid_credentials:  'Correo o contraseña incorrectos.',
+    email_not_confirmed:  'Confirma tu correo antes de entrar.',
 };
 
 function LoginContent() {
@@ -19,11 +20,10 @@ function LoginContent() {
     const [err, setErr] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
-    // Mostrar errores provenientes del callback OAuth
     useEffect(() => {
         const e = sp.get('error');
         if (e) setErr(ERROR_MESSAGES[e] ?? sp.get('error_description') ?? e);
-    }, []);
+    }, [sp]);
 
     async function submit(e: React.FormEvent) {
         e.preventDefault();
@@ -45,29 +45,39 @@ function LoginContent() {
     }
 
     return (
-        <main className="shell" style={{ maxWidth: 420 }}>
-            <div className="card">
-                <h2 style={{ marginTop: 0, color: '#6B21A8' }}>Entrar a DivinAds</h2>
-                {!err && sp.get('error') === null && (
-                    <p className="muted" style={{ marginTop: 0 }}>
-                        ¿Sin cuenta? <Link href="/signup">Crear cuenta gratuita</Link>
-                    </p>
-                )}
-                <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <input type="email" required placeholder="Correo" value={email}
-                           onChange={e => setEmail(e.target.value)}
-                           style={{ padding: 10, borderRadius: 8, border: '1px solid #E5E7EB' }} />
-                    <input type="password" required placeholder="Contraseña" value={password}
-                           onChange={e => setPassword(e.target.value)}
-                           style={{ padding: 10, borderRadius: 8, border: '1px solid #E5E7EB' }} />
-                    {err && <div style={{ color: '#DC2626', fontSize: 13 }}>{err}</div>}
-                    <button className="btn btn-primary" disabled={loading}>
+        <main className="shell-narrow fade-in">
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <Link href="/" className="brand" style={{ fontSize: 22 }}>DivinAds</Link>
+            </div>
+            <div className="card card-glow">
+                <h2 style={{ marginTop: 0 }} className="text-grad">Entrar</h2>
+                <p className="muted" style={{ marginTop: 0 }}>
+                    ¿Sin cuenta? <Link href="/signup">Crear cuenta</Link>
+                </p>
+
+                <form onSubmit={submit} className="col" style={{ gap: 14, marginTop: 8 }}>
+                    <div className="field" style={{ marginBottom: 0 }}>
+                        <label className="label">Correo</label>
+                        <input type="email" required value={email}
+                               onChange={e => setEmail(e.target.value)}
+                               placeholder="tu@email.com" autoComplete="email" />
+                    </div>
+                    <div className="field" style={{ marginBottom: 0 }}>
+                        <label className="label">Contraseña</label>
+                        <input type="password" required value={password}
+                               onChange={e => setPassword(e.target.value)}
+                               placeholder="••••••••" autoComplete="current-password" />
+                    </div>
+                    {err && <div className="alert alert-error">{err}</div>}
+                    <button className="btn btn-primary btn-block" disabled={loading}>
                         {loading ? 'Entrando…' : 'Entrar'}
                     </button>
                 </form>
-                <hr style={{ margin: '20px 0', border: 0, borderTop: '1px solid #E5E7EB' }} />
-                <button className="btn btn-ghost" onClick={loginWithGoogle} style={{ width: '100%' }}>
-                    Continuar con Google
+
+                <hr className="divider" />
+
+                <button className="btn btn-ghost btn-block" onClick={loginWithGoogle} type="button">
+                    <span style={{ fontSize: 16 }}>G</span> Continuar con Google
                 </button>
             </div>
         </main>

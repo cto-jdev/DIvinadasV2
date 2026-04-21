@@ -659,6 +659,10 @@ export type Database = {
         Returns: undefined
       }
       tenant_role: { Args: { p_tenant: string }; Returns: string }
+      create_tenant: {
+        Args: { p_slug: string; p_display_name: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
