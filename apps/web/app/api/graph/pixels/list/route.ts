@@ -14,7 +14,7 @@ export const runtime = 'nodejs';
 const FIELDS = 'id,name,code,creation_time,last_fired_time,is_unavailable';
 const Query  = z.object({
     connection_id: z.string().uuid(),
-    bm_id: z.string().optional(),
+    bm_id: z.string().regex(/^\d+$/, 'bm_id must be numeric').optional(),
 });
 
 export async function GET(req: NextRequest) {

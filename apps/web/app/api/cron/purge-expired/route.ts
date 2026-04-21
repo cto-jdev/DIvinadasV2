@@ -23,9 +23,9 @@ export async function GET(req: NextRequest) {
     const now   = new Date().toISOString();
 
     const [r1, r2, r3, r4] = await Promise.all([
-        // oauth_transactions expiradas
+        // oauth_transactions expiradas — tanto consumidas como abandonadas
         supa.from('oauth_transactions').delete()
-            .lt('expires_at', now).not('consumed_at', 'is', null)
+            .lt('expires_at', now)
             .select('id', { count: 'exact', head: true }),
 
         // device_pairings expirados/consumidos

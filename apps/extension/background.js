@@ -55,7 +55,14 @@ async function apiFetch(path, options = {}) {
 // -------------------------------------------------------------------
 // Mensajes del popup / options
 // -------------------------------------------------------------------
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    // Accept only messages from this extension's own pages (popup, options).
+    // Reject content-script messages (sender.tab set) and external extensions
+    // to prevent malicious web pages from triggering backend API calls.
+    if (sender.id !== chrome.runtime.id || sender.tab !== undefined) {
+        sendResponse({ ok: false, error: 'unauthorized_sender' });
+        return false;
+    }
     handleMessage(msg).then(sendResponse).catch(err =>
         sendResponse({ ok: false, error: err.message })
     );

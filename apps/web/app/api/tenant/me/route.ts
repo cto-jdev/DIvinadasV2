@@ -31,15 +31,21 @@ export async function GET(req: NextRequest) {
 
     if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });
 
-    const data = (memberships ?? []).map((m: any) => ({
-        tenant_id:    m.tenants.id,
-        slug:         m.tenants.slug,
-        display_name: m.tenants.display_name,
-        status:       m.tenants.status,
-        role:         m.role,
-        joined_at:    m.joined_at,
-        license:      m.tenants.licenses ?? null,
-    }));
+    // flatMap drops rows where the nested tenant join returned null (deleted tenants
+    // filtered by .neq above can still appear as null in the join result).
+    const data = (memberships ?? []).flatMap((m) => {
+        const t = m.tenants as Record<string, unknown> | null;
+        if (!t) return [];
+        return [{
+            tenant_id:    t['id']           as string,
+            slug:         t['slug']         as string,
+            display_name: t['display_name'] as string,
+            status:       t['status']       as string,
+            role:         m.role,
+            joined_at:    m.joined_at,
+            license:      (t['licenses'] as unknown) ?? null,
+        }];
+    });
 
     return NextResponse.json({ data });
 }

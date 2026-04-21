@@ -13,7 +13,7 @@ export const runtime = 'nodejs';
 
 const Query = z.object({
     connection_id: z.string().uuid(),
-    bm_id: z.string().optional(),
+    bm_id: z.string().regex(/^\d+$/, 'bm_id must be numeric').optional(),
 });
 
 const FIELDS = 'id,name,account_status,currency,business,amount_spent,balance,disable_reason';

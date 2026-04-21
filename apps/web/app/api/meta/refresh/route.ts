@@ -55,13 +55,19 @@ export async function POST(req: NextRequest) {
         await supa.from('meta_connections').update({ status: 'expired' }).eq('id', conn.id);
         return NextResponse.json({ error: 'meta_error', status: res.status }, { status: 502 });
     }
-    const j = await res.json() as { access_token: string; expires_in?: number };
+    const j = await res.json() as { access_token?: string; expires_in?: number; error?: unknown };
+    if (!j.access_token) {
+        await supa.from('meta_connections').update({ status: 'expired' }).eq('id', conn.id);
+        return NextResponse.json({ error: 'meta_error', detail: 'no_token_returned' }, { status: 502 });
+    }
 
     const expiresAt = j.expires_in
         ? new Date(Date.now() + j.expires_in * 1000).toISOString()
         : null;
 
-    const { data: connRow } = await supa.from('meta_connections').select('meta_user_id').eq('id', conn.id).single();
+    // maybeSingle() instead of single() — connection could be deleted mid-refresh
+    const { data: connRow } = await supa.from('meta_connections')
+        .select('meta_user_id').eq('id', conn.id).maybeSingle();
     const { error: storeErr } = await supa.rpc('store_meta_token', {
         p_connection_id: conn.id,
         p_access_token: j.access_token,
