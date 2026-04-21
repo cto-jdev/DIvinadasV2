@@ -653,7 +653,7 @@ export type Database = {
         Args: {
           p_access_token: string
           p_connection_id: string
-          p_expires_at: string
+          p_expires_at?: string | null
           p_scopes: string[]
         }
         Returns: undefined
