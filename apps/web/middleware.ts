@@ -32,9 +32,17 @@ export async function middleware(req: NextRequest) {
     }
 
     const res = NextResponse.next();
+
+    // Si Supabase no está configurado, no podemos validar sesión. Dejamos
+    // pasar para que al menos la app arranque y las páginas públicas rindan.
+    // (El usuario verá la UI de /panel pero sin datos — esperado en staging.)
+    const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supaKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supaUrl || !supaKey) return res;
+
     const supa = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supaUrl,
+        supaKey,
         {
             cookies: {
                 getAll: () => req.cookies.getAll().map(c => ({ name: c.name, value: c.value })),

@@ -26,9 +26,15 @@ export async function register() {
 
     const missing = required.filter(k => !process.env[k]);
     if (missing.length > 0) {
-        throw new Error(
-            `[divinads] Missing required environment variables: ${missing.join(', ')}\n` +
-            'Copy .env.example.v2 to apps/web/.env.local and fill in all values.',
-        );
+        // Warn only — allow the app to boot with incomplete config so public
+        // pages render. Routes that need a missing var will still fail at
+        // request time. Set STRICT_ENV=1 to restore the hard-fail behavior.
+        const msg =
+            `[divinads] Missing env vars: ${missing.join(', ')}. ` +
+            'Dependent routes will error at request time.';
+        if (process.env.STRICT_ENV === '1') {
+            throw new Error(msg);
+        }
+        console.warn(msg);
     }
 }
