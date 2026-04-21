@@ -26,29 +26,29 @@ export async function GET(req: NextRequest) {
         // oauth_transactions expiradas — tanto consumidas como abandonadas
         supa.from('oauth_transactions').delete()
             .lt('expires_at', now)
-            .select('id', { count: 'exact', head: true }),
+            .select('id'),
 
         // device_pairings expirados/consumidos
         supa.from('device_pairings').delete()
             .lt('expires_at', now)
-            .select('id', { count: 'exact', head: true }),
+            .select('id'),
 
         // extension_installs revocados > 90d
         supa.from('extension_installs').delete()
             .lt('revoked_at', ago90)
-            .select('id', { count: 'exact', head: true }),
+            .select('id'),
 
         // audit_logs > 90d
         supa.from('audit_logs').delete()
             .lt('created_at', ago90)
-            .select('id', { count: 'exact', head: true }),
+            .select('id'),
     ]);
 
     const stats = {
-        oauth_transactions_purged:  r1.count ?? 0,
-        device_pairings_purged:     r2.count ?? 0,
-        extension_installs_purged:  r3.count ?? 0,
-        audit_logs_purged:          r4.count ?? 0,
+        oauth_transactions_purged:  r1.data?.length ?? 0,
+        device_pairings_purged:     r2.data?.length ?? 0,
+        extension_installs_purged:  r3.data?.length ?? 0,
+        audit_logs_purged:          r4.data?.length ?? 0,
     };
 
     await supa.from('audit_logs').insert({
