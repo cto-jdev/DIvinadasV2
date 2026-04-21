@@ -39,7 +39,7 @@ export async function graphGet<T = unknown>(
 }
 
 export async function getTokenForConnection(
-    supa: { rpc: (fn: string, args: any) => any },
+    supa: any,
     connectionId: string,
 ): Promise<string> {
     const { data, error } = await supa.rpc('get_meta_token', { p_connection_id: connectionId });
