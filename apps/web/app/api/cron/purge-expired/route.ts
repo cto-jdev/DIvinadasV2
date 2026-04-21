@@ -12,9 +12,17 @@ import { getSupabaseService } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
+function isAuthorizedCron(req: NextRequest): boolean {
+    const expected = process.env.CRON_SECRET;
+    if (!expected) return false;
+    const auth = req.headers.get('authorization');
+    if (auth === `Bearer ${expected}`) return true;
+    if (req.headers.get('x-cron-secret') === expected) return true;
+    return false;
+}
+
 export async function GET(req: NextRequest) {
-    const secret = req.headers.get('x-cron-secret');
-    if (!secret || secret !== process.env.CRON_SECRET) {
+    if (!isAuthorizedCron(req)) {
         return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
 

@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    experimental: {
-        serverActions: { allowedOrigins: ['localhost:3000'] },
-        instrumentationHook: true,
-    },
     images: {
         remotePatterns: [
             { protocol: 'https', hostname: '*.fbcdn.net' },
@@ -16,11 +12,12 @@ const nextConfig = {
         const supabaseHost = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').replace('https://', '');
         const csp = [
             "default-src 'self'",
-            "script-src 'self'",
+            // Next.js App Router inyecta bootstrap/hydration inline scripts
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
             `connect-src 'self' https://${supabaseHost} https://graph.facebook.com https://www.facebook.com`,
             "img-src 'self' data: https://*.fbcdn.net https://graph.facebook.com https://lh3.googleusercontent.com",
             "style-src 'self' 'unsafe-inline'",
-            "font-src 'self'",
+            "font-src 'self' data:",
             "frame-ancestors 'none'",
             "object-src 'none'",
             "base-uri 'self'",

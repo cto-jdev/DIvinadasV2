@@ -10,9 +10,19 @@ import { getSupabaseService } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
+function isAuthorizedCron(req: NextRequest): boolean {
+    const expected = process.env.CRON_SECRET;
+    if (!expected) return false;
+    // Vercel Cron envía `Authorization: Bearer <CRON_SECRET>`
+    const auth = req.headers.get('authorization');
+    if (auth === `Bearer ${expected}`) return true;
+    // Backwards-compat: invocación interna o manual con x-cron-secret
+    if (req.headers.get('x-cron-secret') === expected) return true;
+    return false;
+}
+
 export async function GET(req: NextRequest) {
-    const secret = req.headers.get('x-cron-secret');
-    if (!secret || secret !== process.env.CRON_SECRET) {
+    if (!isAuthorizedCron(req)) {
         return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
     }
 
@@ -70,7 +80,7 @@ export async function GET(req: NextRequest) {
                     method: 'POST',
                     headers: {
                         'content-type': 'application/json',
-                        'x-cron-secret': process.env.CRON_SECRET!,
+                        authorization: `Bearer ${process.env.CRON_SECRET!}`,
                     },
                     body: JSON.stringify({ connection_id: conn.id }),
                 },

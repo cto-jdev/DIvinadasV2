@@ -14,8 +14,13 @@ const Body = z.object({ connection_id: z.string().uuid() });
 const FB_API = process.env.FB_API_VERSION || 'v20.0';
 
 async function isAuthorized(req: NextRequest): Promise<{ ok: boolean; userId: string | null }> {
-    const cron = req.headers.get('x-cron-secret');
-    if (cron && cron === process.env.CRON_SECRET) return { ok: true, userId: null };
+    const expected = process.env.CRON_SECRET;
+    if (expected) {
+        const bearer = req.headers.get('authorization');
+        if (bearer === `Bearer ${expected}`) return { ok: true, userId: null };
+        const cron = req.headers.get('x-cron-secret');
+        if (cron === expected) return { ok: true, userId: null };
+    }
     const user = await getUserFromRequest(req);
     return { ok: !!user, userId: user?.id ?? null };
 }
