@@ -29,6 +29,7 @@ function signState(payload: string, secret: string): string {
 }
 
 export async function POST(req: NextRequest) {
+    const res = NextResponse.next();
     const cookieStore = cookies();
     const cookieNames = cookieStore.getAll().map(c => c.name);
     const supaAuth = createServerClient(
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
                 getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
                 setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
                     cs.forEach(({ name, value, options }) => {
-                        try { cookieStore.set({ name, value, ...options }); } catch { /* RSC */ }
+                        res.cookies.set({ name, value, ...options });
                     });
                 },
             },
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
                 authError: authErr?.message ?? null,
             };
         }
-        return NextResponse.json(body, { status: 401 });
+        return NextResponse.json(body, { status: 401, headers: res.headers });
     }
 
     const body = parseOrThrow(OAuthStartInput, await req.json());
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
         .eq('user_id', user.id)
         .maybeSingle();
     if (!mem) {
-        return NextResponse.json({ error: 'forbidden', message: 'not a tenant member' }, { status: 403 });
+        return NextResponse.json({ error: 'forbidden', message: 'not a tenant member' }, { status: 403, headers: res.headers });
     }
 
     const secret = process.env.OAUTH_STATE_SECRET;
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
         expires_at: expiresAt.toISOString(),
     });
     if (insErr) {
-        return NextResponse.json({ error: 'internal_error', message: insErr.message }, { status: 500 });
+        return NextResponse.json({ error: 'internal_error', message: insErr.message }, { status: 500, headers: res.headers });
     }
 
     const url = new URL(FB_AUTH);
@@ -105,5 +106,5 @@ export async function POST(req: NextRequest) {
         redirect_url: url.toString(),
         state,
         expires_at: expiresAt.toISOString(),
-    });
+    }, { headers: res.headers });
 }

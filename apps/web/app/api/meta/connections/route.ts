@@ -15,6 +15,7 @@ export const dynamic = 'force-dynamic';
 const Query = z.object({ tenant_id: z.string().uuid() });
 
 export async function GET(req: NextRequest) {
+    const res = NextResponse.next();
     const cookieStore = cookies();
     const cookieNames = cookieStore.getAll().map(c => c.name);
     const supaAuth = createServerClient(
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
                 getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
                 setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
                     cs.forEach(({ name, value, options }) => {
-                        try { cookieStore.set({ name, value, ...options }); } catch { /* RSC */ }
+                        res.cookies.set({ name, value, ...options });
                     });
                 },
             },
@@ -41,16 +42,16 @@ export async function GET(req: NextRequest) {
                 authError: authErr?.message ?? null,
             };
         }
-        return NextResponse.json(body, { status: 401 });
+        return NextResponse.json(body, { status: 401, headers: res.headers });
     }
 
     const q = Query.safeParse({ tenant_id: req.nextUrl.searchParams.get('tenant_id') });
-    if (!q.success) return NextResponse.json({ error: 'validation_error' }, { status: 400 });
+    if (!q.success) return NextResponse.json({ error: 'validation_error' }, { status: 400, headers: res.headers });
 
     const supa = getSupabaseService();
     const { data: mem } = await supa.from('tenant_members')
         .select('role').eq('tenant_id', q.data.tenant_id).eq('user_id', user.id).maybeSingle();
-    if (!mem) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    if (!mem) return NextResponse.json({ error: 'forbidden' }, { status: 403, headers: res.headers });
 
     const { data, error } = await supa.from('meta_connections')
         .select('id, meta_user_id, display_name, email, picture_url, status, connected_at, last_refreshed_at')
@@ -58,6 +59,6 @@ export async function GET(req: NextRequest) {
         .neq('status', 'revoked')
         .order('connected_at', { ascending: false });
 
-    if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });
-    return NextResponse.json({ data });
+    if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500, headers: res.headers });
+    return NextResponse.json({ data }, { headers: res.headers });
 }
