@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getSupabaseBrowser } from '@/lib/supabase-browser';
 
 const ERROR_MESSAGES: Record<string, string> = {
     invalid_slug:         'El slug solo puede contener minúsculas, números y guiones (3–48 caracteres).',
@@ -36,9 +37,21 @@ export default function NewTenantPage() {
     async function submit(e: React.FormEvent) {
         e.preventDefault();
         setErr(null); setLoading(true);
+
+        const supa = getSupabaseBrowser();
+        const { data: { session } } = await supa.auth.getSession();
+        if (!session) {
+            setLoading(false);
+            setErr('Sesión no disponible. Entra de nuevo.');
+            return;
+        }
+
         const r = await fetch('/api/tenant/create', {
             method: 'POST',
-            headers: { 'content-type': 'application/json' },
+            headers: {
+                'content-type': 'application/json',
+                'authorization': `Bearer ${session.access_token}`,
+            },
             body: JSON.stringify({ slug, display_name: displayName }),
         });
         const j = await r.json();

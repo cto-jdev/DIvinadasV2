@@ -1,12 +1,15 @@
 /**
  * POST /api/tenant/create  { slug, display_name }
+ * Header: Authorization: Bearer <supabase_access_token>
+ *
  * Creates a tenant and adds the caller as owner.
- * Auth: reads the user from cookies; writes use the service role so the
- * tenant_members bootstrap isn't blocked by the admin-only RLS policy.
+ * Auth: verify the access token directly (avoids SSR cookie edge cases).
+ * Writes use the service role so the tenant_members bootstrap isn't blocked
+ * by the admin-only RLS policy.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { getSupabaseService } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
@@ -22,17 +25,15 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'validation_error', detail: parsed.error.flatten() }, { status: 400 });
     }
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const cookieStore = req.cookies;
-    const supaAuth = createServerClient(url, key, {
-        cookies: {
-            getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
-            setAll: () => { /* read-only: don't need to propagate here */ },
-        },
-    });
+    const auth = req.headers.get('authorization') ?? '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+    if (!token) return NextResponse.json({ error: 'unauthorized', detail: 'missing_token' }, { status: 401 });
 
-    const { data: { user }, error: authErr } = await supaAuth.auth.getUser();
+    const anon = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+    const { data: { user }, error: authErr } = await anon.auth.getUser(token);
     if (authErr || !user) {
         return NextResponse.json({ error: 'unauthorized', detail: authErr?.message }, { status: 401 });
     }
@@ -41,9 +42,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existing } = await svc.from('tenants')
         .select('id').eq('slug', parsed.data.slug).maybeSingle();
-    if (existing) {
-        return NextResponse.json({ error: 'duplicate_slug' }, { status: 409 });
-    }
+    if (existing) return NextResponse.json({ error: 'duplicate_slug' }, { status: 409 });
 
     const { data: tenant, error: insErr } = await svc.from('tenants').insert({
         slug: parsed.data.slug.toLowerCase(),
@@ -64,7 +63,6 @@ export async function POST(req: NextRequest) {
         role: 'owner',
     });
     if (memErr) {
-        // Roll back the tenant so we don't leave orphans.
         await svc.from('tenants').delete().eq('id', tenant.id);
         return NextResponse.json({ error: 'internal_error', message: memErr.message }, { status: 500 });
     }
