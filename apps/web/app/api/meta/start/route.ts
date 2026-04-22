@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 import { OAuthStartInput, parseOrThrow } from '@divinads/types';
 import { getSupabaseService } from '@/lib/supabase';
-import { getUserFromRequest } from '@/lib/auth';
+import { resolveUser } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 
@@ -31,10 +31,16 @@ export async function POST(req: NextRequest) {
 }
 
 async function handle(req: NextRequest) {
-    const user = await getUserFromRequest(req);
-    if (!user) {
-        return NextResponse.json({ error: 'unauthorized', message: 'login required' }, { status: 401 });
+    const auth = await resolveUser(req);
+    if (!auth.user) {
+        return NextResponse.json({
+            error: 'unauthorized',
+            message: 'login required',
+            diag: auth.diag,
+            hasAuthHeader: !!req.headers.get('authorization'),
+        }, { status: 401 });
     }
+    const user = auth.user;
 
     let body;
     try {

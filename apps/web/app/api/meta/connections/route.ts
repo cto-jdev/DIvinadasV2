@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSupabaseService } from '@/lib/supabase';
-import { getUserFromRequest } from '@/lib/auth';
+import { resolveUser } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,8 +24,15 @@ export async function GET(req: NextRequest) {
 }
 
 async function handle(req: NextRequest) {
-    const user = await getUserFromRequest(req);
-    if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    const auth = await resolveUser(req);
+    if (!auth.user) {
+        return NextResponse.json({
+            error: 'unauthorized',
+            diag: auth.diag,
+            hasAuthHeader: !!req.headers.get('authorization'),
+        }, { status: 401 });
+    }
+    const user = auth.user;
 
     const q = Query.safeParse({ tenant_id: req.nextUrl.searchParams.get('tenant_id') });
     if (!q.success) return NextResponse.json({ error: 'validation_error' }, { status: 400 });

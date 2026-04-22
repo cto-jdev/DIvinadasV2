@@ -17,10 +17,16 @@ import { createServerClient } from '@supabase/ssr';
  * same pattern as Meta/Facebook Graph, Stripe, etc). Falls back to
  * session cookies for requests that don't carry the header (legacy SSR).
  */
-export async function getUserFromRequest(req?: NextRequest) {
+export type AuthResolution = {
+    user: { id: string; email?: string } | null;
+    source: 'bearer' | 'cookie' | 'none';
+    diag?: string;
+};
+
+export async function resolveUser(req?: NextRequest): Promise<AuthResolution> {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) return null;
+    if (!url || !key) return { user: null, source: 'none', diag: 'missing_env' };
 
     const authHeader = req?.headers.get('authorization') ?? '';
     if (authHeader.startsWith('Bearer ')) {
@@ -28,9 +34,10 @@ export async function getUserFromRequest(req?: NextRequest) {
         try {
             const supa = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
             const { data, error } = await supa.auth.getUser(token);
-            if (!error && data?.user) return data.user;
-        } catch {
-            // fall through to cookie fallback
+            if (data?.user) return { user: data.user, source: 'bearer' };
+            return { user: null, source: 'none', diag: `bearer_rejected: ${error?.message ?? 'no user'}` };
+        } catch (e) {
+            return { user: null, source: 'none', diag: `bearer_throw: ${e instanceof Error ? e.message : 'unknown'}` };
         }
     }
 
@@ -43,11 +50,16 @@ export async function getUserFromRequest(req?: NextRequest) {
             },
         });
         const { data, error } = await supa.auth.getUser();
-        if (error) return null;
-        return data?.user ?? null;
-    } catch {
-        return null;
+        if (data?.user) return { user: data.user, source: 'cookie' };
+        return { user: null, source: 'none', diag: `cookie_rejected: ${error?.message ?? 'no user'}` };
+    } catch (e) {
+        return { user: null, source: 'none', diag: `cookie_throw: ${e instanceof Error ? e.message : 'unknown'}` };
     }
+}
+
+export async function getUserFromRequest(req?: NextRequest) {
+    const r = await resolveUser(req);
+    return r.user;
 }
 
 export async function getInstallFromJwt(req: NextRequest) {
