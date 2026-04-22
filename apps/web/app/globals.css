@@ -356,6 +356,7 @@ p  { color: var(--text-dim); line-height: 1.55; }
     font-family: inherit;
     transition: border-color .15s var(--ease), background .15s var(--ease), box-shadow .15s var(--ease);
     outline: none;
+    color-scheme: dark;
 }
 .input:hover, input:hover, textarea:hover, select:hover { border-color: rgba(168,85,247,.35); }
 .input:focus, input:focus, textarea:focus, select:focus {
@@ -364,6 +365,31 @@ p  { color: var(--text-dim); line-height: 1.55; }
     box-shadow: 0 0 0 4px rgba(168,85,247,.15);
 }
 input::placeholder, textarea::placeholder { color: var(--muted); }
+
+/* Select: custom chevron + dark-on-dark native dropdown ------------------- */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 38px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%23A855F7' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+}
+select::-ms-expand { display: none; }
+select option,
+select optgroup {
+    background-color: #1a1125;
+    color: #F5F3FF;
+    padding: 8px 12px;
+}
+select option:checked,
+select option:hover {
+    background: linear-gradient(0deg, rgba(168,85,247,.35), rgba(168,85,247,.35)) #1a1125;
+    color: #fff;
+}
+select option:disabled { color: var(--muted); }
 
 .label {
     display: block;
