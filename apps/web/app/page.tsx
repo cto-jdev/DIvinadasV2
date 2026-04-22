@@ -32,12 +32,12 @@ export default function HomePage() {
                     text="Long-lived tokens con refresh automático. appsecret_proof activado por defecto." />
                 <FeatureCard
                     icon="◈"
-                    title="Extensión Chrome"
-                    text="Pairing por código de 6 dígitos. Los browsers del equipo quedan enlazados al tenant." />
+                    title="Workspaces aislados"
+                    text="Cada cliente vive en su propio espacio con datos separados y roles definidos." />
                 <FeatureCard
                     icon="◉"
-                    title="Hotmart-ready"
-                    text="Webhooks de compra activan licencias automáticamente. Planes configurables." />
+                    title="Licencias flexibles"
+                    text="Planes Trial, Starter, Pro y Enterprise. Activación inmediata tras la compra." />
             </section>
 
             <footer className="muted" style={{ textAlign: 'center', padding: '60px 0 20px' }}>

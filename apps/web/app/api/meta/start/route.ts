@@ -20,7 +20,7 @@ import { getSupabaseService } from '@/lib/supabase';
 export const runtime = 'nodejs';
 
 const FB_AUTH = 'https://www.facebook.com/v20.0/dialog/oauth';
-const SCOPES = (process.env.FB_OAUTH_SCOPES ?? 'ads_management,ads_read,business_management,pages_show_list,pages_read_engagement,pages_manage_metadata,read_insights,public_profile,email').split(',');
+const SCOPES = (process.env.FB_OAUTH_SCOPES ?? 'ads_management,ads_read,business_management,pages_show_list,pages_read_engagement,public_profile').split(',');
 
 function signState(payload: string, secret: string): string {
     const mac = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
