@@ -73,8 +73,12 @@ export default function PanelHome() {
                                     <strong style={{ color: 'var(--text)' }}>{t.display_name}</strong>
                                     <div className="muted">@{t.slug} · rol <span className="pill pill-muted" style={{ padding: '2px 8px' }}>{t.role}</span></div>
                                 </div>
-                                <Link className="btn btn-ghost btn-sm"
-                                      href={`/panel/connections?tenant=${t.tenant_id}`}>Abrir →</Link>
+                                <div className="row" style={{ gap: 8 }}>
+                                    <Link className="btn btn-ghost btn-sm"
+                                          href={`/panel/connections?tenant=${t.tenant_id}`}>Conexiones</Link>
+                                    <Link className="btn btn-primary btn-sm"
+                                          href={`/panel/dashboard?tenant=${t.tenant_id}`}>Dashboard →</Link>
+                                </div>
                             </div>
                         ))}
                     </div>
