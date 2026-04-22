@@ -18,7 +18,7 @@ const Query = z.object({
     bm_id: z.string().regex(/^\d+$/, 'bm_id must be numeric').optional(),
 });
 
-const FIELDS = 'id,name,account_status,currency,business,amount_spent,balance,disable_reason,timezone_name';
+const FIELDS = 'id,name,account_status,currency,business,amount_spent,spend_cap,balance,disable_reason,timezone_name';
 
 export async function GET(req: NextRequest) {
     try {
