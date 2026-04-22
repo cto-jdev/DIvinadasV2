@@ -38,15 +38,12 @@ export async function middleware(req: NextRequest) {
 
     const res = NextResponse.next();
 
-    // Fail closed: if no auth cookie, always redirect to /login regardless
-    // of env state. Missing env is a deployment bug, not a reason to leak
-    // protected pages to anonymous users.
-    if (!hasSupabaseAuthCookie(req)) {
-        const url = req.nextUrl.clone();
-        url.pathname = '/login';
-        url.searchParams.set('next', req.nextUrl.pathname);
-        return NextResponse.redirect(url);
-    }
+    // Auth enforcement lives in the page/layout (server component). The
+    // middleware only refreshes the session cookie to keep it fresh —
+    // it does NOT redirect on missing cookies, because RSC prefetches and
+    // subtle browser cookie-timing quirks can cause false negatives here
+    // that bounce legitimately-logged-in users to /login.
+    if (!hasSupabaseAuthCookie(req)) return res;
 
     const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supaKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
