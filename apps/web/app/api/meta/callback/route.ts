@@ -192,5 +192,8 @@ export async function GET(req: NextRequest) {
         metadata:     { meta_user_id: me.id, scopes: tx.scopes },
     });
 
-    return NextResponse.redirect(new URL(`/panel/connections?ok=${conn.id}`, req.url));
+    const okUrl = new URL('/panel/connections', req.url);
+    okUrl.searchParams.set('tenant', tx.tenant_id);
+    okUrl.searchParams.set('ok', conn.id);
+    return NextResponse.redirect(okUrl);
 }
