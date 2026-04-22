@@ -24,7 +24,7 @@ function buildRequest(body: any): NextRequest {
 }
 
 describe('POST /api/meta/start', () => {
-    beforeEach(() => vi.resetModules());
+    beforeEach(() => { vi.resetModules(); });
 
     it('401 si no hay sesión', async () => {
         (getUserFromRequest as any).mockResolvedValue(null);

@@ -78,7 +78,7 @@ describe('POST /api/extension/pair/create', () => {
 // PAIR REDEEM
 // ─────────────────────────────────────────────────
 describe('POST /api/extension/pair/redeem', () => {
-    beforeEach(() => vi.resetModules());
+    beforeEach(() => { vi.resetModules(); });
 
     it('404 si el código no existe', async () => {
         (getSupabaseService as any).mockReturnValue({
