@@ -12,9 +12,10 @@
  *  - TTL: 10 min.
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import crypto from 'node:crypto';
+import { createServerClient } from '@supabase/ssr';
 import { OAuthStartInput, parseOrThrow } from '@divinads/types';
-import { getUserFromRequest } from '@/lib/auth';
 import { getSupabaseService } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
@@ -28,9 +29,33 @@ function signState(payload: string, secret: string): string {
 }
 
 export async function POST(req: NextRequest) {
-    const user = await getUserFromRequest(req);
+    const cookieStore = cookies();
+    const cookieNames = cookieStore.getAll().map(c => c.name);
+    const supaAuth = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
+                setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
+                    cs.forEach(({ name, value, options }) => {
+                        try { cookieStore.set({ name, value, ...options }); } catch { /* RSC */ }
+                    });
+                },
+            },
+        },
+    );
+    const { data: { user }, error: authErr } = await supaAuth.auth.getUser();
     if (!user) {
-        return NextResponse.json({ error: 'unauthorized', message: 'login required' }, { status: 401 });
+        return NextResponse.json({
+            error: 'unauthorized',
+            message: 'login required',
+            debug: {
+                cookieNames,
+                hasSupabaseCookie: cookieNames.some(n => /^sb-.*-auth-token/.test(n)),
+                authError: authErr?.message ?? null,
+            },
+        }, { status: 401 });
     }
 
     const body = parseOrThrow(OAuthStartInput, await req.json());
