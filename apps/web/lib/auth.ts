@@ -6,18 +6,23 @@
  *                             { tenant_id, user_id, install_id }.
  */
 import type { NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { createServerClient } from '@supabase/ssr';
 
-export async function getUserFromRequest(req: NextRequest) {
+export async function getUserFromRequest(_req?: NextRequest) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const cookieStore = req.cookies;
+    const cookieStore = cookies();
 
     const supa = createServerClient(url, key, {
         cookies: {
             getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
-            setAll: () => { /* read-only in API handler */ },
+            setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
+                cs.forEach(({ name, value, options }) => {
+                    try { cookieStore.set({ name, value, ...options }); } catch { /* RSC */ }
+                });
+            },
         },
     });
 
