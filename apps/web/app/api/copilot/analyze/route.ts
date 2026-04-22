@@ -6,11 +6,31 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveUser } from '@/lib/auth';
+import { getSupabaseService } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MODEL = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
+const FALLBACK_MODEL = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
+
+async function resolveAiConfig(tenantId: string | null, userId: string): Promise<{ key: string | null; model: string }> {
+    let key: string | null = null;
+    let model: string = FALLBACK_MODEL;
+    if (tenantId) {
+        const supa = getSupabaseService();
+        const { data: mem } = await supa.from('tenant_members')
+            .select('role').eq('tenant_id', tenantId).eq('user_id', userId).maybeSingle();
+        if (mem) {
+            const { data: t } = await supa.from('tenants')
+                .select('settings').eq('id', tenantId).maybeSingle();
+            const ai = ((t?.settings as any) ?? {}).ai ?? {};
+            if (typeof ai.api_key === 'string' && ai.api_key) key = ai.api_key;
+            if (typeof ai.model === 'string' && ai.model) model = ai.model;
+        }
+    }
+    if (!key) key = process.env.ANTHROPIC_API_KEY ?? null;
+    return { key, model };
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -20,8 +40,9 @@ export async function POST(req: NextRequest) {
         const body = await req.json().catch(() => ({}));
         const scope = body?.scope ?? { module: 'other', summary: {}, top_decisions: [], scores: [] };
         const question: string = (body?.question ?? '').toString().slice(0, 2000);
+        const tenantId: string | null = typeof body?.tenant_id === 'string' ? body.tenant_id : null;
 
-        const key = process.env.ANTHROPIC_API_KEY;
+        const { key, model: MODEL } = await resolveAiConfig(tenantId, auth.user.id);
         if (!key) {
             return NextResponse.json({ answer: fallbackAnswer(scope, question), source: 'rule-based' });
         }

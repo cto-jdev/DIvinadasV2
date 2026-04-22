@@ -18,6 +18,7 @@ const NAV: NavItem[] = [
     { href: '/panel/clonner',     label: 'Clonner',     icon: '⎘' },
     { href: '/panel/connections', label: 'Conexiones',  icon: '⚯' },
     { href: '/panel/team',        label: 'Equipo',      icon: '◌' },
+    { href: '/panel/settings',    label: 'Ajustes',     icon: '⚙' },
 ];
 
 const TENANT_KEY = 'divinads.tenantId';

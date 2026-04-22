@@ -31,10 +31,13 @@ export function CopilotSidebar() {
         setMsgs(m => [...m, { role: 'user', content: q }, { role: 'assistant', content: '', typing: true }]);
         setInput('');
         try {
+            const tenantId = typeof window !== 'undefined'
+                ? (window.sessionStorage.getItem('divinads.tenantId') ?? window.localStorage.getItem('divinads.tenantId') ?? null)
+                : null;
             const r = await apiFetch('/api/copilot/analyze', {
                 method: 'POST',
                 headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ scope, question: q }),
+                body: JSON.stringify({ scope, question: q, tenant_id: tenantId }),
             });
             const j = await r.json().catch(() => ({ answer: 'No pude analizar en este momento.' }));
             setMsgs(m => {
