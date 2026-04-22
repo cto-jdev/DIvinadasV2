@@ -1,6 +1,24 @@
 {
     "$schema": "https://turbo.build/schema.json",
     "globalDependencies": ["**/.env.*local", "**/.env"],
+    "globalEnv": [
+        "NODE_ENV",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "OAUTH_STATE_SECRET",
+        "JWT_SECRET",
+        "CRON_SECRET",
+        "FB_APP_ID",
+        "FB_APP_SECRET",
+        "FB_REDIRECT_URI",
+        "FB_API_VERSION",
+        "HOTMART_HOTTOK",
+        "HOTMART_PLAN_MAP",
+        "UPSTASH_REDIS_REST_URL",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "STRICT_ENV"
+    ],
     "tasks": {
         "build": {
             "dependsOn": ["^build"],
