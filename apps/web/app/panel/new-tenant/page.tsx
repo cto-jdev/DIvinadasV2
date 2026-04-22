@@ -1,15 +1,13 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { getSupabaseBrowser } from '@/lib/supabase-browser';
+import { createTenantAction } from './actions';
 
 const ERROR_MESSAGES: Record<string, string> = {
     invalid_slug:         'El slug solo puede contener minúsculas, números y guiones (3–48 caracteres).',
     invalid_display_name: 'El nombre debe tener al menos 2 caracteres.',
-    not_authenticated:    'Sesión expirada. Vuelve a entrar.',
-    duplicate_slug:       'Ese slug ya está en uso. Elige otro.',
     unauthorized:         'Sesión expirada. Vuelve a entrar.',
+    duplicate_slug:       'Ese slug ya está en uso. Elige otro.',
 };
 
 function slugify(s: string) {
@@ -22,47 +20,28 @@ function slugify(s: string) {
 }
 
 export default function NewTenantPage() {
-    const router = useRouter();
     const [displayName, setDisplayName] = useState('');
     const [slug, setSlug] = useState('');
     const [slugTouched, setSlugTouched] = useState(false);
     const [err, setErr] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [isPending, startTransition] = useTransition();
 
     function onDisplayNameChange(v: string) {
         setDisplayName(v);
         if (!slugTouched) setSlug(slugify(v));
     }
 
-    async function submit(e: React.FormEvent) {
+    function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        setErr(null); setLoading(true);
-
-        const supa = getSupabaseBrowser();
-        const { data: { session } } = await supa.auth.getSession();
-        if (!session) {
-            setLoading(false);
-            setErr('Sesión no disponible. Entra de nuevo.');
-            return;
-        }
-
-        const r = await fetch('/api/tenant/create', {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-                'authorization': `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({ slug, display_name: displayName }),
+        setErr(null);
+        const fd = new FormData(e.currentTarget);
+        startTransition(async () => {
+            const res = await createTenantAction(fd);
+            if (res && !res.ok) {
+                setErr(ERROR_MESSAGES[res.error] ?? res.error);
+            }
+            // On success, the server action redirects — nothing to do client-side.
         });
-        const j = await r.json();
-        setLoading(false);
-
-        if (!r.ok) {
-            const base = ERROR_MESSAGES[j.error] ?? j.message ?? j.error ?? 'Error al crear tenant.';
-            setErr(j.detail ? `${base} (${j.detail})` : base);
-            return;
-        }
-        router.replace(`/panel/connections?tenant=${j.tenant_id}`);
     }
 
     return (
@@ -77,10 +56,10 @@ export default function NewTenantPage() {
                     Serás el <strong style={{ color: 'var(--text)' }}>owner</strong>.
                 </p>
 
-                <form onSubmit={submit} className="col" style={{ gap: 14, marginTop: 18 }}>
+                <form onSubmit={onSubmit} className="col" style={{ gap: 14, marginTop: 18 }}>
                     <div className="field" style={{ marginBottom: 0 }}>
                         <label className="label">Nombre del workspace</label>
-                        <input type="text" required minLength={2} maxLength={80}
+                        <input name="display_name" type="text" required minLength={2} maxLength={80}
                                value={displayName}
                                onChange={e => onDisplayNameChange(e.target.value)}
                                placeholder="Agencia Acme" autoFocus />
@@ -96,7 +75,7 @@ export default function NewTenantPage() {
                                 borderRight: 'none',
                                 borderRadius: '10px 0 0 10px',
                             }}>divinads.app/</span>
-                            <input type="text" required pattern="[a-z0-9][a-z0-9-]{2,48}"
+                            <input name="slug" type="text" required pattern="[a-z0-9][a-z0-9-]{2,48}"
                                    value={slug}
                                    onChange={e => { setSlug(e.target.value.toLowerCase()); setSlugTouched(true); }}
                                    placeholder="agencia-acme"
@@ -110,8 +89,8 @@ export default function NewTenantPage() {
                     {err && <div className="alert alert-error">{err}</div>}
 
                     <div className="row" style={{ gap: 10, marginTop: 6 }}>
-                        <button className="btn btn-primary" disabled={loading || !slug || !displayName}>
-                            {loading ? 'Creando…' : 'Crear tenant'}
+                        <button className="btn btn-primary" disabled={isPending || !slug || !displayName}>
+                            {isPending ? 'Creando…' : 'Crear tenant'}
                         </button>
                         <Link href="/panel" className="btn btn-ghost">Cancelar</Link>
                     </div>
