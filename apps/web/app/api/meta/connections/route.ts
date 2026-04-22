@@ -32,14 +32,17 @@ export async function GET(req: NextRequest) {
         },
     );
     const { data: { user }, error: authErr } = await supaAuth.auth.getUser();
-    if (!user) return NextResponse.json({
-        error: 'unauthorized',
-        debug: {
-            cookieNames,
-            hasSupabaseCookie: cookieNames.some(n => /^sb-.*-auth-token/.test(n)),
-            authError: authErr?.message ?? null,
-        },
-    }, { status: 401 });
+    if (!user) {
+        const body: Record<string, unknown> = { error: 'unauthorized' };
+        if (process.env.NODE_ENV !== 'production') {
+            body.debug = {
+                cookieNames,
+                hasSupabaseCookie: cookieNames.some(n => /^sb-.*-auth-token/.test(n)),
+                authError: authErr?.message ?? null,
+            };
+        }
+        return NextResponse.json(body, { status: 401 });
+    }
 
     const q = Query.safeParse({ tenant_id: req.nextUrl.searchParams.get('tenant_id') });
     if (!q.success) return NextResponse.json({ error: 'validation_error' }, { status: 400 });

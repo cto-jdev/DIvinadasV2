@@ -47,15 +47,15 @@ export async function POST(req: NextRequest) {
     );
     const { data: { user }, error: authErr } = await supaAuth.auth.getUser();
     if (!user) {
-        return NextResponse.json({
-            error: 'unauthorized',
-            message: 'login required',
-            debug: {
+        const body: Record<string, unknown> = { error: 'unauthorized', message: 'login required' };
+        if (process.env.NODE_ENV !== 'production') {
+            body.debug = {
                 cookieNames,
                 hasSupabaseCookie: cookieNames.some(n => /^sb-.*-auth-token/.test(n)),
                 authError: authErr?.message ?? null,
-            },
-        }, { status: 401 });
+            };
+        }
+        return NextResponse.json(body, { status: 401 });
     }
 
     const body = parseOrThrow(OAuthStartInput, await req.json());

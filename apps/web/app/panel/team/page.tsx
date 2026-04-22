@@ -16,10 +16,15 @@ function TeamContent() {
 
     const load = useCallback(async () => {
         if (!tenantId) return;
-        const r = await fetch(`/api/team/members?tenant_id=${tenantId}`);
-        const j = await r.json();
-        if (!r.ok) { setErr(j.error); return; }
-        setMembers(j.data);
+        try {
+            const r = await fetch(`/api/team/members?tenant_id=${tenantId}`);
+            const j = await r.json().catch(() => ({}));
+            if (!r.ok) { setErr(j.error ?? `HTTP ${r.status}`); setMembers([]); return; }
+            setMembers(j.data ?? []);
+        } catch (e) {
+            setErr(e instanceof Error ? e.message : 'network_error');
+            setMembers([]);
+        }
     }, [tenantId]);
 
     useEffect(() => { load(); }, [load]);

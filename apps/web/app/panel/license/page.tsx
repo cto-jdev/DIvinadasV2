@@ -1,3 +1,6 @@
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { createServerClient } from '@supabase/ssr';
 import { getSupabaseService } from '@/lib/supabase';
 
 const PLAN_LABELS: Record<string, string> = {
@@ -17,9 +20,12 @@ function statusPill(s: string) {
     return <span className={`pill ${cls}`}>● {STATUS_LABELS[s] ?? s}</span>;
 }
 
-async function getLicense(tenantId: string) {
-    const supa = getSupabaseService();
-    const { data } = await supa.from('licenses')
+async function getLicense(tenantId: string, userId: string) {
+    const svc = getSupabaseService();
+    const { data: mem } = await svc.from('tenant_members')
+        .select('role').eq('tenant_id', tenantId).eq('user_id', userId).maybeSingle();
+    if (!mem) return null;
+    const { data } = await svc.from('licenses')
         .select('plan, status, seats, trial_ends_at, current_period_ends_at')
         .eq('tenant_id', tenantId).maybeSingle();
     return data;
@@ -27,7 +33,24 @@ async function getLicense(tenantId: string) {
 
 export default async function LicensePage({ searchParams }: { searchParams: { tenant?: string } }) {
     const tenantId = searchParams.tenant;
-    const lic = tenantId ? await getLicense(tenantId) : null;
+    const cookieStore = cookies();
+    const supaAuth = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
+                setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
+                    cs.forEach(({ name, value, options }) => {
+                        try { cookieStore.set({ name, value, ...options }); } catch { /* RSC */ }
+                    });
+                },
+            },
+        },
+    );
+    const { data: { user } } = await supaAuth.auth.getUser();
+    if (!user) redirect('/login?next=/panel/license');
+    const lic = tenantId ? await getLicense(tenantId, user.id) : null;
 
     const modules = !lic ? [] : (
         lic.plan === 'enterprise' || lic.plan === 'pro'
