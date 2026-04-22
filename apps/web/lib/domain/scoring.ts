@@ -7,6 +7,7 @@
  */
 import type {
     AdAccountSnapshot, CampaignSnapshot, PageSnapshot, BmSnapshot,
+    BmUsersSnapshot, AdSetSnapshot,
     Score, ScoreFactor,
 } from './types';
 import { capUtilizationPct, toCents, classifyPacing, expectedSpendToDate } from './budget';
@@ -110,17 +111,40 @@ export function pageHealthScore(p: PageSnapshot): Score {
 
 // ---------- Access risk (BM) ----------
 
-export function accessRiskScore(bms: BmSnapshot[]): Score {
-    // Lower score = more risk. Simple heuristic from data we currently have:
-    // only owner BMs vs client BMs count. Without user/roles API this is a
-    // rough proxy — spec §7.4 asks us to go deeper once business_users/system_users endpoints are wired.
+export function accessRiskScore(
+    bms: BmSnapshot[],
+    usersByBm?: Record<string, BmUsersSnapshot>,
+): Score {
+    // Lower score = more risk. Higher score = healthier.
     const owned = bms.filter(b => b.role === 'owner').length;
     const total = bms.length;
     const diversity = total === 0 ? 0 : Math.min(100, (owned / total) * 100);
     const verified = bms.filter(b => b.verification_status && b.verification_status !== 'not_verified').length;
     const verifiedScore = total === 0 ? 0 : (verified / total) * 100;
 
-    const factors: ScoreFactor[] = [
+    // User governance: penaliza BMs con 1 solo admin humano (bus factor 1),
+    // premia diversidad razonable (2-5 humanos + ≥1 system user).
+    let usersKnown = 0, busFactorSum = 0, systemCoverage = 0, pendingOrphans = 0;
+    if (usersByBm) {
+        for (const bm of bms) {
+            const u = usersByBm[bm.id];
+            if (!u || u.scope_missing) continue;
+            usersKnown++;
+            const humans = u.humans.length;
+            busFactorSum += humans === 0 ? 0 : humans === 1 ? 20 : humans >= 2 && humans <= 5 ? 100 : 70;
+            systemCoverage += u.system.length > 0 ? 100 : 40;
+            pendingOrphans += u.pending.length;
+        }
+    }
+    const busFactorScore = usersKnown === 0 ? 50 : busFactorSum / usersKnown;
+    const systemScore = usersKnown === 0 ? 50 : systemCoverage / usersKnown;
+
+    const factors: ScoreFactor[] = usersKnown > 0 ? [
+        { key: 'owned_share',    label: 'Control directo',    weight: 0.25, value: diversity },
+        { key: 'verified_share', label: 'BMs verificados',    weight: 0.20, value: verifiedScore },
+        { key: 'bus_factor',     label: 'Bus factor (humanos)', weight: 0.30, value: busFactorScore },
+        { key: 'system_users',   label: 'System users',       weight: 0.25, value: systemScore },
+    ] : [
         { key: 'owned_share',    label: 'Control directo',    weight: 0.5, value: diversity },
         { key: 'verified_share', label: 'BMs verificados',    weight: 0.5, value: verifiedScore },
     ];
@@ -129,8 +153,37 @@ export function accessRiskScore(bms: BmSnapshot[]): Score {
         label: 'Access risk (inverso)',
         score: weighted(factors),
         factors,
-        explanation: 'Proxy actual basado en control directo y verificación. Se profundizará con business_users / system_users.',
+        explanation: usersKnown > 0
+            ? `Control directo, verificación, redundancia de humanos y cobertura de system users (${usersKnown}/${bms.length} BMs con datos de usuarios).`
+            : 'Proxy basado en control directo y verificación. Para un score completo se requiere scope business_management.',
     };
+}
+
+// ---------- Ad Set scoring (uses same primitives as campaign-level) ----------
+
+export function adsetPacingScore(a: AdSetSnapshot, nowIso?: string): { score: number; state: string | null } {
+    const planned = Number(a.daily_budget ?? a.lifetime_budget ?? 0);
+    if (planned <= 0) return { score: 50, state: null };
+    const actual = Number(a.spend ?? 0);
+    // Reuse expected/actual logic via campaign formula — simplified here.
+    const now = nowIso ? new Date(nowIso).getTime() : Date.now();
+    const start = a.start_time ? new Date(a.start_time).getTime() : now;
+    const stop = a.end_time ? new Date(a.end_time).getTime() : undefined;
+    let expected = planned;
+    if (stop && stop > start) {
+        const elapsed = Math.min(now, stop) - start;
+        expected = planned * Math.max(0, elapsed / (stop - start));
+    }
+    if (expected <= 0) return { score: 50, state: null };
+    const ratio = actual / expected;
+    const state =
+        ratio < 0.6 ? 'underpaced' :
+        ratio <= 1.15 ? 'on_track' :
+        ratio <= 1.5 ? 'accelerated' : 'critically_accelerated';
+    const map: Record<string, number> = {
+        on_track: 100, underpaced: 55, accelerated: 35, critically_accelerated: 10,
+    };
+    return { score: map[state], state };
 }
 
 // ---------- Global Health ----------

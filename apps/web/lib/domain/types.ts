@@ -49,6 +49,47 @@ export type CampaignSnapshot = {
     last_sync_at: string;
 };
 
+export type AdSetSnapshot = {
+    id: string;
+    campaign_id: string;
+    name: string;
+    status: string;
+    effective_status?: string;
+    daily_budget?: string;
+    lifetime_budget?: string;
+    budget_remaining?: string;
+    bid_strategy?: string;
+    billing_event?: string;
+    optimization_goal?: string;
+    start_time?: string;
+    end_time?: string;
+    spend?: string;
+    impressions?: string;
+    clicks?: string;
+    source_type: SourceType;
+    source_endpoint: string;
+    last_sync_at: string;
+};
+
+export type BmUser = {
+    id: string;
+    name?: string;
+    email?: string;
+    role?: string;
+    kind: 'human' | 'system' | 'pending';
+};
+
+export type BmUsersSnapshot = {
+    bm_id: string;
+    humans: BmUser[];
+    system: BmUser[];
+    pending: BmUser[];
+    scope_missing: boolean;
+    source_type: SourceType;
+    source_endpoint: string;
+    last_sync_at: string;
+};
+
 export type BmSnapshot = {
     id: string;
     name: string;

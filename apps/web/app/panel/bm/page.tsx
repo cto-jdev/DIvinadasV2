@@ -12,9 +12,10 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api-client';
-import type { BmSnapshot, AdAccountSnapshot } from '@/lib/domain/types';
+import type { BmSnapshot, AdAccountSnapshot, BmUsersSnapshot } from '@/lib/domain/types';
 import { toCents, capUtilizationPct } from '@/lib/domain/budget';
 import { accessRiskScore } from '@/lib/domain/scoring';
+import { ScoreCard } from '@/components/dashboard/primitives';
 
 type Conn = { id: string; display_name: string | null };
 
@@ -33,6 +34,7 @@ function BmContent() {
     const [connId, setConnId] = useState(connParam ?? '');
     const [bms, setBms] = useState<BmSnapshot[] | null>(null);
     const [accounts, setAccounts] = useState<AdAccountSnapshot[] | null>(null);
+    const [bmUsers, setBmUsers] = useState<Record<string, BmUsersSnapshot>>({});
     const [err, setErr] = useState<string | null>(null);
 
     const loadConns = useCallback(async () => {
@@ -47,7 +49,7 @@ function BmContent() {
 
     const load = useCallback(async () => {
         if (!tenantId || !connId) return;
-        setErr(null); setBms(null); setAccounts(null);
+        setErr(null); setBms(null); setAccounts(null); setBmUsers({});
         const qs = `tenant_id=${tenantId}&connection_id=${connId}`;
         const [bmR, acctR] = await Promise.all([
             apiFetch(`/api/web/graph/bm/list?${qs}`),
@@ -56,10 +58,11 @@ function BmContent() {
         const [bmJ, acctJ] = await Promise.all([bmR.json().catch(() => ({})), acctR.json().catch(() => ({}))]);
         if (!bmR.ok) { setErr(bmJ.message ?? `BM ${bmR.status}`); return; }
         const now = new Date().toISOString();
-        setBms((bmJ.data ?? []).map((b: any) => ({
+        const bmList: BmSnapshot[] = (bmJ.data ?? []).map((b: any) => ({
             ...b, source_type: 'api',
             source_endpoint: '/me/businesses|client_businesses', last_sync_at: now,
-        })));
+        }));
+        setBms(bmList);
         setAccounts((acctJ.data ?? []).map((a: any) => ({
             id: a.id, name: a.name, currency: a.currency, account_status: a.account_status,
             amount_spent: a.amount_spent, spend_cap: a.spend_cap, balance: a.balance,
@@ -67,10 +70,34 @@ function BmContent() {
             business_id: a.business?.id ?? null,
             source_type: 'api', source_endpoint: '/me/adaccounts', last_sync_at: now,
         })));
+
+        // Fetch BM users in parallel (best-effort — may require extra scope).
+        await Promise.all(bmList.map(async bm => {
+            const r = await apiFetch(`/api/web/graph/bm/users?${qs}&bm_id=${bm.id}`);
+            if (!r.ok) return;
+            const j = await r.json().catch(() => null);
+            if (!j?.data) return;
+            setBmUsers(prev => ({
+                ...prev,
+                [bm.id]: {
+                    bm_id: bm.id,
+                    humans: j.data.business_users.map((u: any) => ({ ...u, kind: 'human' as const })),
+                    system: j.data.system_users.map((u: any) => ({ ...u, kind: 'system' as const })),
+                    pending: j.data.pending_users.map((u: any) => ({ ...u, kind: 'pending' as const })),
+                    scope_missing: j.scope_missing,
+                    source_type: 'api',
+                    source_endpoint: j.source_endpoint,
+                    last_sync_at: now,
+                },
+            }));
+        }));
     }, [tenantId, connId]);
     useEffect(() => { load(); }, [load]);
 
-    const accessScore = useMemo(() => bms ? accessRiskScore(bms) : null, [bms]);
+    const accessScore = useMemo(() => {
+        if (!bms) return null;
+        return accessRiskScore(bms, Object.keys(bmUsers).length > 0 ? bmUsers : undefined);
+    }, [bms, bmUsers]);
 
     const bmRows = useMemo(() => {
         if (!bms || !accounts) return null;
@@ -172,6 +199,9 @@ function BmContent() {
                                     <MiniStat label="Cuentas cerca de cap" value={row.atRisk}
                                               tone={row.atRisk > 0 ? 'warn' : 'ok'} />
                                 </div>
+
+                                {/* Users & Governance */}
+                                <BmUsersPanel users={bmUsers[row.bm.id]} />
                             </div>
                         ))}
                         {bmRows.length === 0 && (
@@ -194,31 +224,72 @@ function BmContent() {
                         </div>
                     )}
 
-                    {/* Unsupported placeholder */}
-                    <div className="card" style={{ marginTop: 12, borderLeft: '3px solid #64748b' }}>
-                        <h3 style={{ marginTop: 0, fontSize: 14 }}>Pendiente de scopes extra</h3>
-                        <p className="muted" style={{ margin: 0, fontSize: 12 }}>
-                            Usuarios humanos, system users, admins ocultos y permisos efectivos requieren
-                            <code> business_users </code>/<code> system_users </code>del Graph Business API
-                            (scope <code>business_management</code>). Fuente marcada como <strong>unsupported</strong>.
-                        </p>
-                    </div>
+                    {/* Scope notice */}
+                    {bmRows.length > 0 && Object.values(bmUsers).every(u => u.scope_missing) && (
+                        <div className="card" style={{ marginTop: 12, borderLeft: '3px solid var(--warning)' }}>
+                            <h3 style={{ marginTop: 0, fontSize: 14 }}>⚠ Scope <code>business_management</code> faltante</h3>
+                            <p className="muted" style={{ margin: 0, fontSize: 12 }}>
+                                El Graph rechazó la lectura de <code>business_users</code>/<code>system_users</code>.
+                                Reconecta con el scope <code>business_management</code> para habilitar el bus-factor y detección de admins.
+                            </p>
+                        </div>
+                    )}
                 </>
             )}
         </>
     );
 }
 
-function ScoreCard({ score }: { score: { score: number; label: string; factors: { label: string; value: number; weight: number; key: string }[]; explanation: string } }) {
-    const color = score.score >= 75 ? '#22c55e' : score.score >= 50 ? '#f59e0b' : '#ef4444';
-    return (
-        <div className="card" title={score.explanation}
-             style={{ flex: '1 1 240px', minWidth: 220, marginBottom: 0, borderLeft: `3px solid ${color}` }}>
-            <div className="muted" style={{ fontSize: 11, textTransform: 'uppercase' }}>{score.label}</div>
-            <div style={{ fontSize: 32, fontWeight: 800, color, marginTop: 4 }}>{score.score}</div>
-            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-                {score.factors.map(f => `${f.label} ${Math.round(f.value)}`).join(' · ')}
+function BmUsersPanel({ users }: { users?: BmUsersSnapshot }) {
+    if (!users) return (
+        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--muted)' }}>
+            <span className="skeleton" style={{ width: 180, height: 10 }} /> cargando usuarios…
+        </div>
+    );
+    if (users.scope_missing) {
+        return (
+            <div style={{ marginTop: 10, fontSize: 11, color: 'var(--warning)' }}>
+                ⚠ Sin acceso a usuarios (requiere scope <code>business_management</code>).
             </div>
+        );
+    }
+    const busFactor = users.humans.length;
+    const busWarn = busFactor <= 1;
+    return (
+        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,.05)' }}>
+            <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+                <span className={`pill ${busWarn ? 'pill-danger' : busFactor <= 5 ? 'pill-success' : 'pill-warn'}`} style={{ fontSize: 10 }}>
+                    Bus factor: {busFactor} humano{busFactor === 1 ? '' : 's'}
+                </span>
+                <span className="pill pill-muted" style={{ fontSize: 10 }}>
+                    {users.system.length} system user{users.system.length === 1 ? '' : 's'}
+                </span>
+                {users.pending.length > 0 && (
+                    <span className="pill pill-warn" style={{ fontSize: 10 }}>
+                        {users.pending.length} pendiente{users.pending.length === 1 ? '' : 's'}
+                    </span>
+                )}
+            </div>
+            {busWarn && (
+                <div style={{ fontSize: 10, color: 'var(--warning)', marginTop: 6 }}>
+                    ⚠ Riesgo: {busFactor === 0 ? 'sin admins humanos registrados' : 'un solo admin humano — single point of failure'}.
+                </div>
+            )}
+            {users.humans.length > 0 && (
+                <details style={{ marginTop: 6 }}>
+                    <summary style={{ cursor: 'pointer', fontSize: 11, color: 'var(--text-dim)' }}>
+                        Ver {users.humans.length} usuario{users.humans.length === 1 ? '' : 's'}
+                    </summary>
+                    <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: 11 }}>
+                        {users.humans.map(u => (
+                            <li key={u.id} style={{ marginBottom: 2 }}>
+                                <strong>{u.name ?? u.email ?? u.id}</strong>
+                                {u.role && <span className="muted"> · {u.role}</span>}
+                            </li>
+                        ))}
+                    </ul>
+                </details>
+            )}
         </div>
     );
 }

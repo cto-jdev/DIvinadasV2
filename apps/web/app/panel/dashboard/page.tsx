@@ -1,13 +1,15 @@
 'use client';
 /**
- * Dashboard Principal — plataforma de decisión.
+ * Dashboard Principal — plataforma de decisión (2026 UX rev).
  * Spec: dashboard_meta_claude_spec.md §7.1.
  *
- * Consume las capas de dominio (types + budget + scoring) y renderiza:
- *  - Top bar con selectores + freshness
- *  - 8 tarjetas de resumen ejecutivo (incluye Global Health Score)
- *  - Budget Health Summary (spend 7d, cuentas cerca de cap, pacing)
- *  - Global Decision Queue (prioriza acciones con evidencia y severidad)
+ * Mejoras UX 2026:
+ *  - Sticky module bar con glassmorphism y freshness dot animado.
+ *  - Skeleton loaders en lugar de texto "Cargando".
+ *  - Decision queue ordenable y filtrable por severidad.
+ *  - Atajo de teclado R para refrescar.
+ *  - Score cards con barras de factores animadas.
+ *  - Animación fade-in por sección.
  */
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -15,19 +17,24 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-client';
 import type {
     AdAccountSnapshot, CampaignSnapshot, PageSnapshot, BmSnapshot,
-    DecisionItem, Score, Severity,
+    BmUsersSnapshot, DecisionItem, Severity,
 } from '@/lib/domain/types';
 import {
     toCents, capUtilizationPct, remainingCapCents,
-    expectedSpendToDate, classifyPacing, budgetWasteRisk,
+    classifyPacing, expectedSpendToDate, budgetWasteRisk,
 } from '@/lib/domain/budget';
 import {
-    billingHealthScore, campaignEfficiencyScore, campaignPacingScore,
+    billingHealthScore, campaignPacingScore,
     pageHealthScore, accessRiskScore, globalHealthScore,
 } from '@/lib/domain/scoring';
+import {
+    ScoreCard, Stat, SeverityChip, Segmented, SkeletonRow, SkeletonStats,
+    EmptyState, FreshnessBadge, SortableTable, SectionHeader, type Column,
+} from '@/components/dashboard/primitives';
 
 type Conn = { id: string; display_name: string | null; email: string | null; status: string };
 type Status = 'loading' | 'ready' | 'reconnect' | 'no_conns' | 'error';
+type SevFilter = 'all' | 'critical' | 'high' | 'medium' | 'low';
 
 const NOW_ISO = () => new Date().toISOString();
 
@@ -41,10 +48,12 @@ function DashboardContent() {
     const [accounts, setAccounts] = useState<AdAccountSnapshot[] | null>(null);
     const [pages, setPages] = useState<PageSnapshot[] | null>(null);
     const [campaigns, setCampaigns] = useState<Record<string, CampaignSnapshot[]>>({});
+    const [bmUsers, setBmUsers] = useState<Record<string, BmUsersSnapshot>>({});
     const [selectedAccount, setSelectedAccount] = useState<string>('');
     const [lastSync, setLastSync] = useState<string | null>(null);
     const [err, setErr] = useState<string | null>(null);
     const [status, setStatus] = useState<Status>('loading');
+    const [sevFilter, setSevFilter] = useState<SevFilter>('all');
 
     const loadConns = useCallback(async () => {
         if (!tenantId) return;
@@ -55,13 +64,12 @@ function DashboardContent() {
         if (j.data?.length === 0) { setStatus('no_conns'); return; }
         if (!connId) setConnId(j.data[0].id);
     }, [tenantId, connId]);
-
     useEffect(() => { loadConns(); }, [loadConns]);
 
     const loadAll = useCallback(async () => {
         if (!tenantId || !connId) return;
         setStatus('loading'); setErr(null);
-        setBms(null); setAccounts(null); setPages(null); setCampaigns({});
+        setBms(null); setAccounts(null); setPages(null); setCampaigns({}); setBmUsers({});
 
         const qs = `tenant_id=${tenantId}&connection_id=${connId}`;
         const [bmRes, acctRes, pagesRes] = await Promise.all([
@@ -112,11 +120,46 @@ function DashboardContent() {
         const firstActive = acctList.find(a => a.account_status === 1) ?? acctList[0];
         if (firstActive) setSelectedAccount(firstActive.id);
         setStatus('ready');
+
+        // Load BM users in background (best-effort, may 403 if scope missing).
+        for (const bm of bmList) {
+            const r = await apiFetch(`/api/web/graph/bm/users?${qs}&bm_id=${bm.id}`);
+            if (!r.ok) continue;
+            const j = await r.json().catch(() => null);
+            if (!j?.data) continue;
+            setBmUsers(prev => ({
+                ...prev,
+                [bm.id]: {
+                    bm_id: bm.id,
+                    humans: j.data.business_users.map((u: any) => ({ ...u, kind: 'human' as const })),
+                    system: j.data.system_users.map((u: any) => ({ ...u, kind: 'system' as const })),
+                    pending: j.data.pending_users.map((u: any) => ({ ...u, kind: 'pending' as const })),
+                    scope_missing: j.scope_missing,
+                    source_type: 'api',
+                    source_endpoint: j.source_endpoint,
+                    last_sync_at: now,
+                },
+            }));
+        }
     }, [tenantId, connId]);
 
     useEffect(() => { if (connId) loadAll(); }, [connId, loadAll]);
 
-    // Load campaigns for the currently selected account (lazy, per-account cache).
+    // Keyboard shortcut: R to refresh.
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.metaKey
+                && document.activeElement?.tagName !== 'INPUT'
+                && document.activeElement?.tagName !== 'SELECT'
+                && document.activeElement?.tagName !== 'TEXTAREA') {
+                loadAll();
+            }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [loadAll]);
+
+    // Lazy load campaigns for selected account.
     useEffect(() => {
         if (!tenantId || !connId || !selectedAccount) return;
         if (campaigns[selectedAccount]) return;
@@ -138,23 +181,18 @@ function DashboardContent() {
             });
     }, [tenantId, connId, selectedAccount, campaigns]);
 
-    // Scoring + derivations
     const derived = useMemo(() => {
         if (!accounts || !bms || !pages) return null;
-
         const billing = accounts.map(a => billingHealthScore(a));
         const pageScores = pages.map(p => pageHealthScore(p));
-        const access = accessRiskScore(bms);
+        const access = accessRiskScore(bms, Object.keys(bmUsers).length > 0 ? bmUsers : undefined);
         const global = globalHealthScore({ billing, pages: pageScores, access });
-
         const totalSpend7d = Object.values(campaigns).flat().reduce((a, c) => a + toCents(c.spend), 0);
-
         const accountsNearCap = accounts.filter(a => {
             const u = capUtilizationPct(a.amount_spent, a.spend_cap);
             return u !== null && u >= 80;
         });
         const accountsFrozen = accounts.filter(a => a.account_status !== 1);
-
         const allCamps = Object.values(campaigns).flat();
         const pacingList = allCamps.map(c => ({ c, ...campaignPacingScore(c) }));
         const accelerating = pacingList.filter(p => p.state === 'accelerated' || p.state === 'critically_accelerated');
@@ -167,28 +205,21 @@ function DashboardContent() {
             });
             return r !== null && r >= 60;
         });
-
-        return {
-            billing, pageScores, access, global,
-            totalSpend7d, accountsNearCap, accountsFrozen,
-            accelerating, underpaced, wasteful,
-        };
-    }, [accounts, bms, pages, campaigns]);
+        return { billing, pageScores, access, global, totalSpend7d, accountsNearCap, accountsFrozen, accelerating, underpaced, wasteful };
+    }, [accounts, bms, pages, campaigns, bmUsers]);
 
     const decisions: DecisionItem[] = useMemo(() => {
         if (!derived || !accounts) return [];
         const now = NOW_ISO();
         const out: DecisionItem[] = [];
-
         for (const a of derived.accountsFrozen) {
             out.push({
                 entity_type: 'ad_account', entity_id: a.id, entity_name: a.name,
-                problem: `Cuenta con estado ${a.account_status} (${a.disable_reason ? 'bloqueada' : 'inactiva'})`,
+                problem: `Cuenta con estado ${a.account_status}`,
                 severity: a.account_status === 2 ? 'critical' : 'high',
                 evidence: `account_status=${a.account_status}, disable_reason=${a.disable_reason ?? '—'}`,
-                recommended_action: 'Revisar motivo en Ads Manager y apelar si procede.',
-                score_ref: 'billing_health_score',
-                as_of: now,
+                recommended_action: 'Revisar motivo y apelar en Ads Manager.',
+                score_ref: 'billing_health_score', as_of: now,
             });
         }
         for (const a of derived.accountsNearCap) {
@@ -200,16 +231,16 @@ function DashboardContent() {
                 severity: u >= 95 ? 'critical' : 'high',
                 evidence: `amount_spent=${a.amount_spent}, spend_cap=${a.spend_cap}`,
                 recommended_action: 'Aumentar spend_cap antes de pausa automática.',
-                economic_impact: remaining !== null ? `${a.currency} ${(remaining / 100).toFixed(2)} restantes` : undefined,
+                economic_impact: remaining !== null ? `${a.currency} ${(remaining / 100).toFixed(2)} rest.` : undefined,
                 score_ref: 'billing_health_score', as_of: now,
             });
         }
         for (const p of derived.accelerating) {
             out.push({
                 entity_type: 'campaign', entity_id: p.c.id, entity_name: p.c.name,
-                problem: p.state === 'critically_accelerated' ? 'Pacing críticamente acelerado' : 'Pacing acelerado',
+                problem: p.state === 'critically_accelerated' ? 'Pacing crítico' : 'Pacing acelerado',
                 severity: p.state === 'critically_accelerated' ? 'high' : 'medium',
-                evidence: `spend_7d=${p.c.spend ?? 0}, daily_budget=${p.c.daily_budget ?? p.c.lifetime_budget ?? 0}`,
+                evidence: `spend_7d=${p.c.spend ?? 0}, budget=${p.c.daily_budget ?? p.c.lifetime_budget ?? 0}`,
                 recommended_action: 'Revisar bid strategy o reducir budget diario.',
                 score_ref: 'campaign_pacing_score', as_of: now,
             });
@@ -217,9 +248,9 @@ function DashboardContent() {
         for (const p of derived.underpaced) {
             out.push({
                 entity_type: 'campaign', entity_id: p.c.id, entity_name: p.c.name,
-                problem: 'Campaña no gasta lo planificado (underpaced)',
+                problem: 'Campaña underpaced',
                 severity: 'low',
-                evidence: `spend_7d=${p.c.spend ?? 0}, expected>${toCents(p.c.daily_budget).toFixed(0)}`,
+                evidence: `spend_7d=${p.c.spend ?? 0}`,
                 recommended_action: 'Ampliar audiencia, revisar bid o creativo.',
                 score_ref: 'campaign_pacing_score', as_of: now,
             });
@@ -227,9 +258,9 @@ function DashboardContent() {
         for (const c of derived.wasteful) {
             out.push({
                 entity_type: 'campaign', entity_id: c.id, entity_name: c.name,
-                problem: 'Riesgo alto de desperdicio presupuestal',
+                problem: 'Riesgo alto de desperdicio',
                 severity: 'medium',
-                evidence: `ctr/cpc/clicks por debajo de umbrales (spend=${c.spend ?? 0})`,
+                evidence: `ctr/cpc fuera de rango (spend=${c.spend ?? 0})`,
                 recommended_action: 'Iterar copy/creatividad o pausar.',
                 score_ref: 'budget_waste_risk', as_of: now,
             });
@@ -237,6 +268,17 @@ function DashboardContent() {
         const rank: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
         return out.sort((a, b) => rank[a.severity] - rank[b.severity]);
     }, [derived, accounts]);
+
+    const filteredDecisions = useMemo(() => {
+        if (sevFilter === 'all') return decisions;
+        return decisions.filter(d => d.severity === sevFilter);
+    }, [decisions, sevFilter]);
+
+    const sevCounts = useMemo(() => {
+        const out: Record<SevFilter, number> = { all: decisions.length, critical: 0, high: 0, medium: 0, low: 0 };
+        for (const d of decisions) out[d.severity]++;
+        return out;
+    }, [decisions]);
 
     if (!tenantId) return (
         <div className="card">
@@ -249,32 +291,33 @@ function DashboardContent() {
 
     return (
         <>
-            <header className="row-between" style={{ marginBottom: 16, gap: 12, flexWrap: 'wrap' }}>
+            <header className="row-between fade-in" style={{ marginBottom: 14, gap: 12, flexWrap: 'wrap' }}>
                 <div>
-                    <h1 className="text-grad" style={{ fontSize: 28, marginBottom: 4 }}>🏠 Dashboard Principal</h1>
+                    <h1 className="text-grad" style={{ fontSize: 28, marginBottom: 4, lineHeight: 1.1 }}>
+                        🏠 Dashboard Principal
+                    </h1>
                     <p className="muted" style={{ margin: 0, fontSize: 13 }}>
-                        Plataforma de decisión: prioriza acciones sobre presupuesto, accesos y calidad.
+                        Plataforma de decisión · prioriza presupuesto, accesos y calidad. <kbd style={{
+                            padding: '1px 6px', borderRadius: 4, background: 'rgba(255,255,255,.05)',
+                            border: '1px solid var(--border-hi)', fontSize: 10,
+                        }}>R</kbd> refrescar.
                     </p>
                 </div>
                 <div className="row" style={{ gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                    {lastSync && (
-                        <span className="muted" style={{ fontSize: 12 }}>
-                            ◷ Sync {new Date(lastSync).toLocaleTimeString()}
-                        </span>
-                    )}
-                    <button className="btn btn-ghost btn-sm" onClick={loadAll}>↻ Refrescar</button>
+                    <FreshnessBadge lastSync={lastSync} status="ok" />
+                    <button className="btn btn-ghost btn-sm" onClick={loadAll} aria-label="Refrescar">↻</button>
                     <Link href={`/panel/connections?tenant=${tenantId}`} className="btn btn-ghost btn-sm">Conexiones</Link>
                 </div>
             </header>
 
-            {/* Top bar: connection + account selector */}
+            {/* Sticky top bar */}
             {status === 'ready' && accounts && accounts.length > 0 && (
-                <div className="card" style={{ marginBottom: 12 }}>
-                    <div className="row" style={{ gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <div className="module-bar fade-in">
+                    <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                         {conns && conns.length > 1 && (
-                            <div className="field" style={{ marginBottom: 0, flex: '1 1 220px' }}>
-                                <label className="label">Cuenta Meta</label>
-                                <select value={connId} onChange={e => setConnId(e.target.value)}>
+                            <div style={{ flex: '1 1 200px', minWidth: 180 }}>
+                                <label className="label" style={{ fontSize: 10, marginBottom: 2 }}>Conexión</label>
+                                <select value={connId} onChange={e => setConnId(e.target.value)} style={{ padding: '7px 10px', fontSize: 13 }}>
                                     {conns.map(c => (
                                         <option key={c.id} value={c.id}>
                                             {c.display_name ?? c.email ?? c.id.slice(0, 8)}
@@ -283,137 +326,137 @@ function DashboardContent() {
                                 </select>
                             </div>
                         )}
-                        <div className="field" style={{ marginBottom: 0, flex: '1 1 260px' }}>
-                            <label className="label">AdAccount activa</label>
-                            <select value={selectedAccount} onChange={e => setSelectedAccount(e.target.value)}>
+                        <div style={{ flex: '2 1 260px', minWidth: 220 }}>
+                            <label className="label" style={{ fontSize: 10, marginBottom: 2 }}>AdAccount activa</label>
+                            <select value={selectedAccount} onChange={e => setSelectedAccount(e.target.value)} style={{ padding: '7px 10px', fontSize: 13 }}>
                                 {accounts.map(a => (
                                     <option key={a.id} value={a.id}>
-                                        {a.name} ({a.currency}) · status {a.account_status}
+                                        {a.name} · {a.currency} · status {a.account_status}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        <span className="muted" style={{ fontSize: 12 }}>
-                            Ventana: últimos 7 días · fuente API Meta
-                        </span>
+                        <div className="muted" style={{ fontSize: 11 }}>
+                            Ventana: últimos 7 días · {bms?.length ?? 0} BMs · {accounts.length} cuentas · {pages?.length ?? 0} pages
+                        </div>
                     </div>
                 </div>
             )}
 
             {status === 'no_conns' && (
-                <div className="card" style={{ textAlign: 'center', padding: 40 }}>
-                    <h3>Sin conexiones Meta</h3>
-                    <Link href={`/panel/connections?tenant=${tenantId}`} className="btn btn-primary">+ Conectar Meta</Link>
-                </div>
+                <EmptyState
+                    icon="◇"
+                    title="Sin conexiones Meta"
+                    description="Conecta tu primera cuenta para activar el dashboard."
+                    cta={<Link href={`/panel/connections?tenant=${tenantId}`} className="btn btn-primary">+ Conectar Meta</Link>}
+                />
             )}
 
             {status === 'reconnect' && (
-                <div className="card" style={{ padding: 32, borderLeft: '4px solid #f59e0b' }}>
+                <div className="card" style={{ padding: 28, borderLeft: '3px solid var(--warning)' }}>
                     <h3 style={{ marginTop: 0 }}>⚠ Reconecta tu cuenta de Meta</h3>
-                    <p>El token de acceso no está disponible. Vuelve a conectar para restaurar el Graph API.</p>
+                    <p className="muted">El token de acceso no está disponible. Vuelve a conectar para restaurar el Graph API.</p>
                     <Link href={`/panel/connections?tenant=${tenantId}`} className="btn btn-primary">Ir a Conexiones</Link>
                 </div>
             )}
 
             {status === 'error' && err && <div className="alert alert-error">Error: {err}</div>}
-            {status === 'loading' && <p className="muted">Cargando Graph API…</p>}
+
+            {status === 'loading' && (
+                <>
+                    <div style={{ marginBottom: 12 }}><SkeletonStats count={6} /></div>
+                    <div className="card" style={{ padding: 16 }}><SkeletonRow count={3} /></div>
+                </>
+            )}
 
             {status === 'ready' && derived && (
                 <>
                     {/* Executive summary */}
-                    <div className="row" style={{ gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
-                        <HealthCard score={derived.global} accent />
-                        <Kpi icon="💼" label="BMs" value={bms?.length ?? 0} />
-                        <Kpi icon="📊" label="AdAccounts" value={accounts?.length ?? 0}
+                    <div className="row fade-in" style={{ gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+                        <ScoreCard score={derived.global} accent />
+                        <Stat icon="💼" label="BMs" value={bms?.length ?? 0} />
+                        <Stat icon="📊" label="AdAccounts" value={accounts?.length ?? 0}
                              hint={`${accounts?.filter(a => a.account_status === 1).length ?? 0} activas`} />
-                        <Kpi icon="📄" label="Pages" value={pages?.length ?? 0}
+                        <Stat icon="📄" label="Pages" value={pages?.length ?? 0}
                              hint={`${pages?.filter(p => p.instagram_business_account).length ?? 0} con IG`} />
-                        <Kpi icon="🛡" label="Access risk" value={Math.round(100 - derived.access.score)}
-                             accent={derived.access.score < 60 ? '#ef4444' : undefined}
+                        <Stat icon="🛡" label="Access risk"
+                             value={Math.round(100 - derived.access.score)}
+                             tone={derived.access.score < 60 ? 'danger' : 'ok'}
                              hint={derived.access.score < 60 ? 'Vulnerable' : 'OK'} />
-                        <Kpi icon="🚨" label="Decisiones críticas"
-                             value={decisions.filter(d => d.severity === 'critical' || d.severity === 'high').length}
-                             accent={decisions.some(d => d.severity === 'critical') ? '#ef4444' : undefined} />
+                        <Stat icon="🚨" label="Decisiones críticas"
+                             value={sevCounts.critical + sevCounts.high}
+                             tone={sevCounts.critical > 0 ? 'danger' : sevCounts.high > 0 ? 'warn' : 'ok'} />
                     </div>
 
                     {/* Budget Health Summary */}
-                    <section className="card" style={{ marginBottom: 12 }}>
-                        <div className="row-between" style={{ marginBottom: 10 }}>
-                            <h2 style={{ fontSize: 16, margin: 0 }}>💰 Budget Health Summary</h2>
-                            <span className="muted" style={{ fontSize: 11 }}>últimos 7 días</span>
-                        </div>
+                    <section className="card fade-in" style={{ marginBottom: 14, padding: 18 }}>
+                        <SectionHeader icon="💰" title="Budget Health Summary" hint="últimos 7 días" />
                         <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
-                            <MiniStat label="Spend 7d" value={`${currency} ${(derived.totalSpend7d / 100).toFixed(2)}`} />
-                            <MiniStat label="Cuentas ≥80% cap" value={derived.accountsNearCap.length}
-                                      tone={derived.accountsNearCap.length > 0 ? 'warn' : 'ok'} />
-                            <MiniStat label="Cuentas bloqueadas" value={derived.accountsFrozen.length}
-                                      tone={derived.accountsFrozen.length > 0 ? 'danger' : 'ok'} />
-                            <MiniStat label="Campañas aceleradas" value={derived.accelerating.length}
-                                      tone={derived.accelerating.length > 0 ? 'warn' : 'ok'} />
-                            <MiniStat label="Campañas underpaced" value={derived.underpaced.length}
-                                      tone={derived.underpaced.length > 0 ? 'warn' : 'ok'} />
-                            <MiniStat label="Riesgo de desperdicio" value={derived.wasteful.length}
-                                      tone={derived.wasteful.length > 0 ? 'warn' : 'ok'} />
+                            <Stat label="Spend 7d"
+                                  value={`${currency} ${(derived.totalSpend7d / 100).toFixed(2)}`} />
+                            <Stat label="Cuentas ≥80% cap" value={derived.accountsNearCap.length}
+                                  tone={derived.accountsNearCap.length > 0 ? 'warn' : 'ok'} />
+                            <Stat label="Cuentas bloqueadas" value={derived.accountsFrozen.length}
+                                  tone={derived.accountsFrozen.length > 0 ? 'danger' : 'ok'} />
+                            <Stat label="Campañas aceleradas" value={derived.accelerating.length}
+                                  tone={derived.accelerating.length > 0 ? 'warn' : 'ok'} />
+                            <Stat label="Campañas lentas" value={derived.underpaced.length}
+                                  tone={derived.underpaced.length > 0 ? 'warn' : 'ok'} />
+                            <Stat label="Riesgo desperdicio" value={derived.wasteful.length}
+                                  tone={derived.wasteful.length > 0 ? 'warn' : 'ok'} />
                         </div>
                         {Object.keys(campaigns).length === 0 && (
-                            <p className="muted" style={{ fontSize: 12, marginTop: 10, marginBottom: 0 }}>
-                                Selecciona una AdAccount para cargar campañas y activar pacing/eficiencia.
+                            <p className="muted" style={{ fontSize: 11, marginTop: 10, marginBottom: 0 }}>
+                                💡 Las métricas de campañas se cargan al seleccionar una AdAccount.
                             </p>
                         )}
                     </section>
 
                     {/* Global Decision Queue */}
-                    <section className="card" style={{ marginBottom: 12 }}>
-                        <div className="row-between" style={{ marginBottom: 10 }}>
-                            <h2 style={{ fontSize: 16, margin: 0 }}>🧭 Global Decision Queue</h2>
-                            <span className="muted" style={{ fontSize: 11 }}>{decisions.length} items</span>
-                        </div>
-                        {decisions.length === 0 ? (
-                            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
-                                Sin alertas. Sigue monitoreando pacing y spend cap.
-                            </p>
+                    <section className="card fade-in" style={{ marginBottom: 14, padding: 18 }}>
+                        <SectionHeader
+                            icon="🧭"
+                            title="Global Decision Queue"
+                            hint={`${filteredDecisions.length} de ${decisions.length} items`}
+                            action={
+                                <Segmented<SevFilter>
+                                    value={sevFilter}
+                                    onChange={setSevFilter}
+                                    options={[
+                                        { id: 'all',      label: `Todas (${sevCounts.all})` },
+                                        { id: 'critical', label: `🔴 ${sevCounts.critical}` },
+                                        { id: 'high',     label: `🟠 ${sevCounts.high}` },
+                                        { id: 'medium',   label: `🟡 ${sevCounts.medium}` },
+                                        { id: 'low',      label: `⚪ ${sevCounts.low}` },
+                                    ]}
+                                />
+                            }
+                        />
+                        {filteredDecisions.length === 0 ? (
+                            <EmptyState
+                                icon={decisions.length === 0 ? '✓' : '∅'}
+                                title={decisions.length === 0 ? 'Todo bajo control' : 'Sin items en este filtro'}
+                                description={decisions.length === 0 ? 'No hay alertas activas.' : 'Cambia el filtro para ver otras severidades.'}
+                            />
                         ) : (
-                            <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
-                                    <thead>
-                                        <tr style={{ textAlign: 'left', color: 'var(--muted)' }}>
-                                            <th style={thStyle}>Sev.</th>
-                                            <th style={thStyle}>Entidad</th>
-                                            <th style={thStyle}>Problema</th>
-                                            <th style={thStyle}>Evidencia</th>
-                                            <th style={thStyle}>Acción</th>
-                                            <th style={thStyle}>Impacto</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {decisions.slice(0, 20).map((d, i) => (
-                                            <tr key={`${d.entity_id}-${i}`} style={{ borderTop: '1px solid rgba(255,255,255,.06)' }}>
-                                                <td style={tdStyle}><SevPill s={d.severity} /></td>
-                                                <td style={tdStyle}>
-                                                    <div style={{ fontWeight: 600 }}>{d.entity_name}</div>
-                                                    <div className="muted" style={{ fontSize: 11 }}>{d.entity_type}</div>
-                                                </td>
-                                                <td style={tdStyle}>{d.problem}</td>
-                                                <td style={{ ...tdStyle, fontSize: 11, color: 'var(--muted)' }}>{d.evidence}</td>
-                                                <td style={tdStyle}>{d.recommended_action}</td>
-                                                <td style={{ ...tdStyle, fontSize: 12 }}>{d.economic_impact ?? '—'}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <SortableTable<DecisionItem>
+                                rows={filteredDecisions}
+                                rowKey={(r, i) => `${r.entity_id}-${i}`}
+                                initialSort={{ key: 'severity', dir: 'desc' }}
+                                columns={decisionColumns()}
+                            />
                         )}
                     </section>
 
-                    {/* Modules */}
-                    <section>
-                        <h2 style={{ fontSize: 16, marginBottom: 10 }}>Módulos</h2>
+                    {/* Modules grid */}
+                    <section className="fade-in">
+                        <SectionHeader title="Módulos" />
                         <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
                             <ModuleCard icon="📊" title="ADS" desc="Cuentas, spend cap, balance, pacing."
                                 href={`/panel/ads?tenant=${tenantId}&conn=${connId}`} />
-                            <ModuleCard icon="💼" title="BM Hub" desc="Business Managers, verificación, accesos."
+                            <ModuleCard icon="💼" title="BM Hub" desc="BMs, verificación, governance." badge={Object.keys(bmUsers).length > 0 ? 'usuarios ✓' : undefined}
                                 href={`/panel/bm?tenant=${tenantId}&conn=${connId}`} />
-                            <ModuleCard icon="📄" title="Pages" desc="Fanpages: IG, publicación, verificación."
+                            <ModuleCard icon="📄" title="Pages" desc="IG, publicación, readiness."
                                 href={`/panel/pages?tenant=${tenantId}&conn=${connId}`} />
                             <ModuleCard icon="🧬" title="Clonner" desc="Clona anuncios A/B." soon
                                 href={`/panel/clonner?tenant=${tenantId}&conn=${connId}`} />
@@ -427,81 +470,48 @@ function DashboardContent() {
     );
 }
 
-const thStyle: React.CSSProperties = { padding: '8px 10px', fontSize: 11, textTransform: 'uppercase', letterSpacing: .5 };
-const tdStyle: React.CSSProperties = { padding: '10px', verticalAlign: 'top' };
-
-function SevPill({ s }: { s: Severity }) {
-    const map: Record<Severity, { bg: string; label: string }> = {
-        critical: { bg: '#ef4444', label: 'CRIT' },
-        high:     { bg: '#f97316', label: 'HIGH' },
-        medium:   { bg: '#f59e0b', label: 'MED'  },
-        low:      { bg: '#64748b', label: 'LOW'  },
-    };
-    const { bg, label } = map[s];
-    return <span style={{
-        background: bg, color: 'white', fontSize: 10, fontWeight: 700,
-        padding: '2px 6px', borderRadius: 4, letterSpacing: .5,
-    }}>{label}</span>;
+function decisionColumns(): Column<DecisionItem>[] {
+    const sevRank: Record<Severity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+    return [
+        {
+            key: 'severity', label: 'Sev.', sortable: true, width: 70,
+            sortFn: (a, b) => sevRank[a.severity] - sevRank[b.severity],
+            render: d => <SeverityChip s={d.severity} />,
+        },
+        {
+            key: 'entity', label: 'Entidad', sortable: true,
+            sortFn: (a, b) => a.entity_name.localeCompare(b.entity_name),
+            render: d => (
+                <div>
+                    <div style={{ fontWeight: 600, fontSize: 13 }}>{d.entity_name}</div>
+                    <div className="muted" style={{ fontSize: 10 }}>{d.entity_type}</div>
+                </div>
+            ),
+        },
+        { key: 'problem', label: 'Problema', render: d => <span style={{ fontSize: 13 }}>{d.problem}</span> },
+        { key: 'evidence', label: 'Evidencia', render: d => (
+            <code style={{ fontSize: 10, color: 'var(--muted)' }}>{d.evidence}</code>
+        ) },
+        { key: 'action', label: 'Acción', render: d => <span style={{ fontSize: 13 }}>{d.recommended_action}</span> },
+        { key: 'impact', label: 'Impacto', align: 'right', render: d => (
+            <span style={{ fontSize: 12 }}>{d.economic_impact ?? '—'}</span>
+        ) },
+    ];
 }
 
-function HealthCard({ score, accent }: { score: Score; accent?: boolean }) {
-    const color = score.score >= 75 ? '#22c55e' : score.score >= 50 ? '#f59e0b' : '#ef4444';
-    return (
-        <div className="card" title={score.explanation} style={{
-            flex: '1 1 220px', minWidth: 220, marginBottom: 0,
-            borderLeft: accent ? `3px solid ${color}` : undefined,
-        }}>
-            <div className="muted" style={{ fontSize: 11, textTransform: 'uppercase' }}>{score.label}</div>
-            <div style={{ fontSize: 32, fontWeight: 800, color, marginTop: 4 }}>{score.score}</div>
-            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-                {score.factors.map(f => `${f.label} ${Math.round(f.value)}`).join(' · ')}
-            </div>
-        </div>
-    );
-}
-
-function Kpi({ icon, label, value, hint, accent }: {
-    icon: string; label: string; value: number | string; hint?: string; accent?: string;
-}) {
-    return (
-        <div className="card" style={{ flex: '1 1 150px', minWidth: 150, marginBottom: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 16 }}>{icon}</span>
-                <span className="muted" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: .5 }}>{label}</span>
-            </div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: accent ?? 'var(--text)', marginTop: 4 }}>{value}</div>
-            {hint && <div className="muted" style={{ fontSize: 11 }}>{hint}</div>}
-        </div>
-    );
-}
-
-function MiniStat({ label, value, tone }: {
-    label: string; value: string | number; tone?: 'ok' | 'warn' | 'danger';
-}) {
-    const color = tone === 'danger' ? '#ef4444' : tone === 'warn' ? '#f59e0b' : undefined;
-    return (
-        <div style={{
-            flex: '1 1 150px', minWidth: 140,
-            padding: '10px 12px', borderRadius: 8,
-            background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)',
-        }}>
-            <div className="muted" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: .5 }}>{label}</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: color ?? 'var(--text)', marginTop: 2 }}>{value}</div>
-        </div>
-    );
-}
-
-function ModuleCard({ icon, title, desc, href, soon }: {
-    icon: string; title: string; desc: string; href: string; soon?: boolean;
+function ModuleCard({ icon, title, desc, href, soon, badge }: {
+    icon: string; title: string; desc: string; href: string; soon?: boolean; badge?: string;
 }) {
     const content = (
         <div className="card" style={{
-            flex: '1 1 220px', minWidth: 220, marginBottom: 0,
-            opacity: soon ? 0.7 : 1, cursor: soon ? 'default' : 'pointer',
+            flex: '1 1 220px', minWidth: 200, marginBottom: 0, padding: 16,
+            opacity: soon ? 0.65 : 1, cursor: soon ? 'default' : 'pointer',
         }}>
             <div className="row-between" style={{ alignItems: 'flex-start' }}>
-                <div style={{ fontSize: 24 }}>{icon}</div>
-                {soon && <span className="pill pill-muted" style={{ fontSize: 10 }}>Soon</span>}
+                <div style={{ fontSize: 22 }}>{icon}</div>
+                {soon
+                    ? <span className="pill pill-muted" style={{ fontSize: 10 }}>Soon</span>
+                    : badge ? <span className="pill pill-success" style={{ fontSize: 10 }}>{badge}</span> : null}
             </div>
             <h3 style={{ margin: '8px 0 4px', fontSize: 15 }}>{title}</h3>
             <p className="muted" style={{ margin: 0, fontSize: 12 }}>{desc}</p>
