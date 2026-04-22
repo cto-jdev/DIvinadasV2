@@ -13,6 +13,7 @@ apps/web/.next/
 apps/web/out/
 apps/extension/dist/
 *.zip
+*.tsbuildinfo
 
 # Logs
 *.log
