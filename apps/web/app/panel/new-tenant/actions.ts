@@ -1,6 +1,5 @@
 'use server';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { createServerClient } from '@supabase/ssr';
 import { getSupabaseService } from '@/lib/supabase';
 
@@ -63,5 +62,5 @@ export async function createTenantAction(formData: FormData): Promise<ActionResu
         return { ok: false, error: memErr.message };
     }
 
-    redirect(`/panel/connections?tenant=${tenant.id}`);
+    return { ok: true, tenant_id: tenant.id };
 }

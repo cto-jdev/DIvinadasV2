@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { createTenantAction } from './actions';
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -25,6 +26,7 @@ export default function NewTenantPage() {
     const [slugTouched, setSlugTouched] = useState(false);
     const [err, setErr] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
+    const router = useRouter();
 
     function onDisplayNameChange(v: string) {
         setDisplayName(v);
@@ -36,11 +38,21 @@ export default function NewTenantPage() {
         setErr(null);
         const fd = new FormData(e.currentTarget);
         startTransition(async () => {
-            const res = await createTenantAction(fd);
-            if (res && !res.ok) {
-                setErr(ERROR_MESSAGES[res.error] ?? res.error);
+            try {
+                const res = await createTenantAction(fd);
+                if (!res) {
+                    setErr('La acción no devolvió respuesta. Revisa la consola del navegador.');
+                    return;
+                }
+                if (!res.ok) {
+                    setErr(ERROR_MESSAGES[res.error] ?? res.error);
+                    return;
+                }
+                router.push(`/panel/connections?tenant=${res.tenant_id}`);
+            } catch (e: unknown) {
+                const msg = e instanceof Error ? e.message : String(e);
+                setErr(`Error: ${msg}`);
             }
-            // On success, the server action redirects — nothing to do client-side.
         });
     }
 
