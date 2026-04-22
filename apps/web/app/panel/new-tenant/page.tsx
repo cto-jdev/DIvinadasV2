@@ -2,7 +2,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createTenantAction } from './actions';
+import { apiFetch } from '@/lib/api-client';
 
 const ERROR_MESSAGES: Record<string, string> = {
     invalid_slug:         'El slug solo puede contener minúsculas, números y guiones (3–48 caracteres).',
@@ -37,18 +37,19 @@ export default function NewTenantPage() {
         e.preventDefault();
         setErr(null);
         const fd = new FormData(e.currentTarget);
+        const payload = { slug: String(fd.get('slug') ?? ''), display_name: String(fd.get('display_name') ?? '') };
         startTransition(async () => {
             try {
-                const res = await createTenantAction(fd);
-                if (!res) {
-                    setErr('La acción no devolvió respuesta. Revisa la consola del navegador.');
+                const r = await apiFetch('/api/tenant/create', {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                });
+                const j = await r.json().catch(() => ({}));
+                if (!r.ok) {
+                    setErr(ERROR_MESSAGES[j.error] ?? j.error ?? `HTTP ${r.status}`);
                     return;
                 }
-                if (!res.ok) {
-                    setErr(ERROR_MESSAGES[res.error] ?? res.error);
-                    return;
-                }
-                router.push(`/panel/connections?tenant=${res.tenant_id}`);
+                router.push(`/panel/connections?tenant=${j.tenant_id}`);
             } catch (e: unknown) {
                 const msg = e instanceof Error ? e.message : String(e);
                 setErr(`Error: ${msg}`);

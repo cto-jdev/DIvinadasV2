@@ -1,33 +1,38 @@
+'use client';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { createServerClient } from '@supabase/ssr';
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { getSupabaseBrowser } from '@/lib/supabase-browser';
 
-export default async function PanelLayout({ children }: { children: React.ReactNode }) {
-    const cookieStore = cookies();
-    const supa = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
-                setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
-                    cs.forEach(({ name, value, options }) => {
-                        try { cookieStore.set({ name, value, ...options }); } catch { /* RSC */ }
-                    });
-                },
-            },
-        },
-    );
-    const hasAuthCookie = cookieStore.getAll().some(c => /^sb-.*-auth-token(\.\d+)?$/.test(c.name));
-    let user = null;
-    try {
-        const r = await supa.auth.getUser();
-        user = r.data.user;
-    } catch {
-        // transient edge failure — fall through to cookie-based check
+export default function PanelLayout({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        const supa = getSupabaseBrowser();
+        let cancelled = false;
+
+        (async () => {
+            const { data: { session } } = await supa.auth.getSession();
+            if (cancelled) return;
+            if (!session) {
+                router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+                return;
+            }
+            setReady(true);
+        })();
+
+        const { data: sub } = supa.auth.onAuthStateChange((_ev, session) => {
+            if (!session) router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+        });
+
+        return () => { cancelled = true; sub.subscription.unsubscribe(); };
+    }, [router, pathname]);
+
+    if (!ready) {
+        return <main className="shell"><p className="muted">Cargando…</p></main>;
     }
-    if (!user && !hasAuthCookie) redirect('/login?next=/panel');
 
     return (
         <>

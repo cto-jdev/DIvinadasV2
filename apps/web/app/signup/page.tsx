@@ -19,7 +19,7 @@ export default function SignupPage() {
             email, password,
             options: {
                 data: { full_name: name },
-                emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/panel`,
+                emailRedirectTo: `${window.location.origin}/auth/callback?next=/panel`,
             },
         });
         setLoading(false);

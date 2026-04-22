@@ -45,7 +45,7 @@ function LoginContent() {
         const supa = getSupabaseBrowser();
         await supa.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: `${window.location.origin}/api/auth/callback` },
+            options: { redirectTo: `${window.location.origin}/auth/callback` },
         });
     }
 
