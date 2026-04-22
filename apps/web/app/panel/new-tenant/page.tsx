@@ -45,7 +45,8 @@ export default function NewTenantPage() {
         setLoading(false);
 
         if (!r.ok) {
-            setErr(ERROR_MESSAGES[j.error] ?? j.message ?? j.error ?? 'Error al crear tenant.');
+            const base = ERROR_MESSAGES[j.error] ?? j.message ?? j.error ?? 'Error al crear tenant.';
+            setErr(j.detail ? `${base} (${j.detail})` : base);
             return;
         }
         router.replace(`/panel/connections?tenant=${j.tenant_id}`);
