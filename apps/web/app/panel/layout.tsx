@@ -19,8 +19,15 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             },
         },
     );
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) redirect('/login?next=/panel');
+    const hasAuthCookie = cookieStore.getAll().some(c => /^sb-.*-auth-token(\.\d+)?$/.test(c.name));
+    let user = null;
+    try {
+        const r = await supa.auth.getUser();
+        user = r.data.user;
+    } catch {
+        // transient edge failure — fall through to cookie-based check
+    }
+    if (!user && !hasAuthCookie) redirect('/login?next=/panel');
 
     return (
         <>
