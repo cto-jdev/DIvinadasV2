@@ -244,6 +244,64 @@ export function SectionHeader({ icon, title, hint, action }: {
     );
 }
 
+// ---------- Modal ----------
+
+export function Modal({ open, onClose, title, children, footer, width = 520 }: {
+    open: boolean; onClose: () => void;
+    title?: React.ReactNode; children: React.ReactNode; footer?: React.ReactNode;
+    width?: number;
+}) {
+    React.useEffect(() => {
+        if (!open) return;
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [open, onClose]);
+    if (!open) return null;
+    return (
+        <div role="dialog" aria-modal="true" onClick={onClose} style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(5,5,15,.7)', backdropFilter: 'blur(6px)',
+            display: 'grid', placeItems: 'center', padding: 16,
+        }}>
+            <div onClick={e => e.stopPropagation()} className="card" style={{
+                width: '100%', maxWidth: width, margin: 0, padding: 20,
+                animation: 'fade-in .15s ease-out',
+            }}>
+                {title && (
+                    <div className="row-between" style={{ marginBottom: 14, alignItems: 'center' }}>
+                        <h3 style={{ margin: 0, fontSize: 16 }}>{title}</h3>
+                        <button onClick={onClose} className="btn btn-ghost btn-sm" aria-label="Cerrar">×</button>
+                    </div>
+                )}
+                <div>{children}</div>
+                {footer && <div className="row" style={{ gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>{footer}</div>}
+            </div>
+        </div>
+    );
+}
+
+// ---------- Toast (inline notification) ----------
+
+export function Toast({ msg, tone = 'ok', onClose }: {
+    msg: string; tone?: 'ok' | 'warn' | 'danger'; onClose: () => void;
+}) {
+    React.useEffect(() => {
+        const t = setTimeout(onClose, 4000);
+        return () => clearTimeout(t);
+    }, [onClose]);
+    const color = tone === 'danger' ? 'var(--danger)' : tone === 'warn' ? 'var(--warning)' : 'var(--success)';
+    return (
+        <div style={{
+            position: 'fixed', bottom: 18, right: 18, zIndex: 1100,
+            background: 'rgba(10,10,15,.92)', backdropFilter: 'blur(16px)',
+            border: `1px solid ${color}`, borderRadius: 10, padding: '10px 14px',
+            color: 'var(--text)', fontSize: 13, boxShadow: 'var(--shadow-md)',
+            animation: 'fade-in .2s ease-out',
+        }}>{msg}</div>
+    );
+}
+
 // ---------- Inline charts ----------
 
 export function Sparkline({ values, width = 120, height = 32, stroke = 'var(--primary, #A855F7)' }: {

@@ -38,6 +38,46 @@ export async function graphGet<T = unknown>(
     return res.json() as Promise<T>;
 }
 
+export async function graphPost<T = unknown>(
+    path: string,
+    accessToken: string,
+    body: Record<string, string | number | boolean | undefined | null> = {},
+): Promise<T> {
+    const url = new URL(`https://graph.facebook.com/${FB_API}${path}`);
+    const form = new URLSearchParams();
+    form.set('access_token', accessToken);
+    form.set('appsecret_proof', appsecretProof(accessToken));
+    for (const [k, v] of Object.entries(body)) {
+        if (v === undefined || v === null) continue;
+        form.set(k, String(v));
+    }
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' },
+        body: form.toString(),
+    });
+    if (!res.ok) {
+        const b = await res.json().catch(() => ({} as any));
+        throw new GraphError(res.status, b?.error?.code ?? null, b?.error?.message ?? 'unknown');
+    }
+    return res.json() as Promise<T>;
+}
+
+export async function graphDelete<T = unknown>(
+    path: string,
+    accessToken: string,
+): Promise<T> {
+    const url = new URL(`https://graph.facebook.com/${FB_API}${path}`);
+    url.searchParams.set('access_token', accessToken);
+    url.searchParams.set('appsecret_proof', appsecretProof(accessToken));
+    const res = await fetch(url, { method: 'DELETE', headers: { accept: 'application/json' } });
+    if (!res.ok) {
+        const b = await res.json().catch(() => ({} as any));
+        throw new GraphError(res.status, b?.error?.code ?? null, b?.error?.message ?? 'unknown');
+    }
+    return res.json() as Promise<T>;
+}
+
 export async function getTokenForConnection(
     supa: any,
     connectionId: string,

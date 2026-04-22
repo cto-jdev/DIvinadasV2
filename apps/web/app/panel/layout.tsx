@@ -12,6 +12,7 @@ const NAV: NavItem[] = [
     { href: '/panel',             label: 'Inicio',      icon: '◉', exact: true },
     { href: '/panel/dashboard',   label: 'Dashboard',   icon: '▦' },
     { href: '/panel/ads',         label: 'ADS',         icon: '◈' },
+    { href: '/panel/campaigns',   label: 'Campañas',    icon: '◆' },
     { href: '/panel/bm',          label: 'BM',          icon: '⬢' },
     { href: '/panel/pages',       label: 'Páginas',     icon: '◨' },
     { href: '/panel/clonner',     label: 'Clonner',     icon: '⎘' },
