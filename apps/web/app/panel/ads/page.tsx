@@ -21,6 +21,7 @@ import {
 import {
     billingHealthScore, campaignEfficiencyScore, campaignPacingScore,
 } from '@/lib/domain/scoring';
+import { useRegisterCopilotScope } from '@/components/copilot/context';
 
 type Conn = { id: string; display_name: string | null; status: string };
 type Tab = 'resumen' | 'budget' | 'performance' | 'reco';
@@ -220,6 +221,26 @@ function AdsContent() {
         const rank: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
         return out.sort((a, b) => rank[a.severity] - rank[b.severity]);
     }, [selected, derivations, campaignAnalytics, currency]);
+
+    useRegisterCopilotScope({
+        module: 'ads',
+        tenantId: tenantId ?? undefined,
+        connectionId: connId || undefined,
+        currency,
+        active_account: selected ? { id: selected.id, name: selected.name } : null,
+        summary: {
+            accounts_count: accounts?.length,
+            campaigns_count: campaigns?.length,
+            campaigns_accelerating: (campaignAnalytics ?? []).filter(r =>
+                r.pacing.state === 'accelerated' || r.pacing.state === 'critically_accelerated').length,
+            campaigns_underpaced: (campaignAnalytics ?? []).filter(r => r.pacing.state === 'underpaced').length,
+            campaigns_wasteful: (campaignAnalytics ?? []).filter(r => r.waste !== null && r.waste >= 60).length,
+            total_spend_7d_cents: derivations?.spend7d,
+        },
+        top_decisions: recommendations.slice(0, 12),
+        scores: billing ? [billing] : [],
+        raw: { accounts: accounts ?? undefined, campaigns: campaigns ?? undefined },
+    }, [tenantId, connId, selected, accounts, campaigns, campaignAnalytics, billing, derivations, recommendations]);
 
     if (!tenantId) return <div className="card"><h2>Falta tenant</h2><p className="muted">Abre desde <Link href="/panel">inicio</Link>.</p></div>;
 

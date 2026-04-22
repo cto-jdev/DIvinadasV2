@@ -16,6 +16,7 @@ import type { BmSnapshot, AdAccountSnapshot, BmUsersSnapshot } from '@/lib/domai
 import { toCents, capUtilizationPct } from '@/lib/domain/budget';
 import { accessRiskScore } from '@/lib/domain/scoring';
 import { ScoreCard } from '@/components/dashboard/primitives';
+import { useRegisterCopilotScope } from '@/components/copilot/context';
 
 type Conn = { id: string; display_name: string | null };
 
@@ -120,6 +121,19 @@ function BmContent() {
         if (!accounts) return [];
         return accounts.filter(a => !a.business_id);
     }, [accounts]);
+
+    useRegisterCopilotScope({
+        module: 'bm',
+        tenantId: tenantId ?? undefined,
+        connectionId: connId || undefined,
+        summary: {
+            bms_count: bms?.length,
+            accounts_count: accounts?.length,
+        },
+        top_decisions: [],
+        scores: accessScore ? [accessScore] : [],
+        raw: { bms: bms ?? undefined, accounts: accounts ?? undefined },
+    }, [tenantId, connId, bms, accounts, accessScore]);
 
     if (!tenantId) return <div className="card"><h2>Falta tenant</h2><p className="muted">Abre desde <Link href="/panel">inicio</Link>.</p></div>;
 

@@ -244,6 +244,66 @@ export function SectionHeader({ icon, title, hint, action }: {
     );
 }
 
+// ---------- Inline charts ----------
+
+export function Sparkline({ values, width = 120, height = 32, stroke = 'var(--primary, #A855F7)' }: {
+    values: number[]; width?: number; height?: number; stroke?: string;
+}) {
+    if (!values.length) return <span className="muted" style={{ fontSize: 11 }}>—</span>;
+    const min = Math.min(...values), max = Math.max(...values);
+    const range = max - min || 1;
+    const step = values.length > 1 ? width / (values.length - 1) : width;
+    const pts = values.map((v, i) => `${i * step},${height - ((v - min) / range) * height}`).join(' ');
+    const area = `0,${height} ${pts} ${width},${height}`;
+    return (
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
+            <polygon points={area} fill={stroke} opacity={0.12} />
+            <polyline points={pts} fill="none" stroke={stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+export function MiniBar({ values, width = 120, height = 32, color = 'var(--primary, #A855F7)' }: {
+    values: number[]; width?: number; height?: number; color?: string;
+}) {
+    if (!values.length) return <span className="muted" style={{ fontSize: 11 }}>—</span>;
+    const max = Math.max(...values) || 1;
+    const bw = width / values.length;
+    return (
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
+            {values.map((v, i) => {
+                const h = (v / max) * height;
+                return <rect key={i} x={i * bw + 1} y={height - h} width={Math.max(1, bw - 2)} height={h} fill={color} rx={1} />;
+            })}
+        </svg>
+    );
+}
+
+export function DonutGauge({ value, size = 64, stroke = 8, label }: {
+    value: number; size?: number; stroke?: number; label?: string;
+}) {
+    const pct = Math.max(0, Math.min(100, value));
+    const r = (size - stroke) / 2;
+    const c = 2 * Math.PI * r;
+    const dash = (pct / 100) * c;
+    const color = pct >= 75 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+    return (
+        <div style={{ position: 'relative', width: size, height: size, display: 'inline-block' }}>
+            <svg width={size} height={size}>
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth={stroke} />
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+                    strokeDasharray={`${dash} ${c}`} strokeLinecap="round"
+                    transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+            </svg>
+            <div style={{
+                position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
+                fontSize: size / 4, fontWeight: 700, color,
+            }}>{Math.round(pct)}</div>
+            {label && <div className="muted" style={{ fontSize: 10, textAlign: 'center', marginTop: 2 }}>{label}</div>}
+        </div>
+    );
+}
+
 // ---------- Pacing pill ----------
 
 export function PacingPill({ state }: { state: string | null }) {

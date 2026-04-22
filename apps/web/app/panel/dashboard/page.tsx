@@ -31,6 +31,7 @@ import {
     ScoreCard, Stat, SeverityChip, Segmented, SkeletonRow, SkeletonStats,
     EmptyState, FreshnessBadge, SortableTable, SectionHeader, type Column,
 } from '@/components/dashboard/primitives';
+import { useRegisterCopilotScope } from '@/components/copilot/context';
 
 type Conn = { id: string; display_name: string | null; email: string | null; status: string };
 type Status = 'loading' | 'ready' | 'reconnect' | 'no_conns' | 'error';
@@ -268,6 +269,34 @@ function DashboardContent() {
         const rank: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
         return out.sort((a, b) => rank[a.severity] - rank[b.severity]);
     }, [derived, accounts]);
+
+    useRegisterCopilotScope({
+        module: 'dashboard',
+        tenantId: tenantId ?? undefined,
+        connectionId: connId || undefined,
+        currency: accounts?.find(a => a.id === selectedAccount)?.currency,
+        active_account: (() => {
+            const a = accounts?.find(x => x.id === selectedAccount);
+            return a ? { id: a.id, name: a.name } : null;
+        })(),
+        summary: {
+            bms_count: bms?.length,
+            accounts_count: accounts?.length,
+            accounts_frozen: derived?.accountsFrozen.length,
+            accounts_near_cap: derived?.accountsNearCap.length,
+            campaigns_count: Object.values(campaigns).flat().length,
+            campaigns_accelerating: derived?.accelerating.length,
+            campaigns_underpaced: derived?.underpaced.length,
+            campaigns_wasteful: derived?.wasteful.length,
+            pages_count: pages?.length,
+            global_health: derived?.global.score,
+            access_risk_inv: derived?.access.score,
+            total_spend_7d_cents: derived?.totalSpend7d,
+        },
+        top_decisions: decisions.slice(0, 12),
+        scores: derived ? [derived.global, derived.access] : [],
+        raw: { accounts: accounts ?? undefined, bms: bms ?? undefined, pages: pages ?? undefined },
+    }, [tenantId, connId, selectedAccount, bms, accounts, pages, campaigns, derived, decisions]);
 
     const filteredDecisions = useMemo(() => {
         if (sevFilter === 'all') return decisions;

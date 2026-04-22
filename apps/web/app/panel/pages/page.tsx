@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-client';
 import type { PageSnapshot, Score } from '@/lib/domain/types';
 import { pageHealthScore } from '@/lib/domain/scoring';
+import { useRegisterCopilotScope } from '@/components/copilot/context';
 
 type Conn = { id: string; display_name: string | null };
 
@@ -90,6 +91,19 @@ function PagesContent() {
         const avg = total > 0 ? Math.round(rows.reduce((a, r) => a + r.score.score, 0) / total) : 0;
         return { total, ready, withIg, verified, unpublished, avg };
     }, [rows]);
+
+    useRegisterCopilotScope({
+        module: 'pages',
+        tenantId: tenantId ?? undefined,
+        connectionId: connId || undefined,
+        summary: {
+            pages_count: summary?.total,
+            pages_ready: summary?.ready,
+        },
+        top_decisions: [],
+        scores: [],
+        raw: { pages: pages ?? undefined },
+    }, [tenantId, connId, pages, summary]);
 
     if (!tenantId) return <div className="card"><h2>Falta tenant</h2><p className="muted">Abre desde <Link href="/panel">inicio</Link>.</p></div>;
 
