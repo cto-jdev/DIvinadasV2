@@ -14,11 +14,17 @@ export const config = {
     ],
 };
 
-const MAX_BODY_BYTES = 1 * 1024 * 1024; // 1 MB
+const MAX_BODY_BYTES = 1 * 1024 * 1024;
+
+function hasSupabaseAuthCookie(req: NextRequest): boolean {
+    // Cookies look like `sb-<project-ref>-auth-token(.N)?`. If any chunk is
+    // present we consider the user *possibly* authenticated and let the
+    // route-level logic do the definitive check. This avoids spurious
+    // redirects when getUser() returns null transiently in edge runtime.
+    return req.cookies.getAll().some(c => /^sb-.*-auth-token(\.\d+)?$/.test(c.name));
+}
 
 export async function middleware(req: NextRequest) {
-    // Reject oversized POST/PUT bodies before they reach route handlers.
-    // Guards against memory exhaustion from malicious large payloads.
     if (req.method === 'POST' || req.method === 'PUT') {
         const cl = req.headers.get('content-length');
         if (cl && parseInt(cl, 10) > MAX_BODY_BYTES) {
@@ -26,41 +32,42 @@ export async function middleware(req: NextRequest) {
         }
     }
 
-    // API routes don't need session checks — return early
     if (req.nextUrl.pathname.startsWith('/api/')) {
         return NextResponse.next();
     }
 
     const res = NextResponse.next();
 
-    // Si Supabase no está configurado, no podemos validar sesión. Dejamos
-    // pasar para que al menos la app arranque y las páginas públicas rindan.
-    // (El usuario verá la UI de /panel pero sin datos — esperado en staging.)
     const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supaKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!supaUrl || !supaKey) return res;
 
-    const supa = createServerClient(
-        supaUrl,
-        supaKey,
-        {
-            cookies: {
-                getAll: () => req.cookies.getAll().map(c => ({ name: c.name, value: c.value })),
-                setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
-                    cs.forEach(({ name, value, options }) => {
-                        res.cookies.set({ name, value, ...options });
-                    });
-                },
-            },
-        },
-    );
-
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) {
+    // Fast path: no auth cookie at all → redirect to login.
+    if (!hasSupabaseAuthCookie(req)) {
         const url = req.nextUrl.clone();
         url.pathname = '/login';
         url.searchParams.set('next', req.nextUrl.pathname);
         return NextResponse.redirect(url);
+    }
+
+    // If an auth cookie exists, attempt a refresh but do NOT redirect on
+    // failure — let the page/API layer decide. This prevents false negatives
+    // from transient edge-runtime quirks in @supabase/ssr.
+    const supa = createServerClient(supaUrl, supaKey, {
+        cookies: {
+            getAll: () => req.cookies.getAll().map(c => ({ name: c.name, value: c.value })),
+            setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
+                cs.forEach(({ name, value, options }) => {
+                    res.cookies.set({ name, value, ...options });
+                });
+            },
+        },
+    });
+
+    try {
+        await supa.auth.getUser();
+    } catch {
+        // swallow; cookies may still be valid for the page-level client.
     }
     return res;
 }
