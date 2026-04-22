@@ -8,24 +8,34 @@
 import type { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
+import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 
-export async function getUserFromRequest(_req?: NextRequest) {
+/**
+ * Resolve the Supabase user for an API request. Prefers the
+ * Authorization: Bearer <access_token> header (stateless, token-based,
+ * same pattern as Meta/Facebook Graph, Stripe, etc). Falls back to
+ * session cookies for requests that don't carry the header (legacy SSR).
+ */
+export async function getUserFromRequest(req?: NextRequest) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const cookieStore = cookies();
 
+    const authHeader = req?.headers.get('authorization') ?? '';
+    if (authHeader.startsWith('Bearer ')) {
+        const token = authHeader.slice(7);
+        const supa = createClient(url, key, { auth: { persistSession: false } });
+        const { data: { user } } = await supa.auth.getUser(token);
+        if (user) return user;
+    }
+
+    const cookieStore = cookies();
     const supa = createServerClient(url, key, {
         cookies: {
             getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
-            setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
-                cs.forEach(({ name, value, options }) => {
-                    try { cookieStore.set({ name, value, ...options }); } catch { /* RSC */ }
-                });
-            },
+            setAll: () => { /* route handlers can't write cookies */ },
         },
     });
-
     const { data: { user } } = await supa.auth.getUser();
     return user;
 }

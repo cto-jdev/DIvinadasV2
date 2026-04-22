@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { apiFetch } from '@/lib/api-client';
 
 type Member = { user_id: string; role: string; joined_at: string; profiles: { email: string; full_name: string | null } };
 
@@ -17,7 +18,7 @@ function TeamContent() {
     const load = useCallback(async () => {
         if (!tenantId) return;
         try {
-            const r = await fetch(`/api/team/members?tenant_id=${tenantId}`);
+            const r = await apiFetch(`/api/team/members?tenant_id=${tenantId}`);
             const j = await r.json().catch(() => ({}));
             if (!r.ok) { setErr(j.error ?? `HTTP ${r.status}`); setMembers([]); return; }
             setMembers(j.data ?? []);
@@ -30,9 +31,8 @@ function TeamContent() {
     useEffect(() => { load(); }, [load]);
 
     async function changeRole(userId: string, role: string) {
-        const r = await fetch('/api/team/role', {
+        const r = await apiFetch('/api/team/role', {
             method: 'PATCH',
-            headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ tenant_id: tenantId, user_id: userId, role }),
         });
         if (r.ok) load();
@@ -41,9 +41,8 @@ function TeamContent() {
 
     async function removeMember(userId: string) {
         if (!confirm('¿Eliminar este miembro?')) return;
-        const r = await fetch('/api/team/members', {
+        const r = await apiFetch('/api/team/members', {
             method: 'DELETE',
-            headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ tenant_id: tenantId, user_id: userId }),
         });
         if (r.ok) load();

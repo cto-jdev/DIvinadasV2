@@ -1,22 +1,14 @@
 /**
  * POST /api/meta/start
- * Inicia flujo OAuth Meta (server-side). Genera state firmado HMAC,
+ * Inicia flujo OAuth Meta (server-side). Auth: Bearer token (Supabase
+ * access_token) en Authorization header. Genera state firmado HMAC,
  * registra la transacción en Supabase y devuelve la redirect_url.
- *
- * Contexto: MIGRATION_V2.md §13 (OAuth Meta server-side), §15 (Endpoints).
- *
- * Seguridad:
- *  - Requiere usuario autenticado (cookie Supabase).
- *  - Requiere membresía en tenant_id (is_tenant_member enforced por RLS).
- *  - state = base64url(tenant_id|nonce|ts) + "." + HMAC(state, OAUTH_STATE_SECRET)
- *  - TTL: 10 min.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import crypto from 'node:crypto';
-import { createServerClient } from '@supabase/ssr';
 import { OAuthStartInput, parseOrThrow } from '@divinads/types';
 import { getSupabaseService } from '@/lib/supabase';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 
@@ -29,40 +21,14 @@ function signState(payload: string, secret: string): string {
 }
 
 export async function POST(req: NextRequest) {
-    const res = NextResponse.next();
-    const cookieStore = cookies();
-    const cookieNames = cookieStore.getAll().map(c => c.name);
-    const supaAuth = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
-                setAll: (cs: { name: string; value: string; options?: Record<string, unknown> }[]) => {
-                    cs.forEach(({ name, value, options }) => {
-                        res.cookies.set({ name, value, ...options });
-                    });
-                },
-            },
-        },
-    );
-    const { data: { user }, error: authErr } = await supaAuth.auth.getUser();
+    const user = await getUserFromRequest(req);
     if (!user) {
-        const body: Record<string, unknown> = { error: 'unauthorized', message: 'login required' };
-        if (process.env.NODE_ENV !== 'production') {
-            body.debug = {
-                cookieNames,
-                hasSupabaseCookie: cookieNames.some(n => /^sb-.*-auth-token/.test(n)),
-                authError: authErr?.message ?? null,
-            };
-        }
-        return NextResponse.json(body, { status: 401, headers: res.headers });
+        return NextResponse.json({ error: 'unauthorized', message: 'login required' }, { status: 401 });
     }
 
     const body = parseOrThrow(OAuthStartInput, await req.json());
     const supa = getSupabaseService();
 
-    // Verificar membresía (defense-in-depth por encima de RLS)
     const { data: mem } = await supa
         .from('tenant_members')
         .select('role')
@@ -70,7 +36,7 @@ export async function POST(req: NextRequest) {
         .eq('user_id', user.id)
         .maybeSingle();
     if (!mem) {
-        return NextResponse.json({ error: 'forbidden', message: 'not a tenant member' }, { status: 403, headers: res.headers });
+        return NextResponse.json({ error: 'forbidden', message: 'not a tenant member' }, { status: 403 });
     }
 
     const secret = process.env.OAUTH_STATE_SECRET;
@@ -92,7 +58,7 @@ export async function POST(req: NextRequest) {
         expires_at: expiresAt.toISOString(),
     });
     if (insErr) {
-        return NextResponse.json({ error: 'internal_error', message: insErr.message }, { status: 500, headers: res.headers });
+        return NextResponse.json({ error: 'internal_error', message: insErr.message }, { status: 500 });
     }
 
     const url = new URL(FB_AUTH);
@@ -106,5 +72,5 @@ export async function POST(req: NextRequest) {
         redirect_url: url.toString(),
         state,
         expires_at: expiresAt.toISOString(),
-    }, { headers: res.headers });
+    });
 }

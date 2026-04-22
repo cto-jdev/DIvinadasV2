@@ -2,6 +2,7 @@
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api-client';
 
 type Conn = {
     id: string;
@@ -31,9 +32,9 @@ function ConnectionsContent() {
 
     const load = useCallback(async () => {
         if (!tenantId) return;
-        const r = await fetch(`/api/meta/connections?tenant_id=${tenantId}`);
-        const j = await r.json();
-        if (!r.ok) { setErr(j.error ?? 'error'); return; }
+        const r = await apiFetch(`/api/meta/connections?tenant_id=${tenantId}`);
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) { setErr(j.error ?? `HTTP ${r.status}`); return; }
         setConns(j.data);
     }, [tenantId]);
 
@@ -41,22 +42,20 @@ function ConnectionsContent() {
 
     async function connectMeta() {
         setConnecting(true);
-        const r = await fetch('/api/meta/start', {
+        const r = await apiFetch('/api/meta/start', {
             method: 'POST',
-            headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ tenant_id: tenantId }),
         });
-        const j = await r.json();
+        const j = await r.json().catch(() => ({}));
         setConnecting(false);
-        if (!r.ok) { alert(j.message ?? j.error); return; }
+        if (!r.ok) { alert(j.message ?? j.error ?? `HTTP ${r.status}`); return; }
         window.location.href = j.redirect_url;
     }
 
     async function revoke(id: string) {
         if (!confirm('¿Revocar esta conexión?')) return;
-        const r = await fetch('/api/meta/revoke', {
+        const r = await apiFetch('/api/meta/revoke', {
             method: 'POST',
-            headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ connection_id: id }),
         });
         if (r.ok) load();
