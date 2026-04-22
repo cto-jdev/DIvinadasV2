@@ -29,7 +29,7 @@ import {
 } from '@/lib/domain/scoring';
 import {
     ScoreCard, Stat, SeverityChip, Segmented, SkeletonRow, SkeletonStats,
-    EmptyState, FreshnessBadge, SortableTable, SectionHeader, type Column,
+    EmptyState, FreshnessBadge, SortableTable, SectionHeader, DonutGauge, MiniBar, type Column,
 } from '@/components/dashboard/primitives';
 import { useRegisterCopilotScope } from '@/components/copilot/context';
 
@@ -400,6 +400,50 @@ function DashboardContent() {
 
             {status === 'ready' && derived && (
                 <>
+                    {/* Pulse — real-time gauges */}
+                    <div className="card fade-in" style={{ padding: 16, marginBottom: 12 }}>
+                        <SectionHeader icon="⚡" title="Pulso en vivo" hint="indicadores agregados" />
+                        <div className="row" style={{ gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+                            <div style={{ textAlign: 'center' }}>
+                                <DonutGauge value={derived.global.score} size={84} label="Salud global" />
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <DonutGauge value={derived.access.score} size={84} label="Acceso" />
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <DonutGauge
+                                    value={accounts && accounts.length > 0
+                                        ? Math.round(100 - (derived.accountsFrozen.length / accounts.length) * 100)
+                                        : 100}
+                                    size={84} label="Cuentas OK" />
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <DonutGauge
+                                    value={(() => {
+                                        const total = Object.values(campaigns).flat().length;
+                                        if (total === 0) return 100;
+                                        const healthy = total - derived.accelerating.length - derived.underpaced.length - derived.wasteful.length;
+                                        return Math.max(0, Math.round((healthy / total) * 100));
+                                    })()}
+                                    size={84} label="Pacing" />
+                            </div>
+                            <div style={{ flex: '1 1 220px', minWidth: 200 }}>
+                                <div className="stat-label">Spend últimos 7d</div>
+                                <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', lineHeight: 1.1 }}>
+                                    {currency} {(derived.totalSpend7d / 100).toFixed(2)}
+                                </div>
+                                <div style={{ marginTop: 6 }}>
+                                    <MiniBar
+                                        values={spendTrend(Object.values(campaigns).flat())}
+                                        width={200} height={36} />
+                                </div>
+                                <div className="muted" style={{ fontSize: 10, marginTop: 2 }}>
+                                    distribución de spend por campaña (top 12)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Executive summary */}
                     <div className="row fade-in" style={{ gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
                         <ScoreCard score={derived.global} accent />
@@ -497,6 +541,15 @@ function DashboardContent() {
             )}
         </>
     );
+}
+
+function spendTrend(campaigns: CampaignSnapshot[]): number[] {
+    const spends = campaigns
+        .map(c => toCents(c.spend))
+        .filter(n => n > 0)
+        .sort((a, b) => b - a)
+        .slice(0, 12);
+    return spends.length > 0 ? spends : [0];
 }
 
 function decisionColumns(): Column<DecisionItem>[] {

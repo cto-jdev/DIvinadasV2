@@ -24,7 +24,14 @@ import {
 import { useRegisterCopilotScope } from '@/components/copilot/context';
 
 type Conn = { id: string; display_name: string | null; status: string };
-type Tab = 'resumen' | 'budget' | 'performance' | 'reco';
+type Tab = 'resumen' | 'budget' | 'performance' | 'adsets' | 'reco';
+type AdSetRow = {
+    id: string; name: string; campaign_id: string;
+    status: string; effective_status?: string;
+    daily_budget?: string; lifetime_budget?: string; budget_remaining?: string;
+    bid_strategy?: string; optimization_goal?: string;
+    spend?: string; impressions?: string; clicks?: string; ctr?: string; cpc?: string;
+};
 
 const ACCOUNT_STATUS: Record<number, { label: string; klass: string }> = {
     1: { label: 'Activa', klass: 'pill-success' },
@@ -59,6 +66,7 @@ function AdsContent() {
     const [accounts, setAccounts] = useState<AdAccountSnapshot[] | null>(null);
     const [selectedId, setSelectedId] = useState('');
     const [campaigns, setCampaigns] = useState<CampaignSnapshot[] | null>(null);
+    const [adsets, setAdsets] = useState<AdSetRow[] | null>(null);
     const [tab, setTab] = useState<Tab>('resumen');
     const [err, setErr] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -132,6 +140,19 @@ function AdsContent() {
         })));
     }, [tenantId, connId, selectedId]);
     useEffect(() => { loadCampaigns(); }, [loadCampaigns]);
+
+    const loadAdsets = useCallback(async () => {
+        if (!tenantId || !connId || !selectedId) return;
+        if (tab !== 'adsets') return;
+        if (adsets !== null) return;
+        const qs = `tenant_id=${tenantId}&connection_id=${connId}&ad_account_id=${selectedId}`;
+        const r = await apiFetch(`/api/web/graph/adsets/list?${qs}`);
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) return;
+        setAdsets(j.data ?? []);
+    }, [tenantId, connId, selectedId, tab, adsets]);
+    useEffect(() => { loadAdsets(); }, [loadAdsets]);
+    useEffect(() => { setAdsets(null); }, [selectedId]);
 
     const selected = accounts?.find(a => a.id === selectedId) ?? null;
     const currency = selected?.currency ?? 'USD';
@@ -298,6 +319,7 @@ function AdsContent() {
                         <TabBtn active={tab === 'resumen'}     onClick={() => setTab('resumen')}>Resumen</TabBtn>
                         <TabBtn active={tab === 'budget'}      onClick={() => setTab('budget')}>Presupuesto & facturación</TabBtn>
                         <TabBtn active={tab === 'performance'} onClick={() => setTab('performance')}>Performance & pacing</TabBtn>
+                        <TabBtn active={tab === 'adsets'}      onClick={() => setTab('adsets')}>Ad Sets</TabBtn>
                         <TabBtn active={tab === 'reco'}        onClick={() => setTab('reco')}>
                             Recomendaciones {recommendations.length > 0 && <span className="pill pill-danger" style={{ fontSize: 10, marginLeft: 4 }}>{recommendations.length}</span>}
                         </TabBtn>
@@ -306,6 +328,7 @@ function AdsContent() {
                     {tab === 'resumen' && <TabResumen acct={selected} billing={billing} derivations={derivations} currency={currency} />}
                     {tab === 'budget' && <TabBudget acct={selected} billing={billing} derivations={derivations} currency={currency} />}
                     {tab === 'performance' && <TabPerformance rows={campaignAnalytics} currency={currency} />}
+                    {tab === 'adsets' && <TabAdSets rows={adsets} campaigns={campaigns} currency={currency} />}
                     {tab === 'reco' && <TabRecommendations items={recommendations} />}
                 </>
             )}
@@ -445,6 +468,78 @@ function TabPerformance({ rows, currency }: { rows: any[] | null; currency: stri
                 </table>
             </div>
         </div>
+    );
+}
+
+function TabAdSets({ rows, campaigns, currency }: {
+    rows: AdSetRow[] | null; campaigns: CampaignSnapshot[] | null; currency: string;
+}) {
+    if (rows === null) return <p className="muted">Cargando ad sets…</p>;
+    if (rows.length === 0) return <p className="muted">Sin ad sets en esta cuenta.</p>;
+    const campaignName = (id: string) => campaigns?.find(c => c.id === id)?.name ?? id;
+    const totalSpend = rows.reduce((a, r) => a + toCents(r.spend), 0);
+    const totalClicks = rows.reduce((a, r) => a + Number(r.clicks ?? 0), 0);
+    const totalImpr = rows.reduce((a, r) => a + Number(r.impressions ?? 0), 0);
+    return (
+        <>
+            <div className="row" style={{ gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+                <Stat label="Ad sets" value={String(rows.length)} />
+                <Stat label="Spend 7d" value={fmtMoneyCents(totalSpend, currency)} />
+                <Stat label="Impresiones" value={fmtInt(totalImpr)} />
+                <Stat label="Clicks" value={fmtInt(totalClicks)} />
+                <Stat label="CTR" value={totalImpr > 0 ? fmtPct((totalClicks / totalImpr) * 100) : '—'} />
+                <Stat label="CPC" value={totalClicks > 0 ? fmtMoneyCents(totalSpend / totalClicks, currency) : '—'} />
+            </div>
+            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                        <thead>
+                            <tr style={{ background: 'rgba(255,255,255,.03)' }}>
+                                <th style={th}>Ad Set</th>
+                                <th style={th}>Campaña</th>
+                                <th style={th}>Status</th>
+                                <th style={th}>Objetivo</th>
+                                <th style={{ ...th, textAlign: 'right' }}>Budget</th>
+                                <th style={{ ...th, textAlign: 'right' }}>Spend 7d</th>
+                                <th style={{ ...th, textAlign: 'right' }}>Clicks</th>
+                                <th style={{ ...th, textAlign: 'right' }}>CTR</th>
+                                <th style={{ ...th, textAlign: 'right' }}>CPC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map(r => {
+                                const budget = toCents(r.daily_budget ?? r.lifetime_budget);
+                                const budgetLabel = r.daily_budget ? `${fmtMoneyCents(toCents(r.daily_budget), currency)}/día`
+                                    : r.lifetime_budget ? `${fmtMoneyCents(toCents(r.lifetime_budget), currency)} total`
+                                    : '—';
+                                const clicks = Number(r.clicks ?? 0);
+                                const impressions = Number(r.impressions ?? 0);
+                                return (
+                                    <tr key={r.id} style={{ borderTop: '1px solid rgba(255,255,255,.06)' }}>
+                                        <td style={td}>
+                                            <div style={{ fontWeight: 600 }}>{r.name}</div>
+                                            <div className="muted" style={{ fontSize: 11 }}>{r.optimization_goal ?? '—'}</div>
+                                        </td>
+                                        <td style={td}>
+                                            <div style={{ fontSize: 12 }}>{campaignName(r.campaign_id)}</div>
+                                        </td>
+                                        <td style={td}>
+                                            <span className="pill pill-muted" style={{ fontSize: 10 }}>{r.effective_status ?? r.status}</span>
+                                        </td>
+                                        <td style={td}><span style={{ fontSize: 11, color: 'var(--muted)' }}>{r.bid_strategy ?? '—'}</span></td>
+                                        <td style={{ ...td, textAlign: 'right' }}>{budget > 0 ? budgetLabel : '—'}</td>
+                                        <td style={{ ...td, textAlign: 'right' }}>{fmtMoneyCents(toCents(r.spend), currency)}</td>
+                                        <td style={{ ...td, textAlign: 'right' }}>{fmtInt(clicks)}</td>
+                                        <td style={{ ...td, textAlign: 'right' }}>{impressions > 0 ? fmtPct((clicks / impressions) * 100) : '—'}</td>
+                                        <td style={{ ...td, textAlign: 'right' }}>{clicks > 0 ? fmtMoneyCents(toCents(r.spend) / clicks, currency) : '—'}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </>
     );
 }
 
