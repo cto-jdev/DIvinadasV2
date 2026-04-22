@@ -14,6 +14,16 @@ export const dynamic = 'force-dynamic';
 const Query = z.object({ tenant_id: z.string().uuid() });
 
 export async function GET(req: NextRequest) {
+    try {
+        return await handle(req);
+    } catch (e) {
+        const message = e instanceof Error ? e.message : 'unknown';
+        console.error('[meta/connections] uncaught:', e);
+        return NextResponse.json({ error: 'internal_error', message }, { status: 500 });
+    }
+}
+
+async function handle(req: NextRequest) {
     const user = await getUserFromRequest(req);
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 

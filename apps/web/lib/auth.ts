@@ -18,26 +18,36 @@ import { createServerClient } from '@supabase/ssr';
  * session cookies for requests that don't carry the header (legacy SSR).
  */
 export async function getUserFromRequest(req?: NextRequest) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return null;
 
     const authHeader = req?.headers.get('authorization') ?? '';
     if (authHeader.startsWith('Bearer ')) {
         const token = authHeader.slice(7);
-        const supa = createClient(url, key, { auth: { persistSession: false } });
-        const { data: { user } } = await supa.auth.getUser(token);
-        if (user) return user;
+        try {
+            const supa = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+            const { data, error } = await supa.auth.getUser(token);
+            if (!error && data?.user) return data.user;
+        } catch {
+            // fall through to cookie fallback
+        }
     }
 
-    const cookieStore = cookies();
-    const supa = createServerClient(url, key, {
-        cookies: {
-            getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
-            setAll: () => { /* route handlers can't write cookies */ },
-        },
-    });
-    const { data: { user } } = await supa.auth.getUser();
-    return user;
+    try {
+        const cookieStore = cookies();
+        const supa = createServerClient(url, key, {
+            cookies: {
+                getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
+                setAll: () => { /* route handlers can't write cookies */ },
+            },
+        });
+        const { data, error } = await supa.auth.getUser();
+        if (error) return null;
+        return data?.user ?? null;
+    } catch {
+        return null;
+    }
 }
 
 export async function getInstallFromJwt(req: NextRequest) {
