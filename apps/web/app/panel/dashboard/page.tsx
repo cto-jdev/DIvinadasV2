@@ -5,58 +5,18 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api-client';
 
 type Conn = { id: string; display_name: string | null; email: string | null; status: string };
-type Bm = { id: string; name: string; role: 'owner' | 'client'; verification_status?: string };
+type Bm = { id: string; name: string; role: 'owner' | 'client' };
 type AdAccount = {
-    id: string;
-    name: string;
-    account_status: number;
-    currency: string;
-    amount_spent?: string;
-    balance?: string;
-    disable_reason?: number;
-    source?: 'owned' | 'client';
-    timezone_name?: string;
+    id: string; name: string; account_status: number; currency: string;
+    amount_spent?: string; disable_reason?: number; source?: 'owned' | 'client';
 };
-type Insight = {
-    impressions?: string; clicks?: string; spend?: string;
-    reach?: string; cpm?: string; cpc?: string; ctr?: string;
+type Page = {
+    id: string; name: string; category?: string; fan_count?: number;
+    followers_count?: number; verification_status?: string; link?: string;
+    instagram_business_account?: { id: string; username: string };
 };
 
-const ACCOUNT_STATUS: Record<number, { label: string; klass: string }> = {
-    1: { label: 'Activa',        klass: 'pill-success' },
-    2: { label: 'Deshabilitada', klass: 'pill-danger'  },
-    3: { label: 'Sin pagar',     klass: 'pill-warn'    },
-    7: { label: 'En revisión',   klass: 'pill-muted'   },
-    9: { label: 'En gracia',     klass: 'pill-warn'    },
-    100: { label: 'Cerrada',     klass: 'pill-muted'   },
-    101: { label: 'Pendiente',   klass: 'pill-muted'   },
-    102: { label: 'Pendiente revisión', klass: 'pill-muted' },
-};
-
-const DATE_PRESETS = [
-    { id: 'today',    label: 'Hoy' },
-    { id: 'yesterday',label: 'Ayer' },
-    { id: 'last_7d',  label: '7 días' },
-    { id: 'last_30d', label: '30 días' },
-    { id: 'last_90d', label: '90 días' },
-    { id: 'this_month', label: 'Este mes' },
-];
-
-function fmtMoney(v: string | undefined, currency: string) {
-    const n = Number(v ?? 0);
-    if (!Number.isFinite(n)) return '—';
-    try {
-        return new Intl.NumberFormat('es', { style: 'currency', currency, maximumFractionDigits: 2 }).format(n);
-    } catch { return `${n.toFixed(2)} ${currency}`; }
-}
-function fmtInt(v: string | undefined) {
-    const n = Number(v ?? 0);
-    return Number.isFinite(n) ? new Intl.NumberFormat('es').format(n) : '—';
-}
-function fmtPct(v: string | undefined) {
-    const n = Number(v ?? 0);
-    return Number.isFinite(n) ? `${n.toFixed(2)}%` : '—';
-}
+type Status = 'loading' | 'ready' | 'reconnect' | 'no_conns' | 'error';
 
 function DashboardContent() {
     const sp = useSearchParams();
@@ -65,106 +25,68 @@ function DashboardContent() {
     const [conns, setConns] = useState<Conn[] | null>(null);
     const [connId, setConnId] = useState<string>('');
     const [bms, setBms] = useState<Bm[] | null>(null);
-    const [bmId, setBmId] = useState<string>('');
     const [accounts, setAccounts] = useState<AdAccount[] | null>(null);
-    const [datePreset, setDatePreset] = useState('last_7d');
-    const [insights, setInsights] = useState<Record<string, Insight | 'loading' | 'error'>>({});
+    const [pages, setPages] = useState<Page[] | null>(null);
     const [err, setErr] = useState<string | null>(null);
-    const [busy, setBusy] = useState(false);
+    const [status, setStatus] = useState<Status>('loading');
 
     const loadConns = useCallback(async () => {
         if (!tenantId) return;
         const r = await apiFetch(`/api/meta/connections?tenant_id=${tenantId}`);
         const j = await r.json().catch(() => ({}));
-        if (!r.ok) { setErr(j.error ?? `HTTP ${r.status}`); return; }
+        if (!r.ok) { setErr(j.error ?? `HTTP ${r.status}`); setStatus('error'); return; }
         setConns(j.data);
-        if (j.data?.length && !connId) setConnId(j.data[0].id);
+        if (j.data?.length === 0) { setStatus('no_conns'); return; }
+        if (!connId) setConnId(j.data[0].id);
     }, [tenantId, connId]);
 
     useEffect(() => { loadConns(); }, [loadConns]);
 
-    const loadBms = useCallback(async () => {
+    const loadAll = useCallback(async () => {
         if (!tenantId || !connId) return;
-        setBms(null); setBmId(''); setAccounts(null); setInsights({});
-        setBusy(true); setErr(null);
-        const r = await apiFetch(`/api/web/graph/bm/list?tenant_id=${tenantId}&connection_id=${connId}`);
-        const j = await r.json().catch(() => ({}));
-        setBusy(false);
-        if (!r.ok) { setErr(j.message ?? j.error ?? `HTTP ${r.status}`); return; }
-        setBms(j.data);
+        setStatus('loading'); setErr(null);
+        setBms(null); setAccounts(null); setPages(null);
+
+        const qs = `tenant_id=${tenantId}&connection_id=${connId}`;
+        const [bmRes, acctRes, pagesRes] = await Promise.all([
+            apiFetch(`/api/web/graph/bm/list?${qs}`),
+            apiFetch(`/api/web/graph/adaccounts/list?${qs}`),
+            apiFetch(`/api/web/graph/pages/list?${qs}`),
+        ]);
+        const [bmJ, acctJ, pagesJ] = await Promise.all([
+            bmRes.json().catch(() => ({})),
+            acctRes.json().catch(() => ({})),
+            pagesRes.json().catch(() => ({})),
+        ]);
+
+        const tokenMissing = [bmJ, acctJ, pagesJ].some(j =>
+            j?.message === 'token_unavailable' || j?.error === 'token_unavailable',
+        );
+        if (tokenMissing) { setStatus('reconnect'); return; }
+
+        if (!bmRes.ok)    { setErr(bmJ.message ?? `BM ${bmRes.status}`); setStatus('error'); return; }
+        if (!acctRes.ok)  { setErr(acctJ.message ?? `ADS ${acctRes.status}`); setStatus('error'); return; }
+
+        setBms(bmJ.data ?? []);
+        setAccounts(acctJ.data ?? []);
+        setPages(pagesRes.ok ? (pagesJ.data ?? []) : []);
+        setStatus('ready');
     }, [tenantId, connId]);
 
-    useEffect(() => { loadBms(); }, [loadBms]);
+    useEffect(() => { if (connId) loadAll(); }, [connId, loadAll]);
 
-    const loadAccounts = useCallback(async () => {
-        if (!tenantId || !connId) return;
-        setAccounts(null); setInsights({});
-        setBusy(true); setErr(null);
-        const url = new URL('/api/web/graph/adaccounts/list', window.location.origin);
-        url.searchParams.set('tenant_id', tenantId);
-        url.searchParams.set('connection_id', connId);
-        if (bmId) url.searchParams.set('bm_id', bmId);
-        const r = await apiFetch(url.pathname + url.search);
-        const j = await r.json().catch(() => ({}));
-        setBusy(false);
-        if (!r.ok) { setErr(j.message ?? j.error ?? `HTTP ${r.status}`); return; }
-        setAccounts(j.data);
-    }, [tenantId, connId, bmId]);
-
-    useEffect(() => { if (bms !== null) loadAccounts(); }, [bms, bmId, loadAccounts]);
-
-    const loadInsightFor = useCallback(async (acc: AdAccount) => {
-        if (!tenantId || !connId) return;
-        setInsights(prev => ({ ...prev, [acc.id]: 'loading' }));
-        const url = new URL('/api/web/graph/insights', window.location.origin);
-        url.searchParams.set('tenant_id', tenantId);
-        url.searchParams.set('connection_id', connId);
-        url.searchParams.set('ad_account_id', acc.id);
-        url.searchParams.set('date_preset', datePreset);
-        const r = await apiFetch(url.pathname + url.search);
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok) { setInsights(prev => ({ ...prev, [acc.id]: 'error' })); return; }
-        const row = j.data?.[0] ?? {};
-        setInsights(prev => ({ ...prev, [acc.id]: row }));
-    }, [tenantId, connId, datePreset]);
-
-    useEffect(() => {
-        if (!accounts) return;
-        setInsights({});
-        const concurrency = 4;
-        let i = 0;
-        const worker = async () => {
-            while (i < accounts.length) {
-                const idx = i++;
-                const acc = accounts[idx];
-                if (acc.account_status !== 1 && acc.account_status !== 9) {
-                    setInsights(prev => ({ ...prev, [acc.id]: {} }));
-                    continue;
-                }
-                await loadInsightFor(acc);
-            }
-        };
-        Promise.all(Array.from({ length: concurrency }, worker));
-    }, [accounts, datePreset, loadInsightFor]);
-
-    const totals = useMemo(() => {
-        if (!accounts) return null;
-        let spend = 0, impressions = 0, clicks = 0;
-        let currency = accounts[0]?.currency ?? 'USD';
-        let mixed = false;
-        for (const acc of accounts) {
-            if (acc.currency !== currency) mixed = true;
-            const ins = insights[acc.id];
-            if (ins && typeof ins === 'object') {
-                spend += Number((ins as Insight).spend ?? 0) || 0;
-                impressions += Number((ins as Insight).impressions ?? 0) || 0;
-                clicks += Number((ins as Insight).clicks ?? 0) || 0;
-            }
-        }
-        const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
-        const cpc = clicks > 0 ? spend / clicks : 0;
-        return { spend, impressions, clicks, ctr, cpc, currency, mixed };
-    }, [accounts, insights]);
+    const kpis = useMemo(() => {
+        const totalBms = bms?.length ?? 0;
+        const totalAcct = accounts?.length ?? 0;
+        const activeAcct = accounts?.filter(a => a.account_status === 1).length ?? 0;
+        const disabledAcct = accounts?.filter(a => a.account_status === 2 || a.account_status === 3).length ?? 0;
+        const totalPages = pages?.length ?? 0;
+        const igLinked = pages?.filter(p => !!p.instagram_business_account).length ?? 0;
+        const risks =
+            (accounts?.filter(a => a.disable_reason && a.disable_reason !== 0).length ?? 0) +
+            (accounts?.filter(a => a.account_status === 2).length ?? 0);
+        return { totalBms, totalAcct, activeAcct, disabledAcct, totalPages, igLinked, risks };
+    }, [bms, accounts, pages]);
 
     if (!tenantId) return (
         <div className="card">
@@ -177,9 +99,9 @@ function DashboardContent() {
         <>
             <header className="row-between" style={{ marginBottom: 20 }}>
                 <div>
-                    <h1 className="text-grad" style={{ fontSize: 32, marginBottom: 4 }}>Dashboard</h1>
+                    <h1 className="text-grad" style={{ fontSize: 32, marginBottom: 4 }}>🏠 Dashboard Principal</h1>
                     <p className="muted" style={{ margin: 0 }}>
-                        Administra Business Managers, cuentas publicitarias e insights en tiempo real.
+                        Consolidador holístico: BMs, cuentas publicitarias, páginas y riesgos de compliance.
                     </p>
                 </div>
                 <Link href={`/panel/connections?tenant=${tenantId}`} className="btn btn-ghost btn-sm">
@@ -187,155 +109,131 @@ function DashboardContent() {
                 </Link>
             </header>
 
-            {err && <div className="alert alert-error" style={{ marginBottom: 16 }}>Error: {err}</div>}
+            {conns && conns.length > 1 && (
+                <div className="card" style={{ marginBottom: 16 }}>
+                    <div className="row" style={{ gap: 12, alignItems: 'flex-end' }}>
+                        <div className="field" style={{ marginBottom: 0, flex: '1 1 260px' }}>
+                            <label className="label">Cuenta Meta activa</label>
+                            <select value={connId} onChange={e => setConnId(e.target.value)}>
+                                {conns.map(c => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.display_name ?? c.email ?? c.id.slice(0, 8)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <button className="btn btn-ghost btn-sm" onClick={loadAll}>↻ Refrescar</button>
+                    </div>
+                </div>
+            )}
 
-            {conns === null && <p className="muted">Cargando conexiones…</p>}
-            {conns?.length === 0 && (
+            {status === 'no_conns' && (
                 <div className="card" style={{ textAlign: 'center', padding: 40 }}>
+                    <div style={{ fontSize: 36, marginBottom: 8 }}>◇</div>
                     <h3>Sin conexiones Meta</h3>
-                    <p className="muted">Conecta tu primera cuenta para ver el dashboard.</p>
+                    <p className="muted">Conecta tu primera cuenta de Meta para ver el dashboard.</p>
                     <Link href={`/panel/connections?tenant=${tenantId}`} className="btn btn-primary">
                         + Conectar cuenta Meta
                     </Link>
                 </div>
             )}
 
-            {conns && conns.length > 0 && (
-                <div className="card" style={{ marginBottom: 16 }}>
-                    <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
-                        <div className="field" style={{ marginBottom: 0, flex: '1 1 220px' }}>
-                            <label className="label">Conexión</label>
-                            <select value={connId} onChange={e => setConnId(e.target.value)}>
-                                {conns.map(c => (
-                                    <option key={c.id} value={c.id}>
-                                        {c.display_name ?? c.email ?? c.id.slice(0, 8)}
-                                        {c.status !== 'active' ? ` (${c.status})` : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="field" style={{ marginBottom: 0, flex: '1 1 220px' }}>
-                            <label className="label">Business Manager</label>
-                            <select value={bmId} onChange={e => setBmId(e.target.value)} disabled={!bms}>
-                                <option value="">— Todos (/me/adaccounts) —</option>
-                                {bms?.map(b => (
-                                    <option key={b.id} value={b.id}>
-                                        {b.name} · {b.role === 'owner' ? 'propio' : 'cliente'}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="field" style={{ marginBottom: 0, flex: '1 1 160px' }}>
-                            <label className="label">Rango</label>
-                            <select value={datePreset} onChange={e => setDatePreset(e.target.value)}>
-                                {DATE_PRESETS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-                            </select>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                            <button className="btn btn-ghost btn-sm" onClick={loadAccounts} disabled={busy}>
-                                {busy ? '...' : '↻ Refrescar'}
-                            </button>
-                        </div>
+            {status === 'reconnect' && (
+                <div className="card" style={{ padding: 32, borderLeft: '4px solid var(--warn, #f59e0b)' }}>
+                    <h3 style={{ marginTop: 0 }}>⚠ Reconecta tu cuenta de Meta</h3>
+                    <p>
+                        La conexión existe pero el token de acceso no está disponible
+                        (posiblemente el guardado falló durante el callback). Reconecta para restaurar
+                        el acceso al Graph API.
+                    </p>
+                    <Link href={`/panel/connections?tenant=${tenantId}`} className="btn btn-primary">
+                        Ir a Conexiones Meta
+                    </Link>
+                </div>
+            )}
+
+            {status === 'error' && err && (
+                <div className="alert alert-error" style={{ marginBottom: 16 }}>Error: {err}</div>
+            )}
+
+            {status === 'loading' && conns && conns.length > 0 && (
+                <p className="muted">Cargando datos del Graph API…</p>
+            )}
+
+            {status === 'ready' && (
+                <>
+                    <div className="row" style={{ gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+                        <Kpi icon="💼" label="Business Managers" value={kpis.totalBms} accent="var(--accent, #A855F7)" />
+                        <Kpi icon="📊" label="AdAccounts" value={kpis.totalAcct}
+                             hint={`${kpis.activeAcct} activas · ${kpis.disabledAcct} bloqueadas`} />
+                        <Kpi icon="📄" label="Páginas / Fanpages" value={kpis.totalPages}
+                             hint={`${kpis.igLinked} con Instagram`} />
+                        <Kpi icon="🛡" label="Riesgos" value={kpis.risks}
+                             accent={kpis.risks > 0 ? 'var(--danger, #ef4444)' : undefined}
+                             hint={kpis.risks > 0 ? 'Requieren atención' : 'Sin alertas'} />
                     </div>
-                </div>
-            )}
 
-            {totals && accounts && accounts.length > 0 && (
-                <div className="row" style={{ gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-                    <KpiCard label="Gasto total" value={fmtMoney(String(totals.spend), totals.currency)}
-                             hint={totals.mixed ? 'Monedas mixtas — aproximado' : undefined} />
-                    <KpiCard label="Impresiones" value={fmtInt(String(totals.impressions))} />
-                    <KpiCard label="Clics" value={fmtInt(String(totals.clicks))} />
-                    <KpiCard label="CTR" value={fmtPct(String(totals.ctr))} />
-                    <KpiCard label="CPC medio" value={fmtMoney(String(totals.cpc), totals.currency)} />
-                    <KpiCard label="Cuentas" value={String(accounts.length)} />
-                </div>
-            )}
-
-            {accounts === null && conns && conns.length > 0 && !err && (
-                <p className="muted">Cargando cuentas…</p>
-            )}
-
-            {accounts && accounts.length === 0 && (
-                <div className="card" style={{ textAlign: 'center', padding: 40 }}>
-                    <p className="muted">No hay cuentas publicitarias en este scope.</p>
-                </div>
-            )}
-
-            {accounts && accounts.length > 0 && (
-                <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ background: 'var(--surface-2, rgba(255,255,255,0.03))', textAlign: 'left' }}>
-                                <th style={thStyle}>Cuenta</th>
-                                <th style={thStyle}>Estado</th>
-                                <th style={{ ...thStyle, textAlign: 'right' }}>Gasto ({labelPeriod(datePreset)})</th>
-                                <th style={{ ...thStyle, textAlign: 'right' }}>Impresiones</th>
-                                <th style={{ ...thStyle, textAlign: 'right' }}>Clics</th>
-                                <th style={{ ...thStyle, textAlign: 'right' }}>CTR</th>
-                                <th style={{ ...thStyle, textAlign: 'right' }}>CPC</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {accounts.map(acc => {
-                                const ins = insights[acc.id];
-                                const st = ACCOUNT_STATUS[acc.account_status] ?? { label: `#${acc.account_status}`, klass: 'pill-muted' };
-                                return (
-                                    <tr key={acc.id} style={{ borderTop: '1px solid var(--border, rgba(255,255,255,0.06))' }}>
-                                        <td style={tdStyle}>
-                                            <div style={{ fontWeight: 600, color: 'var(--text)' }}>{acc.name}</div>
-                                            <div className="muted" style={{ fontSize: 12 }}>
-                                                {acc.id} · {acc.currency}
-                                                {acc.source ? ` · ${acc.source === 'owned' ? 'propio' : 'cliente'}` : ''}
-                                            </div>
-                                        </td>
-                                        <td style={tdStyle}><span className={`pill ${st.klass}`}>{st.label}</span></td>
-                                        <td style={{ ...tdStyle, textAlign: 'right' }}>{insightCell(ins, 'spend', acc.currency)}</td>
-                                        <td style={{ ...tdStyle, textAlign: 'right' }}>{insightCell(ins, 'impressions')}</td>
-                                        <td style={{ ...tdStyle, textAlign: 'right' }}>{insightCell(ins, 'clicks')}</td>
-                                        <td style={{ ...tdStyle, textAlign: 'right' }}>{insightCell(ins, 'ctr', undefined, true)}</td>
-                                        <td style={{ ...tdStyle, textAlign: 'right' }}>{insightCell(ins, 'cpc', acc.currency)}</td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                    <section style={{ marginTop: 8 }}>
+                        <h2 style={{ fontSize: 18, marginBottom: 12 }}>Módulos</h2>
+                        <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
+                            <ModuleCard
+                                icon="📊" title="ADS" desc="Gestor de cuentas publicitarias: límites, balance, métodos de pago."
+                                href={`/panel/ads?tenant=${tenantId}&conn=${connId}`} />
+                            <ModuleCard
+                                icon="💼" title="BM Hub" desc="Business Managers, verificaciones, hidden admins, invitaciones."
+                                href={`/panel/bm?tenant=${tenantId}&conn=${connId}`} />
+                            <ModuleCard
+                                icon="📄" title="Pages" desc="Fanpages: feedback score, calidad, links rotos, IG enlazado."
+                                href={`/panel/pages?tenant=${tenantId}&conn=${connId}`} />
+                            <ModuleCard
+                                icon="🧬" title="Clonner" desc="Clona anuncios: A/B de copy, creatividades, audiencias."
+                                href={`/panel/clonner?tenant=${tenantId}&conn=${connId}`} soon />
+                            <ModuleCard
+                                icon="🤖" title="Claude Copilot" desc="IA agentic integrada: analiza tu panel y Graph API."
+                                href={`/panel/copilot?tenant=${tenantId}&conn=${connId}`} soon />
+                        </div>
+                    </section>
+                </>
             )}
         </>
     );
 }
 
-function KpiCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Kpi({ icon, label, value, hint, accent }: {
+    icon: string; label: string; value: number | string; hint?: string; accent?: string;
+}) {
     return (
-        <div className="card" style={{ flex: '1 1 160px', minWidth: 160, marginBottom: 0 }}>
-            <div className="muted" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', marginTop: 4 }}>{value}</div>
-            {hint && <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>{hint}</div>}
+        <div className="card" style={{ flex: '1 1 180px', minWidth: 180, marginBottom: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 20 }}>{icon}</span>
+                <span className="muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</span>
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: accent ?? 'var(--text)', marginTop: 6 }}>{value}</div>
+            {hint && <div className="muted" style={{ fontSize: 12 }}>{hint}</div>}
         </div>
     );
 }
 
-function insightCell(
-    ins: Insight | 'loading' | 'error' | undefined,
-    key: keyof Insight,
-    currency?: string,
-    pct = false,
-) {
-    if (ins === undefined || ins === 'loading') return <span className="muted">…</span>;
-    if (ins === 'error') return <span style={{ color: 'var(--danger, #ef4444)' }}>×</span>;
-    const v = (ins as Insight)[key];
-    if (pct) return fmtPct(v);
-    if (currency) return fmtMoney(v, currency);
-    return fmtInt(v);
+function ModuleCard({ icon, title, desc, href, soon }: {
+    icon: string; title: string; desc: string; href: string; soon?: boolean;
+}) {
+    const content = (
+        <div className="card" style={{
+            flex: '1 1 240px', minWidth: 240, marginBottom: 0,
+            opacity: soon ? 0.72 : 1, cursor: soon ? 'default' : 'pointer',
+            transition: 'transform .12s',
+        }}>
+            <div className="row-between" style={{ alignItems: 'flex-start' }}>
+                <div style={{ fontSize: 28 }}>{icon}</div>
+                {soon && <span className="pill pill-muted" style={{ fontSize: 10 }}>Próximamente</span>}
+            </div>
+            <h3 style={{ margin: '10px 0 4px' }}>{title}</h3>
+            <p className="muted" style={{ margin: 0, fontSize: 13 }}>{desc}</p>
+        </div>
+    );
+    if (soon) return <div style={{ flex: '1 1 240px' }}>{content}</div>;
+    return <Link href={href} style={{ textDecoration: 'none', flex: '1 1 240px' }}>{content}</Link>;
 }
-
-function labelPeriod(id: string) {
-    return DATE_PRESETS.find(p => p.id === id)?.label ?? id;
-}
-
-const thStyle: React.CSSProperties = { padding: '12px 16px', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--muted)', fontWeight: 600 };
-const tdStyle: React.CSSProperties = { padding: '12px 16px', fontSize: 14 };
 
 export default function DashboardPage() {
     return <Suspense><DashboardContent /></Suspense>;
