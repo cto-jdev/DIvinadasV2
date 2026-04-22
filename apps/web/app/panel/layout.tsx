@@ -107,12 +107,34 @@ function PanelLayoutInner({ children }: { children: React.ReactNode }) {
 function Shell({ pathname, children }: { pathname: string; children: React.ReactNode }) {
     const { open } = useCopilot();
     const wsQuery = useWorkspaceQuery();
+    const [navOpen, setNavOpen] = useState(false);
     const withWs = (href: string) => {
         if (href === '/logout') return href;
         return `${href}${wsQuery}`;
     };
+
+    useEffect(() => { setNavOpen(false); }, [pathname]);
+    useEffect(() => {
+        if (!navOpen) return;
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setNavOpen(false); };
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', onKey);
+        return () => {
+            document.body.style.overflow = '';
+            window.removeEventListener('keydown', onKey);
+        };
+    }, [navOpen]);
+
+    const activeLabel = NAV.find(n => n.exact ? pathname === n.href : pathname.startsWith(n.href))?.label ?? 'Panel';
+
     return (
-        <div className={`app-frame ${open ? '' : 'copilot-closed'}`}>
+        <div className={`app-frame ${open ? '' : 'copilot-closed'} ${navOpen ? 'nav-drawer-open' : ''}`}>
+            <button
+                className="nav-backdrop"
+                aria-label="Cerrar menú"
+                onClick={() => setNavOpen(false)}
+                tabIndex={navOpen ? 0 : -1}
+            />
             <aside className="app-side-left" aria-label="Módulos">
                 <Link href={withWs('/panel')} className="nav-brand">
                     <span className="nav-brand-mark">✦</span>
@@ -136,7 +158,23 @@ function Shell({ pathname, children }: { pathname: string; children: React.React
                     </Link>
                 </div>
             </aside>
-            <main className="app-main fade-in">{children}</main>
+            <main className="app-main fade-in">
+                <div className="mobile-topbar">
+                    <button
+                        className="mobile-nav-trigger"
+                        aria-label="Abrir menú"
+                        aria-expanded={navOpen}
+                        onClick={() => setNavOpen(v => !v)}
+                    >
+                        <span /><span /><span />
+                    </button>
+                    <div className="mobile-topbar-title">
+                        <span className="nav-brand-mark" style={{ fontSize: 16 }}>✦</span>
+                        <span>{activeLabel}</span>
+                    </div>
+                </div>
+                {children}
+            </main>
             <CopilotSidebar />
         </div>
     );

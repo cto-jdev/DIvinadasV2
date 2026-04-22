@@ -233,22 +233,126 @@ a:hover { color: #E9D5FF; }
 .nav-brand-mark { font-size: 18px; }
 .nav-brand-text { display: inline-block; }
 
+/* Mobile topbar + drawer primitives (hidden on desktop) ------------------- */
+.mobile-topbar { display: none; }
+.mobile-nav-trigger {
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 40px; height: 40px; border-radius: 10px;
+    display: inline-flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 4px; cursor: pointer; padding: 0;
+    transition: border-color .15s var(--ease), background .15s var(--ease);
+}
+.mobile-nav-trigger:hover { border-color: rgba(168,85,247,.45); background: rgba(168,85,247,.08); }
+.mobile-nav-trigger span {
+    display: block; width: 18px; height: 2px; background: currentColor; border-radius: 2px;
+    transition: transform .2s var(--ease), opacity .2s var(--ease);
+}
+.nav-drawer-open .mobile-nav-trigger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-drawer-open .mobile-nav-trigger span:nth-child(2) { opacity: 0; }
+.nav-drawer-open .mobile-nav-trigger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.mobile-topbar-title {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 15px; letter-spacing: -0.01em; color: var(--text);
+}
+.nav-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(4,2,12,.55);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    z-index: 40;
+    border: 0; padding: 0; cursor: pointer;
+    animation: fade-in .2s var(--ease) both;
+}
+.nav-drawer-open .nav-backdrop { display: block; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
 /* Responsive: collapse sidebars on narrow viewports ----------------------- */
+/* Laptops: compact nav icons + copilot as drawer (FAB) */
 @media (max-width: 1200px) {
-    .app-frame { grid-template-columns: 64px 1fr 56px; }
+    .app-frame,
+    .app-frame.copilot-closed,
+    .app-frame.nav-collapsed,
+    .app-frame.nav-collapsed.copilot-closed { grid-template-columns: 64px 1fr 0; }
     .app-frame .nav-item-label,
     .app-frame .nav-group-label,
     .app-frame .nav-brand-label,
     .app-frame .nav-brand-text,
     .app-frame .nav-item-badge { display: none; }
     .app-frame .nav-item { justify-content: center; padding: 10px 0; }
-    .app-frame .copilot-header,
-    .app-frame .copilot-body,
-    .app-frame .copilot-foot { display: none; }
+    .app-side-right {
+        position: fixed; top: 0; right: 0;
+        width: min(420px, 92vw); height: 100vh;
+        transform: translateX(100%);
+        transition: transform .28s var(--ease);
+        z-index: 45; border-left: 1px solid var(--border);
+    }
+    .app-frame:not(.copilot-closed) .app-side-right { transform: translateX(0); box-shadow: -18px 0 48px rgba(0,0,0,.45); }
+    .app-side-right.closed {
+        transform: translateX(0);
+        width: 56px;
+        padding-top: 12px;
+    }
 }
-@media (max-width: 780px) {
-    .app-frame { grid-template-columns: 1fr; }
-    .app-side-left, .app-side-right { display: none; }
+
+/* Tablets / phones: off-canvas drawer for left nav + no rail */
+@media (max-width: 900px) {
+    .app-frame,
+    .app-frame.copilot-closed,
+    .app-frame.nav-collapsed,
+    .app-frame.nav-collapsed.copilot-closed { grid-template-columns: 1fr; }
+    .app-side-left {
+        position: fixed; top: 0; left: 0;
+        width: min(280px, 85vw); height: 100vh;
+        transform: translateX(-100%);
+        transition: transform .28s var(--ease);
+        z-index: 50; border-right: 1px solid var(--border);
+        padding: 18px 12px;
+    }
+    .app-side-left .nav-item-label,
+    .app-side-left .nav-brand-text { display: inline-block !important; }
+    .app-side-left .nav-item { justify-content: flex-start !important; padding: 11px 12px !important; font-size: 14px; }
+    .app-side-left .nav-item-icon { font-size: 17px; }
+    .nav-drawer-open .app-side-left {
+        transform: translateX(0);
+        box-shadow: 18px 0 48px rgba(0,0,0,.5);
+    }
+    .mobile-topbar {
+        display: flex; align-items: center; gap: 14px;
+        position: sticky; top: 0; z-index: 20;
+        padding: 12px 16px;
+        margin: -20px -16px 16px;
+        background: rgba(10,10,15,.82);
+        backdrop-filter: blur(18px) saturate(140%);
+        -webkit-backdrop-filter: blur(18px) saturate(140%);
+        border-bottom: 1px solid var(--border);
+    }
+    .app-main { padding: 20px 16px 48px; }
+    /* copilot as bottom sheet on phones */
+    .app-side-right {
+        width: 100vw; max-width: 100vw;
+        transform: translateY(100%);
+        transition: transform .3s var(--ease);
+        border-left: 0; border-top: 1px solid var(--border);
+        top: auto; bottom: 0; height: 88vh;
+        border-radius: 20px 20px 0 0;
+    }
+    .app-frame:not(.copilot-closed) .app-side-right {
+        transform: translateY(0);
+        box-shadow: 0 -20px 48px rgba(0,0,0,.55);
+    }
+    .app-side-right.closed {
+        position: fixed; bottom: 18px; right: 18px; top: auto; left: auto;
+        width: 52px; height: 52px; border-radius: 999px;
+        border: 1px solid rgba(168,85,247,.45);
+        background: linear-gradient(135deg, rgba(168,85,247,.85), rgba(126,34,206,.95));
+        box-shadow: 0 10px 28px rgba(168,85,247,.45);
+        padding: 0; align-items: center; justify-content: center;
+        animation: fade-in .25s var(--ease) both;
+    }
+    .app-side-right.closed .copilot-toggle { color: #fff; width: 100%; height: 100%; border-radius: 999px; }
+    .app-side-right.closed .copilot-toggle:hover { background: rgba(255,255,255,.15); }
 }
 
 /* Cards ------------------------------------------------------------------- */
@@ -654,10 +758,34 @@ button:focus-visible, .segmented-btn:focus-visible, .dtable th:focus-visible {
 }
 
 /* Responsive -------------------------------------------------------------- */
+@media (max-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr; gap: 14px; }
+    .dtable-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px; }
+    .dtable-scroll > table, .dtable-scroll .dtable { min-width: 720px; }
+    .row-between { flex-wrap: wrap; }
+}
 @media (max-width: 640px) {
-    h1 { font-size: 34px; }
-    h2 { font-size: 22px; }
+    h1 { font-size: 28px; line-height: 1.15; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 16px; }
     .shell { padding: 24px 16px; }
-    .card { padding: 20px; }
+    .card { padding: 18px; border-radius: 14px; }
     .topnav-inner { padding: 12px 16px; flex-wrap: wrap; }
+    .btn { padding: 10px 16px; font-size: 13px; min-height: 42px; }
+    .btn-sm { min-height: 34px; padding: 7px 12px; }
+    .input, input, textarea, select { font-size: 16px; padding: 11px 14px; } /* 16px prevents iOS zoom */
+    .row { flex-wrap: wrap; gap: 10px; }
+    .row-between > * { min-width: 0; }
+    .col { gap: 8px; }
+    .copilot-quick-btn { padding: 6px 12px; font-size: 12px; }
+    .pill, .chip { font-size: 11px; }
+    .modal-card { width: 95vw !important; max-width: 95vw !important; margin: 16px; }
+    .tab-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap !important; }
+    .tab-bar > * { flex-shrink: 0; }
+}
+
+/* Tap target hint: any button/link inside .app-main should feel tappable */
+@media (hover: none) and (pointer: coarse) {
+    .btn, .nav-item, .copilot-quick-btn { min-height: 40px; }
+    .nav-item { padding: 12px 14px; }
 }
