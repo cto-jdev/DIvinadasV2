@@ -12,6 +12,14 @@ export const runtime = 'nodejs';
 
 const FB_API = process.env.FB_API_VERSION || 'v20.0';
 
+function buildErr(req: NextRequest, tenantId: string | undefined, code: string, detail?: string): URL {
+    const u = new URL('/panel/connections', req.url);
+    if (tenantId) u.searchParams.set('tenant', tenantId);
+    u.searchParams.set('error', code);
+    if (detail) u.searchParams.set('detail', detail.slice(0, 200));
+    return u;
+}
+
 function verifyState(state: string, secret: string): { payload: string; valid: boolean } {
     const dot = state.lastIndexOf('.');
     if (dot < 0) return { payload: '', valid: false };
@@ -28,7 +36,7 @@ export async function GET(req: NextRequest) {
     const code  = req.nextUrl.searchParams.get('code');
     const state = req.nextUrl.searchParams.get('state');
     if (!code || !state) {
-        return NextResponse.redirect(new URL('/connect?error=missing_params', req.url));
+        return NextResponse.redirect(buildErr(req, undefined, 'missing_params'));
     }
 
     const secret = process.env.OAUTH_STATE_SECRET;
@@ -36,7 +44,7 @@ export async function GET(req: NextRequest) {
 
     const { payload: payloadB64, valid } = verifyState(state, secret);
     if (!valid) {
-        return NextResponse.redirect(new URL('/connect?error=bad_state', req.url));
+        return NextResponse.redirect(buildErr(req, undefined, 'bad_state'));
     }
 
     // Decode the state payload to extract the tenant_id and user_id that
@@ -49,7 +57,7 @@ export async function GET(req: NextRequest) {
         [stateTenantId, stateUserId] = parts;
         if (!stateTenantId || !stateUserId) throw new Error('incomplete payload');
     } catch {
-        return NextResponse.redirect(new URL('/connect?error=bad_state', req.url));
+        return NextResponse.redirect(buildErr(req, undefined, 'bad_state'));
     }
 
     const supa = getSupabaseService();
@@ -62,19 +70,19 @@ export async function GET(req: NextRequest) {
         .maybeSingle();
 
     if (txErr || !tx) {
-        return NextResponse.redirect(new URL('/connect?error=tx_not_found', req.url));
+        return NextResponse.redirect(buildErr(req, stateTenantId, 'tx_not_found'));
     }
     if (tx.consumed_at) {
-        return NextResponse.redirect(new URL('/connect?error=tx_replay', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'tx_replay'));
     }
     if (new Date(tx.expires_at).getTime() < Date.now()) {
-        return NextResponse.redirect(new URL('/connect?error=tx_expired', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'tx_expired'));
     }
 
     // Verify the state payload matches the DB record — prevents an attacker
     // from tricking a user into completing someone else's OAuth flow.
     if (tx.user_id !== stateUserId || tx.tenant_id !== stateTenantId) {
-        return NextResponse.redirect(new URL('/connect?error=state_mismatch', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'state_mismatch'));
     }
 
     // 1) Code → short-lived token
@@ -86,11 +94,11 @@ export async function GET(req: NextRequest) {
 
     const shortRes = await fetch(shortUrl);
     if (!shortRes.ok) {
-        return NextResponse.redirect(new URL('/connect?error=code_exchange', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'code_exchange'));
     }
     const shortJson = await shortRes.json() as { access_token?: string; error?: unknown };
     if (!shortJson.access_token) {
-        return NextResponse.redirect(new URL('/connect?error=code_exchange', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'code_exchange'));
     }
 
     // 2) Short → long-lived (60d)
@@ -102,11 +110,11 @@ export async function GET(req: NextRequest) {
 
     const longRes = await fetch(longUrl);
     if (!longRes.ok) {
-        return NextResponse.redirect(new URL('/connect?error=long_exchange', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'long_exchange'));
     }
     const longJson = await longRes.json() as { access_token?: string; expires_in?: number; error?: unknown };
     if (!longJson.access_token) {
-        return NextResponse.redirect(new URL('/connect?error=long_exchange', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'long_exchange'));
     }
 
     // 3) /me (+appsecret_proof) para datos de perfil
@@ -121,7 +129,7 @@ export async function GET(req: NextRequest) {
 
     const meRes = await fetch(meUrl);
     if (!meRes.ok) {
-        return NextResponse.redirect(new URL('/connect?error=me_fetch', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'me_fetch'));
     }
     const me = await meRes.json() as {
         id?: string;
@@ -130,7 +138,7 @@ export async function GET(req: NextRequest) {
         picture?: { data?: { url?: string } };
     };
     if (!me.id) {
-        return NextResponse.redirect(new URL('/connect?error=me_fetch', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'me_fetch'));
     }
 
     // 4) Upsert meta_connection + meta_token (RPC SECURITY DEFINER cifra)
@@ -150,7 +158,7 @@ export async function GET(req: NextRequest) {
         .single();
 
     if (connErr || !conn) {
-        return NextResponse.redirect(new URL('/connect?error=conn_save', req.url));
+        return NextResponse.redirect(buildErr(req, tx.tenant_id, 'conn_save'));
     }
 
     const expiresAt = longJson.expires_in
@@ -164,7 +172,11 @@ export async function GET(req: NextRequest) {
         p_expires_at:    expiresAt,
     });
     if (tokErr) {
-        return NextResponse.redirect(new URL('/connect?error=token_save', req.url));
+        const u = new URL('/panel/connections', req.url);
+        u.searchParams.set('tenant', tx.tenant_id);
+        u.searchParams.set('error', 'token_save');
+        u.searchParams.set('detail', tokErr.message.slice(0, 200));
+        return NextResponse.redirect(u);
     }
 
     await supa.from('oauth_transactions')

@@ -21,8 +21,12 @@ function statusPill(status: string) {
 function ConnectionsContent() {
     const sp = useSearchParams();
     const tenantId = sp.get('tenant');
+    const urlError = sp.get('error');
+    const urlDetail = sp.get('detail');
     const [conns, setConns] = useState<Conn[] | null>(null);
-    const [err, setErr] = useState<string | null>(null);
+    const [err, setErr] = useState<string | null>(
+        urlError ? `${urlError}${urlDetail ? ': ' + urlDetail : ''}` : null,
+    );
     const [connecting, setConnecting] = useState(false);
 
     const load = useCallback(async () => {
