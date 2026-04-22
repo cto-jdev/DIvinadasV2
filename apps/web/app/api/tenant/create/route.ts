@@ -1,7 +1,9 @@
 /**
  * POST /api/tenant/create  { slug, display_name }
  * Creates a tenant and adds the caller as owner (via SECURITY DEFINER RPC).
- * Uses cookie-based Supabase client so auth.uid() inside the RPC resolves.
+ * Uses cookie-based Supabase client so auth.uid() inside the RPC resolves,
+ * and propagates refreshed auth cookies back on the response so the next
+ * request doesn't see a stale/invalidated session.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -21,13 +23,18 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'validation_error', detail: parsed.error.flatten() }, { status: 400 });
     }
 
+    const res = NextResponse.next();
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
     const cookieStore = req.cookies;
     const supa = createServerClient(url, key, {
         cookies: {
             getAll: () => cookieStore.getAll().map(c => ({ name: c.name, value: c.value })),
-            setAll: () => {},
+            setAll: (cs) => {
+                cs.forEach(({ name, value, options }) => {
+                    res.cookies.set({ name, value, ...options });
+                });
+            },
         },
     });
 
@@ -53,5 +60,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'internal_error', message: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ tenant_id: data });
+    const out = NextResponse.json({ tenant_id: data });
+    res.cookies.getAll().forEach(c => out.cookies.set(c));
+    return out;
 }
