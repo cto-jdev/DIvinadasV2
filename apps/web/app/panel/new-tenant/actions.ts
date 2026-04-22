@@ -37,10 +37,6 @@ export async function createTenantAction(formData: FormData): Promise<ActionResu
 
     const svc = getSupabaseService();
 
-    const { data: existing } = await svc.from('tenants')
-        .select('id').eq('slug', slug).maybeSingle();
-    if (existing) return { ok: false, error: 'duplicate_slug' };
-
     const { data: tenant, error: insErr } = await svc.from('tenants').insert({
         slug,
         display_name,

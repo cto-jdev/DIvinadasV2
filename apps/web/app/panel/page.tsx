@@ -6,9 +6,9 @@ import { getSupabaseService } from '@/lib/supabase';
 async function getTenants(userId: string) {
     const supa = getSupabaseService();
     const { data } = await supa.from('tenant_members')
-        .select('role, tenants(id, slug, display_name)')
+        .select('role, tenants(id, slug, display_name, status)')
         .eq('user_id', userId);
-    return data ?? [];
+    return (data ?? []).filter((r: any) => r.tenants && r.tenants.status !== 'deleted');
 }
 
 export default async function PanelHome() {
