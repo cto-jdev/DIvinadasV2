@@ -38,17 +38,19 @@ export async function middleware(req: NextRequest) {
 
     const res = NextResponse.next();
 
-    const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supaKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supaUrl || !supaKey) return res;
-
-    // Fast path: no auth cookie at all → redirect to login.
+    // Fail closed: if no auth cookie, always redirect to /login regardless
+    // of env state. Missing env is a deployment bug, not a reason to leak
+    // protected pages to anonymous users.
     if (!hasSupabaseAuthCookie(req)) {
         const url = req.nextUrl.clone();
         url.pathname = '/login';
         url.searchParams.set('next', req.nextUrl.pathname);
         return NextResponse.redirect(url);
     }
+
+    const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supaKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supaUrl || !supaKey) return res;
 
     // If an auth cookie exists, attempt a refresh but do NOT redirect on
     // failure — let the page/API layer decide. This prevents false negatives

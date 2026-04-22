@@ -30,10 +30,15 @@ function LoginContent() {
         setErr(null); setLoading(true);
         const supa = getSupabaseBrowser();
         const { error } = await supa.auth.signInWithPassword({ email, password });
+        if (error) { setLoading(false); setErr(ERROR_MESSAGES[error.code ?? ''] ?? error.message); return; }
+        // Force cookie flush before navigating — without this the browser may
+        // race with the server-side middleware reading the auth cookie.
+        const { data: { session } } = await supa.auth.getSession();
         setLoading(false);
-        if (error) { setErr(ERROR_MESSAGES[error.code ?? ''] ?? error.message); return; }
+        if (!session) { setErr('No se pudo establecer la sesión. Reintenta.'); return; }
         const next = sp.get('next') ?? '/panel';
-        router.replace(next);
+        // Full reload ensures middleware and RSC see the freshly-set cookies.
+        window.location.assign(next);
     }
 
     async function loginWithGoogle() {
